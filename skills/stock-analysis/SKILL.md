@@ -1,9 +1,9 @@
 ---
-name: trading-report
+name: stock-analysis
 description: Generates a daily or weekly report for a given ticker or the general stock market.
 ---
 
-# Trading Report Skill
+# Stock Analysis
 
 This skill allows you to generate a detailed daily or weekly trading report for a specific ticker symbol or for the general stock market.
 
@@ -17,10 +17,9 @@ When the user requests a trading report, follow these systematic steps:
 - **Context**: Check if the user has specific areas of interest (e.g., option flows, technical levels).
 
 ### 2. Formulate Data Gathering Plan
-Leverage the user's existing `BBTrading` workspace or external libraries appropriately.
-- **Price Action & Volume**: Use `yfinance` or the user's database to fetch recent Open, High, Low, Close, and Volume data.
-- **Technical Analysis**: Identify moving averages, RSI, support/resistance levels. 
-- **BBT Data**: Use APIs in `/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/db_query.py` or create your own queries to fetch Options Flows, Order Flows, Spikes, and Dark Pool data.
+Use the following Python scripts located in `/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/` to fetch data. Ensure you run them with the local Python environment at `/usr/local/bin/python3`.
+- **Price Action, Volume & Technicals**: Run `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_tech_data.py <ticker> <date YYYY-MM-DD>`
+- **BBT Data (Options, Orders, Spikes, Dark Pool)**: Run `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_bbt_data.py <ticker> <date YYYY-MM-DD>`
 
 ### 3. Analyze the Data
 - Summarize the percentage change, volume, moving averages, and RSI.
@@ -34,9 +33,13 @@ Leverage the user's existing `BBTrading` workspace or external libraries appropr
 - **Dark Pool Notional Value**: The `notional_value` database column is often already stored in millions (e.g., `62.33`). If populated, use it directly as `$X.XM`. If null or `0.0`, manually calculate it as `(Price * Size) / 1,000,000`. Ensure values output to the table are scaled to millions (`$XM`).
 
 ### 4. Structure the Report
-Always present the information in a professional, well-formatted Markdown structure exactly following the sections below:
+#### Report File
+Generate report file under /Users/zhijiebian/.gemini/cli-workspace
+File name: Stock_Analysis-<ticker>-<time_range>.md
+E.g., Stock_Analysis-TSLA-2026-03-13.md, Stock_Analysis-TSLA-2026-03-09_2026-03-13.md
 
-**Template:**
+### Report Template
+Always present the information in a professional, well-formatted Markdown structure exactly following the sections below:
 ```markdown
 # 📈 Trading Report: [Ticker/Market] ([Daily/Weekly])
 **Date**: [Current Date] (Lookback: [Start Date] to [End Date])
@@ -50,7 +53,7 @@ Always present the information in a professional, well-formatted Markdown struct
 ## 2. BBT Analysis
 ### 2.1 Options Flows Analysis
 **Notable Big Flows**:
-| Date | Call/Put | Dir | Code | Premium |
+| Date & Time | Contract | Call/Put | Dir | Premium |
 |---|---|---|---|---|
 | ... | ... | ... | ... | ... |
 
