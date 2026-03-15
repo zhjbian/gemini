@@ -1,0 +1,14 @@
+# Secrets and user-specific state
+google_accounts.json
+installation_id
+state.json
+trustedFolders.json
+projects.json
+
+# Temporary files, history, and logs
+tmp/
+history/
+
+# Agent specific cache / state
+antigravity/
+.agents/
