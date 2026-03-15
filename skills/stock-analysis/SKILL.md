@@ -22,7 +22,9 @@ Use the following Python scripts located in `/Users/zhijiebian/.gemini/skills/st
 - **BBT Data (Options, Orders, Spikes, Dark Pool)**: Run `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_bbt_data.py <ticker> <date YYYY-MM-DD>`
 
 ### 3. Analyze the Data
-- Summarize the percentage change, volume, moving averages, and RSI.
+- Summarize the percentage change, volume, moving averages, and RSI into tables.
+- **MA Analysis**: Calculate the percentage difference between the current price and each MA. State what it means (e.g., Price > MA indicates Bullish short-term trend).
+- **RSI Analysis**: Evaluate RSI status (e.g., < 30 is Oversold, > 70 is Overbought, otherwise Neutral).
 - Analyze the notable big options flows and provide a bullish/bearish prediction based on total premium.
 - Analyze the big order flow trades and provide a bullish/bearish prediction.
 - Evaluate recent Spikes and Dark Pool prints.
@@ -41,14 +43,24 @@ E.g., Stock_Analysis-TSLA-2026-03-13.md, Stock_Analysis-TSLA-2026-03-09_2026-03-
 ### Report Template
 Always present the information in a professional, well-formatted Markdown structure exactly following the sections below:
 ```markdown
-# 📈 Trading Report: [Ticker/Market] ([Daily/Weekly])
+# 📈 Stack Analysis Report: [Ticker/Market] ([Daily/Weekly])
 **Date**: [Current Date] (Lookback: [Start Date] to [End Date])
 
 ## 1. General Technical Analysis
-- **Price & Metrics**: Close $..., ...% change, Volume ... (X% of 3mo avg)
-- **Moving Averages**: SMA20: $... | SMA50: $... | SMA200: $...
-- **RSI (14)**: ...
-- **Key Levels (Weekly)**: High $... / Low $...
+**Key Metrics**:
+| Metric | Value | Context/Change |
+|---|---|---|
+| **Close Price** | $... | ...% |
+| **Volume** | ...M | ...% of 3mo avg |
+| **RSI (14)** | ... | [Overbought (>70) / Oversold (<30) / Neutral] |
+| **Weekly Range**| High $... | Low $... |
+
+**Moving Averages Overview**:
+| MA | Price | Distance from Close | Trend Signal | Note |
+|---|---|---|---|---|
+| **SMA20** | $... | ...% | [Bullish (Price > MA) / Bearish (Price < MA)] | Short-term trend |
+| **SMA50** | $... | ...% | [Bullish / Bearish] | Medium-term trend |
+| **SMA200** | $... | ...% | [Bullish / Bearish] | Long-term trend, very bearish if lose |
 
 ## 2. BBT Analysis
 ### 2.1 Options Flows Analysis
