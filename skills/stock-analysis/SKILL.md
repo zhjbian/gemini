@@ -14,21 +14,37 @@ When the user requests a trading report, follow these systematic steps:
 ### 1. Identify Requirements
 - **Target**: Determine if the report is for a specific ticker (e.g., AAPL) or the general market (e.g., SPY, QQQ).
 - **Timeframe**: Determine if it is a daily or weekly report.
+- **Whether to send gmail**: default is not to send gmail
 - **Context**: Check if the user has specific areas of interest (e.g., option flows, technical levels).
 
 ### 2. Formulate Data Gathering Plan
 Use the following Python scripts located in `/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/` to fetch data. Ensure you run them with the local Python environment at `/usr/local/bin/python3`.
-- **Price Action, Volume & Technicals**: Run `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_tech_data.py <ticker> <date YYYY-MM-DD>`
-- **BBT Data (Options, Orders, Spikes, Dark Pool)**: Run `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_bbt_data.py <ticker> <date YYYY-MM-DD>`
+1. **General Market Technicals**: Fetch data for `SPY` and `^GSPC` (SPX).
+   - `/usr/local/bin/python3 .../get_tech_data.py SPY <date>`
+   - `/usr/local/bin/python3 .../get_tech_data.py ^GSPC <date>`
+2. **General Market BBT Data**: Fetch flow data for ES, NQ, and VIX.
+   - `/usr/local/bin/python3 .../get_bbt_data.py ES <date>`
+   - `/usr/local/bin/python3 .../get_bbt_data.py NQ <date>`
+   - `/usr/local/bin/python3 .../get_bbt_data.py VIX <date>`
+3. **Individual Stock Technicals**: Fetch data for the target `<ticker>`.
+4. **Individual Stock BBT Data**: Fetch flow data for the target `<ticker>`.
+5. **Catalyst Data**: Fetch upcoming market and stock-specific events.
+   - `/usr/local/bin/python3 .../get_catalyst_data.py market <date>`
+   - `/usr/local/bin/python3 .../get_catalyst_data.py stock <ticker> <date>`
 
 ### 3. Analyze the Data
-- Summarize the percentage change, volume, moving averages, and RSI into tables.
-- **MA Analysis**: Calculate the percentage difference between the current price and each MA. State what it means (e.g., Price > MA indicates Bullish short-term trend).
-- **RSI Analysis**: Evaluate RSI status (e.g., < 30 is Oversold, > 70 is Overbought, otherwise Neutral).
-- Analyze the notable big options flows and provide a bullish/bearish prediction based on total premium.
-- Analyze the big order flow trades and provide a bullish/bearish prediction.
-- Evaluate recent Spikes and Dark Pool prints.
-- Synthesize an overall final prediction combining technicals and BBT flow data.
+**Part A: S&P 500 Market Analysis**
+- **General Technical Analysis**: Analyze the price action, volume, and moving averages for SPY and SPX ONLY.
+- **BBT Analysis**: Analyze Order Flows for ES and NQ. Analyze Options Flows for VIX. Provide an overall market sentiment prediction based on this data.
+- **Market Catalysts**: Identify major economic events in the next 2 weeks using the outputs from the catalyst script.
+
+**Part B: Individual Stock Analysis (e.g. TSLA)**
+- Summarize the percentage change, volume, moving averages, and RSI into tables for the individual stock.
+- **MA Analysis**: Calculate the percentage difference between the current price and each MA. State what it means.
+- **RSI Analysis**: Evaluate RSI status (< 30 Oversold, > 70 Overbought).
+- Analyze the notable big options flows, big order flows, Spikes, and Dark Pool prints for the target stock.
+- **Stock Catalysts**: Identify company-specific events in the next 2 weeks using the outputs from the catalyst script.
+- Synthesize an overall final prediction.
 
 **Data Cleaning Rules:**
 - **Time Columns**: When fetching `trade_time` or `time` from the DB, strip out the `0 days ` prefix string if it appears (e.g., `0 days 13:02` -> `13:02`).
@@ -48,11 +64,100 @@ E.g., Stock_Analysis-TSLA-2026-03-13.html, Stock_Analysis-TSLA-2026-03-09_2026-0
 
 ### Report Template
 Always present the information in a professional, well-formatted Markdown structure exactly following the sections below. **CRITICAL: You MUST include a blank line immediately before every markdown table, otherwise the HTML parser will fail to render the table correctly.**
+
+**CRITICAL RULE ON TEMPLATE ADHERENCE:** You MUST NOT skip any headings, sections, or tables defined in this template. Even if you cannot find data for specific metrics (e.g. Upcoming Catalysts, McClellan Oscillator), you MUST include the table and heading, and simply put "N/A" or "Data tracking unavailable" in the rows. Do NOT delete or skip whole sections.
+
 ```markdown
-# 📈 Stock Analysis: [Ticker/Market] - [date or date range]
+# 📈 Market & Stock Analysis: [Ticker] - [date or date range]
 **Date**: [Current Date] (Lookback: [Start Date] to [End Date])
 
-## 1. 整体分析
+***
+
+# PART A: S&P 500 Market Overview
+
+## 1. 整体市场分析 (SPY/SPX/ES/NQ/VIX) <Chinese version, all content must be in Chinese>
+
+<table>
+<tr>
+<td><b>技术分析 (SPY/SPX)</b></td>
+<td><b>看多 / 看空</b></td>
+<td>&lt;高度总结的原因 based on SPY/SPX Price vs SMA, RSI, EMA&gt;</td>
+</tr>
+<tr>
+<td><b>BBT分析 (ES/NQ/VIX)</b></td>
+<td><b>看多 / 看空</b></td>
+<td>&lt;高度总结的原因 based on ES/NQ Order Flows and VIX Options Flows&gt;</td>
+</tr>
+</table>
+
+**结论**: [Combine technicals + BBT data into one final synthesized market outlook]
+
+## 2. Overall Market Analysis (SPY/SPX/ES/NQ/VIX) <English version, all content must be in English>
+
+<table>
+<tr>
+<td><b>Technical Analysis (SPY/SPX)</b></td>
+<td><b>Bullish / Bearish</b></td>
+<td>&lt;Summarize the reason based on SPY/SPX Price vs SMA, RSI, EMA&gt;</td>
+</tr>
+<tr>
+<td><b>BBT Analysis (ES/NQ/VIX)</b></td>
+<td><b>Bullish / Bearish</b></td>
+<td>&lt;Summarize the reason based on ES/NQ Order Flows and VIX Options Flows&gt;</td>
+</tr>
+</table>
+
+**Conclusion**: [Combine technicals + BBT data into one final synthesized market outlook]
+
+## 3. Upcoming Market Catalysts (Next 2 Weeks)
+List major economic events (e.g., CPI, PPI, Non-farm employment, FOMC meetings) that could impact the broader market.
+
+| Date | Event / Catalyst | Expected Impact |
+|---|---|---|
+| ... | ... | ... |
+
+## 4. Market Technical Analysis (SPY & SPX)
+**Key Metrics**:
+
+| Ticker | Close Price | % Change | Volume | RSI (14) | McClellan Osc. |
+|---|---|---|---|---|---|
+| **SPY** | $... | ...% | ...M | ... | ... |
+| **SPX** | $... | ...% | ...M | ... | ... |
+
+**Moving Averages Overview**:
+
+| Ticker | MA | Price | Distance | Trend Signal | Note |
+|---|---|---|---|---|---|
+| **SPY** | SMA20 | $... | ...% | [Bullish/Bearish] | Short-term |
+| **SPY** | SMA50 | $... | ...% | [Bullish/Bearish] | Medium-term |
+| **SPY** | SMA200| $... | ...% | [Bullish/Bearish] | Long-term |
+*(Repeat for SPX if appropriate)*
+
+## 5. Market BBT Analysis
+### 5.1 Order Flows (ES & NQ)
+**Big Order Flow Trades**:
+
+| Date & Time | Ticker | Side | Type | Volume | Price | Value |
+|---|---|---|---|---|---|---|
+| ... | ES | ... | ... | ... | ... | ... |
+| ... | NQ | ... | ... | ... | ... | ... |
+
+**Prediction**: [Overall Bullish or Bearish prediction for the market based on ES/NQ Orders]
+
+### 5.2 Options Flows (VIX)
+**Notable Big Flows**:
+
+| Date & Time | Contract | Call/Put | Dir | Premium | Code | Sprd |
+|---|---|---|---|---|---|---|
+| ... | VIX | ... | ... | ... | ... | ... |
+
+**Prediction**: [Volatility overall prediction based on VIX Options]
+
+***
+
+# PART B: Individual Stock Analysis ([Ticker])
+
+## 1. 整体分析 ([Ticker]) <Chinese version, all content must be in Chinese>
 
 <table>
 <tr>
@@ -69,24 +174,31 @@ Always present the information in a professional, well-formatted Markdown struct
 
 **结论**: [Combine technicals + BBT data into one final synthesized outlook]
 
-## 2. Overall Analysis
+## 2. Overall Analysis <English version, all content must be in English>
 
 <table>
 <tr>
-<td><b>Technicals</b></td>
+<td><b>Technical Analysis</b></td>
 <td><b>Bullish / Bearish</b></td>
-<td>&lt;高度总结的原因 based on Price vs SMA, RSI, EMA&gt;</td>
+<td>&lt;Summarize the reason based on Price vs SMA, RSI, EMA&gt;</td>
 </tr>
 <tr>
-<td><b>BBT</b></td>
+<td><b>BBT Analysis</b></td>
 <td><b>Bullish / Bearish</b></td>
-<td>&lt;高度总结的原因 based on Options flows, Orders flows, Spikes, Dark Pool&gt;</td>
+<td>&lt;Summarize the reason based on Options flows, Orders flows, Spikes, Dark Pool&gt;</td>
 </tr>
 </table>
 
 **Conclusion**: [Combine technicals + BBT data into one final synthesized outlook]
 
-## 3. General Technical Analysis
+## 3. Upcoming Stock Catalysts (Next 2 Weeks)
+List company-specific events (e.g., Earnings reports, new product launches, announcements).
+
+| Date | Event / Catalyst | Expected Impact |
+|---|---|---|
+| ... | ... | ... |
+
+## 4. General Technical Analysis
 **Key Metrics**:
 
 | Metric | Value | Context/Change |
@@ -95,6 +207,7 @@ Always present the information in a professional, well-formatted Markdown struct
 | **Volume** | ...M | ...% of 3mo avg |
 | **RSI (14)** | ... | [Overbought (>70) / Oversold (<30) / Neutral] |
 | **Weekly Range**| High $... | Low $... |
+| **McClellan Oscillator** | ... | [Breadth Context / Signal] |
 
 **Moving Averages Overview**:
 
@@ -104,17 +217,17 @@ Always present the information in a professional, well-formatted Markdown struct
 | **SMA50** | $... | ...% | [Bullish / Bearish] | Medium-term trend |
 | **SMA200** | $... | ...% | [Bullish / Bearish] | Long-term trend, very bearish if lose |
 
-## 3. BBT Analysis
-### 2.1 Options Flows
+## 5. BBT Analysis
+### 5.1 Options Flows
 **Notable Big Flows**:
 
-| Date & Time | Contract | Call/Put | Dir | Premium |
-|---|---|---|---|---|
-| ... | ... | ... | ... | ... |
+| Date & Time | Contract | Call/Put | Dir | Premium | Code | Sprd |
+|---|---|---|---|---|---|---|
+| ... | ... | ... | ... | ... | ... | ... |
 
 **Prediction**: [Overall Bullish or Bearish prediction based on Options]
 
-### 2.2 Order Flows
+### 5.2 Order Flows
 **Big Order Flow Trades**:
 
 | Date & Time | Side | Type | Volume | Price | Value |
@@ -123,14 +236,14 @@ Always present the information in a professional, well-formatted Markdown struct
 
 **Prediction**: [Overall Bullish or Bearish prediction based on Orders]
 
-### 2.3 Spikes
+### 5.3 Spikes
 **Recent Spikes**:
 
 | Date & Time | Dir | Target Price | Spot Price | Volume | Prev Close |
 |---|---|---|---|---|---|
 | ... | ... | ... | ... | ... | ... |
 
-### 2.4 Dark Pool
+### 5.4 Dark Pool
 **Prints**:
 
 | Date & Time | Type | Price | Size | Notional Value |
@@ -140,6 +253,7 @@ Always present the information in a professional, well-formatted Markdown struct
 ```
 
 ## Generate HTML & Send Email
+If use asks to send gmail, do below, otherwise don't send.
 After generating the markdown report, create and run the following python script to reliably convert the markdown to HTML, apply inline CSS for table formatting and row colors (crucial for Gmail), and send the email:
 
 ```python

@@ -21,7 +21,9 @@ try:
         options['transac_date'] = options['transac_date'].astype(str)
         df = options[options['transac_date'].str.contains(target_date_str)]
         for _, row in df.iterrows():
-            print(f"Time: {row['transac_time']} | Contract: {row['contract']} | Side: {row['side']} | Sentiment: {row['sentiment']} | Premium: {row['premium']} | Dir: {row['dir']}")
+            code = row.get('code', 'N/A')
+            sprd_id = row.get('sprd_id', 'N/A')
+            print(f"Time: {row['transac_time']} | Contract: {row['contract']} | Side: {row['side']} | Sentiment: {row['sentiment']} | Premium: {row['premium']} | Dir: {row['dir']} | Code: {code} | Sprd: {sprd_id}")
 except Exception as e:
     print(f"Error querying Options: {e}")
 
