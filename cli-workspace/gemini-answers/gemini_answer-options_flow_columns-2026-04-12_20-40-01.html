@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemini Answer - options_flow_columns</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* TOC Styles */
+    .toc {
+      background: #faf8f5;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .toc .toctitle {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: toc-counter;
+    }
+    .toc ul ul {
+      padding-left: 20px;
+    }
+    .toc li {
+      margin-bottom: 6px;
+    }
+    .toc li::before {
+      counter-increment: toc-counter;
+      content: counters(toc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 500;
+      margin-right: 6px;
+    }
+    .toc a {
+      color: var(--ink);
+    }
+    .toc a:hover {
+      color: var(--accent);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <article class="card">
+      <header>
+        <h1>Gemini Answer</h1>
+        <div class="meta">
+          <span>Saved: 2026-04-12 20:40:01</span>
+          <span>Question summary: options_flow_columns</span>
+        </div>
+      </header>
+      <section>
+        <h2>Question</h2>
+        <p>Convert options_flow_columns.txt to a well-formatted HTML document.</p>
+      </section>
+      <section>
+        <h2>Answer</h2>
+        <div class="toc">
+<ul>
+<li><a href="#core-trade-details">Core Trade Details</a></li>
+<li><a href="#execution-market-context">Execution &amp; Market Context</a></li>
+<li><a href="#sentiment-analysis-fields">Sentiment &amp; Analysis Fields</a></li>
+<li><a href="#summary-system-fields">Summary / System Fields</a></li>
+<li><a href="#execution-context-trustability">Execution Context &amp; Trustability</a></li>
+<li><a href="#importance-tracking">Importance &amp; Tracking</a></li>
+<li><a href="#system-ui-flags">System &amp; UI Flags</a></li>
+</ul>
+</div>
+<h2 id="core-trade-details">Core Trade Details</h2>
+<ul>
+<li><strong>transac_date / transac_time</strong>: The date and exact time the option flow occurred.</li>
+<li><strong>ticker</strong>: The stock symbol (e.g., TSLA).</li>
+<li><strong>expiration</strong>: The expiration date of the option contract (e.g., Apr 17, 2026).</li>
+<li><strong>strike</strong>: The strike price of the option (e.g., $550).</li>
+<li><strong>call_put</strong>: <code>C</code> for Call, <code>P</code> for Put.</li>
+<li><strong>price</strong>: The execution price of the option contract.</li>
+<li><strong>qty</strong>: The number of contracts traded in this flow.</li>
+<li><strong>premium</strong>: The total premium value of the trade in <strong>millions of dollars</strong>. For example, a value of <code>1.51</code> means $1.51 Million.</li>
+<li><strong>spot_price</strong>: The price of the underlying stock (TSLA) at the exact time the trade occurred.</li>
+<li><strong>dte</strong>: Days To Expiration for the contract.</li>
+<li><strong>contract</strong>: The standard OCC option symbol (e.g., <code>.TSLA260320P550</code>).</li>
+<li><strong>volume</strong>: Typically represents the cumulative volume for that specific contract for the day up to that point.</li>
+</ul>
+<h2 id="execution-market-context">Execution &amp; Market Context</h2>
+<ul>
+<li><strong>side</strong>: The side of the bid-ask spread where the trade executed. Values include <code>A</code> (Ask), <code>B</code> (Bid), <code>AA</code> (Above Ask), <code>BB</code> (Below Bid), and <code>M</code> (Midprint).</li>
+<li><strong>bid_ask</strong>: The quote (bid x ask) at the time of the trade (e.g., <code>385.20x388.40</code>).</li>
+<li><strong>cons_type</strong>: The type of trade execution used by the institution. Values: <code>SWEEP</code> (lifting multiple exchanges), <code>BLOCK</code> (single block trade), <code>SPLIT</code>.</li>
+<li><strong>code</strong>: Exchange condition codes associated with the trade (e.g., <code>N.TIED_MULTI_AUTO_COB</code>, <code>N.M2M_FLR</code>).</li>
+<li>The trade execution type (QuantData internal codes, can be M2M_FLR, FLR, MULTI_CROSS, MULTI_AUTO_COB). </li>
+<li>The prefix <code>D.</code> and <code>N.</code> is a proprietary decoration:<ul>
+<li><code>D.</code> means the direction (buy or sell) derived from execution price and bid-ask price is inherently directional; the likelihood of the direction being correct is high and it is trustable.</li>
+<li><code>N.</code> means the direction is not trustable.</li>
+</ul>
+</li>
+<li><strong>sprd_id</strong>: A unique hash/ID (e.g., <code>bea223b6</code>) used to tie together multiple legs of a complex spread trade.</li>
+</ul>
+<h2 id="sentiment-analysis-fields">Sentiment &amp; Analysis Fields</h2>
+<ul>
+<li><strong>sentiment</strong>: Directional indication. Values: <code>Bullish</code>, <code>Bearish</code>, <code>Neutral</code>.</li>
+<li><strong>sentiment_type</strong>: Qualifiers for the sentiment strength, like <code>Strong</code>, <code>Weak</code>, <code>N.Weak</code> (Net Weak), <code>N.Strong</code>.</li>
+<li><strong>net_premium</strong>: The directional net premium in millions. Usually positive for bullish trades (e.g., buying a call) and negative for bearish trades (e.g., buying a put).</li>
+<li><strong>size</strong>: A categorical label for the relative size of the trade (e.g., <code>Big</code>, <code>Tiny</code>).</li>
+<li><strong>dir</strong>: Broad direction (<code>Bull</code> or <code>Bear</code>).</li>
+<li><strong>action</strong>: Can show <code>Open</code> when the algorithm suspects the flow is opening a new position rather than closing one.</li>
+</ul>
+<h2 id="summary-system-fields">Summary / System Fields</h2>
+<ul>
+<li><strong>is_summary</strong>: A boolean flag (1 or 0). When 1, the row represents an aggregated end-of-day summary rather than a single trade. In these rows, <code>sentiment</code> often holds aggregate metrics (like <code>BP: 633.0</code> for Bear Premium) instead of a text value.</li>
+<li><strong>cc</strong>: This appears to be an auto-incrementing counter or index for the day's flows for this ticker.</li>
+<li><strong>level</strong>: Integer tracking the importance/size tier of the flow based on your comments (<code>100</code> = tracking, <code>20</code> = big flow, etc.).</li>
+<li><strong>note</strong>: Contains system notes like "Repeat X" for repetitive identical trades.</li>
+<li><strong>is_onchart / is_opex</strong>: Boolean flags used to track whether this flow should be plotted on a chart, or whether it aligns with monthly OPEX.</li>
+</ul>
+<h2 id="execution-context-trustability">Execution Context &amp; Trustability</h2>
+<ul>
+<li><strong>code</strong>: Represents the underlying execution type from QuantData (e.g., <code>M2M_FLR</code>, <code>MULTI_CROSS</code>, <code>MULTI_AUTO_COB</code>, <code>AUTO</code>).</li>
+<li><strong>Prefix <code>D.</code></strong>: The underlying execution type itself is inherently directional, meaning you can trust the derived direction (buy vs. sell). <em>(e.g., <code>D.AUTO</code> means AUTO is a reliable type)</em>.</li>
+<li><strong>Prefix <code>N.</code></strong>: The underlying execution type is not reliable for deducing direction, so the derived buy/sell signal shouldn't be fully trusted.</li>
+<li><strong>sentiment_type</strong>: Indicates the specific action (buying vs. selling) combined with the directional bias.</li>
+<li><strong><code>Strong</code></strong>: The initiator is <em>buying</em> the contract. (e.g., <code>Strong Bullish</code> = Buying Calls, <code>Strong Bearish</code> = Buying Puts).</li>
+<li><strong><code>Weak</code></strong>: The initiator is <em>selling</em> the contract. (e.g., <code>Weak Bullish</code> = Selling Puts, <code>Weak Bearish</code> = Selling Calls).</li>
+<li><strong>Prefix <code>N.</code></strong>: The execution price occurred in the <em>middle third</em> of the bid-ask spread, making the derived buying/selling action less reliable.</li>
+<li><strong>net_premium</strong>: The overall total premium for a given contract if there are multiple trades.</li>
+<li><strong>Positive (+)</strong>: Overall Bullish premium.</li>
+<li><strong>Negative (-)</strong>: Overall Bearish premium.</li>
+</ul>
+<h2 id="importance-tracking">Importance &amp; Tracking</h2>
+<ul>
+<li><strong>level</strong>: Custom classification tier denoting the importance of the trade:</li>
+<li><strong><code>110</code> (Turn)</strong>: <em>Most important.</em> Can mark a medium-term trend reversal.</li>
+<li><strong><code>105</code> (TurnRetired)</strong>: A previous Turn trade that is no longer active.</li>
+<li><strong><code>100</code> (Track)</strong>: <em>Second most important.</em> Used to actively track daily Open Interest changes to monitor if the trade is being closed.</li>
+<li><strong><code>95</code> (TrackRetired)</strong>: A previous Track trade that is no longer active.</li>
+<li><strong><code>90</code> (RollClosed)</strong>: The position was rolled or closed.</li>
+<li><strong><code>60</code> (Invalid)</strong>: Bad or irrelevant data.</li>
+<li><strong><code>50</code> (HugeNoDir)</strong>: Massive trade, but the directional intent is unclear.</li>
+<li><strong><code>30</code> (Large) / <code>20</code> (Medium) / <code>10</code> (Small)</strong>: Size classifications for standard flows.</li>
+<li><strong>is_onchart</strong>: A flag used to mark globally important trades that should be visually plotted on your charts.</li>
+</ul>
+<h2 id="system-ui-flags">System &amp; UI Flags</h2>
+<ul>
+<li><strong>is_summary</strong>: Indicates that the row is the single end-of-day aggregated summary record rather than an individual option trade.</li>
+<li><strong>cc</strong>: (Color Code). An internal identifier used by your local web app to color-coordinate identical contracts in the UI tables. (Safe to ignore for pure data analysis).</li>
+</ul>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,58 @@
+Core Trade Details
+	•	transac_date / transac_time: The date and exact time the option flow occurred.
+	•	ticker: The stock symbol (TSLA).
+	•	expiration: The expiration date of the option contract (e.g., Apr 17, 2026).
+	•	strike: The strike price of the option (e.g., $550).
+	•	call_put: C for Call, P for Put.
+	•	price: The execution price of the option contract.
+	•	qty: The number of contracts traded in this flow.
+	•	premium: The total premium value of the trade in millions of dollars. For example, a value of 1.51 means $1.51 Million.
+	•	spot_price: The price of the underlying stock (TSLA) at the exact time the trade occurred.
+	•	dte: Days To Expiration for the contract.
+	•	contract: The standard OCC option symbol (e.g., .TSLA260320P550).
+	•	volume: Typically represents the cumulative volume for that specific contract for the day up to that point.
+Execution & Market Context
+	•	side: The side of the bid-ask spread where the trade executed. Values include A (Ask), B (Bid), AA (Above Ask), BB (Below Bid), and M (Midprint).
+	•	bid_ask: The quote (bid x ask) at the time of the trade (e.g., 385.20x388.40).
+	•	cons_type: The type of trade execution used by the institution. Values: SWEEP (lifting multiple exchanges), BLOCK (single block trade), SPLIT.
+	•	code: Exchange condition codes associated with the trade (e.g., N.TIED_MULTI_AUTO_COB, N.M2M_FLR).
+	◦	the trade execution type, these are the QuantData internal codes, can be M2M_FLR, FLR, MULTI_CROSS, MULTI_AUTO_COB, the prefix 'D.' and 'N.' is my own decoration, 'D.' means the direction (buy or sell) derived from exection price and bid-ask price is directional, the likelihood of the direction being correct is high, it is likely trustable; 'N.' means the direction is not trustable.
+	•	ç: A unique hash/ID (e.g., bea223b6) used to tie together multiple legs of a complex spread trade.
+Sentiment & Analysis Fields
+	•	sentiment: Directional indication. Values: Bullish, Bearish, Neutral.
+	•	sentiment_type: Qualifiers for the sentiment strength, like Strong, Weak, N.Weak (Net Weak), N.Strong.
+	•	net_premium: The directional net premium in millions. Usually positive for bullish trades (e.g., buying a call) and negative for bearish trades (e.g., buying a put).
+	•	size: A categorical label for the relative size of the trade (e.g., Big, Tiny).
+	•	dir: Broad direction (Bull or Bear).
+	•	action: Can show Open when the algorithm suspects the flow is opening a new position rather than closing one.
+Summary / System Fields
+	•	is_summary: A boolean flag (1 or 0). When 1, the row represents an aggregated end-of-day summary rather than a single trade. In these rows, sentiment often holds aggregate metrics (like BP: 633.0 for Bear Premium) instead of a text value.
+	•	cc: This appears to be an auto-incrementing counter or index for the day's flows for this ticker.
+	•	level: Integer tracking the importance/size tier of the flow based on your comments (100 = tracking, 20 = big flow, etc.).
+	•	note: Contains system notes like "Repeat X" for repetitive identical trades.
+	•	is_onchart / is_opex: Boolean flags used to track whether this flow should be plotted on a chart, or whether it aligns with monthly OPEX.
+Execution Context & Trustability
+	•	code: Represents the underlying execution type from QuantData (e.g., M2M_FLR, MULTI_CROSS, MULTI_AUTO_COB, AUTO).
+	◦	Prefix D.: The underlying execution type itself is inherently directional, meaning you can trust the derived direction (buy vs. sell). (e.g., D.AUTO means AUTO is a reliable type).
+	◦	Prefix N.: The underlying execution type is not reliable for deducing direction, so the derived buy/sell signal shouldn't be fully trusted.
+	•	sentiment_type: Indicates the specific action (buying vs. selling) combined with the directional bias.
+	◦	Strong: The initiator is buying the contract. (e.g., Strong Bullish = Buying Calls, Strong Bearish = Buying Puts).
+	◦	Weak: The initiator is selling the contract. (e.g., Weak Bullish = Selling Puts, Weak Bearish = Selling Calls).
+	◦	Prefix N.: The execution price occurred in the middle third of the bid-ask spread, making the derived buying/selling action less reliable.
+	•	net_premium: The overall total premium for a given contract if there are multiple trades.
+	◦	Positive (+): Overall Bullish premium.
+	◦	Negative (-): Overall Bearish premium.
+Importance & Tracking
+	•	level: Your custom classification tier denoting the importance of the trade:
+	◦	110 (Turn): Most important. Can mark a medium-term trend reversal.
+	◦	105 (TurnRetired): A previous Turn trade that is no longer active.
+	◦	100 (Track): Second most important. Used to actively track daily Open Interest changes to monitor if the trade is being closed.
+	◦	95 (TrackRetired): A previous Track trade that is no longer active.
+	◦	90 (RollClosed): The position was rolled or closed.
+	◦	60 (Invalid): Bad or irrelevant data.
+	◦	50 (HugeNoDir): Massive trade, but the directional intent is unclear.
+	◦	30 (Large) / 20 (Medium) / 10 (Small): Size classifications for standard flows.
+	•	is_onchart: A flag used to mark globally important trades that should be visually plotted on your charts.
+System & UI Flags
+	•	is_summary: Indicates that the row is the single end-of-day aggregated summary record rather than an individual option trade.
+	•	cc: (Color Code). An internal identifier used by your local web app to color-coordinate identical contracts in the UI tables. (Safe to ignore for pure data analysis).

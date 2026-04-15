@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gemini Answer - smi_daily_chart_noise_filter</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* TOC Styles */
+    .toc {
+      background: #faf8f5;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .toc .toctitle {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+    .toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: toc-counter;
+    }
+    .toc ul ul {
+      padding-left: 20px;
+    }
+    .toc li {
+      margin-bottom: 6px;
+    }
+    .toc li::before {
+      counter-increment: toc-counter;
+      content: counters(toc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 500;
+      margin-right: 6px;
+    }
+    .toc a {
+      color: var(--ink);
+    }
+    .toc a:hover {
+      color: var(--accent);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <article class="card">
+      <header>
+        <h1>Gemini Answer</h1>
+        <div class="meta">
+          <span>Saved: 2026-04-11 20:54:47</span>
+          <span>Question summary: smi_daily_chart_noise_filter</span>
+        </div>
+      </header>
+      <section>
+        <h2>Question</h2>
+        <p>SMI 在daily chart上 怎么调整参数 过滤到噪音 更可能发现真的顶部和底部</p>
+      </section>
+      <section>
+        <h2>Answer</h2>
+        <div class="toc">
+<ul>
+<li><a href="#21-5-8">组合一：波段过滤型 (21, 5, 8) —— 推荐⭐</a></li>
+<li><a href="#50-8-13">组合二：宏观趋势型 (50, 8, 13)</a></li>
+<li><a href="#_1">💡 核心调整逻辑（授人以渔）：</a></li>
+</ul>
+</div>
+<p><img alt="TSLA Daily Chart Settings" src="images/smi_daily_chart_settings.png"></p>
+<p>在你提供的日线图截图中，当前的参数是 <code>10, 3, 5</code> (K长度10，平滑期3和5)。</p>
+<p><strong>为什么你现在会看到这么多密集的噪音（那么多小红峰和小绿峰）？</strong><br>
+因为 <code>10</code> 作为一个日线参数实在是<strong>太短了</strong>。这等于它只计算过去过去两周的最高价和最低价。这意味着哪怕特斯拉只是经历一个正常的三天级别的小回调，SMI 就会被立刻打到超买或超卖区域，从而产生大量的“虚假”抄底逃顶信号。</p>
+<p>要过滤掉日线级别的噪音，去抓取 <strong>真正的波段大顶和大底</strong>，你需要“拉长镜头，加大阻力”，也就是把指标参数变<strong>重、变慢</strong>。</p>
+<p>下面为你提供两套实战中最常用的“降噪/宏观”参数组合，你可以直接在 TradingView 里替换测试：</p>
+<hr>
+<h3 id="21-5-8">组合一：波段过滤型 (21, 5, 8) —— 推荐⭐</h3>
+<p>这是日线上最常用的平衡型参数，专门用来抓持续 1 到 3 个月的波段大拐点。</p>
+<ul>
+<li><strong>Percent K Length = 21</strong> （将10改为21，代表刚好覆盖大约<strong>一个交易月</strong>的高低点跨度）</li>
+<li><strong>Percent D Length = 5</strong> （稍微增强平滑度）</li>
+<li><strong>Smoothing Period = 8</strong> （增强二次平滑因子，过滤日内插针）</li>
+<li><strong>效果：</strong> 采用这套参数后，图表上下边沿的碎渣小峰会神奇地消失，SMI 会变成很长、很平滑的大波浪。只有级别足够大的上涨或下跌，才能让它去触碰 <code>+40</code> 或 <code>-40</code> 的极限。</li>
+</ul>
+<h3 id="50-8-13">组合二：宏观趋势型 (50, 8, 13)</h3>
+<p>如果你想做大周期的“左侧抄大底”或者“见大顶必跑”，可以采用这套迟钝但极具杀伤力的参数。</p>
+<ul>
+<li><strong>Percent K Length = 50</strong> （拉长到接近<strong>两个半月</strong>的跨度，这恰好是很多庄家建仓和派发的周期）</li>
+<li><strong>Percent D / Smoothing = 8, 13</strong> （使用强平滑过滤）</li>
+<li><strong>效果：</strong> 这套参数下，SMI 可能一年只有 2 到 3 次 能摸到 <code>+40</code> 或 <code>-40</code>。但一旦它到了极限并且发生了死叉或顶底背离，那往往是历史级别的主升浪结束，或者惨烈暴跌的主跌浪结束。</li>
+</ul>
+<hr>
+<h3 id="_1">💡 核心调整逻辑（授人以渔）：</h3>
+<ol>
+<li><strong>想过滤震荡噪音：先改 <code>K Length</code></strong><br>
+    把窗口期加大（从 10 放大到 20以上）。这就相当于把池子挖深了，扔个小石子（日内随机暴涨暴跌）激不起浪花，只有大风暴才能掀动指标。</li>
+<li><strong>想指标曲线圆滑无死角：改 <code>D</code> 和 <code>Smoothing</code> 周期</strong><br>
+    如果你发现指标上下乱穿 0 轴导致频繁的金叉死叉，就把这两个 EMA 参数放大。通常使用斐波那契数列（如 3,5 换成 5,8 或 8,13）可以让曲线拥有完美的物理惯性，不容易被一两天的假阴或假阳线骗出系统。</li>
+</ol>
+<p><strong>建议接下来的操作：</strong><br>
+你现在就在图表里打开设置，把 <code>10, 3, 5</code> 分别改成 <code>21, 5, 8</code>。然后你对比一下在这个垂直红线虚线处的形态，你会发现那些小级别的虚假超卖全被抹平了，而真正的宏观顶部/背离结构会被拉勒得异常清晰！</p>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

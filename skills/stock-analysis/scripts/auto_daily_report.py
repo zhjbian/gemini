@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python3
 """
 auto_daily_report.py - Automated Stock Analysis Report Generator
 
@@ -29,7 +29,9 @@ from py_lib.sms import BBSms
 from py_lib.bb_date_time import BBDateTime
 
 # Default model - can be overridden via --model flag
-DEFAULT_MODEL = "gemini-2.5-flash"
+# DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-2.5-pro"
+# DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
 
 def run_script(script_path, *args):
     result = subprocess.run(
@@ -67,28 +69,75 @@ def generate_report(ticker, date_str, model_name=DEFAULT_MODEL, send_email=False
     nq_bbt = run_script(bbt_script, "NQ", date_str)
     vix_bbt = run_script(bbt_script, "VIX", date_str)
     
-    investing_cal_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_investing_cal.py"
-    catalyst_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_catalyst_data.py"
+    # investing_cal_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_investing_cal.py"
+    # catalyst_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_catalyst_data.py"
     
-    market_catalysts = run_script(investing_cal_script, date_str)
-    stock_catalysts = run_script(catalyst_script, "stock", ticker, date_str)
+    # market_catalysts = run_script(investing_cal_script, date_str)
+    # stock_catalysts = run_script(catalyst_script, "stock", ticker, date_str)
         
+    # Institutional Flow Scripts
+    fetch_options_script = "/Users/zhijiebian/.gemini/skills/options-flow-analysis/scripts/fetch_options_flow.py"
+    fetch_spikes_script = "/Users/zhijiebian/.gemini/skills/spike-analysis/scripts/fetch_spikes.py"
+    
+    options_flow_data = run_script(fetch_options_script, ticker, date_str)
+    spikes_data = run_script(fetch_spikes_script, ticker, date_str)
+    
+    spy_spikes = run_script(fetch_spikes_script, "SPY", date_str)
+    qqq_spikes = run_script(fetch_spikes_script, "QQQ", date_str)
+
+
     # Read the latest skill instructions directly to ensure the AI uses the exact formatting
     skill_path = "/Users/zhijiebian/.gemini/skills/stock-analysis/SKILL.md"
     try:
         with open(skill_path, "r", encoding="utf-8") as f:
             skill_content = f.read()
     except Exception as e:
-        print(f"Could not read SKILL.md: {e}")
+        print(f"Could not read stock-analysis SKILL.md: {e}")
         skill_content = "Please format as a professional trading report."
+        
+    # Read sub-skill instructions (Options Flow & Spikes)
+    try:
+        with open("/Users/zhijiebian/.gemini/skills/options-flow-analysis/SKILL.md", "r", encoding="utf-8") as f:
+            opts_skill_content = f.read()
+    except:
+        opts_skill_content = "Analyze options flows."
+        
+    try:
+        with open("/Users/zhijiebian/.gemini/skills/spike-analysis/SKILL.md", "r", encoding="utf-8") as f:
+            spikes_skill_content = f.read()
+    except:
+        spikes_skill_content = "Analyze spikes."
+
         
     # 2. Build Prompt
     prompt = f"""
 You are an expert stock market analyst. Generate a highly professional trading report for {ticker} based on the raw data provided below.
 
-CRITICAL INSTRUCTION: You MUST follow the exact markdown table structures and rules defined in these skill instructions:
+### 1. REPORT LAYOUT & FORMATTING RULES
+You MUST follow the exact markdown structures (headings, tables, and bullet points) defined in the Master Skill instructions below. 
+- **NO MASHING**: Every metric (Direction, Rating, etc.) MUST be on a new line with its own bullet point.
+- **HEADERS**: Use `#### Trade: [Time] ...` or `#### [Time] (Magnet) ...` headers for each individual trade or spike found.
+- **SPACING**: Insert an empty line between every individual trade group or spike target.
+
+
+=== MASTER REPORT TEMPLATE (LAYOUT ONLY) ===
 {skill_content}
 
+---
+
+### 2. ANALYTICAL LOGIC RULES
+The master template requires you to identify "High Priority Trades" and "Magnets". Use the following specific sub-skill rules ONLY for the logic of classifying and identifying these signals.
+
+=== OPTIONS ANALYSIS LOGIC (SIGNAL IDENTIFICATION ONLY) ===
+{opts_skill_content}
+
+=== SPIKE ANALYSIS LOGIC (SIGNAL IDENTIFICATION ONLY) ===
+{spikes_skill_content}
+
+
+---
+
+### 3. RAW DATA
 Date: {date_str}
 
 === PART A: S&P 500 MARKET RAW DATA ===
@@ -107,8 +156,13 @@ NQ Flow Data (Use Orders Only):
 VIX Flow Data (Use Options Only):
 {vix_bbt}
 
-Market Catalysts:
-{market_catalysts}
+SPY RAW SPIKES:
+{spy_spikes}
+
+QQQ RAW SPIKES:
+{qqq_spikes}
+
+
 
 === PART B: INDIVIDUAL STOCK RAW DATA ({ticker}) ===
 RAW TECHNICAL DATA:
@@ -117,8 +171,12 @@ RAW TECHNICAL DATA:
 RAW BBT FLOW DATA:
 {bbt_data}
 
-STOCK CATALYSTS:
-{stock_catalysts}
+
+RAW OPTIONS FLOW DATA:
+{options_flow_data}
+
+RAW SPIKES MAGNET DATA:
+{spikes_data}
 """
 
     print(f"Calling Gemini API ({model_name}) to analyze the data...")
@@ -147,7 +205,7 @@ STOCK CATALYSTS:
         return
     
     # 4. Save markdown report locally
-    output_dir = "/Users/zhijiebian/.gemini/cli-workspace"
+    output_dir = "/Users/zhijiebian/.gemini/cli-workspace/stock-analysis"
     os.makedirs(output_dir, exist_ok=True)
     md_path = f"{output_dir}/Stock_Analysis-{ticker}-{date_str}.md"
     html_path = f"{output_dir}/Stock_Analysis-{ticker}-{date_str}.html"

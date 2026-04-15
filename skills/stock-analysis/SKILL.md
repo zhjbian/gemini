@@ -1,4 +1,4 @@
----
+[^1]---
 name: stock-analysis
 description: Generates a daily or weekly report for a given ticker or the general stock market.
 ---
@@ -22,28 +22,28 @@ Use the following Python scripts located in `/Users/zhijiebian/.gemini/skills/st
 1. **General Market Technicals**: Fetch data for `SPY` and `^GSPC` (SPX).
    - `/usr/local/bin/python3 .../get_tech_data.py SPY <date>`
    - `/usr/local/bin/python3 .../get_tech_data.py ^GSPC <date>`
-2. **General Market BBT Data**: Fetch flow data for ES, NQ, and VIX.
-   - `/usr/local/bin/python3 .../get_bbt_data.py ES <date>`
-   - `/usr/local/bin/python3 .../get_bbt_data.py NQ <date>`
-   - `/usr/local/bin/python3 .../get_bbt_data.py VIX <date>`
+2. **General Market BBT Data**: Fetch market-wide institutional data using specialized scripts.
+   - **Order Flow (ES/NQ)**: `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/order-flow-big-trade-analysis/scripts/fetch_big_trades.py <date>`
+   - **Volatility Options (VIX)**: `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/options-flow-analysis/scripts/fetch_options_flow.py VIX <date>`
+   - **Market Spikes (SPY/QQQ)**: `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/spike-analysis/scripts/fetch_spikes.py SPY <date>` and `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/spike-analysis/scripts/fetch_spikes.py QQQ <date>`
 3. **Individual Stock Technicals**: Fetch data for the target `<ticker>`.
-4. **Individual Stock BBT Data**: Fetch flow data for the target `<ticker>`.
-5. **Catalyst Data**: Fetch upcoming market and stock-specific events.
-   - `/usr/local/bin/python3 .../get_catalyst_data.py market <date>`
-   - `/usr/local/bin/python3 .../get_catalyst_data.py stock <ticker> <date>`
+   - `/usr/local/bin/python3 .../get_tech_data.py <ticker> <date>`
+4. **Individual Stock BBT Data**: Fetch specialized institutional data for the target `<ticker>`.
+   - **Options Flow**: `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/options-flow-analysis/scripts/fetch_options_flow.py <ticker> <date>`
+   - **Spikes**: `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/spike-analysis/scripts/fetch_spikes.py <ticker> <date>`
+   - **Dark Pool**: `/usr/local/bin/python3 /Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_bbt_data.py <ticker> <date>`
+
 
 ### 3. Analyze the Data
 **Part A: S&P 500 Market Analysis**
 - **General Technical Analysis**: Analyze the price action, volume, and moving averages for SPY and SPX ONLY.
 - **BBT Analysis**: Analyze Order Flows for ES and NQ. Analyze Options Flows for VIX. Provide an overall market sentiment prediction based on this data.
-- **Market Catalysts**: Identify major economic events in the next 2 weeks using the outputs from the catalyst script.
-
 **Part B: Individual Stock Analysis (e.g. TSLA)**
 - Summarize the percentage change, volume, moving averages, and RSI into tables for the individual stock.
 - **MA Analysis**: Calculate the percentage difference between the current price and each MA. State what it means.
 - **RSI Analysis**: Evaluate RSI status (< 30 Oversold, > 70 Overbought).
-- Analyze the notable big options flows, big order flows, Spikes, and Dark Pool prints for the target stock.
-- **Stock Catalysts**: Identify company-specific events in the next 2 weeks using the outputs from the catalyst script.
+- Analyze the notable big options flows perfectly adhering to the `options-flow-analysis` rules (D.AUTO special cases, >$4M single-leg filter, etc).
+- Analyze the big order flows, Spikes, and Dark Pool prints for the target stock.
 - Synthesize an overall final prediction.
 
 **Data Cleaning Rules:**
@@ -52,11 +52,11 @@ Use the following Python scripts located in `/Users/zhijiebian/.gemini/skills/st
 
 ## Structure the Report
 ### Report File
-1. Generate markdown report file under /Users/zhijiebian/.gemini/cli-workspace
+1. Generate markdown report file under /Users/zhijiebian/.gemini/cli-workspace/stock-analysis
 File name: Stock_Analysis-<ticker>-<time_range>.md
 E.g., Stock_Analysis-TSLA-2026-03-13.md, Stock_Analysis-TSLA-2026-03-09_2026-03-13.md
 
-2. Generate html report file under /Users/zhijiebian/.gemini/cli-workspace
+2. Generate html report file under /Users/zhijiebian/.gemini/cli-workspace/stock-analysis
 File name: Stock_Analysis-<ticker>-<time_range>.html
 E.g., Stock_Analysis-TSLA-2026-03-13.html, Stock_Analysis-TSLA-2026-03-09_2026-03-13.html
 
@@ -109,14 +109,10 @@ Always present the information in a professional, well-formatted Markdown struct
 
 **Conclusion**: [Combine technicals + BBT data into one final synthesized market outlook]
 
-## 3. Upcoming Market Catalysts (Next 2 Weeks)
-List major economic events (e.g., CPI, PPI, Non-farm employment, FOMC meetings) that could impact the broader market.
 
-| Date | Event / Catalyst | Expected Impact |
-|---|---|---|
-| ... | ... | ... |
 
-## 4. Market Technical Analysis (SPY & SPX)
+
+## 3. Market Technical Analysis (SPY & SPX)
 **Key Metrics**:
 
 | Ticker | Close Price | % Change | Volume | RSI (14) | McClellan Osc. |
@@ -133,25 +129,66 @@ List major economic events (e.g., CPI, PPI, Non-farm employment, FOMC meetings) 
 | **SPY** | SMA200| $... | ...% | [Bullish/Bearish] | Long-term |
 *(Repeat for SPX if appropriate)*
 
-## 5. Market BBT Analysis
-### 5.1 Order Flows (ES & NQ)
+## 4. Market BBT Analysis
+### 4.1 Order Flows (ES & NQ)
+Apply the exact Analysis Guidelines and Tiered Conviction logic from the `order-flow-big-trade-analysis` skill located at `/Users/zhijiebian/.gemini/skills/order-flow-big-trade-analysis/SKILL.md`.
+
+**Analysis Rules**:
+- **Weak Signal Filter (Aggregated Periods Only)**: Discard **PM** or **FirstHour** signals if `counter_volume / total_gross_volume >= 0.25`. This indicates diluted institutional conviction.
+- **Normalization**: NQ volume should be converted (NQ x 3) if encountered.
+- **Benchmarks**: Measure movement from the **direct ES trade execution price**. For PM/FirstHour clusters, use the execution price of the biggest direction trade as the baseline.
+
+**Conviction Tiers** (12-month ES-only backtest):
+- **Tier 1 (High Conviction ≥70%):** FirstHour (≥500 ES vol), PM (>1000 ES vol).
+- **Tier 2 (Elevated Conviction 60-69%):** RTH (<1000 ES vol), AH (<1000 ES vol), PM (≤1000 ES vol), FirstHour (<500 ES vol).
+- **Noise / Discard (<60%):** RTH (≥1000 ES vol), AH (≥1000 ES vol).
+
 **Big Order Flow Trades**:
+| Period | Conviction | Direction | ES Eq. Vol | Trades [Total/Big≥500] | Historical Res % |
+|---|---|---|---|---|---|
+| (PM/FirstHour/RTH/AH) | (Tier 1 / Tier 2) | [Bullish/Bearish] | ... | [Total] / [Big] | [X%] |
 
-| Date & Time | Ticker | Side | Type | Volume | Price | Value |
-|---|---|---|---|---|---|---|
-| ... | ES | ... | ... | ... | ... | ... |
-| ... | NQ | ... | ... | ... | ... | ... |
+**Conviction Weighted Prediction**: [Provide a weighted directional market bias. Tier 1 high-conviction signals carry significantly more weight. Discarded signals should be noted but explicitly excluded from conviction weighting.]
 
-**Prediction**: [Overall Bullish or Bearish prediction for the market based on ES/NQ Orders]
-
-### 5.2 Options Flows (VIX)
-**Notable Big Flows**:
-
-| Date & Time | Contract | Call/Put | Dir | Premium | Code | Sprd |
-|---|---|---|---|---|---|---|
-| ... | VIX | ... | ... | ... | ... | ... |
+### 4.2 Options Flows (VIX)
+Apply the exact Analysis Guidelines and Ranked Breakdown format from the `options-flow-analysis` skill here. (Remember VIX filter is >$2M instead of $4M).
 
 **Prediction**: [Volatility overall prediction based on VIX Options]
+
+### 4.3 Market Spikes (SPY & QQQ)
+
+#### 4.3.1 SPY Spikes
+(Apply the exact Analysis Guidelines from the `spike-analysis` skill located at `/Users/zhijiebian/.gemini/skills/spike-analysis/SKILL.md` to classify SPY spikes into Tier 1 Magnets, Tier 2 Swings, or Discarded Noise. Produce your output using the strictly formatted bulleted structure below. You MUST put an empty line between each target!)
+
+**Ranked Magnet Targets**:
+
+#### [Time] (Tier 1/2 Magnet)
+- **Target Price**: **$...** 
+- **Spot at Execution**: $... 
+- **Direction**: **[Bullish/Bearish]** 
+- **Volume**: ... 
+- **Expected Resolution**: [Timeframe]
+
+*(Repeat for each target with an empty line between them)*
+
+**Conclusion**: [Overall prediction for SPY based purely on Institutional Spikes/Magnets]
+
+#### 4.3.2 QQQ Spikes
+(Apply the exact Analysis Guidelines from the `spike-analysis` skill located at `/Users/zhijiebian/.gemini/skills/spike-analysis/SKILL.md` to classify QQQ spikes into Tier 1 Magnets, Tier 2 Swings, or Discarded Noise. Produce your output using the strictly formatted bulleted structure below. You MUST put an empty line between each target!)
+
+**Ranked Magnet Targets**:
+
+#### [Time] (Tier 1/2 Magnet)
+- **Target Price**: **$...** 
+- **Spot at Execution**: $... 
+- **Direction**: **[Bullish/Bearish]** 
+- **Volume**: ... 
+- **Expected Resolution**: [Timeframe]
+
+*(Repeat for each target with an empty line between them)*
+
+**Conclusion**: [Overall prediction for QQQ based purely on Institutional Spikes/Magnets]
+
 
 ***
 
@@ -191,14 +228,7 @@ List major economic events (e.g., CPI, PPI, Non-farm employment, FOMC meetings) 
 
 **Conclusion**: [Combine technicals + BBT data into one final synthesized outlook]
 
-## 3. Upcoming Stock Catalysts (Next 2 Weeks)
-List company-specific events (e.g., Earnings reports, new product launches, announcements).
-
-| Date | Event / Catalyst | Expected Impact |
-|---|---|---|
-| ... | ... | ... |
-
-## 4. General Technical Analysis
+## 3. General Technical Analysis
 **Key Metrics**:
 
 | Metric | Value | Context/Change |
@@ -217,17 +247,24 @@ List company-specific events (e.g., Earnings reports, new product launches, anno
 | **SMA50** | $... | ...% | [Bullish / Bearish] | Medium-term trend |
 | **SMA200** | $... | ...% | [Bullish / Bearish] | Long-term trend, very bearish if lose |
 
-## 5. BBT Analysis
-### 5.1 Options Flows
-**Notable Big Flows**:
+## 4. BBT Analysis
+### 4.1 Options Flows
+(Apply the exact Analysis Guidelines from the `options-flow-analysis` skill to evaluate the data. Output the results using the strictly formatted bulleted structure below. You MUST put an empty line between each trade!)
 
-| Date & Time | Contract | Call/Put | Dir | Premium | Code | Sprd |
-|---|---|---|---|---|---|---|
-| ... | ... | ... | ... | ... | ... | ... |
+**Ranked Trade Breakdown**
+
+#### Trade: [Time] (Total Premium: $XM)
+- **Direction Analysis**: (Assess the true directional bet synthesizing all context)
+- **Direction Reliability**: [TRUSTABLE (Code: D.AUTO) or NOT Trustable]
+- **Rating**: (e.g. ⭐️⭐️⭐️⭐️)
+- **Sizing & Premium**: Size Category (Small/Medium/Big/Huge) based on its largest leg, then Total Premium.
+- **Target Expiry**: (min DTE)
+
+*(Repeat structure identically for each high-priority or notable trade)*
 
 **Prediction**: [Overall Bullish or Bearish prediction based on Options]
 
-### 5.2 Order Flows
+### 4.2 Order Flows
 **Big Order Flow Trades**:
 
 | Date & Time | Side | Type | Volume | Price | Value |
@@ -236,14 +273,23 @@ List company-specific events (e.g., Earnings reports, new product launches, anno
 
 **Prediction**: [Overall Bullish or Bearish prediction based on Orders]
 
-### 5.3 Spikes
-**Recent Spikes**:
+### 4.3 Spikes
+(Apply the exact Analysis Guidelines from the `spike-analysis` skill located at `/Users/zhijiebian/.gemini/skills/spike-analysis/SKILL.md` to classify spikes into Tier 1 Magnets, Tier 2 Swings, or Discarded Noise. Produce your output using the strictly formatted bulleted structure below. You MUST put an empty line between each target!)
 
-| Date & Time | Dir | Target Price | Spot Price | Volume | Prev Close |
-|---|---|---|---|---|---|
-| ... | ... | ... | ... | ... | ... |
+**Ranked Magnet Targets**:
 
-### 5.4 Dark Pool
+#### [Time] (Tier 1/2 Magnet)
+- **Target Price**: **$...** 
+- **Spot at Execution**: $... 
+- **Direction**: **[Bullish/Bearish]** 
+- **Volume**: ... 
+- **Expected Resolution**: [Timeframe]
+
+*(Repeat for each target with an empty line between them)*
+
+**Conclusion**: [Overall prediction based purely on Institutional Spikes/Magnets]
+
+### 4.4 Dark Pool
 **Prints**:
 
 | Date & Time | Type | Price | Size | Notional Value |
@@ -267,8 +313,8 @@ from py_lib.sms import BBSms
 ticker = "<ticker>"
 time_range = "<time_range>"
 
-md_path = f"/Users/zhijiebian/.gemini/cli-workspace/Stock_Analysis-{ticker}-{time_range}.md"
-html_path = f"/Users/zhijiebian/.gemini/cli-workspace/Stock_Analysis-{ticker}-{time_range}.html"
+md_path = f"/Users/zhijiebian/.gemini/cli-workspace/stock-analysis/Stock_Analysis-{ticker}-{time_range}.md"
+html_path = f"/Users/zhijiebian/.gemini/cli-workspace/stock-analysis/Stock_Analysis-{ticker}-{time_range}.html"
 
 with open(md_path, "r", encoding="utf-8") as f:
     md_content = f.read()
@@ -300,3 +346,5 @@ with open(html_path, "w", encoding="utf-8") as f:
 BBSms.send_to_gmail_html_from_ai(html_content, title=f"Stock Analysis Daily: {ticker}")
 ```
 Run this script to send the email and then notify the user that it has been completed.
+
+[^1]: 

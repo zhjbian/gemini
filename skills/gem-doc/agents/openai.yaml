@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gemini Doc"
+  short_description: "Save Gemini answers as HTML reports"
+  default_prompt: "Use $gem-doc to save the last relevant answer in this session as an HTML report."

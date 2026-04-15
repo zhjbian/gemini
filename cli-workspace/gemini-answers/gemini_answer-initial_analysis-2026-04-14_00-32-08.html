@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - initial_analysis</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-14 00:32:08</span>
+<span>Question summary: initial_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#initial_analysis">initial_analysis</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#secondary_analysis">secondary_analysis</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#follow-up-question-detail_x">Follow-up Question - detail_x</a></li><li><a href="#follow-up-answer-detail_x">Follow-up Answer - detail_x</a></li></ul></li></ul></div>
+<section><h2 id="initial_analysis">initial_analysis</h2><section>
+<h3 id="question">Question</h3>
+<p>What is the goal?</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>The goal is success.</p>
+</section></section><section><h2 id="secondary_analysis">secondary_analysis</h2><h3 id="question-2">Question</h3><p>How to achieve it?</p><h3 id="answer-2">Answer</h3><p>Work hard and smart.</p><h3 id="follow-up-question-detail_x">Follow-up Question - detail_x</h3><p>What about Detail X?</p><h3 id="follow-up-answer-detail_x">Follow-up Answer - detail_x</h3><p>Detail X is critical.</p></section></article>
+</main>
+</body>
+</html>

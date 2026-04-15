@@ -11,4 +11,5 @@ history/
 
 # Agent specific cache / state
 antigravity/
+antigravity-browser-profile/
 .agents/

@@ -1,0 +1,374 @@
+{
+  "student_name": "Tingyu Tingyu Bian",
+  "quarter": "MS Quarter 3",
+  "school_year": "2025-2026",
+  "courses": [
+    {
+      "course_name": "7/8 Choir",
+      "teacher": "Rey",
+      "grade": "CR",
+      "grade_numeric": null,
+      "absences": "0",
+      "curriculum_comment": "The combined seventh and eighth-grade choir is expanding upon their musicianship skills from sixth grade in order to perform at a more advanced level. They are strengthening their ability to read choral sheet music, rehearse effectively as an ensemble, and prepare for upcoming performances. Instruction emphasizes refined vocal technique, including dynamic control, vowel shaping, and engaging the body to support healthy singing. Students also practice diaphragmatic breathing exercises to improve breath control and sustain longer musical phrases. In addition, singers are building sight-reading skills to help them learn new music more efficiently. During rehearsals, students follow established routines such as organizing their choir folders and marking important notes in their scores, including pronunciations, vowel modifications, and musical terminology. As preparation continues, students are working toward memorizing their music and responding to conducting gestures that indicate tempo, dynamics, and expression. The choir is preparing for both the spring concert and participation in the Seattle Heritage Choral Festival.",
+      "teacher_comment": "Cindy, you have done a very nice job in choir this quarter and consistently demonstrate strong effort and responsibility. You are always on time and come prepared, which supports your success during rehearsals. In your self-assessment, you shared that you are proud of your ability to listen to other parts while maintaining your own, and this is an important skill that contributes to strong ensemble blend. You show a solid understanding of musical concepts and continue to grow through practice and attention to feedback. As you continue to develop your voice, I encourage you to focus on building your breath control and shaping your mouth for proper vowels so that your tone becomes more clear and supported. With your strong work ethic and dedication, you will continue to grow as a confident and skilled singer.",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Usually"
+        },
+        {
+          "item": "Takes initiative and seeks support as needed",
+          "rating": "Usually"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Consistently"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Demonstrates understanding of relevant concepts",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Develops artistic techniques through practice, reflection, and incorporation of feedback",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Demonstrates understanding of music fundamentals (rhythm, melody, written notation)",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Demonstrates understanding of proper musical technique (posture, breath, instrument care, fingerings, etc.)",
+          "rating": "Accomplished"
+        }
+      ]
+    },
+    {
+      "course_name": "Algebra",
+      "teacher": "Hill",
+      "grade": "97%",
+      "grade_numeric": 97,
+      "absences": "1",
+      "curriculum_comment": "",
+      "teacher_comment": "Cindy, you bring steady focus, responsibility, and strong conceptual understanding to your Algebra work. Your written explanations are consistently clear and organized, and you approach each new idea with maturity and care. You manage class time well, complete assignments thoughtfully, and ask good questions when you need clarification. Your quiz average of 95% and test average of 93% reflect the solid mathematical foundation you’ve built this year. Your Incomprehensible Project, comparing the length of a DNA strand to the number of football fields, demonstrated impressive depth of thinking and creativity.You shared that your biggest challenge is building fluency and maintaining a strong foundation as topics accumulate. You also noted that you want to continue keeping your grades high by ensuring you fully understand each new concept we learn.As we head into the final quarter, simply keep up the excellent work. Your strong habits, focus, and thoughtful engagement have you on exactly the right track.",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Takes initiative and seeks support as needed",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Consistently"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Applies Concepts in New Contexts",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Attend to Precision in Problem Solving",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Communicates Effectively Orally and In Writing",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Demonstrates Conceptual Understanding",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Demonstrates fluency with Computation and Procedures",
+          "rating": "Accomplished"
+        }
+      ]
+    },
+    {
+      "course_name": "English 7",
+      "teacher": "Simpson",
+      "grade": "95%",
+      "grade_numeric": 95,
+      "absences": "0",
+      "curriculum_comment": "In Quarter Three, students read The Outsiders by S.E. Hinton. Students participated in Literature Circle groups to discuss the book’s symbols, character development, themes, conflicts, and literary devices. Then, they created body biographies (visual representations of a character supported with text evidence) to analyze characterization.Next, students began reading Ghost Boys by Jewell Parker Rhodes. Before reading, students strengthened their research skills by using databases to explore a social justice topic referenced in the novel. Students synthesized their findings into a one-page informational sheet summarizing key facts and impacts. As we have continued reading, students have analyzed literary elements and historic context, engaged in class discussions, and developed their writing through in-class prompts. We will wrap up our work with this novel at the beginning of Quarter Four, and we are excited for Dr. Rhodes to visit Overlake on April 21st!",
+      "teacher_comment": "Cindy, you are a conscientious and hard-working student. I appreciate the patience and respect you show to your peers and teachers. In your Literature Circle group, you participated actively in discussions and offered meaningful insights. Keep asking questions and sharing your thoughts to further engage with the text and your group members. In your theme essay, you did a great job using clear and concise language. You also connected your ideas back to your thesis. Continue to work on selecting the best possible evidence that proves all aspects of your thesis. Finally, your quiz grade for this quarter, which includes reading comprehension checks and quizzes for vocab and grammar, was 87%. You have good study habits but could benefit from reviewing and annotating texts more frequently to enhance your comprehension. I look forward to seeing you finish the year strong!",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Sometimes"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Usually"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Usually"
+        },
+        {
+          "item": "Takes initiative and seeks support as needed",
+          "rating": "Usually"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Consistently"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Articulates ideas clearly and effectively in discussions and presentations",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Comprehends texts",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Explains ideas with depth and clarity",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Organizes ideas logically and coherently",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Selects, evaluates, and integrates effective evidence",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Utilizes correct grammar, conventions, citations",
+          "rating": "Accomplished"
+        }
+      ]
+    },
+    {
+      "course_name": "Physical Ed 7",
+      "teacher": "Wilcox",
+      "grade": "98%",
+      "grade_numeric": 98,
+      "absences": "0",
+      "curriculum_comment": "During the third quarter, students continued developing both fitness knowledge and sport‑specific skills through a variety of activities. They revisited the strength and conditioning unit, applying foundational knowledge from the previous quarter to design and implement more independent workout routines. This experience encouraged greater ownership, goal‑setting, and a deeper understanding of proper technique and targeted muscle groups.Students also participated in units including bowling, cricket, archery, and lacrosse. These activities emphasized coordination, accuracy, and strategic thinking while introducing both familiar and new game structures. The lacrosse unit allowed students to build on invasion‑game concepts such as spacing, passing, and teamwork, while archery focused on safety, precision, and concentration.Across all units, students continued to strengthen their independence, responsibility, and ability to apply skills in a variety of physical and collaborative settings.",
+      "teacher_comment": "Cindy, your daily work in PE is steady, focused, and quietly strong. You consistently put in high effort and are one of the hardest workers in the class, even when you do not seek attention for it. Your fitness growth this year was remarkable, with a significant improvement in your half-mile time and a strong vertical jump score.  Your process reflects persistence and responsibility. While you may feel unsure of your abilities at times, you often pick up skills quickly when practicing technique. Continued repetition helps you gain confidence and refine your performance.  Over the course of the year, you have made meaningful physical progress and shown growing comfort participating alongside peers. Your willingness to stay engaged and work through challenges has paid off.  You contribute to the class through consistency, cooperation, and moments of humor that shine when you allow your personality to show.  Moving forward, continue to trust your abilities and step confidently into team roles. Believing in what you bring to each activity will support even greater growth and help you lead through quiet confidence.",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Consistently"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Challenges self to improve",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Contributes to positive learning environment",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Demonstrates teamwork and sportsmanship",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Engages fully regardless of ability",
+          "rating": "Accomplished"
+        }
+      ]
+    },
+    {
+      "course_name": "Science 7",
+      "teacher": "Jones",
+      "grade": "93%",
+      "grade_numeric": 93,
+      "absences": "0",
+      "curriculum_comment": "Third quarter began with a Natural Hazards research project, where students investigated the causes, impacts, and ways to protect individuals and communities from wildfires, tsunamis, earthquakes, or volcanoes. This project allowed students to apply their understanding of Earth's dynamic processes to real-world phenomena and communicate their findings through research and presentation. We then transitioned to the Weather and Climate unit. This focuses on the driving question \"Why does a lot of precipitation fall at some times and not others?\" Students explored the complex interactions between temperature, pressure, and moisture in the atmosphere to explain why we have individual storms as well as why there are larger climate patterns. Students engaged in extensive modeling work in this unit. In fourth quarter, we will explore how and why our global climate is changing through data analysis and writing explanations.",
+      "teacher_comment": "Cindy, your science writing continues to be a strength for you. You write clear and concise explanations that demonstrate your understanding. However, getting work turned in on time has been an ongoing challenge for you this quarter; you had 6 late assignments. In fourth quarter, I encourage you to focus on making sure your work is turned in on time. I also encourage you to participate more actively in class discussions. Sharing your thinking will help deepen your own understanding. Additionally, your modeling skills have room to grow. Focus on adding more details to show mechanisms and interactions. Think about what happens at the particle level, for example, or how system components connect. Strong models show the how and why, not just the what. I look forward to seeing your growth as a scientist in the final quarter this year!",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Usually"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Sometimes"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Usually"
+        },
+        {
+          "item": "Takes initiative and seeks support as needed",
+          "rating": "Sometimes"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Usually"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Develops and uses models",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Plans and carries out investigations",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Analyzes and interprets data",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Constructs explanations and/or designs solutions",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Engages in argument from evidence",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Obtains, evaluates, and communicates information",
+          "rating": "Accomplished"
+        }
+      ]
+    },
+    {
+      "course_name": "Social Studies 7",
+      "teacher": "Middleton",
+      "grade": "93%",
+      "grade_numeric": 93,
+      "absences": "0",
+      "curriculum_comment": "This quarter, students continued building their geographic thinking across three major regional units. We wrapped up our Europe unit by examining the diverging paths taken by former Soviet countries since the Cold War, exploring how political history shapes a region's present. In our Southwest Asia and North Africa unit, water scarcity served as our central lens. Students researched the competing water needs of Nile River nations and participated in a negotiation seminar, working to craft a real-world-style water-sharing agreement. We also analyzed major cities of the region as windows into broader regional identity and culture. To close the quarter, we launched our Sub-Saharan Africa unit through a series of case studies. In Nigeria, students traced how geography and colonial history explain the country's current population pyramid, then debated policy solutions in a seminar focused on Nigeria's potential demographic dividend. In the Congo, students investigated the global cobalt supply chain — from colonial exploitation under Leopold to the smartphones in our pockets today — producing an original infographic and written analysis. We also began our third case study, examining how South Africa and Rwanda have approached reconciliation in the aftermath of apartheid and genocide. In Q4, we head to Asia, complete our world map assessment, and explore a unit on human rights.",
+      "teacher_comment": "Cindy, your work speaks for itself — you are organized, hardworking, and the quality and consistency of what you turn in makes it clear that you genuinely understand the material at a high level. The one thing I want to keep nudging you on is finding small moments to let that understanding show up in class discussions. You clearly have a lot to offer and your classmates and I would benefit from hearing your thinking more often. No big concerns here, just a small challenge heading into Q4 to look for your spots and take them when they come.",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Rarely"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Usually"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Sometimes"
+        },
+        {
+          "item": "Takes initiative and seeks support as needed",
+          "rating": "Rarely"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Consistently"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Analyzes social, political, economic, and cultural patterns and ideas across time and place",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Applies skills and knowledge to address real-world issues",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Conducts focused and balanced research into relevant topics using valid sources and citations",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Evaluates concepts and events from multiple perspectives to explain systems of power",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Speaks, listens, writes, and responds effectively using evidence to support and explore conclusions",
+          "rating": "Developing"
+        }
+      ]
+    },
+    {
+      "course_name": "Spanish B",
+      "teacher": "Balitzer",
+      "grade": "97%",
+      "grade_numeric": 97,
+      "absences": "0",
+      "curriculum_comment": "This quarter students expanded on their study of school life to include the broader experience of life for kids in the Spanish-speaking world. In class we watched and worked with several documentaries and short films (Amor de lata, Bienvenidos, Academia de Bachata and Quinceañera), each of which lent a unique window into the lives of peers from around the Spanish-speaking world. As a class we also read and worked with Carla no habla, a Spanish graphic novel for beginning learners about a teenage girl in Ecuador who suffers from selective mutism following a move to a new school. For the past month we have participated in the annual Locura de marzo song competition, through which students gained exposure to current music in Spanish from a variety of countries and genres. In terms of grammar, this quarter students built upon their understanding of regular -AR verbs introduced last quarter to learn conjugations for regular -ER and -IR verbs. We also learned conjugations for the irregular verb estar (and contrasted its uses with ser, taught in first quarter). Having now been introduced to all regular conjugation patterns in the present tense, and with many opportunities in class each day to read, hear, write and speak in Spanish, students have been working hard to increase their communicative skills at the Novice-mid level, and beyond.",
+      "teacher_comment": "Cindy, you are making steady progress in Spanish and demonstrate excellent focus and work ethic in class. You are always on task and collaborate effectively with any classmate you're paired with, which shows maturity and flexibility. While you tend to be quiet during day-to-day class discussions and are hesitant to volunteer, I've been impressed by how confidently and clearly you speak during formal speaking tasks like the Cultivo una rosa blanca poem recitation and partner skits. This shows that you have strong speaking abilities! As we head into the final quarter, I encourage you to take more risks by volunteering during class activities and conversations. Sharing your voice more often will help build your confidence and push your Spanish skills even further. Keep up the great work!",
+      "behaviors": [
+        {
+          "item": "Collaborates effectively and constructively contributes to class",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Comes to class prepared and completes assignments on time",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Demonstrates curiosity, embraces challenge, and exhibits a growth mindset",
+          "rating": "Consistently"
+        },
+        {
+          "item": "Takes initiative and seeks support as needed",
+          "rating": "Usually"
+        },
+        {
+          "item": "Uses equipment, materials, technology, and class time appropriately",
+          "rating": "Consistently"
+        }
+      ],
+      "skills": [
+        {
+          "item": "Speaking: Uses the target language consistently during class time",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Speaking: Communicates effectively using vocabulary, grammar structures with attention to pronunciation appropriate to the level.",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Listening: Understands the main idea and most details when listening.",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Reading: Understands the main idea and most details in reading.",
+          "rating": "Accomplished"
+        },
+        {
+          "item": "Writing: Communicates effectively using vocabulary and grammar structures appropriate to the level.",
+          "rating": "Accomplished"
+        }
+      ]
+    }
+  ]
+}
