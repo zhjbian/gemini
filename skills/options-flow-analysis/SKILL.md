@@ -29,21 +29,21 @@ When you receive the JSON output from the script, you will see a `daily_price_co
      - `Weak`: The initiator is *selling* the contract (e.g., Weak Bullish = Selling Puts, Weak Bearish = Selling Calls).
      - Prefix `N.` inside sentiment_type: The execution occurred in the middle third of the bid-ask spread, making the derived buying/selling action less reliable.
    - Assess the true sentiment manually by cross-referencing:
-     - The `spot_price_at_execution` versus the `daily_price_context` (Open, High, Low, Close). Did this massive trade land exactly at the low of the day? Or reject off the high of the day? 
+     - The `spot_price_at_execution` versus the `daily_price_context` (Open, High, Low, Close).
      - Consider if the trade is trend-following or a mean-reverting fade based on where price has moved.
 
-3. **Importance Rating**:
-   - Assign an Importance Rating to each trade group (e.g., ⭐️⭐️⭐️⭐️⭐️ extreme urgency, or Qualitative metrics like High/Medium/Low).
-   - To determine importance, consider:
-     - **Multi-leg Sizing Rule**: For multi-leg trades, categorize the size of the trade based strictly on the premium of its **biggest individual leg** (do not use the sum of all legs). Utilize these brackets:
+3. **High-Importance Classification**:
+   - A trade is classified as **High-Importance** if it meets EITHER of these criteria:
+     - **D.AUTO single trade**: Total premium must be >= $5M.
+     - **Multiple leg trade**: The premium of the largest individual leg must be >= $25M.
+   - To determine qualitative importance (⭐️ ranking), also consider:
+     - **Urgency (DTE):** Short DTE (0-10 days) paired with large premium signifies extreme urgency.
+     - **Price Alignment:** Did it happen at a major daily High/Low (Inflection point)?
+     - **Sizing Brackets (Largest Leg):**
        - **Small**: < $25M
-       - **Medium**: $25M up to $50M (`[25 - 50)`)
-       - **Big**: $50M up to $90M (`[50 - 90)`)
+       - **Medium**: $25M - $50M
+       - **Big**: $50M - $90M
        - **Huge**: >= $90M
-     - **D.AUTO Special Case**: `D.AUTO` trades are normally single-leg directional bets. If a `D.AUTO` trade has a total premium of >= 5 (i.e. $5 Million or more), it MUST be heavily weighted and classified as an important trade.
-     - **Size of Total Premium:** Massive multi-million dollar flows carry more weight.
-     - **Urgency (DTE):** Very short DTE (e.g., 0-10 days) paired with large premium signifies extreme urgency and demands a higher rating. Longer DTE implies structural, slow-moving positioning.
-     - **DB Levels**: If the group contains legs with custom priority `level` tags (e.g., 110 = Turn, 100 = Track, 50 = HugeNoDir, 30 = Large), incorporate this into your ranking weight.
 
 ## Analysis Logic & Output Requirements
 

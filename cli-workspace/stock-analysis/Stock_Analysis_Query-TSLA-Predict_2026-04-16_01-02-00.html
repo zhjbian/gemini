@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSLA 2-Week Strategy-Aware prediction Report</title>
+<style>
+    :root {
+        --bullish-bg: #e8f5e9;
+        --bullish-text: #2e7d32;
+        --bearish-bg: #ffebee;
+        --bearish-text: #c62828;
+        --churn-bg: #fff3e0;
+        --churn-text: #e65100;
+        --high-importance: #f1f8ff;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 40px auto; padding: 20px; background-color: #fafafa; }
+    h1, h2, h3 { color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; }
+    .instruction-box { background-color: #f3f4f6; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; font-family: monospace; font-size: 0.95em; margin: 20px 0; }
+    .executive-summary { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #2196f3; }
+    .highlight { background-color: #fff9c4; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #fbc02d; font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; background-color: #fff; }
+    th, td { border: 1px solid #eee; padding: 14px; text-align: left; }
+    th { background-color: #f8f8f8; font-weight: 600; text-transform: uppercase; font-size: 0.8em; }
+    .bullish { background-color: var(--bullish-bg); color: var(--bullish-text); font-weight: bold; }
+    .bearish { background-color: var(--bearish-bg); color: var(--bearish-text); font-weight: bold; }
+    .churn { background-color: var(--churn-bg); color: var(--churn-text); font-weight: bold; }
+    .options-row { background-color: var(--high-importance); border-left: 4px solid #0366d6; }
+</style>
+</head>
+<body>
+
+<h1>Institutional Signal Prediction Report: TSLA</h1>
+
+<h2>Original Instruction</h2>
+<div class="instruction-box">
+"@stock-analysis predict TSLA, use last 2 week signals"
+</div>
+
+<div class="executive-summary">
+    <h2>1. Executive Summary</h2>
+    <p>Predict Mode analysis reveals a <strong>Bearish Magnet Dominance</strong>. While the immediate momentum remains bullish, institutions have established a massive "Gravity Well" significantly lower after a period of intense risk transfer (churn).</p>
+    <ul>
+        <li><strong>Primary Bias</strong>: <strong class="bearish">Strong Bearish (Mean Reversion)</strong>.</li>
+        <li><strong>Gravity Objective</strong>: **$347.7x**. This cluster (800+ volume) is the strongest magnet on the 14-day map.</li>
+        <li><strong>Institutional State</strong>: **Hedging/Churn**. The high-volume options cluster from April 13th is now correctly identified as a bi-directional "Ping-Pong" ($55M Bearish vs $47M Bullish).</li>
+    </ul>
+</div>
+
+<h2>2. Analytical Rationale</h2>
+
+<div class="highlight">
+    <strong>Strategic Churn (April 13)</strong>:
+    Holistic evaluation of the $100M+ options event reveals that institutions were not making a unified bet. Instead, we see a $55.6M Bearish leg countered by a $47.1M Bullish leg. This is a classic "Gamma Reset" at the highs, preparing for a potential trend change while maintaining core long positions.
+</div>
+
+<div class="highlight">
+    <strong>The Bearish Anchor ($347.7x)</strong>:
+    A massive 823-volume aggregate of PM Spikes anchors the bearish case. This volume represents significant institutional interest in the original breakout zone.
+</div>
+
+<div class="highlight">
+    <strong>Tactical Upside</strong>:
+    A minor 21-volume spike at **$399.83** remains active. Price may probe this level to seek final liquidity before being drawn back to the $347 gravitational field.
+</div>
+
+<hr>
+
+<h2>3. Signal Audit Trail (High-Importance Predict Mode)</h2>
+<table>
+    <tr><th>Date</th><th>Type</th><th>Direction</th><th>Importance Metric</th><th>Target / Premium</th><th>Status</th></tr>
+    <tr><td>2026-04-14</td><td class="bullish">Spike (PM)</td><td class="bullish">Bullish</td><td>Vol: 21</td><td>399.83</td><td>ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-14</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$58.1M</td><td>$500C (D.AUTO)</td><td>ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-14</td><td>Options Flow</td><td class="bearish">Bearish</td><td>$40.5M</td><td>$500P (D.AUTO)</td><td>ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-13</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$47.1M</td><td>Multi-leg Strategy</td><td>ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-13</td><td>Options Flow</td><td class="bearish">Bearish</td><td>$55.6M</td><td>Multi-leg Strategy</td><td>ACTIVE</td></tr>
+    <tr><td>2026-04-13</td><td class="bearish">Spike (PM)</td><td class="bearish">Bearish</td><td>Vol: 823 (Agg)</td><td>347.7x Magnet</td><td>ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-10</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$52.2M</td><td>N/A</td><td>ACTIVE</td></tr>
+</table>
+
+</body>
+</html>

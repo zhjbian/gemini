@@ -16,31 +16,18 @@ Prefer this skill when the user wants durable answer files instead of only chat 
 1. Identify which answer to save.
    - If the user says "last answer", use the most recent assistant answer in the current session.
    - If the user names a specific question or topic, find the matching user question and the answer that responded to it.
-   - If multiple prior questions are plausible, choose the most recent clear match and state that assumption.
 
-2. Derive the question text.
-   - Use the exact user question when practical.
-   - If the user referred to a topic instead of quoting the full question, derive a concise question line that matches the answered request.
+2. Determine if creating a NEW report or APPENDING to an existing one.
+   - **APPENDING Rule**: All appends must result in a flat list of Level 1 heading sections (`h2`).
+   - **First-Time Append Restructuring**: If the existing report contains only a single Q/A (i.e., it is a fresh standalone export), the first append MUST wrap that original Q/A into its own `h2` section (labeled with the original summary) and demote the original `h2` headings to `h3`.
+   - **Subsequent Appends**: Every new Q/A pair added thereafter should be its own `h2` section.
 
-3. Derive a semantic summary for the filename.
-   - Summarize the question and answer together into a short phrase of no more than 6 words.
-   - Do not just take the first 6 words of the question.
-   - Prefer a compact intent/result summary such as `gem_doc_skill_created` or `md_vs_html_speed`.
-   - Use underscores in the final slug.
+3. Capture the answer text exactly and generate a summary (slug).
 
-4. Capture the answer text exactly.
-   - Preserve Markdown structure from the answer.
-   - Do not rewrite, compress, shorten, or summarize unless the user explicitly asks for a cleaned-up version.
-   - The saved/exported document must preserve the same level of detail as the chat answer by default.
-   - When converting a chat answer into HTML or appending it into an existing HTML report, the document version must contain the full answer content at the same level of detail or more detail than the chat answer. Never silently omit reasoning, caveats, call paths, examples, or supporting detail that appeared in chat.
-   - If any formatting conversion forces a choice, prefer preserving detail over brevity.
-   - Exception: if the answer contains DBCPS code pointers or local DBCPS file links, use the `bitbucket-link` skill to convert them to Bitbucket source links before saving.
-   - If the answer contains DBCPS git commit ids, use the `bitbucket-link` skill to confirm the repo mapping and convert each commit id into a full Bitbucket commit link before saving.
+4. Write/Append the file using the helper script:
+   - `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> --append-to <path>`
 
-5. Write the file with the helper script:
-   - `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file>`
-
-6. Report the saved path back to the user.
+5. Report the saved path back to the user.
 
 ## Output Rules
 
@@ -58,19 +45,18 @@ Write the HTML report with these sections:
 - Title: `Gemini Answer`
 - Metadata row: saved timestamp and question summary
 - Table of contents is generated automatically by the Python script at the top of the 'Answer' block, you do not need to manually create one.
-- `Question` section rendered from the question text
-- `Answer` section rendered from the answer markdown
-- The `Answer` section must contain the full answer content from chat unless the user explicitly requests a shortened or cleaned-up variant
+- **Section Structure**: 
+  - `h2` for major Section Titles (e.g., "Institutional Flow Analysis", "Follow-up Query").
+  - `h3` for `Question` and `Answer` labels within each section.
+  - `h4` for subsections inside a major answer such as `Goal`, `Test Matrix`, `Decision Rules`.
 - Full-width layout by default; do not constrain the report to a narrow fixed content width
 - Images should be rendered with a maximum width of `1500px` and a maximum height of `1500px`
-- Do not use any global page-level background color. Leave the page/background unstyled at the global level rather than setting `body` or page-wrapper background fills.
-- Avoid decorative gradients or random background colors anywhere in the document chrome
+- Do not use any global page-level background color.
 - Use clear heading hierarchy:
   - The generated HTML report uses CSS counters to automatically number all headings (`h2`, `h3`, `h4`).
-  - DO NOT manually number your headings in the markdown (e.g. write `## Question`, NOT `## 1. Question`).
-  - `h2` for major sections such as `Question`, `Answer`.
-  - For follow-up sections, always append a summary to the section title, e.g., `Follow-up Question - 从smi计算公式解释为什么会出现顶背离` and `Follow-up Answer - 从smi计算公式解释为什么会出现顶背离`.
-  - `h3` for subsections inside a major answer such as `Goal`, `Test Matrix`, `Decision Rules`.
+  - DO NOT manually number your headings in the markdown.
+  - `h2` for major Section Titles.
+  - `h3` for `Question` and `Answer` labels within those sections.
   - `h4` for sub-subsections.
 
 ## Implementation Notes

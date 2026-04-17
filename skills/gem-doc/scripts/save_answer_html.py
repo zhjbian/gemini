@@ -377,7 +377,7 @@ def build_html(question: str, answer: str, summary: str) -> str:
     return str(soup)
 
 
-def append_to_html(target_path: Path, question: str, answer: str, summary: str, mode: str) -> None:
+def append_to_html(target_path: Path, question: str, answer: str, summary: str) -> None:
     content = target_path.read_text()
     soup = bs4.BeautifulSoup(content, "html.parser")
     article = soup.find("article", class_="card")
@@ -387,72 +387,56 @@ def append_to_html(target_path: Path, question: str, answer: str, summary: str, 
     question_html = render_markdown(question)
     answer_html = render_markdown(answer)
 
-    if mode == "followup":
-        # Find the last answer section
-        sections = article.find_all("section", recursive=False)
-        target_section = sections[-1]
+    # Check for restructuring if currently in single mode (has exactly 2 sections: Question & Answer)
+    sections = article.find_all("section", recursive=False)
+    is_single_mode = (
+        len(sections) == 2 
+        and sections[0].find("h2") and sections[0].find("h2").get_text() == "Question"
+        and sections[1].find("h2") and sections[1].find("h2").get_text() == "Answer"
+    )
+    
+    if is_single_mode:
+        # Extract old summary from metadata if possible
+        meta_div = soup.find("div", class_="meta")
+        old_summary = "Original Analysis"
+        if meta_div:
+            spans = meta_div.find_all("span")
+            for span in spans:
+                if "Question summary:" in span.get_text():
+                    old_summary = span.get_text().replace("Question summary:", "").strip()
         
-        # Append h3 headers and content
-        q_header = soup.new_tag("h3")
-        q_header.string = f"Follow-up Question - {summary}"
-        target_section.append(q_header)
-        target_section.append(bs4.BeautifulSoup(question_html, "html.parser"))
+        # Restructure existing sections (demote h2 to h3)
+        for sec in sections:
+            h2 = sec.find("h2")
+            if h2: h2.name = "h3"
         
-        a_header = soup.new_tag("h3")
-        a_header.string = f"Follow-up Answer - {summary}"
-        target_section.append(a_header)
-        target_section.append(bs4.BeautifulSoup(answer_html, "html.parser"))
-    else: # level
-        # Check for restructuring if currently in single mode
-        sections = article.find_all("section", recursive=False)
-        is_single_mode = (
-            len(sections) == 2 
-            and sections[0].find("h2").get_text() == "Question"
-            and sections[1].find("h2").get_text() == "Answer"
-        )
+        # Create new parent section for original content
+        orig_parent = soup.new_tag("section")
+        orig_h2 = soup.new_tag("h2")
+        orig_h2.string = old_summary
+        orig_parent.append(orig_h2)
+        for sec in list(sections):
+            orig_parent.append(sec.extract())
         
-        if is_single_mode:
-            # Extract old summary
-            meta_div = soup.find("div", class_="meta")
-            old_summary = "Original Q&A"
-            if meta_div:
-                spans = meta_div.find_all("span")
-                for span in spans:
-                    if "Question summary:" in span.get_text():
-                        old_summary = span.get_text().replace("Question summary:", "").strip()
-            
-            # Restructure existing sections
-            for sec in sections:
-                h2 = sec.find("h2")
-                if h2: h2.name = "h3"
-            
-            # Create new parent section for original content
-            orig_parent = soup.new_tag("section")
-            orig_h2 = soup.new_tag("h2")
-            orig_h2.string = old_summary
-            orig_parent.append(orig_h2)
-            for sec in list(sections):
-                orig_parent.append(sec.extract())
-            
-            article.append(orig_parent)
+        article.append(orig_parent)
 
-        # Append new Q&A as a new top-level section
-        new_parent = soup.new_tag("section")
-        new_h2 = soup.new_tag("h2")
-        new_h2.string = summary
-        new_parent.append(new_h2)
-        
-        q_h3 = soup.new_tag("h3")
-        q_h3.string = "Question"
-        new_parent.append(q_h3)
-        new_parent.append(bs4.BeautifulSoup(question_html, "html.parser"))
-        
-        a_h3 = soup.new_tag("h3")
-        a_h3.string = "Answer"
-        new_parent.append(a_h3)
-        new_parent.append(bs4.BeautifulSoup(answer_html, "html.parser"))
-        
-        article.append(new_parent)
+    # Append new Q&A as a new top-level h2 section
+    new_parent = soup.new_tag("section")
+    new_h2 = soup.new_tag("h2")
+    new_h2.string = summary
+    new_parent.append(new_h2)
+    
+    q_h3 = soup.new_tag("h3")
+    q_h3.string = "Question"
+    new_parent.append(q_h3)
+    new_parent.append(bs4.BeautifulSoup(question_html, "html.parser"))
+    
+    a_h3 = soup.new_tag("h3")
+    a_h3.string = "Answer"
+    new_parent.append(a_h3)
+    new_parent.append(bs4.BeautifulSoup(answer_html, "html.parser"))
+    
+    article.append(new_parent)
 
     update_global_toc(soup)
     target_path.write_text(str(soup))
@@ -469,8 +453,6 @@ def main() -> None:
     parser.add_argument("--summary")
     parser.add_argument("--summary-file")
     parser.add_argument("--append-to", help="Existing HTML file to append to")
-    parser.add_argument("--append-mode", choices=["level", "followup"], default="level", 
-                        help="Mode for appending: 'level' for new top-level section, 'followup' for sub-sections in last Answer.")
     args = parser.parse_args()
 
     question = read_text_arg(args.question, args.question_file, "question")
@@ -486,7 +468,7 @@ def main() -> None:
         target = Path(args.append_to)
         if not target.exists():
             raise SystemExit(f"Target file {target} does not exist for appending.")
-        append_to_html(target, question, answer, summary, args.append_mode)
+        append_to_html(target, question, answer, summary)
         print(target)
     else:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

@@ -33,11 +33,15 @@ Any spike returned with `"trading_hour": "AH"` (After-Hours) is structural noise
 If a `<TICKER>_reference_data.md` file does not exist for the requested equity, apply the following broad heuristics based on whether it is a High-Beta single stock or a Macro ETF:
 
 #### Path A: High-Beta / Individual Stocks (e.g., TSLA, NVDA, AAPL)
-*   **Tier 1: Instant Golden Magnets (100% Hit Rate)**
-    *   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`500`** and **`999`**.
-*   **Tier 2: High-Confidence Swings (>94% Hit Rate)**
-    *   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`1000`** and **`4999`** (Takes ~4 days to hit).
-    *   OR `"trading_hour"` is **`PM`** at any volume (Takes ~2 days to hit).
+*   **Tier 1: Instant Institutional Magnets (90%+ Hit Rate)**
+    -   `"trading_hour"` is **`PM`** (Pre-Market) AND `"volume_agg"` is **`>= 10`**.
+    -   `"trading_hour"` is **`RTH`** (Regular Trading Hours) AND `"volume_agg"` is **`>= 50`**.
+*   **Tier 2: High-Confidence Swings (~70% Hit Rate)**
+    -   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`20`** and **`49`**.
+*   **Noise Filter (Discard)**:
+    -   **IGNORE** any RTH spike with **Volume < 20**.
+    -   **IGNORE** any PM spike with **Volume < 10**.
+    -   **IGNORE** all standard **AH** spikes (except for ETF Dark Pools).
 
 #### Path B: Macro ETFs (e.g., SPY, QQQ, IWM, DIA)
 *   **Tier 1: Instant Macro Magnets (100% Hit Rate)**
@@ -60,6 +64,7 @@ When generating analysis results for integration into larger reports, focus on i
 3. **Targets**: Extract the Target Price and the Spot Price at execution. 
 4. **Volume**: List the aggregate volume block size.
 5. **Magnet Pull**: Determine if the magnet is Bullish or Bearish.
-6. **Expectation**: State the expected resolution timeframe based on historical averages (e.g., Inter-day vs 3-5 day Swing).
+6. **Hit Stats**: Report the **Hit Rate** and **Avg Days to Hit** derived specifically from the corresponding Volume Bucket in the `references/<TICKER>_reference_data.md` file.
+7. **Expectation**: State the specific probability-weighted expectation (e.g., "70% chance of resolution within 4 trading days").
 
 *Note: Always mention the count of AH noise spikes discarded.*

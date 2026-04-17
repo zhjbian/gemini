@@ -50,8 +50,8 @@ def generate_report(ticker, date_str, model_name=DEFAULT_MODEL, send_email=False
     print(f"Using model: {model_name}")
     
     # 1. Gather Data
-    tech_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_tech_data.py"
-    bbt_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_bbt_data.py"
+    tech_script = "/Users/zhijiebian/.gemini/skills/stock-daily-analysis/scripts/get_tech_data.py"
+    bbt_script = "/Users/zhijiebian/.gemini/skills/stock-daily-analysis/scripts/get_bbt_data.py"
     
     # Target Stock Data
     tech_data = run_script(tech_script, ticker, date_str)
@@ -69,8 +69,8 @@ def generate_report(ticker, date_str, model_name=DEFAULT_MODEL, send_email=False
     nq_bbt = run_script(bbt_script, "NQ", date_str)
     vix_bbt = run_script(bbt_script, "VIX", date_str)
     
-    # investing_cal_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_investing_cal.py"
-    # catalyst_script = "/Users/zhijiebian/.gemini/skills/stock-analysis/scripts/get_catalyst_data.py"
+    # investing_cal_script = "/Users/zhijiebian/.gemini/skills/stock-daily-analysis/scripts/get_investing_cal.py"
+    # catalyst_script = "/Users/zhijiebian/.gemini/skills/stock-daily-analysis/scripts/get_catalyst_data.py"
     
     # market_catalysts = run_script(investing_cal_script, date_str)
     # stock_catalysts = run_script(catalyst_script, "stock", ticker, date_str)
@@ -87,12 +87,12 @@ def generate_report(ticker, date_str, model_name=DEFAULT_MODEL, send_email=False
 
 
     # Read the latest skill instructions directly to ensure the AI uses the exact formatting
-    skill_path = "/Users/zhijiebian/.gemini/skills/stock-analysis/SKILL.md"
+    skill_path = "/Users/zhijiebian/.gemini/skills/stock-daily-analysis/SKILL.md"
     try:
         with open(skill_path, "r", encoding="utf-8") as f:
             skill_content = f.read()
     except Exception as e:
-        print(f"Could not read stock-analysis SKILL.md: {e}")
+        print(f"Could not read stock-daily-analysis SKILL.md: {e}")
         skill_content = "Please format as a professional trading report."
         
     # Read sub-skill instructions (Options Flow & Spikes)
@@ -205,7 +205,7 @@ RAW SPIKES MAGNET DATA:
         return
     
     # 4. Save markdown report locally
-    output_dir = "/Users/zhijiebian/.gemini/cli-workspace/stock-analysis"
+    output_dir = "/Users/zhijiebian/.gemini/cli-workspace/stock-daily-analysis"
     os.makedirs(output_dir, exist_ok=True)
     md_path = f"{output_dir}/Stock_Analysis-{ticker}-{date_str}.md"
     html_path = f"{output_dir}/Stock_Analysis-{ticker}-{date_str}.html"

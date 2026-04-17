@@ -57,7 +57,7 @@ When reporting results, always include:
 
 - **Period Definition**: Use the database `trading_hour` field for classification.
 - **Sub-classification**: Manually split `RTH` into `FirstHour` (6:30-7:30 AM PT) vs rest of `RTH`.
-- **Normalization**: Only ES data is currently used for primary analysis. NQ volume should be converted (NQ x 3) if encountered.
+- **Normalization**: Only ES data is used for analysis. Big trades in other tickers should be ignored for this specific skill.
 - **Benchmark**: Measure the 0.75% move from the **direct ES trade execution price**. For PM/FirstHour clusters, use the execution price of the biggest direction trade as the baseline.
 - **Weak Signal Filter (Aggregated Periods Only)**: Discard **PM** or **FirstHour** signals if `counter_volume / total_gross_volume >= 0.25`. This indicates diluted institutional conviction (e.g., a mix of buying and selling that cancels out the net direction).
 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSLA 21-Day High-Importance Backtest Report</title>
+<style>
+    :root {
+        --bullish-bg: #e8f5e9;
+        --bullish-text: #2e7d32;
+        --bearish-bg: #ffebee;
+        --bearish-text: #c62828;
+        --high-importance: #f1f8ff;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 40px auto; padding: 20px; background-color: #fafafa; }
+    h1, h2, h3 { color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; }
+    .instruction-box { background-color: #f3f4f6; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; font-family: monospace; font-size: 0.95em; margin: 20px 0; }
+    .executive-summary { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #2196f3; }
+    .highlight { background-color: #fff9c4; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #fbc02d; font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; background-color: #fff; }
+    th, td { border: 1px solid #eee; padding: 14px; text-align: left; }
+    th { background-color: #f8f8f8; font-weight: 600; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.05em; }
+    .bullish { background-color: var(--bullish-bg); color: var(--bullish-text); font-weight: bold; }
+    .bearish { background-color: var(--bearish-bg); color: var(--bearish-text); font-weight: bold; }
+    .options-row { background-color: var(--high-importance); border-left: 4px solid #0366d6; }
+    .status-hit { color: var(--bullish-text); font-weight: bold; }
+    .status-active { color: #2196f3; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Institutional Signal Backtest Report: TSLA</h1>
+
+<h2>Original Instruction</h2>
+<div class="instruction-box">
+"@stock-analysis backtest TSLA, find both bullish and bearish signals from last 3 weeks to evaluate whether they have forecasted the big rally from 2026-04-09, 338 to 393"
+</div>
+
+<div class="executive-summary">
+    <h2>1. Executive Summary</h2>
+    <p>The 21-day institutional map confirms that the rally from **$338 to $393** was forecasted with extreme precision by a combination of **Bearish Magnet Resolution** (Phase 1) and a massive **Institutional Options Hand-off** (Phase 2).</p>
+    <ul>
+        <li><strong>Magnet Resolution</strong>: Bearish Spikes from March 26-27 correctly predicted the gravitation to **$345**, which eventually overshot to the $337 low.</li>
+        <li><strong>The Reversal Trigger</strong>: Between April 7 and April 9, institutions layered in **$428M in Bullish Options premium** alongside PM Spikes targeting **$392**.</li>
+        <li><strong>Current Status</strong>: All primary rally targets were hit on April 15 ($393.12 high).</li>
+    </ul>
+</div>
+
+<h2>2. Analytical Rationale</h2>
+
+<div class="highlight">
+    <strong>The "Pinball" Setup (March 26 - April 2)</strong>:
+    Early in the backtest window, institutions printed massive bearish magnets ($345.10 target). This "vacuum" pulled price lower consistently. On April 1, a single Bearish Options trade of <strong>$858M premium</strong> confirmed the downward urgency.
+</div>
+
+<div class="highlight">
+    <strong>The Bottom Hand-off (April 9)</strong>:
+    As price touched $338, we observed "Institutional Ping-Pong." While the tape looked chaotic, the data reveals <strong>$267M and $161M Bullish prints</strong> layered in specifically to freeze the descent. Simultaneously, Bullish PM Spikes appeared with targets at $392.50.
+</div>
+
+<div class="highlight">
+    <strong>Resolution & New Magnets (April 15)</strong>:
+    The $392 target was resolved today (Apr 15). Crucially, institutions immediately printed over **800 aggregate volume** in new Bearish PM Spikes targeting **$347.7x**, suggesting a potential return to the mean after this $55 liquidity grab.
+</div>
+
+<hr>
+
+<h2>3. Signal Audit Trail (High-Importance)</h2>
+<table>
+    <tr><th>Date</th><th>Type</th><th>Direction</th><th>Volume/Premium</th><th>Target</th><th>Status</th></tr>
+    <tr><td>2026-04-14</td><td class="bullish">Spike (PM)</td><td class="bullish">Bullish</td><td>21</td><td>399.83</td><td class="status-active">ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-14</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$58.1M</td><td>N/A</td><td class="status-active">ACTIVE</td></tr>
+    <tr><td>2026-04-13</td><td class="bearish">Spike (PM)</td><td class="bearish">Bearish</td><td>825 (Agg)</td><td>347.7x</td><td class="status-active">ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-13</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$102.7M (Agg)</td><td>N/A</td><td class="status-active">ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-10</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$52.2M</td><td>N/A</td><td class="status-active">ACTIVE</td></tr>
+    <tr class="options-row"><td>2026-04-09</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$267.1M</td><td>500.0P</td><td class="status-hit">HIT</td></tr>
+    <tr class="options-row"><td>2026-04-09</td><td>Options Flow</td><td class="bullish">Bullish</td><td>$161.5M</td><td>500.0P</td><td class="status-hit">HIT</td></tr>
+    <tr><td>2026-04-09</td><td class="bullish">Spike (PM)</td><td class="bullish">Bullish</td><td>120</td><td>392.50</td><td class="status-hit">HIT (Apr 15)</td></tr>
+    <tr><td>2026-04-08</td><td class="bullish">Spike (RTH)</td><td class="bullish">Bullish</td><td>95</td><td>392.05</td><td class="status-hit">HIT (Apr 15)</td></tr>
+    <tr><td>2026-04-07</td><td class="bullish">Spike (PM)</td><td class="bullish">Bullish</td><td>44 (Agg)</td><td>391.3x</td><td class="status-hit">HIT (Apr 15)</td></tr>
+    <tr class="options-row"><td>2026-04-01</td><td>Options Flow</td><td class="bearish">Bearish</td><td>$858.9M</td><td>N/A</td><td class="status-hit">RESOLVED</td></tr>
+    <tr><td>2026-03-27</td><td class="bearish">Spike (PM)</td><td class="bearish">Bearish</td><td>105</td><td>345.10</td><td class="status-hit">HIT (Apr 09)</td></tr>
+    <tr><td>2026-03-26</td><td class="bearish">Spike (PM)</td><td class="bearish">Bearish</td><td>68</td><td>345.22</td><td class="status-hit">HIT (Apr 09)</td></tr>
+</table>
+
+</body>
+</html>

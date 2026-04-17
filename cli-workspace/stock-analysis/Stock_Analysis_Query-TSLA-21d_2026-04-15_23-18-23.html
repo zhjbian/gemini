@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSLA Bidirectional Backtest Report</title>
+<style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; }
+    h1, h2, h3 { color: #111; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #f8f8f8; }
+    .bullish { background-color: #e8f5e9; color: #2e7d32; font-weight: bold; }
+    .bearish { background-color: #ffebee; color: #c62828; font-weight: bold; }
+    .success { color: #2e7d32; font-weight: bold; }
+    .instruction-box { background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin: 20px 0; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 0.9em; border: 1px solid #e5e7eb; }
+    .highlight { background-color: #fff9c4; padding: 10px; border-radius: 4px; margin: 10px 0; border-left: 4px solid #fbc02d; }
+</style>
+</head>
+<body>
+<h1>Institutional Signal Backtest Report: TSLA</h1>
+
+<h2>Original Instruction</h2>
+<div class="instruction-box">
+    "@stock-analysys backtest TSLA, find both bullish and bearish signals from last 3 weeks to evaluate whether they have forecasted the big rally from 2026-04-09, 338 to 393"
+</div>
+
+<h2>1. Overall Backtest Summary</h2>
+<ul>
+    <li><strong>Bottom Magnet Resolution</strong>: <span class="success">100% Correct</span> (Targets $345-347 hit at $338 low)</li>
+    <li><strong>Rally Magnet Resolution</strong>: <span class="success">100% Correct</span> (Targets $391-392 hit at $393 high)</li>
+    <li><strong>Lead Conviction</strong>: Bullish targets were layered in 48h <em>before</em> bearish targets were fully hit.</li>
+</ul>
+
+<h2>2. Analytical Rationale</h2>
+<p>The 21-day institutional map shows a textbook "Pinball" maneuver, where institutions resolved extreme targets on both sides of the spread.</p>
+<div class="highlight">
+    <strong>Phase 1: The Descent</strong> - Late March was dominated by bearish magnets targeting $345, which pulled price down into the April 9th bottom.
+</div>
+<div class="highlight">
+    <strong>Phase 2: The Hand-off</strong> - Just as price neared its bearish objective on April 7-9, institutions flipped the tape, printing massive 120-volume bullish magnets at $392 while price was still at $338.
+</div>
+<p>Crucially, as price hit the $393 high on April 15, institutions immediately printed <strong>new bearish magnets (347.7x)</strong>, suggesting the rally may have been a liquidity grab before a potential return to the low-350 zone.</p>
+
+<hr>
+
+<h2>3. Signal Audit Trail</h2>
+<table>
+    <tr><th>Date</th><th>Type</th><th>Direction</th><th>Volume</th><th>Target Price</th><th>Status</th></tr>
+    <tr><td>2026-04-14</td><td>Spike (PM)</td><td class="bullish">Bullish (UP)</td><td>21</td><td>399.83</td><td>ACTIVE</td></tr>
+    <tr><td>2026-04-13</td><td>Spike (PM)</td><td class="bearish">Bearish (DN)</td><td>825 (Agg)</td><td>347.7x</td><td>ACTIVE</td></tr>
+    <tr><td>2026-04-09</td><td>Spike (PM)</td><td class="bullish">Bullish (UP)</td><td>120</td><td>392.50</td><td class="success">HIT (Apr 15)</td></tr>
+    <tr><td>2026-04-08</td><td>Spike (RTH)</td><td class="bullish">Bullish (UP)</td><td>95</td><td>392.05</td><td class="success">HIT (Apr 15)</td></tr>
+    <tr><td>2026-04-07</td><td>Spike (PM)</td><td class="bullish">Bullish (UP)</td><td>44 (Agg)</td><td>391.3x</td><td class="success">HIT (Apr 15)</td></tr>
+    <tr><td>2026-04-02</td><td>Spike (PM)</td><td class="bearish">Bearish (DN)</td><td>63</td><td>347.80</td><td class="success">HIT (Apr 09)</td></tr>
+    <tr><td>2026-03-27</td><td>Spike (PM)</td><td class="bearish">Bearish (DN)</td><td>105</td><td>345.10</td><td class="success">HIT (Apr 09)</td></tr>
+    <tr><td>2026-03-26</td><td>Spike (PM)</td><td class="bearish">Bearish (DN)</td><td>68</td><td>345.22</td><td class="success">HIT (Apr 09)</td></tr>
+</table>
+
+</body>
+</html>
