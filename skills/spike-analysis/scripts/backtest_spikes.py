@@ -39,7 +39,18 @@ def is_rth(dt):
     return 9.5 <= time_val < 16.0
 
 def run_backtest(ticker="TSLA", lookback_days=365):
-    print(f"Starting Backtest for {ticker} (Lookback: {lookback_days} days, Window: {HIT_WINDOW} days, RTH Only)...")
+    # Ticker-specific thresholds
+    if ticker.upper() in ["SPY", "QQQ"]:
+        hit_buffer = 0.5
+        min_change = 0.01
+    elif ticker.upper() == "NVDA":
+        hit_buffer = 1.0
+        min_change = 0.025
+    else:
+        hit_buffer = 1.0
+        min_change = 0.03
+        
+    print(f"Starting Backtest for {ticker} (Lookback: {lookback_days} days, Window: {HIT_WINDOW} days, Buffer: {hit_buffer}, MinChange: {min_change*100}%, RTH Only)...")
     
     engine = create_engine(DATABASE_URL)
     Session = sessionmaker(bind=engine)
@@ -51,7 +62,7 @@ def run_backtest(ticker="TSLA", lookback_days=365):
         SpikeMWAgg.ticker == ticker,
         SpikeMWAgg.t_date >= start_date,
         (SpikeMWAgg.is_prev_close == False) | (SpikeMWAgg.is_prev_close == None),
-        func.abs(SpikeMWAgg.price_change) >= 0.03
+        func.abs(SpikeMWAgg.price_change) >= min_change
     ).all()
 
     if not spikes:
@@ -95,14 +106,21 @@ def run_backtest(ticker="TSLA", lookback_days=365):
         discovery_dt_market = discovery_dt_pacific.astimezone(eastern)
         future_data = df_rth[df_rth.index > discovery_dt_market]
         
-        min_move_trigger = spot * (1.03 if direction == "Bullish" else 0.97)
+        # Adjust min_move_trigger based on ticker threshold
+        move_threshold = 1.0 + min_change
+        inv_move_threshold = 1.0 - min_change
+        min_move_trigger = spot * (move_threshold if direction == "Bullish" else inv_move_threshold)
         target_hit = False
         days_to_target = None
+        eventual_hit = False
+        days_to_eventual = None
         min_move_hit = False
         days_to_min = None
         max_profit_pct = 0.0
         days_to_max = 0
+        max_drawdown_pct = 0.0
         best_price = spot
+        worst_price = spot
         spike_day_idx = day_idx_map.get(s.t_date, -1)
         
         for idx, row in future_data.iterrows():
@@ -111,14 +129,34 @@ def run_backtest(ticker="TSLA", lookback_days=365):
             curr_day_idx = day_idx_map.get(idx.date(), -1)
             day_offset = curr_day_idx - spike_day_idx if spike_day_idx != -1 else 0
             
+            # Check for Target Hit (within conviction window)
             if not target_hit:
-                if (direction == "Bullish" and high >= target) or (direction == "Bearish" and low <= target):
+                if (direction == "Bullish" and high >= (target - hit_buffer)) or \
+                   (direction == "Bearish" and low <= (target + hit_buffer)):
                     if day_offset <= HIT_WINDOW:
                         target_hit = True
                         days_to_target = day_offset
             
+            # Check for Eventual Hit (any time)
+            if not eventual_hit:
+                if (direction == "Bullish" and high >= (target - hit_buffer)) or \
+                   (direction == "Bearish" and low <= (target + hit_buffer)):
+                    eventual_hit = True
+                    days_to_eventual = day_offset
+            
+            # Track adverse performance (drawdown) STRICTLY until hit
+            if not eventual_hit:
+                if direction == "Bullish":
+                    if low < worst_price: 
+                        worst_price = low
+                        # Optional: track date_of_drawdown if we need it for reporting
+                else:
+                    if high > worst_price: 
+                        worst_price = high
+            
             if not min_move_hit:
-                if (direction == "Bullish" and high >= min_move_trigger) or (direction == "Bearish" and low <= min_move_trigger):
+                if (direction == "Bullish" and high >= (min_move_trigger - hit_buffer)) or \
+                   (direction == "Bearish" and low <= (min_move_trigger + hit_buffer)):
                     if day_offset <= HIT_WINDOW:
                         min_move_hit = True
                         days_to_min = day_offset
@@ -134,6 +172,11 @@ def run_backtest(ticker="TSLA", lookback_days=365):
                     
         if spot > 0:
             max_profit_pct = (best_price - spot) / spot * 100 if direction == "Bullish" else (spot - best_price) / spot * 100
+            max_drawdown_pct = (spot - worst_price) / spot * 100 if direction == "Bullish" else (worst_price - spot) / spot * 100
+
+        # Calculate Exclusive Delayed Hit (Hit ONLY after window)
+        delayed_hit = 1 if (eventual_hit and not target_hit) else 0
+        days_to_delayed = days_to_eventual if delayed_hit else None
 
         full_audit_results.append({
             "id": s.id,
@@ -148,10 +191,13 @@ def run_backtest(ticker="TSLA", lookback_days=365):
             "direction": direction,
             "target_hit": 1 if target_hit else 0,
             "days_to_target": days_to_target,
+            "delayed_hit": delayed_hit,
+            "days_to_delayed": days_to_delayed,
             "min_hit": 1 if min_move_hit else 0,
             "days_to_min": days_to_min,
             "max_profit_pct": max_profit_pct,
-            "days_to_max": days_to_max
+            "days_to_max": days_to_max,
+            "max_drawdown_pct": max_drawdown_pct
         })
 
     df_full = pd.DataFrame(full_audit_results)
@@ -166,12 +212,15 @@ def run_backtest(ticker="TSLA", lookback_days=365):
         burst_df['time_min'] = burst_df['time'].str[:5] 
         burst_summary = burst_df.groupby(['date', 'time_min', 'vol_bucket', 'trading_hour']).agg({
             'target_hit': 'max',
+            'delayed_hit': 'max',
             'min_hit': 'max',
             'days_to_target': 'min',
+            'days_to_delayed': 'min',
             'days_to_min': 'min',
             'max_profit_pct': 'mean',
             'target_move_pct': 'mean',
-            'days_to_max': 'mean'
+            'days_to_max': 'mean',
+            'max_drawdown_pct': 'mean'
         }).reset_index()
         burst_summary = burst_summary.rename(columns={'time_min': 'time'})
         df_stats = pd.concat([normal_df, burst_summary], ignore_index=True)
@@ -181,8 +230,8 @@ def run_backtest(ticker="TSLA", lookback_days=365):
     # 5. Aggregation & Reporting
     def summarize_to_f(f, df_sub, title, group_by_vol=False):
         f.write(f"### {title}\n\n")
-        f.write("| Bucket | Count | Avg Target Move | Target Hit Rate | Avg Days to Target | Min Move Hit Rate (3%) | Avg Days to Min Move | Avg Max Profit | Avg Days to Max Profit |\n")
-        f.write("|---|---|---|---|---|---|---|---|---|\n")
+        f.write("| Bucket | Count | Avg Move | Target Hit Rate | Avg Days (T) | DD (Target) | Delayed Hit Rate | Avg Days (D) | DD (Delayed) | Min Hit Rate |\n")
+        f.write("|---|---|---|---|---|---|---|---|---|---|\n")
         
         bucket_order = ["<10", "10-19", "20-49", "50-100", "100-499", "500-999", "1000-2000", "2000-4999", ">=5000"]
         if group_by_vol:
@@ -195,15 +244,24 @@ def run_backtest(ticker="TSLA", lookback_days=365):
         for b in buckets:
             subset = df_sub[df_sub[group_col] == b]
             if subset.empty: continue
+            
             t_hit_p = subset['target_hit'].mean() * 100
+            d_hit_p = subset['delayed_hit'].mean() * 100
             m_hit_p = subset['min_hit'].mean() * 100
+            
             t_hit_subset = subset[subset['target_hit'] == 1]
             avg_days_t = t_hit_subset['days_to_target'].mean() if not t_hit_subset.empty else 0
-            m_hit_subset = subset[subset['min_hit'] == 1]
-            avg_days_m = m_hit_subset['days_to_min'].mean() if not m_hit_subset.empty else 0
+            # Only calculate DD for hits
+            avg_dd_t = t_hit_subset['max_drawdown_pct'].mean() if not t_hit_subset.empty else 0
+            
+            d_hit_subset = subset[subset['delayed_hit'] == 1]
+            avg_days_d = d_hit_subset['days_to_delayed'].mean() if not d_hit_subset.empty else 0
+            # Only calculate DD for hits
+            avg_dd_d = d_hit_subset['max_drawdown_pct'].mean() if not d_hit_subset.empty else 0
+            
             prefix = "**" if b in ["10-19", "20-49", "50-100", "100-499", "500-999", "1000-2000", "2000-4999"] else ""
             suffix = "**" if prefix else ""
-            f.write(f"| {prefix}{b}{suffix} | {len(subset)} | {subset['target_move_pct'].mean():.2f}% | {t_hit_p:.2f}% | {avg_days_t:.1f} | {m_hit_p:.2f}% | {avg_days_m:.1f} | {subset['max_profit_pct'].mean():.2f}% | {subset['days_to_max'].mean():.1f} |\n")
+            f.write(f"| {prefix}{b}{suffix} | {len(subset)} | {subset['target_move_pct'].mean():.2f}% | {t_hit_p:.2f}% | {avg_days_t:.1f} | {avg_dd_t:.2f}% | {d_hit_p:.2f}% | {avg_days_d:.1f} | {avg_dd_d:.2f}% | {m_hit_p:.2f}% |\n")
         f.write("\n")
 
     report_path = f"/Users/zhijiebian/.gemini/skills/spike-analysis/references/{ticker}_reference_data.md"
@@ -213,7 +271,10 @@ def run_backtest(ticker="TSLA", lookback_days=365):
         f.write(f"- **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
         f.write(f"- **Lookback**: {lookback_days} days\n")
         f.write(f"- **Hit Logic**: **RTH ONLY** within {HIT_WINDOW} trading days.\n")
-        f.write(f"- **De-duplication**: Hits on special days {SPECIAL_DAYS} are aggregated by minute and bucket.\n")
+        f.write(f"- **Delayed Logic**: Targets hit strictly AFTER {HIT_WINDOW} days.\n")
+        f.write(f"- **Drawdown Logic**: Calculated **ONLY for successful hits**; tracks max excursion until moment of hit.\n")
+        f.write(f"- **Filters**: Min Change {min_change*100}%; Price Buffer ${hit_buffer:.2f}; Clusters Merged.\n")
+        f.write(f"- **De-duplication**: Bursts on special days {SPECIAL_DAYS} aggregated by minute/bucket.\n")
         f.write(f"- **Total Valid Spikes (Normalized)**: {len(df_stats)}\n\n")
         f.write("---\n\n")
         f.write("## High-Level Findings\n\n")
@@ -240,7 +301,11 @@ def run_backtest(ticker="TSLA", lookback_days=365):
         f.write(f"    - **PM** spikes with **< 10** Volume.\n")
 
     # 6. Detailed Audit Report
-    detailed_path = f"/Users/zhijiebian/.gemini/skills/spike-analysis/references/{ticker}_RTH_volume_details.md"
+    backtest_dir = "/Users/zhijiebian/.gemini/skills/spike-analysis/references/backtest"
+    if not os.path.exists(backtest_dir):
+        os.makedirs(backtest_dir)
+        
+    detailed_path = f"{backtest_dir}/{ticker}_RTH_volume_details.md"
     with open(detailed_path, "w") as f:
         f.write(f"# Detailed RTH Volume Analysis: {ticker}\n\n")
         f.write(f"- **Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
@@ -256,32 +321,34 @@ def run_backtest(ticker="TSLA", lookback_days=365):
             hit_rate = subset['target_hit'].mean() * 100
             
             f.write(f"## Volume Bucket: {b} (Total: {len(subset)}, Hit Rate: {hit_rate:.2f}%)\n\n")
-            f.write("| Date | Time | Direction | Spot | Target | Volume | Move % | Target Hit | Target Days | Min Hit | Min Days | Max Profit | Max Days |\n")
+            f.write("| Date | Time | Dir | Spot | Target | Vol | Move % | Target Hit | Days | Delayed Hit | Days | Min Hit | Drawdown |\n")
             f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
             subset = subset.sort_values(by='date', ascending=False)
             for _, row in subset.iterrows():
                 t_hit_str = "✅" if row['target_hit'] else "❌"
+                d_hit_str = "✅" if row['delayed_hit'] else "❌"
                 m_hit_str = "✅" if row['min_hit'] else "❌"
                 t_days_str = f"{int(row['days_to_target'])}" if row['target_hit'] else "-"
-                m_days_str = f"{int(row['days_to_min'])}" if row['min_hit'] else "-"
-                f.write(f"| {row['date']} | {row['time']} | {row['direction']} | {row['spot']:.2f} | {row['target']:.2f} | {int(row['vol'])} | {row['target_move_pct']:.2f}% | {t_hit_str} | {t_days_str} | {m_hit_str} | {m_days_str} | {row['max_profit_pct']:.2f}% | {int(row['days_to_max'])} |\n")
+                d_days_str = f"{int(row['days_to_delayed'])}" if row['delayed_hit'] else "-"
+                f.write(f"| {row['date']} | {row['time']} | {row['direction'][0]} | {row['spot']:.2f} | {row['target']:.2f} | {int(row['vol'])} | {row['target_move_pct']:.2f}% | {t_hit_str} | {t_days_str} | {d_hit_str} | {d_days_str} | {m_hit_str} | {row['max_drawdown_pct']:.2f}% |\n")
             f.write("\n")
 
         if not special_audit.empty:
             f.write("---\n\n")
             f.write("## Special Days Audit (Outlier Bursts)\n\n")
-            f.write("| Date | Time | Direction | Spot | Target | Volume | Move % | Target Hit | Target Days | Min Hit | Min Days | Max Profit | Max Days |\n")
+            f.write("| Date | Time | Dir | Spot | Target | Vol | Move % | Target Hit | Days | Delayed Hit | Days | Min Hit | Drawdown |\n")
             f.write("| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n")
             special_audit = special_audit.sort_values(by=['date', 'time'], ascending=False)
             for _, row in special_audit.iterrows():
                 t_hit_str = "✅" if row['target_hit'] else "❌"
+                d_hit_str = "✅" if row['delayed_hit'] else "❌"
                 m_hit_str = "✅" if row['min_hit'] else "❌"
                 t_days_str = f"{int(row['days_to_target'])}" if row['target_hit'] else "-"
-                m_days_str = f"{int(row['days_to_min'])}" if row['min_hit'] else "-"
-                f.write(f"| {row['date']} | {row['time']} | {row['direction']} | {row['spot']:.2f} | {row['target']:.2f} | {int(row['vol'])} | {row['target_move_pct']:.2f}% | {t_hit_str} | {t_days_str} | {m_hit_str} | {m_days_str} | {row['max_profit_pct']:.2f}% | {int(row['days_to_max'])} |\n")
+                d_days_str = f"{int(row['days_to_delayed'])}" if row['delayed_hit'] else "-"
+                f.write(f"| {row['date']} | {row['time']} | {row['direction'][0]} | {row['spot']:.2f} | {row['target']:.2f} | {int(row['vol'])} | {row['target_move_pct']:.2f}% | {t_hit_str} | {t_days_str} | {d_hit_str} | {d_days_str} | {m_hit_str} | {row['max_drawdown_pct']:.2f}% |\n")
             f.write("\n")
             
-    df_full.to_csv(f"/Users/zhijiebian/.gemini/skills/spike-analysis/references/backtest_spike_results_{ticker.lower()}.csv", index=False)
+    df_full.to_csv(f"{backtest_dir}/{ticker.upper()}_backtest_results.csv", index=False)
     print(f"Reports refined with 20-volume threshold.")
 
 if __name__ == "__main__":

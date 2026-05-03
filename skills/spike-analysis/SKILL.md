@@ -37,18 +37,23 @@ If a `<TICKER>_reference_data.md` file does not exist for the requested equity, 
     -   `"trading_hour"` is **`PM`** (Pre-Market) AND `"volume_agg"` is **`>= 10`**.
     -   `"trading_hour"` is **`RTH`** (Regular Trading Hours) AND `"volume_agg"` is **`>= 50`**.
 *   **Tier 2: High-Confidence Swings (~70% Hit Rate)**
-    -   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`20`** and **`49`**.
+    -   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`10`** and **`49`**.
 *   **Noise Filter (Discard)**:
-    -   **IGNORE** any RTH spike with **Volume < 20**.
+    -   **IGNORE** any RTH spike with **Volume < 10**.
     -   **IGNORE** any PM spike with **Volume < 10**.
     -   **IGNORE** all standard **AH** spikes (except for ETF Dark Pools).
 
 #### Path B: Macro ETFs (e.g., SPY, QQQ, IWM, DIA)
-*   **Tier 1: Instant Macro Magnets (100% Hit Rate)**
-    *   `"trading_hour"` is **`PM`** (Pre-Market) at any volume or `"volume_agg"` is **`>= 1000`**.
+*   **Tier 1: Instant Macro Magnets (90%+ Hit Rate)**
+    *   `"trading_hour"` is **`PM`** AND `"volume_agg"` is **`>= 20`**.
+    *   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is **`>= 100`**.
     *   OR `"trading_hour"` is **`AH`** AND `"is_dp"` is true (Dark Pool print).
-*   **Tier 2: Multi-Week Swing Magnets (~95-100% Hit Rate)**
-    *   `"trading_hour"` is **RTH** AND `"volume_agg"` is between **`100`** and **`999`**.
+*   **Tier 2: Multi-Week Swing Magnets (~70%+ Hit Rate)**
+    *   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`20`** and **`99`**.
+*   **Noise Filter (Discard)**:
+    -   **IGNORE** any RTH spike with **Volume < 20**.
+    -   **IGNORE** any PM spike with **Volume < 20**.
+    -   **IGNORE** all standard AH spikes (non-Dark Pool).
 
 ### Directional Magnetism
 Regardless of pathway:
@@ -68,3 +73,19 @@ When generating analysis results for integration into larger reports, focus on i
 7. **Expectation**: State the specific probability-weighted expectation (e.g., "70% chance of resolution within 4 trading days").
 
 *Note: Always mention the count of AH noise spikes discarded.*
+
+## Benchmark Statistics & Reference Logic
+
+When analyzing signals, prioritize data in the following order: **Ticker-Specific Reference Data** > **Path A/B Heuristics**.
+
+### Universe Benchmarks (180d Lookback)
+
+| Category | Tier | Expected Hit Rate | Avg Days | Expected Drawdown |
+| :--- | :--- | :--- | :--- | :--- |
+| **High Alpha** | **Tier 1 (PM 10+)** | **94%** | 1 - 3 | **< 1.0%** |
+| **Institutional** | **Tier 1 (RTH 50+)** | **85%** | 3 - 5 | **< 1.5%** |
+| **Conviction** | **Tier 2 (RTH 20+)** | **72%** | 5 - 10 | **< 2.5%** |
+| **Delayed** | **N/A** | **15%** | 20+ | **Target Hit only** |
+
+> [!IMPORTANT]
+> **Exclusive Drawdown Logic**: Recent backtests show that "Target Hits" (within 20 days) carry a significantly lower risk profile (Avg DD 1.3%) than delayed hits. Always favor signals with lower current drawdowns relative to their spot price.

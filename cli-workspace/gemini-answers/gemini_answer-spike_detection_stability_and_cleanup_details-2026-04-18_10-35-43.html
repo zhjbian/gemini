@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - spike_detection_stability_and_cleanup_details</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-18 10:35:43</span>
+<span>Question summary: spike_detection_stability_and_cleanup_details</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#spike_detection_stability_and_cleanup_details">spike_detection_stability_and_cleanup_details</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#1-root-cause-analysis-of-spike-detection-flaws">1. Root Cause Analysis of Spike Detection Flaws</a><ul><li><a href="#problem-1-baseline-drift-after-real-spikes">Problem 1: Baseline Drift after Real Spikes</a></li><li><a href="#problem-2-mismatch-between-detection-and-reporting-0-0-spikes">Problem 2: Mismatch between Detection and Reporting (0.0% Spikes)</a></li></ul></li><li><a href="#2-technical-solution-intra-day-median-baseline">2. Technical Solution: Intra-Day Median Baseline</a><ul><li><a href="#implementation-details">Implementation Details:</a><ul><li><a href="#java-code-fix-studypricespike-java">Java Code Fix (StudyPriceSpike.java):</a></li><li><a href="#median-helper-logic">Median Helper Logic:</a></li></ul></li></ul></li><li><a href="#3-high-fidelity-noise-filtering">3. High-Fidelity Noise Filtering</a></li><li><a href="#4-database-integrity-cleanup">4. Database Integrity Cleanup</a><ul><li><a href="#deletion-script-logic-delete_noise_spikes-py">Deletion Script Logic (delete_noise_spikes.py):</a></li></ul></li><li><a href="#false_baseline_purge_followup">false_baseline_purge_followup</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#4-special-case-corrupted-baseline-purge-2026-04-13">4. Special Case: Corrupted Baseline Purge (2026-04-13)</a><ul><li><a href="#identification-purge">Identification &amp; Purge:</a></li></ul></li></ul></li><li><a href="#baseline_reset_failure_purge_04_09">baseline_reset_failure_purge_04_09</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#5-special-case-failed-baseline-reset-2026-04-09">5. Special Case: Failed Baseline Reset (2026-04-09)</a><ul><li><a href="#identification-purge-2">Identification &amp; Purge:</a></li></ul></li></ul></li><li><a href="#comparative_index_analysis_spy_qqq">comparative_index_analysis_spy_qqq</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#6-comparative-index-analysis-spy-qqq-buffer-0-50">6. Comparative Index Analysis: SPY &amp; QQQ (Buffer: $0.50)</a><ul><li><a href="#key-findings">Key Findings:</a></li><li><a href="#recommendation">Recommendation:</a></li></ul></li></ul></li></ul></div>
+<section><h2 id="spike_detection_stability_and_cleanup_details">spike_detection_stability_and_cleanup_details</h2><section>
+<h3 id="question">Question</h3>
+<p>How to stabilize MotiveWave spike detection and cleanup low-volatility noise from the database?</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<h1>Spike Detection Stability and Database Cleanup Analysis</h1>
+<h2 id="1-root-cause-analysis-of-spike-detection-flaws">1. Root Cause Analysis of Spike Detection Flaws</h2>
+<h3 id="problem-1-baseline-drift-after-real-spikes">Problem 1: Baseline Drift after Real Spikes</h3>
+<ul>
+<li><strong>Observation</strong>: On 2026-04-13 (TSLA), a real spike occurred at 05:47:55 (Price 390.02). However, in the subsequent bars (05:48:00+), the system treated 390.02 as the "normal" spot price and flagged the true market price (~347.xx) as a downward spike.</li>
+<li><strong>Cause</strong>: The <code>StudyPriceSpike.java</code> was using <code>series.getClose(index - 1)</code> (the previous bar's close) as the baseline for the current bar's detection. When a bar closes at or near a spike price, the baseline for the entire next bar is corrupted.</li>
+</ul>
+<h3 id="problem-2-mismatch-between-detection-and-reporting-0-0-spikes">Problem 2: Mismatch between Detection and Reporting (0.0% Spikes)</h3>
+<ul>
+<li><strong>Observation</strong>: Ticks with 0.0% change relative to the spot price were being flagged as spikes.</li>
+<li><strong>Cause</strong>: The study used a 3-bar average for detecting bounds (<code>lowerBound</code>/<code>upperBound</code>) but used the immediate <code>lastBarClosePrice</code> as the "Spot Price" for the JSON report and percentage calculation. This mismatch allowed a price to be "outside the average bounds" but "identical to the reporting baseline."</li>
+</ul>
+<h2 id="2-technical-solution-intra-day-median-baseline">2. Technical Solution: Intra-Day Median Baseline</h2>
+<p>To solve both problems, the detection logic was moved to an <strong>Intra-Day Median Baseline</strong>.</p>
+<h3 id="implementation-details">Implementation Details:</h3>
+<ul>
+<li><strong>Median Selection</strong>: Switched from a 3-bar average to a <strong>Median of the last 11 bars</strong>. The median is mathematically resistant to outliers; up to 5 consecutive bars can be spikes before the median departs from the true price level.</li>
+<li><strong>Intra-Day Boundary Check</strong>: The logic now strictly ignores bars from previous days to ensure that overnight gap-ups/downs do not cause false detections.</li>
+</ul>
+<h4 id="java-code-fix-studypricespike-java">Java Code Fix (<code>StudyPriceSpike.java</code>):</h4>
+<pre><code class="language-java">// Baseline calculation for PM and RTH sessions
+double medianPrice = getMedianCloseIntraDay(series, index, 11);
+closePrice = (float) medianPrice; // Unified baseline for Bound Check and Reporting
+
+float factor = percentFactor.getOrDefault(ticker, percentFactorDefault);
+lowerBound = closePrice - closePrice * factor;
+upperBound = closePrice + closePrice * factor;
+</code></pre>
+<h4 id="median-helper-logic">Median Helper Logic:</h4>
+<pre><code class="language-java">private double getMedianCloseIntraDay(DataSeries series, int index, int count) {
+    long currentDayStart = series.getStartTime(index);
+    String currentDateStr = BBU.getDateStrFrom(currentDayStart);
+    List&lt;Double&gt; prices = new ArrayList&lt;&gt;();
+
+    for (int i = 1; i &lt;= count &amp;&amp; (index - i) &gt;= 0; i++) {
+        long barStart = series.getStartTime(index - i);
+        if (!BBU.getDateStrFrom(barStart).equals(currentDateStr)) {
+            break; // Stop at day boundary
+        }
+        prices.add((double) series.getClose(index - i));
+    }
+    // ... Sort and calculate median
+}
+</code></pre>
+<h2 id="3-high-fidelity-noise-filtering">3. High-Fidelity Noise Filtering</h2>
+<p>Implemented a <strong>0.2% Hard Filter</strong> to eliminate low-volatility prints from the aggregated results.</p>
+<ul>
+<li><strong>Logic</strong>:<br/>
+<code>java
+    double absPercentChange = Math.abs(tradePrice - closePrice) / closePrice;
+    boolean isMajorTicker = ticker.equals("SPY") || ticker.equals("QQQ");
+    if (!isMajorTicker &amp;&amp; absPercentChange &lt; 0.002) {
+        continue; // Skip small noise
+    }</code></li>
+<li><strong>Result</strong>: Tickers like TSLA, NVDA, and TSM now require a minimum of 0.2% price displacement to be recorded, while indices (SPY, QQQ) remain sensitive to smaller moves.</li>
+</ul>
+<h2 id="4-database-integrity-cleanup">4. Database Integrity Cleanup</h2>
+<p>To align historical data with the new logic, <strong>796 records</strong> were removed from the <code>spike_mw_agg</code> table.</p>
+<h3 id="deletion-script-logic-delete_noise_spikes-py">Deletion Script Logic (<code>delete_noise_spikes.py</code>):</h3>
+<pre><code class="language-python"># Purge records that would now be caught by the 0.2% filter
+stmt = delete(SpikeMWAgg).where(
+    func.abs(SpikeMWAgg.price_change) &lt;= 0.002,
+    SpikeMWAgg.ticker.not_in(['SPY', 'QQQ'])
+)
+</code></pre>
+<ul>
+<li><strong>Impact</strong>: 197 TSLA records, 210 GOOGL records, and 169 TSM records (0.0% noise) were successfully purged.</li>
+</ul>
+</section></section><section><h2 id="false_baseline_purge_followup">false_baseline_purge_followup</h2><h3 id="question-2">Question</h3><p>How to clean up the false return-to-baseline spikes on 2026-04-13?</p><h3 id="answer-2">Answer</h3><h3 id="4-special-case-corrupted-baseline-purge-2026-04-13">4. Special Case: Corrupted Baseline Purge (2026-04-13)</h3>
+<p>After the standard noise cleanup (0.2%), some "False Spikes" remained at the 10.8% level. These were caused by the price returning to normal (~347.xx) while the system was still using the corrupted spike price (390.02) as its spot baseline.</p>
+<h4 id="identification-purge">Identification &amp; Purge:</h4>
+<p>To resolve this, a targeted purge was executed specifically targeting the corrupted baseline value.<br/>
+*   <strong>Filters used</strong>:<br/>
+    *   <code>ticker == 'TSLA'</code><br/>
+    *   <code>t_date == '2026-04-13'</code><br/>
+    *   <code>spot_price == 390.02</code> (The corrupted baseline)<br/>
+    *   <code>target_price &lt; 350</code> (The actual market price)<br/>
+*   <strong>Results</strong>: Successfully removed <strong>16 aggregated</strong> and <strong>22 raw</strong> false records while preserving the legitimate 12.1% spike.</p></section><section><h2 id="baseline_reset_failure_purge_04_09">baseline_reset_failure_purge_04_09</h2><h3 id="question-3">Question</h3><p>How to cleanup the stuck baseline records for TSLA on 2026-04-09?</p><h3 id="answer-3">Answer</h3><h3 id="5-special-case-failed-baseline-reset-2026-04-09">5. Special Case: Failed Baseline Reset (2026-04-09)</h3>
+<p>A second major instance of baseline instability was identified on 2026-04-09. After the price dropped from ~345 to ~337 at 06:51, the study failed to reset and continued using 344.40 as the spot price for nearly 6 minutes.</p>
+<h4 id="identification-purge-2">Identification &amp; Purge:</h4>
+<ul>
+<li><strong>Filters used</strong>:<ul>
+<li><code>ticker == 'TSLA'</code></li>
+<li><code>t_date == '2026-04-09'</code></li>
+<li><code>spot_price == 344.4</code> (The "Stuck" baseline)</li>
+</ul>
+</li>
+<li><strong>Results</strong>: Successfully removed <strong>58 records</strong> that were incorrectly flagged as downward spikes during the period of stabilization.</li>
+</ul></section><section><h2 id="comparative_index_analysis_spy_qqq">comparative_index_analysis_spy_qqq</h2><h3 id="question-4">Question</h3><p>Analyze SPY and QQQ backtests and compare index vs stock behavior</p><h3 id="answer-4">Answer</h3><h3 id="6-comparative-index-analysis-spy-qqq-buffer-0-50">6. Comparative Index Analysis: SPY &amp; QQQ (Buffer: $0.50)</h3>
+<p>A specialized backtest was conducted for the major indices to verify the impact of the tighter $0.50 proximity buffer and investigate "Eventual Hit" behavior.</p>
+<h4 id="key-findings">Key Findings:</h4>
+<ul>
+<li><strong>Structural Pivots</strong>: For <strong>SPY</strong> and <strong>QQQ</strong>, a spike represents a structural level in the market. While the 20-day "Momentum" hit rate is lower (~61-65%), the <strong>Eventual Hit Rate</strong> remains exceptionally high (<strong>82-84%</strong>).</li>
+<li><strong>Indices vs. Stocks (TSLA)</strong>:<ul>
+<li><strong>TSLA</strong>: High momentum conviction (PM spikes hit fast), but if missed, the eventual recovery is less certain.</li>
+<li><strong>Indices</strong>: Higher long-term certainty. These levels act as magnets that the market tends to revisit even months later.</li>
+</ul>
+</li>
+</ul>
+<h4 id="recommendation">Recommendation:</h4>
+<ul>
+<li>Use <strong>SPY/QQQ</strong> spikes as long-term price targets or pivot zones.</li>
+<li>Use <strong>TSLA</strong> spikes for tactical momentum trades within a 5-10 day horizon.</li>
+</ul></section></article>
+</main>
+</body>
+</html>

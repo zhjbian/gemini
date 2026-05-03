@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - institutional_signal_refinement_pipeline</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-18 10:31:13</span>
+<span>Question summary: institutional_signal_refinement_pipeline</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#institutional-flow-refinement-and-spike-detection-stabilization">Institutional Flow Refinement and Spike Detection Stabilization</a><ul><li><a href="#1-rth_fh-integration">1. RTH_FH Integration</a></li><li><a href="#2-motivewave-spike-detection-refinement">2. MotiveWave Spike Detection Refinement</a></li><li><a href="#3-historical-data-cleanup">3. Historical Data Cleanup</a></li><li><a href="#files-impacted">Files Impacted:</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>How should the RTH_FH (First Hour) trading hour be integrated and backfilled, and how can the MotiveWave spike detection logic be stabilized to handle baseline drift and noise?</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h2 id="institutional-flow-refinement-and-spike-detection-stabilization">Institutional Flow Refinement and Spike Detection Stabilization</h2>
+<h3 id="1-rth_fh-integration">1. RTH_FH Integration</h3>
+<p>The "First Hour" (RTH_FH) classification was refined to be inclusive of both boundaries (06:30 and 07:30 PT).<br/>
+*   <strong>Database Level</strong>: Updated <code>order_flow_big_trade_add</code> and <code>backfillRthFh</code> in <code>db_query_order_flow.py</code> to use <code>06:30 &lt;= trade_time &lt;= 07:30</code>.<br/>
+*   <strong>Backtest Layer</strong>: Implemented a fallback in <code>backtest_big_trades.py</code> that recognizes <code>RTH</code> as <code>FirstHour</code> if it falls within that window, ensuring historical parity.<br/>
+*   <strong>Safety</strong>: Excluded <code>bb_date_time.py</code> from changes to avoid impacting other systems.</p>
+<h3 id="2-motivewave-spike-detection-refinement">2. MotiveWave Spike Detection Refinement</h3>
+<p>The <code>StudyPriceSpike.java</code> study was overhauled to prevent baseline drift and reporting errors.<br/>
+*   <strong>Median Baseline</strong>: Shifted from a 3-bar average to a <strong>Median of the last 11 bars</strong>.<br/>
+*   <strong>Intra-Day Boundary</strong>: The calculation strictly ignores bars from previous days to prevent "Gap Up/Down" skewing.<br/>
+*   <strong>Hard Filter</strong>: Enforced a <code>0.2%</code> minimum price change for all tickers except <code>SPY</code> and <code>QQQ</code>.<br/>
+*   <strong>Unified Signal</strong>: The reported <code>spotPrice</code> and <code>price_change</code> are now synchronized with the median baseline used for detection.</p>
+<h3 id="3-historical-data-cleanup">3. Historical Data Cleanup</h3>
+<p>Performed a targeted cleanup of the <code>spike_mw_agg</code> database table.<br/>
+*   <strong>Count</strong>: <strong>796 records</strong> identified as "Noise" (&lt;= 0.2% change).<br/>
+*   <strong>Action</strong>: Deleted these records for all tickers except the majors (SPY/QQQ) to improve the quality of historical signal analysis.</p>
+<h3 id="files-impacted">Files Impacted:</h3>
+<ul>
+<li><code>db_query_order_flow.py</code>: RTH_FH ingestion logic.</li>
+<li><code>backtest_big_trades.py</code>: Backtest categorization synchronization.</li>
+<li><code>StudyPriceSpike.java</code>: Core spike detection logic and filters.</li>
+<li><code>delete_noise_spikes.py</code> (scratch): Database cleanup script.</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

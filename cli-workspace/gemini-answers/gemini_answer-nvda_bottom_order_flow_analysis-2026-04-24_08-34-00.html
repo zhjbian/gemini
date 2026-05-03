@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - nvda_bottom_order_flow_analysis</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-24 08:34:00</span>
+<span>Question summary: nvda_bottom_order_flow_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#i-order-flow-analysis-aggressive-ask-lifting">I. Order Flow Analysis: Aggressive "Ask Lifting"</a></li><li><a href="#ii-options-flow-analysis-the-delta-flip">II. Options Flow Analysis: The Delta Flip</a></li><li><a href="#iii-the-smoking-gun-confirmation">III. The "Smoking Gun" Confirmation</a></li><li><a href="#conclusion">Conclusion</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>NVDA bottom on 2026-03-30, since then rallied big, please find the singles from attached both order flow and options flow data (filtered, only kept the biggest ones) which predicted this rally. (User also requested not to rely on pre-reported sentiment and to use sophisticated order/options flow analysis).</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>Using a more sophisticated analysis of the raw order flow and options data (ignoring the pre-reported sentiment labels), we can see a classic institutional <strong>"Absorption and Flip"</strong> pattern that signaled the NVDA bottom.</p>
+<h3 id="i-order-flow-analysis-aggressive-ask-lifting"><strong>I. Order Flow Analysis: Aggressive "Ask Lifting"</strong></h3>
+<p>Looking at the <strong>Price vs. Bid/Ask</strong> column in your first screenshot, we see evidence of extreme institutional urgency in the days leading up to the bottom:</p>
+<ol>
+<li>
+<p><strong>Aggressive Lifting (Mar 24–25):</strong> </p>
+<ul>
+<li>On March 24, a <strong>$175.2M</strong> trade executed at <strong>$175.21</strong> when the Ask was only <strong>$175.06</strong>. </li>
+<li>On March 25, a <strong>$172.2M</strong> trade executed at <strong>$179.37</strong> when the Ask was <strong>$179.17</strong>.</li>
+<li><strong>Sophisticated Take:</strong> When a $170M+ order executes <strong>above the current Ask</strong>, it signals "Aggressive Accumulation." The buyer is not price-sensitive; they are clearing out the entire overhead order book just to get filled. This was the first sign that big money was "bagging" shares before the final dip.</li>
+</ul>
+</li>
+<li>
+<p><strong>The "Exhaustion" Dark Pool Prints:</strong> </p>
+<ul>
+<li>In the $178–$182 range (Mar 5–17), we see a high concentration of <strong>Dark Pool (isDP)</strong> trades. </li>
+<li><strong>Sophisticated Take:</strong> Massive Dark Pool volume at a specific price level often acts as a "magnet." Institutions were using the Dark Pool to hide their buying interest, but the sheer size ($1.2M+ shares per print) created a massive support zone that the stock eventually "snapped back" to after the March 30 dip.</li>
+</ul>
+</li>
+</ol>
+<h3 id="ii-options-flow-analysis-the-delta-flip"><strong>II. Options Flow Analysis: The Delta Flip</strong></h3>
+<p>Looking at the <strong>SprdId</strong> and <strong>Execution Details</strong> on March 30 (the bottom day), we see a sophisticated institutional pivot:</p>
+<ol>
+<li>
+<p><strong>The 08:30:20 Transaction (SprdId: 54d86fb7):</strong></p>
+<ul>
+<li><strong>Leg 1:</strong> Buy $170 Call at <strong>Ask</strong> ($268M)</li>
+<li><strong>Leg 2:</strong> Sell $140 Call at <strong>Bid</strong> ($482M)</li>
+<li><strong>Sophisticated Take:</strong> This is a <strong>Bearish Vertical Call Spread</strong> (Selling a lower strike/higher delta and buying a higher strike/lower delta). At 8:30 AM, a major player was likely <strong>hedging</strong> for more downside as the stock hit 167.</li>
+</ul>
+</li>
+<li>
+<p><strong>The 08:59:03 Pivot (SprdId: 3be9bb9f):</strong></p>
+<ul>
+<li>Just 29 minutes later, a <em>different</em> massive trade hit: <strong>Buy $140 Calls ($331M) / Sell $150 Calls ($252M)</strong>.</li>
+<li><strong>Sophisticated Take:</strong> This is a <strong>Bullish Vertical Spread</strong>. By buying the $140 Calls (Deep ITM) and selling the $150s, the institution was establishing a <strong>High-Delta Bullish bet</strong>. </li>
+<li><strong>The "Tell":</strong> They didn't buy OTM lotto tickets; they bought <strong>Deep ITM LEAPs</strong> (June 2026). This is "Synthetic Stock." They were essentially buying NVDA shares with 2:1 or 3:1 leverage at the exact bottom.</li>
+</ul>
+</li>
+</ol>
+<h3 id="iii-the-smoking-gun-confirmation"><strong>III. The "Smoking Gun" Confirmation</strong></h3>
+<p>The most sophisticated signal is the <strong>April 2nd Big Trade ($349.4M)</strong>:<br/>
+*   Price: <strong>$174.72</strong> | Bid/Ask: <strong>$174.64 x $174.72</strong><br/>
+*   <strong>Sophisticated Take:</strong> This was a <strong>Full Ask Sweep</strong>. The trade was $349.4M—the single largest print in the set. Executing such a large size exactly at the Ask (lifting the offer) as the stock reclaiming its 20-day moving average is the "Institutional Green Light." It confirmed that the March 30th "Delta Flip" in the options market was the correct move.</p>
+<h3 id="conclusion"><strong>Conclusion</strong></h3>
+<p>The rally wasn't predicted by a single trade, but by a <strong>three-step institutional sequence</strong>:<br/>
+1.  <strong>Aggressive Ask Lifting</strong> in the 170s (Pre-bottom accumulation).<br/>
+2.  <strong>A massive pivot to ITM Bullish Spreads</strong> on the morning of March 30 (Repositioning at the low).<br/>
+3.  <strong>A record-breaking $350M Ask Sweep</strong> on April 2 (Confirmation of the new uptrend).</p>
+</section>
+</article>
+</main>
+</body>
+</html>

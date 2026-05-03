@@ -5,6 +5,13 @@ description: Save a Gemini answer from the current session into an HTML report f
 
 # Gem-Doc
 
+## Critical Rules
+
+> [!IMPORTANT]
+> **NO CONDENSING**: Never summarize, paraphrase, or condense a chat answer when saving it. The goal of this skill is total technical preservation.
+> **FULL GRANULARITY**: Always include the exact logic, code blocks, database queries, and specific parameter values (e.g., "06:30 - 07:30 inclusive") used in the conversation.
+> **APPENDING FIDELITY**: When appending, ensure the new content is at least as detailed as the source chat response.
+
 ## Overview
 
 Save one answer from the current Gemini session as a standalone HTML report in `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers`.

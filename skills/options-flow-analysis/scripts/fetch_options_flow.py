@@ -57,7 +57,7 @@ def main():
         if sprd_id not in grouped_trades:
             grouped_trades[sprd_id] = []
             
-        code_str = flow.get("code") or ""
+        code_str = flow.get("exec_type") or ""
         # Normalize code (remove N. or D.)
         normalized_code = code_str
         if normalized_code.startswith("N.") or normalized_code.startswith("D."):
@@ -76,7 +76,7 @@ def main():
             "sentiment": flow.get("sentiment"),
             "spot_price": float(flow.get("spot_price")) if flow.get("spot_price") else None,
             "dte": flow.get("dte"),
-            "code": code_str,
+            "exec_type": code_str,
             "normalized_code": normalized_code,
             "dir": flow.get("dir"),
             "action": flow.get("action")

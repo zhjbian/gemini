@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBT Order Flow Reversal (5m) 核心逻辑解析</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #16a085;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-bottom: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .highlight {
+            background-color: #e8f4f8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            margin: 20px 0;
+            display: block;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ddd;
+            margin: 30px 0;
+        }
+        .logic-step {
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>(1) BBT Order Flow Reversal 核心检测逻辑</h1>
+    <p>该指标采用<strong>“两阶段验证”</strong>模型，将宏观波动率偏离与微观订单流吸收结合，确保只在最高胜率的极值区出手。</p>
+
+    <div class="logic-step">
+        <h3>阶段一：价格行为与波动率偏离 (Price Action & Exhaustion)</h3>
+        <p>算法首先对当前 K 线进行形态审计，必须满足以下所有“超卖/超买”特征：</p>
+        <ul>
+            <li><strong>长影线拒绝 (Wick Rejection)</strong>：K 线影线长度必须占整根 Bar 振幅的 <span class="highlight">50%</span> 以上（由 Min Wick Percentage 控制）。</li>
+            <li><strong>动态偏离度 (Dynamic Extension)</strong>：当前价格距离过去 1 小时（12 根 K 线）的高/低点距离，必须大于<strong>日均 ATR 的 0.6 倍</strong>。
+                <br><em>*注：若市场波动极低导致 ATR 过小，系统会自动启用 <span class="highlight">29.0 pts</span> 的固定底线作为防护。</em>
+            </li>
+            <li><strong>均线偏离过滤 (EMA Distance)</strong>：价格必须远离 50 EMA，距离至少为<strong>日均 ATR 的 0.2 倍</strong>（或固定底线 <span class="highlight">12.0 pts</span>）。这能有效过滤掉均线附近的震荡干扰。</li>
+        </ul>
+    </div>
+
+    <div class="logic-step">
+        <h3>阶段二：微观订单流吸收确认 (Order Flow Absorption)</h3>
+        <p>一旦阶段一满足，算法将拆解 K 线最末端 <span class="highlight">33%</span> 区域（Extreme Zone）的订单流，通过<strong>双重信念逻辑 (OR Logic)</strong> 进行确认：</p>
+        <ul>
+            <li><strong>主动力量反转 (Delta)</strong>：该区域内净 Delta 达到 <span class="highlight">450</span> 以上。代表即使在影线最尖端，主动方已经发生了逆转或踩踏。</li>
+            <li><strong>被动吸收墙 (Volume)</strong>：该区域内成交量达到 <span class="highlight">1500</span> 手以上。即使 Delta 不明显，巨量成交也代表遭遇了机构级的“冰山限价单”拦截（例如 4/23 的 8k 巨量吸收案例）。</li>
+        </ul>
+        <p><strong>最终信号：</strong> 只有当两阶段全部通过，且后续 K 线<strong>收盘突破</strong>影线警戒位时，正式触发 Buy/Sell 信号并推送至 Dashboard。</p>
+    </div>
+</div>
+
+<div class="card">
+    <h1>(2) Settings 参数详解 (基于当前配置)</h1>
+    
+    <img src="images/settings_panel_v2.png" alt="Settings Panel V2">
+    
+    <ul>
+        <li><strong>Min Wick Percentage (0.5)</strong>：拒绝力度的底线。要求影线长度至少占 Bar 总长度的一半。</li>
+        <li><strong>Extreme Zone (% of Wick) (0.33)</strong>：订单流监控区。只看影线最末端 1/3 区域内的微观交易。</li>
+        <li><strong>Min Extension (ATR Mult) (0.6)</strong>：行情延伸倍数。利用日线 ATR 动态计算“跌得够不够深”或“涨得够不够猛”。</li>
+        <li><strong>Min EMA Distance (ATR Mult) (0.25)</strong>：均线安全区。确保信号远离均线震荡带，只在极度拉伸区工作。</li>
+        <li><strong>Min Absolute Micro-Delta (450)</strong>：影线尖端的主动失衡门槛。450 手代表了强烈的机构级对抗（*注：仅计算 Extreme Zone 内的数据）。</li>
+        <li><strong>Min Extreme Volume (1500)</strong>：影线尖端的成交量门槛。捕捉“巨量不跌/巨量不涨”的被动吸收行为（*注：仅计算 Extreme Zone 内的数据，非整根 Bar）。</li>
+        <li><strong>Extension Lookback (Bars) (12)</strong>：回溯寻找高低点的窗口。12 根 K 线（5 分钟图上为 1 小时）。</li>
+        <li><strong>Signal Cooldown Bars (6)</strong>：信号冷却期。触发后 30 分钟内不接收反向干扰信号。</li>
+        <li><strong>Stop Loss Buffer (pts) (2.00)</strong>：止损缓冲。在影线高低点外侧额外增加的 2 点安全空间。</li>
+    </ul>
+
+    <h3>Trend Filters</h3>
+    <p><strong>Enable Bottoms / Tops</strong>：手动开关。在明显的单边牛市日，可以关闭 Top (Sell) 信号，只捕捉顺势的深度洗盘回踩。</p>
+</div>
+
+</body>
+</html>

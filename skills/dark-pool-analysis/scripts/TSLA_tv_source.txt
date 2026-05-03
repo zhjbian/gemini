@@ -1,0 +1,62 @@
+//@version=5
+indicator('BB_DarkPool_Visual_TSLA_V2', overlay=true, max_labels_count=500, max_boxes_count=500)
+
+type DarkPoolSignal
+    string date_str
+    int hour
+    int minute
+    float price
+    float volume
+    string side
+    string session
+    string hit_status
+    int days
+
+array<DarkPoolSignal> signals = array.new<DarkPoolSignal>()
+
+fill_data() =>
+    array.push(signals, DarkPoolSignal.new("2026-03-31", 13, 0, 371.75, 15.12, "Buy", "AH", "HIT", 10))
+    array.push(signals, DarkPoolSignal.new("2026-02-10", 13, 0, 425.21, 19.25, "Buy", "AH", "FAIL", 0))
+    array.push(signals, DarkPoolSignal.new("2025-12-19", 13, 0, 481.2, 33.27, "Sell", "AH", "HIT", 6))
+    array.push(signals, DarkPoolSignal.new("2025-12-15", 13, 0, 475.31, 12.5, "Sell", "AH", "HIT", 11))
+    array.push(signals, DarkPoolSignal.new("2025-11-24", 13, 0, 417.78, 14.31, "Buy", "AH", "HIT", 6))
+    array.push(signals, DarkPoolSignal.new("2025-09-19", 13, 0, 426.07, 16.46, "Sell", "AH", "FAIL", 39))
+    array.push(signals, DarkPoolSignal.new("2025-07-24", 13, 0, 305.3, 12.51, "Buy", "AH", "HIT", 1))
+    array.push(signals, DarkPoolSignal.new("2025-06-05", 13, 0, 284.7, 18.51, "Buy", "AH", "HIT", 1))
+    array.push(signals, DarkPoolSignal.new("2025-05-30", 13, 0, 346.46, 19.54, "Sell", "AH", "HIT", 3))
+    array.push(signals, DarkPoolSignal.new("2025-04-30", 13, 0, 282.16, 13.15, "Sell", "AH", "FAIL", 0))
+    array.push(signals, DarkPoolSignal.new("2025-04-25", 13, 0, 284.95, 13.39, "Sell", "AH", "FAIL", 0))
+    array.push(signals, DarkPoolSignal.new("2025-04-21", 13, 0, 227.5, 16.68, "Buy", "AH", "HIT", 1))
+
+if barstate.islast
+    fill_data()
+    for i = 0 to (array.size(signals) - 1)
+        sig = array.get(signals, i)
+        
+        // 1. Time Setup
+        string[] d_parts = str.split(sig.date_str, "-")
+        y = int(str.tonumber(array.get(d_parts, 0)))
+        m = int(str.tonumber(array.get(d_parts, 1)))
+        d = int(str.tonumber(array.get(d_parts, 2)))
+        t_sig = timestamp(y, m, d, sig.hour, sig.minute, 0)
+        t_right = t_sig + 14400000 // 4 hour visual width
+        
+        // 2. Styling (Buy=Green, Sell=Red)
+        color col = sig.side == "Buy" ? color.new(color.green, 20) : color.new(color.red, 20)
+        
+        // 3. Draw Volume Box (Factor 0.2 for TSLA)
+        factor = 0.2 
+        top = sig.price + (sig.volume * factor)
+        bottom = sig.price
+        
+        box.new(t_sig, top, t_right, bottom, xloc=xloc.bar_time, bgcolor=col, border_color=color.gray)
+        
+        // 4. Volume Label (Top of Box, No Overlap)
+        label.new(t_sig, top, str.tostring(sig.volume) + "M", xloc=xloc.bar_time, yloc=yloc.price, color=color.new(color.white, 100), textcolor=color.white, style=label.style_none, size=size.small)
+        
+        // 5. Performance Label (Bottom)
+        label_bg = sig.hit_status == "HIT" ? color.new(color.green, 10) : color.new(color.red, 10)
+        status_text = sig.hit_status == "HIT" ? "HIT (" + str.tostring(sig.days) + "d)" : "FAIL"
+        txt = sig.session + " " + sig.side + "\n" + status_text
+        
+        label.new(t_sig, bottom, txt, xloc=xloc.bar_time, yloc=yloc.belowbar, color=label_bg, textcolor=color.white, style=label.style_label_up, size=size.small)

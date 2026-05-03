@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - purge_historical_spike_noise</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-18 12:50:49</span>
+<span>Question summary: purge_historical_spike_noise</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#purge_historical_spike_noise">purge_historical_spike_noise</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#identified-noise-clusters-highlights">Identified Noise Clusters (Highlights)</a></li><li><a href="#technical-assessment">Technical Assessment</a></li><li><a href="#identified-dates-for-purge">Identified Dates for Purge</a></li></ul></li></ul></li><li><a href="#purge_historical_spike_noise_tickers">purge_historical_spike_noise_tickers</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a><ul><li><a href="#noise-cluster-mapping-by-symbol">Noise Cluster Mapping by Symbol</a></li></ul></li></ul></li></ul></div>
+
+
+<section><h2 id="purge_historical_spike_noise">purge_historical_spike_noise</h2><section>
+<h3 id="question">Question</h3>
+<p>all should be deleted, please find and list all dates with the PM large number of false spikes, before actual delete them, in last 356 days</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>I have identified over <strong>50 unique dates</strong> in the last 365 days where the institutional spike database was flooded with "Machine Gun" noise during Pre-Market (PM) gaps. </p>
+<p>For example, on <strong>March 23, 2026</strong>, the SPY and QQQ data was corrupted by over <strong>1,300 redundant records</strong> in just a few minutes of trend-gapping price action.</p>
+<h4 id="identified-noise-clusters-highlights">Identified Noise Clusters (Highlights)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Date</th>
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Cluster Size</th>
+<th style="text-align: left;">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>2026-03-23</strong></td>
+<td style="text-align: left;">SPY</td>
+<td style="text-align: left;"><strong>855</strong></td>
+<td style="text-align: left;">Baseline lag during massive gap.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2026-03-23</strong></td>
+<td style="text-align: left;">QQQ</td>
+<td style="text-align: left;"><strong>544</strong></td>
+<td style="text-align: left;">Baseline lag during massive gap.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2026-04-08</strong></td>
+<td style="text-align: left;">SPY</td>
+<td style="text-align: left;"><strong>222</strong></td>
+<td style="text-align: left;">Pre-market momentum suppression failure.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2026-04-14</strong></td>
+<td style="text-align: left;">AVGO</td>
+<td style="text-align: left;"><strong>521</strong></td>
+<td style="text-align: left;">Earnings/Gap noise cluster.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2026-03-31</strong></td>
+<td style="text-align: left;">TSLA</td>
+<td style="text-align: left;"><strong>100+</strong></td>
+<td style="text-align: left;">The cluster from the user example image.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="technical-assessment">Technical Assessment</h4>
+<p>These "Machine Gun" bursts occur when the market moves vertically so rapidly that the 11-bar median (the baseline) fails to adjust. Every subsequent print at the new level is flagged as an outlier, resulting in hundreds of redundant database entries.</p>
+<h4 id="identified-dates-for-purge">Identified Dates for Purge</h4>
+<p>The scan identified significant noise on the following dates:<br/>
+- <strong>March 2026</strong>: 02, 03, 05, 09, 18, 23 (Heavy), 27, 31<br/>
+- <strong>April 2026</strong>: 02, 08 (Heavy), 14<br/>
+- <strong>Late 2025</strong>: Oct 14, 22, 29, 31; Nov 04, 10, 14, 19, 24; Dec 04<br/>
+- And ~25 other smaller clusters.</p>
+<p><img alt="Example Noise Cluster" src="images/media__1776541183147.png"/></p>
+</section></section><section><h2 id="purge_historical_spike_noise_tickers">purge_historical_spike_noise_tickers</h2><h3 id="question-2">Question</h3><p>please mark tickers for each day</p><h3 id="answer-2">Answer</h3><p>I have mapped the specific symbols associated with each of the "Machine Gun" noise clusters to provide a granular audit trail for the historical cleanup.</p>
+<h4 id="noise-cluster-mapping-by-symbol">Noise Cluster Mapping by Symbol</h4>
+<p><strong>2026</strong><br/>
+- <strong>April</strong>:<br/>
+  - <strong>16</strong>: TSM<br/>
+  - <strong>14</strong>: TSM<br/>
+  - <strong>13</strong>: AVGO, QQQ, SPY<br/>
+  - <strong>09</strong>: SPY<br/>
+  - <strong>08</strong>: QQQ, SPY<br/>
+  - <strong>02</strong>: GOOGL, META, NVDA, QQQ, SPY, TSM<br/>
+- <strong>March</strong>:<br/>
+  - <strong>31</strong>: META, NVDA, QQQ, SPY, TSLA, TSM<br/>
+  - <strong>30</strong>: META, QQQ<br/>
+  - <strong>27</strong>: META<br/>
+  - <strong>23 (Severe)</strong>: GOOGL, META, NVDA, QQQ, SPY, TSM<br/>
+  - <strong>18</strong>: QQQ<br/>
+  - <strong>16</strong>: META, QQQ<br/>
+  - <strong>11</strong>: TSM<br/>
+  - <strong>09</strong>: GOOGL, QQQ, SPY, TSM<br/>
+  - <strong>05</strong>: TSM<br/>
+  - <strong>03</strong>: GOOGL, NVDA, QQQ, SPY, TSLA, TSM<br/>
+  - <strong>02</strong>: GOOGL, META, NVDA, QQQ, SPY, TSLA, TSM<br/>
+- <strong>February</strong>:<br/>
+  - <strong>10</strong>: TSM<br/>
+  - <strong>06</strong>: AVGO, GOOGL, META, QQQ, TSLA, TSM<br/>
+  - <strong>02</strong>: QQQ, TSLA<br/>
+- <strong>January</strong>:<br/>
+  - <strong>28</strong>: TSM<br/>
+  - <strong>23</strong>: NVDA<br/>
+  - <strong>20</strong>: AVGO, GOOGL, META, NVDA, QQQ, SPY, TSLA<br/>
+  - <strong>12</strong>: GOOGL<br/>
+  - <strong>02</strong>: GOOGL, TSM</p>
+<p><strong>2025</strong><br/>
+- <strong>December</strong>: 04 (META), 08 (TSM)<br/>
+- <strong>November</strong>: 04 (AMD, AVGO, TSM), 07 (TSLA), 10 (AMD, AVGO, GOOGL, NVDA, TSM), 14 (AMD, AVGO, GOOGL), 17 (GOOGL), 21 (GOOGL), 24 (GOOGL), 26 (GOOGL)<br/>
+- <strong>October</strong>: 02 (TSLA), 03 (TSM), 06 (AMD), 07 (TSM), 10 (AVGO), 13 (GOOGL, NVDA, TSLA, TSM), 14 (AVGO, GOOGL, NVDA, TSLA, TSM), 15 (TSM), 16 (TSM), 17 (AVGO, GOOGL, TSM), 20 (AMD, TSM), 27 (AMD, GOOGL, TSM), 29 (AMD), 30 (GOOGL, META), 31 (META)<br/>
+- <strong>September</strong>: 02 (TSM), 03 (GOOGL), 05 (AVGO), 23 (TSM)</p></section></article>
+</main>
+</body>
+</html>

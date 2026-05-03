@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyPriceSpike 核心捕获逻辑总结</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        .card {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #e67e22;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #d35400;
+            margin-top: 25px;
+            border-left: 5px solid #d35400;
+            padding-left: 10px;
+        }
+        h3 {
+            color: #2980b9;
+        }
+        .highlight {
+            background-color: #fef5e7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #e67e22;
+            font-weight: bold;
+            font-family: "JetBrains Mono", monospace;
+        }
+        .code-block {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .important {
+            background-color: #fdf2f2;
+            border: 1px solid #e74c3c;
+            padding: 15px;
+            border-radius: 6px;
+            color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>StudyPriceSpike 核心检测逻辑总结</h1>
+    <p>该 Study 的核心目标是识别价格瞬间偏离正常波动范围的“异常成交”（Spike/Bad Prints）。以下是目前代码实现的技术路径：</p>
+
+    <h2>1. 数据获取：深度 Tick 扫描 (Tick-Level Scan)</h2>
+    <p>与普通指标不同，该 Study 不依赖 K 线（OHLC），而是使用显微镜级别的 <span class="highlight">instrument.getTicks(startTime, endTime)</span> 获取整根 Bar 内部的所有原始成交记录。</p>
+    <div class="important">
+        <strong>⚠️ MW7 捕获失败的关键点：</strong><br>
+        如果 <code>getTicks</code> 返回 null 或空列表，循环将永远不会执行，即使 K 线上能看到影线，Study 也会因为拿不到底层数据而无法触发。
+    </div>
+
+    <h2>2. 基准设定：动态 ATR 边界 (ATR Bounds)</h2>
+    <p>算法通过一个“基准价格”和 ATR 来定义什么是“正常波动”：</p>
+    <ul>
+        <li><strong>基准价格 (closePrice)</strong>：通常使用特定锚点 Bar（如凌晨 1:02 AM）的最后一笔成交价。</li>
+        <li><strong>安全通道 (Bounds)</strong>：
+            <div class="code-block">
+                lowerBound = closePrice - 0.5 * ATR;<br>
+                upperBound = closePrice + 0.5 * ATR;
+            </div>
+        </li>
+    </ul>
+
+    <h2>3. 判定逻辑：极值越界 (Out-of-Bounds Detection)</h2>
+    <p>代码遍历每一个 Tick，检查其价格是否跌破或突破了安全通道：</p>
+    <div class="code-block">
+        if (tradePrice < lowerBound || tradePrice > upperBound) {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;// 检测到 Spike!<br>
+        }
+    </div>
+
+    <h2>4. 信号去重与聚合 (Deduplication & Aggregation)</h2>
+    <ul>
+        <li><strong>唯一标识</strong>：使用 <code>Ticker + Time + Price + Volume</code> 生成唯一 Key，存入 <span class="highlight">spikesDetected</span> 集合，防止同一个 Tick 被重复上报。</li>
+        <li><strong>聚合上报</strong>：将同一价格位的多个成交聚合为一个信号，并记录 <code>maxAbsVolume</code>（最大单笔单量）和 <code>tradeCount</code>（成交次数），避免信号轰炸。</li>
+    </ul>
+
+    <h2>5. 后端同步 (Backend Integration)</h2>
+    <p>一旦确认 Spike，Study 会构造一个 JSON 对象并调用 <span class="highlight">sendNotificationToServer(spike)</span>，通过 HTTP 异步发送至 Flask 后端，触发后续的统计和通知流程。</p>
+</div>
+
+</body>
+</html>

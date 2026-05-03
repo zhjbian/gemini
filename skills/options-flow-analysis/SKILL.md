@@ -13,47 +13,38 @@ python3 /Users/zhijiebian/.gemini/skills/options-flow-analysis/scripts/fetch_opt
 ```
 
 ## Analysis Guidelines
-When you receive the JSON output from the script, you will see a `daily_price_context` dict and an array of `option_trades`. Each "trade" is grouped by `sprd_id` and contains one or more `legs` (arrays of individual OptionFlow records). 
+When you receive the JSON output from the script, you will see a `daily_price_context` dict and an array of `option_trades`. Each "trade" is grouped by `sprd_id` and contains one or more `legs`.
 
 1. **Trade Grouping**:
-   - A single trade might consist of multiple legs under the same `sprd_id`. ALWAYS evaluate all legs together holistically to identify the overarching strategy (e.g. a vertical call spread, straddle, iron condor, rolled positions, etc.).
-   - **Filtration Rule**: Completely IGNORE any single-leg trade (where `legs_count` is 1) if its `total_premium_in_trade` is strictly LESS than the minimum threshold (i.e. < $4 Million for standard tickers, but < $2 Million if the `<ticker>` is exactly `VIX`). Do not include these in the final report.
-   
-2. **Sentiment & Directional Analysis**:
-   - For each leg, check its `normalized_code` and original `code`.
-   - **Crucial Rule on Codes**:
-     - ONLY `D.AUTO` is considered reliably direction-trustable as identified by the data source (QuantData). 
-     - For ALL OTHER codes (including other `D.` prefixes or `N.` prefixes), the direction is NOT reliably trustable. Do not blindly trust the default sentiment for these.
-   - **Crucial Rule on Sentiment Types**:
-     - `Strong`: The initiator is *buying* the contract (e.g., Strong Bullish = Buying Calls, Strong Bearish = Buying Puts).
-     - `Weak`: The initiator is *selling* the contract (e.g., Weak Bullish = Selling Puts, Weak Bearish = Selling Calls).
-     - Prefix `N.` inside sentiment_type: The execution occurred in the middle third of the bid-ask spread, making the derived buying/selling action less reliable.
-   - Assess the true sentiment manually by cross-referencing:
-     - The `spot_price_at_execution` versus the `daily_price_context` (Open, High, Low, Close).
-     - Consider if the trade is trend-following or a mean-reverting fade based on where price has moved.
+   - ALWAYS evaluate all legs under the same `sprd_id` together. Identify the strategy (e.g. vertical spread, straddle, roll).
+   - **Filtration Rule**: IGNORE single-leg trades if `total_premium_in_trade` is < $4 Million (or < $2 Million for VIX).
+
+2. **Sentiment & Directional Reliability (Expert Tiers)**:
+   - For each leg, check `exec_type` and `normalized_code`.
+   - **Tier 1: High Conviction (D.ISO, D.AUCT_ISO)**: Extremely reliable. Aggressive sweep behavior. Trust the sentiment derived from Bid/Ask proximity.
+   - **Tier 2: Strong Participation (D.AUTO, D.M2S_AUTO)**: Highly reliable. Standard electronic market-taking.
+   - **Tier 3: Price Discovery (D.AUCT)**: Moderately reliable. These are auctions often filled at the midpoint. Treat with caution if print is exactly the midpoint.
+   - **Tier 4: Non-Reliable (N.COB, N.FLR, N.CROSS, N.SPRD)**: **Low Confidence**. These are negotiated or package-priced. Do NOT trust the default directional tag; look for secondary confirmation.
+   - **Tier 5: Misleading (TIED_MULTI_...)**: **DANGEROUS**. These are delta-hedged trades (options vs. stock). They are not directional bets. Treat as volatility/neutral flow.
+   - *Reference*: See [quantdata_exec_types.md](file:///Users/zhijiebian/.gemini/skills/options-flow-analysis/references/quantdata_exec_types.md) for mechanical details.
 
 3. **High-Importance Classification**:
-   - A trade is classified as **High-Importance** if it meets EITHER of these criteria:
-     - **D.AUTO single trade**: Total premium must be >= $5M.
-     - **Multiple leg trade**: The premium of the largest individual leg must be >= $25M.
-   - To determine qualitative importance (⭐️ ranking), also consider:
-     - **Urgency (DTE):** Short DTE (0-10 days) paired with large premium signifies extreme urgency.
-     - **Price Alignment:** Did it happen at a major daily High/Low (Inflection point)?
-     - **Sizing Brackets (Largest Leg):**
-       - **Small**: < $25M
-       - **Medium**: $25M - $50M
-       - **Big**: $50M - $90M
-       - **Huge**: >= $90M
+   - A trade is **High-Importance** if it meets EITHER:
+     - **Tier 1 or Tier 2 single trade**: Total premium >= $5M.
+     - **Multiple leg trade**: Premium of the largest individual leg >= $25M.
+   - Ranking (⭐️) checklist:
+     - **Urgency**: DTE <= 10 days + Tier 1 execution = Extreme Conviction.
+     - **Price Action**: Did the trade hit at a daily High/Low (Pivot point)?
+     - **Sizing**: Medium ($25M), Big ($50M), Huge ($90M+).
 
-## Analysis Logic & Output Requirements
+## Output Requirements
 
-When generating analysis results for integration into larger reports, focus on identifying the following data points for each high-importance trade group:
-
-1. **Trade Identification**: Use the exact execution time (e.g., "Trade at 12:20:01").
-2. **Direction Analysis**: Provide a deep-dive assessment based on the institutional premium positioning (Bullish or Bearish). Synthesize the Bid/Ask data, ITM/OTM status, and OHLC context.
-3. **Direction Reliability**: Specify if the trade is trustable based on the `D.AUTO` code. 
-4. **Rating**: Assign a clear star-based priority (e.g., ⭐️⭐️⭐️⭐️).
-5. **Sizing & Premium**: Categorize the largest leg (Small/Medium/Big/Huge) and provide the exact total premium value.
-6. **Target Expiry**: List the minimum DTE observed in the trade legs.
+For each high-importance trade group:
+1. **Trade Identification**: Execution time.
+2. **Direction Analysis**: Bullish/Bearish assessment synthesizing Bid/Ask, ITM/OTM, and OHLC context.
+3. **Conviction Level**: Match to the Reliability Tiers (ISO = Extreme, AUTO = High, etc.).
+4. **Rating**: Star-based priority (e.g., ⭐️⭐️⭐️⭐️).
+5. **Sizing**: Categorize largest leg (Small/Medium/Big/Huge) and total premium.
+6. **Strategy Context**: Identify if it's a Spread, Single-Leg Sweep, or Stock-Tied Hedge.
 
 *Note: For lower-priority trades, summary aggregation is acceptable.*

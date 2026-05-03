@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - global_spike_consolidation_metrics</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-18 21:12:25</span>
+<span>Question summary: global_spike_consolidation_metrics</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#final-database-sanitization-results">Final Database Sanitization Results</a></li><li><a href="#key-outcomes">Key Outcomes</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>now please merge AH spikes</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>I have completed the <strong>Global After-Hours (AH) Consolidation</strong>, finalizing the sanitization of your entire institutional signal library.</p>
+<h3 id="final-database-sanitization-results"><strong>Final Database Sanitization Results</strong></h3>
+<p>With the AH consolidation complete, we have successfully cleared tens of thousands of redundant snapshots across all sessions:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Session</th>
+<th style="text-align: left;">Merges Performed</th>
+<th style="text-align: left;">Redundant Rows Purged</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Pre-Market (PM)</strong></td>
+<td style="text-align: left;">673</td>
+<td style="text-align: left;">16,058</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Regular Hours (RTH)</strong></td>
+<td style="text-align: left;">250</td>
+<td style="text-align: left;">8,486</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>After-Hours (AH)</strong></td>
+<td style="text-align: left;">1,203</td>
+<td style="text-align: left;">18,318</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>TOTAL</strong></td>
+<td style="text-align: left;"><strong>2,126</strong></td>
+<td style="text-align: left;"><strong>42,862</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-outcomes"><strong>Key Outcomes</strong></h3>
+<ol>
+<li><strong>High-Fidelity Stats</strong>: Your signal library has been reduced by <strong>42,862 redundant entries</strong>. Statistical analysis and backtests will now be much more accurate as they are no longer skewed by "Machine Gun" micro-snapshots.</li>
+<li><strong>Institutional Weighting</strong>: Each remaining signal now reflects the consolidated <strong>Total Volume</strong>, <strong>Total Premium</strong>, and <strong>Total Trade Count</strong> from its respective price magnet cluster.</li>
+<li><strong>Audit Trail Preserved</strong>: Per your request, the raw <code>spike_mw</code> table remains untouched, preserving the full transaction-level details for audit purposes.</li>
+<li><strong>Dashboard Performance</strong>: The <code>spikes_mw_agg</code> table is now significantly leaner and will load faster while providing a clearer view of high-conviction price targets.</li>
+</ol>
+<p>All maintenance scripts (<a href="file:///Users/zhijiebian/.gemini/skills/spike-analysis/scripts/purge_noise_spikes.py"><code>purge_noise_spikes.py</code></a> and <a href="file:///Users/zhijiebian/.gemini/skills/spike-analysis/scripts/merge_redundant_spikes.py"><code>merge_redundant_spikes.py</code></a>) are saved and ready for your future use.</p>
+</section>
+</article>
+</main>
+</body>
+</html>

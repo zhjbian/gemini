@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - high_fidelity_institutional_signal_refinement</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-04-18 10:34:43</span>
+<span>Question summary: high_fidelity_institutional_signal_refinement</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#institutional-signal-refinement-and-spike-detection-stabilization">Institutional Signal Refinement and Spike Detection Stabilization</a><ul><li><a href="#1-rth_fh-first-hour-integration-backfill">1. RTH_FH (First Hour) Integration &amp; Backfill</a><ul><li><a href="#technical-logic">Technical Logic:</a></li></ul></li><li><a href="#2-motivewave-spike-detection-stabilization">2. MotiveWave Spike Detection Stabilization</a><ul><li><a href="#baseline-resilience-median-logic">Baseline Resilience (Median Logic):</a></li><li><a href="#noise-reduction-0-2-hard-filter">Noise Reduction (0.2% Hard Filter):</a></li></ul></li><li><a href="#3-database-cleanup">3. Database Cleanup</a></li><li><a href="#impacted-code-artifacts">Impacted Code Artifacts:</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>How should the RTH_FH (First Hour) trading hour be integrated and backfilled, and how can the MotiveWave spike detection logic be stabilized to handle baseline drift and noise?</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h2 id="institutional-signal-refinement-and-spike-detection-stabilization">Institutional Signal Refinement and Spike Detection Stabilization</h2>
+<h3 id="1-rth_fh-first-hour-integration-backfill">1. RTH_FH (First Hour) Integration &amp; Backfill</h3>
+<p>The goal was to standardize the classification of trades occurring in the first hour of the market open (06:30 - 07:30 PT).</p>
+<h4 id="technical-logic">Technical Logic:</h4>
+<p>The logic was made inclusive of both boundaries to capture exactly one hour of trading.<br/>
+*   <strong>Ingestion Logic (<code>db_query_order_flow.py</code>)</strong>:<br/>
+<code>python
+    # Logic in order_flow_big_trade_add
+    if trading_hour == 'RTH' and time(6, 30) &lt;= trade_time &lt;= time(7, 30):
+        trading_hour = 'RTH_FH'</code><br/>
+*   <strong>Backfill Strategy</strong>: A 90-day backfill was executed using <code>backfillRthFh</code> which updated <strong>21 records</strong> in the database to the <code>RTH_FH</code> classification.<br/>
+*   <strong>Backtest Engine (<code>backtest_big_trades.py</code>)</strong>: Added a fallback to ensure historical <code>RTH</code> records in that window are treated as <code>FirstHour</code> during reporting.</p>
+<h3 id="2-motivewave-spike-detection-stabilization">2. MotiveWave Spike Detection Stabilization</h3>
+<p>The Java-based <code>StudyPriceSpike.java</code> was overhauled to eliminate "phantom" spikes and baseline corruption.</p>
+<h4 id="baseline-resilience-median-logic">Baseline Resilience (Median Logic):</h4>
+<p>Replaced the 3-bar average with a <strong>Median of the last 11 bars</strong>. This ensures that even if a bar closes at a spike price, the baseline for subsequent bars remains anchored to the true market price.<br/>
+*   <strong>Intra-Day Guard</strong>: The median calculation strictly ignores previous days' data to prevent gap-related skewing.<br/>
+<code>java
+    private double getMedianCloseIntraDay(DataSeries series, int index, int count) {
+        String currentDateStr = BBU.getDateStrFrom(series.getStartTime(index));
+        List&lt;Double&gt; prices = new ArrayList&lt;&gt;();
+        for (int i = 1; i &lt;= count &amp;&amp; (index - i) &gt;= 0; i++) {
+            if (!BBU.getDateStrFrom(series.getStartTime(index - i)).equals(currentDateStr)) {
+                break; // Stop at day boundary
+            }
+            prices.add((double) series.getClose(index - i));
+        }
+        // ... sort and return median
+    }</code></p>
+<h4 id="noise-reduction-0-2-hard-filter">Noise Reduction (0.2% Hard Filter):</h4>
+<p>To eliminate low-volatility "junk" signals, a hard threshold was implemented.<br/>
+*   <strong>Threshold</strong>: <code>Math.abs(tradePrice - closePrice) / closePrice &lt; 0.002</code> (0.2%).<br/>
+*   <strong>Exception</strong>: <code>SPY</code> and <code>QQQ</code> are exempt from this filter to preserve sensitivity on index-level institutional prints.</p>
+<h3 id="3-database-cleanup">3. Database Cleanup</h3>
+<p>A targeted cleanup of the <code>spike_mw_agg</code> table was performed to remove historical noise.<br/>
+*   <strong>Count</strong>: <strong>796 records</strong> deleted.<br/>
+*   <strong>Query Criteria</strong>:<br/>
+<code>sql
+    DELETE FROM spike_mw_agg 
+    WHERE ABS(price_change) &lt;= 0.002 
+    AND ticker NOT IN ('SPY', 'QQQ');</code></p>
+<h3 id="impacted-code-artifacts">Impacted Code Artifacts:</h3>
+<ul>
+<li><strong>Java</strong>: <code>StudyPriceSpike.java</code> (Median helper, hard filter, unified spotPrice).</li>
+<li><strong>Python</strong>: <code>db_query_order_flow.py</code>, <code>backtest_big_trades.py</code>.</li>
+<li><strong>Scratch</strong>: <code>find_noise_spikes.py</code>, <code>delete_noise_spikes.py</code>.</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

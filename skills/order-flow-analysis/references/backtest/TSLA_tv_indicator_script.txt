@@ -1,0 +1,97 @@
+//@version=5
+indicator('BB_Backtest_Audit_TSLA', overlay=true, max_labels_count=500)
+
+type OfBacktestSignal
+    string date_str
+    string time_str
+    int hour
+    int minute
+    string side
+    string mw_side
+    float volume
+    string hit_status
+    int days_to_hit
+    float target_price
+    float drawdown
+    float max_profit
+    float price
+    bool is_dp
+
+array<OfBacktestSignal> signals = array.new<OfBacktestSignal>()
+
+fill_data() =>
+    array.push(signals, OfBacktestSignal.new("2025-07-17", "12:36:32", 12, 36, "Buy", "Buy", 1.0, "TARGET", 3, 334.84499999999997, -0.14, 15.71, 318.9, false))
+    array.push(signals, OfBacktestSignal.new("2025-07-18", "07:38:30", 7, 38, "Buy", "Buy", 1.0, "TARGET", 17, 343.19250000000005, -8.88, 21.37, 326.85, false))
+    array.push(signals, OfBacktestSignal.new("2025-07-24", "08:08:49", 8, 8, "Buy", "Buy", 2.0, "TARGET", 2, 318.69599999999997, -1.02, 42.4, 303.52, false))
+    array.push(signals, OfBacktestSignal.new("2025-07-25", "08:53:19", 8, 53, "Buy", "Buy", 1.0, "TARGET", 12, 336.36750000000006, -7.03, 34.92, 320.35, false))
+    array.push(signals, OfBacktestSignal.new("2025-08-06", "08:44:17", 8, 44, "Sell", "Sell", 1.0, "FAIL", 0, 302.9455, 0, 1.35, 318.89, false))
+    array.push(signals, OfBacktestSignal.new("2025-08-07", "09:15:09", 9, 15, "Sell", "Sell", 1.0, "FAIL", 0, 303.943, 0, 1.67, 319.94, false))
+    array.push(signals, OfBacktestSignal.new("2025-09-09", "12:04:41", 12, 4, "Sell", "Buy", 1.0, "FAIL", 0, 329.79249999999996, 0, 0.31, 347.15, false))
+    array.push(signals, OfBacktestSignal.new("2025-09-12", "11:23:24", 11, 23, "Sell", "Buy", 1.0, "FAIL", 0, 375.288, 0, 0.8, 395.04, false))
+    array.push(signals, OfBacktestSignal.new("2025-09-12", "12:03:14", 12, 3, "Sell", "Sell", 2.0, "FAIL", 0, 374.965, 0, 0.71, 394.7, false))
+    array.push(signals, OfBacktestSignal.new("2025-09-12", "12:14:44", 12, 14, "Sell", "Sell", 2.0, "FAIL", 0, 375.62999999999994, 0, 0.89, 395.4, false))
+    array.push(signals, OfBacktestSignal.new("2025-09-19", "04:40:46", 4, 40, "Sell", "Sell", 2.72, "LATE", 41, 396.0075, -13.73, 4.9, 416.85, true))
+    array.push(signals, OfBacktestSignal.new("2025-10-02", "06:17:33", 6, 17, "Sell", "Sell", 2.43, "TARGET", 1, 436.487, -2.46, 16.69, 459.46, true))
+    array.push(signals, OfBacktestSignal.new("2025-11-20", "09:25:51", 9, 25, "Buy", "Buy", 1.0, "TARGET", 5, 424.032, -4.85, 23.52, 403.84, false))
+    array.push(signals, OfBacktestSignal.new("2025-11-21", "10:24:38", 10, 24, "Buy", "Buy", 1.5, "TARGET", 2, 415.3485, -1.27, 26.1, 395.57, false))
+    array.push(signals, OfBacktestSignal.new("2025-11-25", "08:35:04", 8, 35, "Buy", "Buy", 1.13, "TARGET", 5, 433.7235, -0.16, 20.76, 413.07, false))
+    array.push(signals, OfBacktestSignal.new("2025-12-19", "08:45:15", 8, 45, "Sell", "Buy", 1.0, "TARGET", 7, 454.4325, -4.28, 18.99, 478.35, false))
+    array.push(signals, OfBacktestSignal.new("2025-12-31", "10:47:50", 10, 47, "Sell", "Sell", 1.1, "TARGET", 4, 431.813, -0.83, 14.74, 454.54, false))
+    array.push(signals, OfBacktestSignal.new("2026-01-02", "06:00:40", 6, 0, "Buy", "Sell", 1.45, "FAIL", 0, 472.2060000000001, 0, 1.91, 449.72, true))
+    array.push(signals, OfBacktestSignal.new("2026-01-02", "06:34:51", 6, 34, "Sell", "Buy", 2.0, "TARGET", 3, 432.326, -0.71, 14.84, 455.08, false))
+    array.push(signals, OfBacktestSignal.new("2026-01-12", "06:06:38", 6, 6, "Buy", "Buy", 1.79, "FAIL", 0, 467.2605, 0, 2.09, 445.01, true))
+    array.push(signals, OfBacktestSignal.new("2026-02-04", "08:47:17", 8, 47, "Buy", "Sell", 1.0, "TARGET", 5, 424.30500000000006, -4.1, 7.98, 404.1, false))
+    array.push(signals, OfBacktestSignal.new("2026-02-09", "07:02:37", 7, 2, "Buy", "Buy", 1.0, "TARGET", 3, 430.5, 0.66, 6.43, 410.0, false))
+    array.push(signals, OfBacktestSignal.new("2026-02-13", "08:03:49", 8, 3, "Buy", "Buy", 1.0, "FAIL", 0, 436.8, 0, 1.94, 416.0, false))
+    array.push(signals, OfBacktestSignal.new("2026-03-30", "11:34:18", 11, 34, "Buy", "Sell", 2.0, "TARGET", 2, 373.2855, -0.95, 15.12, 355.51, false))
+
+var float factor = na
+if barstate.islast
+    switch syminfo.ticker
+        "TSLA" => factor := 0.5
+        "NVDA" => factor := 0.015
+        "ES1!" => factor := 7.5
+        "NQ1!" => factor := 10
+        => factor := 0.01
+
+    fill_data()
+    for i = 0 to (array.size(signals) - 1)
+        sig = array.get(signals, i)
+        
+        string[] d_parts = str.split(sig.date_str, "-")
+        y = int(str.tonumber(array.get(d_parts, 0)))
+        m = int(str.tonumber(array.get(d_parts, 1)))
+        d = int(str.tonumber(array.get(d_parts, 2)))
+        t_sig = timestamp(y, m, d, sig.hour, sig.minute, 0)
+        t_right = t_sig + 14400000 // 4 hour width
+        
+        // 1. Maturation Status Color (Result Audit)
+        color status_color = color.new(color.red, 20)
+        if sig.hit_status == "TARGET"
+            status_color := color.new(color.green, 20)
+        else if sig.hit_status == "LATE"
+            status_color := color.new(color.orange, 20)
+        
+        // 2. Pivot Entry Box (Signal Itself)
+        color box_color = na
+        if sig.is_dp
+            box_color := sig.side == "Buy" ? color.new(#00FFFF, 20) : color.new(#FF00FF, 20)
+        else
+            box_color := sig.side == "Buy" ? color.new(color.green, 20) : color.new(color.red, 20)
+            
+        bottom = sig.price
+        top = bottom + sig.volume * 10 * factor 
+        box.new(t_sig, top, t_right, bottom, xloc=xloc.bar_time, bgcolor=box_color, border_color=color.gray)
+
+        // 3. Maturation Result Label
+        string status_text = sig.hit_status == "TARGET" ? "HIT (" + str.tostring(sig.days_to_hit) + "d)" : 
+                             sig.hit_status == "LATE" ? "LATE (" + str.tostring(sig.days_to_hit) + "d)" : "FAIL"
+                             
+        string side_text = sig.side != sig.mw_side ? sig.side + " (Override)" : sig.side
+        txt = str.tostring(sig.volume) + "M " + side_text + "\n" + status_text + "\nDD: " + str.tostring(sig.drawdown) + "%"
+        
+        // Use status_color for the label itself for clear identification
+        label.new(t_sig, bottom, txt, xloc=xloc.bar_time, yloc=yloc.belowbar, color=status_color, textcolor=color.white, style=label.style_label_up, size=size.small, textalign=text.align_center)
+        
+        // 4. Institutional Target Projection
+        line.new(t_sig, sig.target_price, t_sig + (86400000 * 5), sig.target_price, xloc=xloc.bar_time, color=status_color, style=line.style_dashed)
