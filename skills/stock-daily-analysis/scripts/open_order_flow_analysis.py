@@ -1,34 +1,19 @@
-#!/usr/local/bin/python3
-"""
-OPEN ORDER FLOW ANALYSIS - DATA PROVIDER (MIRROR ORIGINAL)
-"""
 import sys
 import os
-import argparse
-from datetime import datetime, date, timedelta
+import json
+from datetime import datetime, timedelta, date
 
 PROJECT_ROOT = "/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading"
 sys.path.append(os.path.join(PROJECT_ROOT, "PyTools"))
+sys.path.append(os.path.join(PROJECT_ROOT, "bbt_data_web"))
+
 from db_connection import DBConn
 from models import OrderFlowBigTrade
-from py_lib.bb_date_time import BBDateTime
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("ticker")
-    args = parser.parse_args()
-    
-    ticker = args.ticker.upper()
-    # 30 Trading Days Lookback (Original Logic)
-    cutoff_date = date.today()
-    days_found = 0
-    while days_found < 30:
-        cutoff_date -= timedelta(days=1)
-        if BBDateTime.is_market_open_by_date(cutoff_date.strftime("%Y-%m-%d")):
-            days_found += 1
-            
+    ticker = sys.argv[1].upper() if len(sys.argv) > 1 else "TSLA"
     with DBConn().session() as session:
-        # EXACT ORIGINAL QUERY
+        cutoff_date = date.today() - timedelta(days=30)
         trades = session.query(OrderFlowBigTrade).filter(
             OrderFlowBigTrade.ticker == ticker,
             OrderFlowBigTrade.volume >= 1000000,
@@ -36,15 +21,19 @@ def main():
             OrderFlowBigTrade.t_date >= cutoff_date
         ).order_by(OrderFlowBigTrade.t_date.desc(), OrderFlowBigTrade.trade_time.desc()).all()
         
-        if not trades: return
-
-        md = "| 日期 | 时间 | 价格 | 方向 | 侧向 (TrueSide) | 成交量 | 期权绑定 |\n"
-        md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
+        results = []
         for t in trades:
-            side_text = t.side.value if hasattr(t.side, 'value') else t.side
-            tied_char = "✓" if t.tied_options else ""
-            md += f"| {t.t_date} | {t.trade_time.strftime('%H:%M')} | ${t.price:.2f} | {side_text} | {t.true_side} | {t.volume/1e6:.1f}M | {tied_char} |\n"
-        print(md)
+            results.append({
+                "date": str(t.t_date),
+                "time": t.trade_time.strftime("%H:%M"),
+                "price": float(t.price),
+                "side": t.side.value if hasattr(t.side, 'value') else t.side,
+                "true_side": t.true_side,
+                "size": int(t.volume),
+                "total_val": float(t.premium),
+                "tied": bool(t.tied_options)
+            })
+        print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()

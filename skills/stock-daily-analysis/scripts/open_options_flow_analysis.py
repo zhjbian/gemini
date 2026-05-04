@@ -1,56 +1,66 @@
-#!/usr/local/bin/python3
-"""
-OPEN OPTIONS FLOW ANALYSIS - DATA PROVIDER (MIRROR ORIGINAL)
-"""
 import sys
 import os
-import argparse
-from datetime import datetime, date, timedelta
+import json
+from datetime import datetime, timedelta, date
 
 PROJECT_ROOT = "/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading"
 sys.path.append(os.path.join(PROJECT_ROOT, "PyTools"))
+sys.path.append(os.path.join(PROJECT_ROOT, "bbt_data_web"))
+
 from db_connection import DBConn
 from models import OptionFlow
 from py_lib.bb_date_time import BBDateTime
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("ticker")
-    args = parser.parse_args()
-    
-    ticker = args.ticker.upper()
-    # 40 Trading Days Lookback (Original Logic)
-    cutoff_date = date.today()
-    days_found = 0
-    while days_found < 40:
-        cutoff_date -= timedelta(days=1)
-        if BBDateTime.is_market_open_by_date(cutoff_date.strftime("%Y-%m-%d")):
-            days_found += 1
+    ticker = sys.argv[1].upper() if len(sys.argv) > 1 else "TSLA"
+    min_premium = 25.0
     
     with DBConn().session() as session:
-        # EXACT ORIGINAL QUERY
-        flows = session.query(OptionFlow).filter(
+        cutoff_date = date.today() - timedelta(days=40)
+        sig_flows = session.query(OptionFlow).filter(
             OptionFlow.ticker == ticker,
-            OptionFlow.premium >= 25, # User adjusted to 25
+            OptionFlow.premium >= min_premium,
             OptionFlow.is_summary == False,
             OptionFlow.transac_date >= cutoff_date
-        ).order_by(OptionFlow.transac_date.desc(), OptionFlow.transac_time.desc()).all()
+        ).all()
         
-        if not flows: return
+        if not sig_flows:
+            print("[]")
+            return
+
+        sprd_ids = [f.sprd_id for f in sig_flows if f.sprd_id]
+        all_flows = []
+        if sprd_ids:
+            spread_legs = session.query(OptionFlow).filter(
+                OptionFlow.sprd_id.in_(sprd_ids)
+            ).all()
+            single_flows = [f for f in sig_flows if not f.sprd_id]
+            all_flows = spread_legs + single_flows
+        else:
+            all_flows = sig_flows
+
+        all_flows.sort(key=lambda x: (x.transac_date, x.transac_time), reverse=True)
         
-        md = "| 日期/时间 | 合约 | 价格 | 数量 | 权利金 | DTE | 情绪 | 类型 |\n"
-        md += "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
-        for f in flows:
-            # DTE calculation like original
+        results = []
+        for f in all_flows:
             exp_date = BBDateTime.get_date_obj_from_diff_formats(f.expiration)
             dte = (exp_date - date.today()).days if exp_date else -1
             if dte < 0: continue
             
-            # Using CORRECT FIELD NAMES from original script:
-            # contract, price, qty, premium, sentiment, exec_type
-            # Data from DB is already in Millions
-            md += f"| {f.transac_date} {f.transac_time.strftime('%H:%M')} | {f.contract} | ${f.price:.2f} | {f.qty} | ${f.premium:.2f}M | {dte}d | {f.sentiment} | {f.exec_type or ''} |\n"
-        print(md)
+            results.append({
+                "date": str(f.transac_date),
+                "time": f.transac_time.strftime("%H:%M"),
+                "contract": f.contract,
+                "price": float(f.price),
+                "qty": int(f.qty),
+                "premium": float(f.premium),
+                "dte": dte,
+                "spot": float(f.spot_price) if f.spot_price else 0.0,
+                "sentiment": f.sentiment,
+                "type": f.exec_type or "",
+                "sprd_id": f.sprd_id
+            })
+        print(json.dumps(results, indent=2))
 
 if __name__ == "__main__":
     main()
