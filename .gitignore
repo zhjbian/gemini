@@ -1,9 +1,13 @@
+# IDE / Project Specific
+.idea/
+
 # Secrets and user-specific state
 google_accounts.json
 installation_id
 state.json
 trustedFolders.json
 projects.json
+config/
 
 # Temporary files, history, and logs
 tmp/
@@ -11,5 +15,8 @@ history/
 
 # Agent specific cache / state
 antigravity/
+antigravity-backup/
 antigravity-browser-profile/
+antigravity-ide/
+brain/
 .agents/

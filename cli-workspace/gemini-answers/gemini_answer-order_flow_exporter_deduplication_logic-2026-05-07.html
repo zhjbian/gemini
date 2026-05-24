@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术专题：Order Flow Exporter 去重与同步逻辑深度解析</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-dim: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-info {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+
+        .tech-section {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: var(--accent-blue);
+            border-left: 4px solid var(--accent-blue);
+            padding-left: 1rem;
+            margin-top: 0;
+        }
+
+        .variable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .variable-card {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .variable-name {
+            font-family: 'Fira Code', monospace;
+            color: var(--accent-green);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .logic-flow {
+            background: #000;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #d1d5db;
+            border-left: 4px solid var(--accent-purple);
+        }
+
+        .highlight-box {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--accent-blue);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Exporter 去重与同步逻辑深度解析</h1>
+            <div class="meta-info">
+                <span>日期：2026-05-07</span> | <span>分类：机构级订单流系统架构</span> | <span>状态：已部署</span>
+            </div>
+        </header>
+
+        <section class="tech-section">
+            <h2>1. 三变量核心协作机制</h2>
+            <p>在高性能订单流导出器中，数据的准确性高于一切。为了应对 MotiveWave 重启、多图表挂载以及平台回调重复等复杂场景，系统采用了三层过滤架构：</p>
+            
+            <div class="variable-grid">
+                <div class="variable-card">
+                    <span class="variable-name">lastSnapshotTime</span>
+                    <strong>职责：节流阀 (Pacer)</strong>
+                    <p>基于系统时间。确保 DOM 快照不会因为盘口跳动太快（毫秒级多次变化）而生成冗余数据，保持 CSV 体积精简。</p>
+                </div>
+                <div class="variable-card">
+                    <span class="variable-name">lastDomTimestamp</span>
+                    <strong>职责：DOM 守卫 (Guard)</strong>
+                    <p>基于文件末尾记录。强制要求 <code>currentTime > lastTimestamp</code>。防止重启后加载历史快照导致的重复写入。</p>
+                </div>
+                <div class="variable-card">
+                    <span class="variable-name">lastTickTime</span>
+                    <strong>职责：成交守卫 (Guard)</strong>
+                    <p>基于<strong>交易所时间 (Tick Time)</strong>。利用成交本身的绝对时间轴，彻底杜绝重启重发（Replay）导致的双倍数据。</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="tech-section">
+            <h2>2. 持久化与断点续传</h2>
+            <p>内存是脆弱的，文件才是真相。系统在初始化时执行以下逻辑，确保跨 Session 的逻辑一致性：</p>
+            <div class="logic-flow">
+1. 启动 setupExporters()<br>
+2. 尝试读取现有 CSV 文件的最后一行 (RandomAccessFile 反向搜索)<br>
+3. 提取第一列时间戳并初始化内存变量：<br>
+   &nbsp;&nbsp;&nbsp;lastDomTimestamp = File.getLastTime();<br>
+   &nbsp;&nbsp;&nbsp;lastTickTime = File.getLastTime();<br>
+4. 实时监听启动，仅允许严格大于该时间戳的数据进入队列。
+            </div>
+        </section>
+
+        <section class="tech-section">
+            <h2>3. 单例模式 (Master/Passive)</h2>
+            <p>即使在同一个品种（如 ES）开多个图表，系统通过 <code>static Set&lt;String&gt; activeExporters</code> 保证了：</p>
+            <ul>
+                <li><strong>Master Instance</strong>：第一个加载的实例获得写入权，负责文件 I/O。</li>
+                <li><strong>Passive Instance</strong>：后续实例自动进入静默模式，仅监控不写入，避免文件冲突。</li>
+            </ul>
+        </section>
+
+        <div class="highlight-box">
+            <strong>🎯 最终效果：</strong><br>
+            无论 MotiveWave 经历崩溃重启、手动关闭，还是在交易时间（RTH）内重连补分，该系统都能确保每一条 DOM 快照和每一笔 Tick 成交在硬盘上是**唯一且连续**的。这为后续 Python 端的 AI 训练和回测提供了高质量、零污染的原始数据。
+        </div>
+
+        <div class="footer">
+            © 2026 BBT Trading Research - Institutional Grade Analytics Pipeline
+        </div>
+    </div>
+</body>
+</html>

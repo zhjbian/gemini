@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - quantdata_flow_data_handler_v3_code</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-05-23 23:06:23</span>
+<span>Question summary: quantdata_flow_data_handler_v3_code</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#1-脚本定位与环境">1. 脚本定位与环境</a></li><li><a href="#2-核心功能模块与技术实现">2. 核心功能模块与技术实现</a><ul><li><a href="#a-dom-数据抓取与转换-processflows">A. DOM 数据抓取与转换 (processFlows)</a></li><li><a href="#b-数据去重与剪枝机制-prunetickersdata">B. 数据去重与剪枝机制 (pruneTickersData)</a></li><li><a href="#c-多空资金流向统计-addpremiumsummaryfromlist">C. 多空资金流向统计 (addPremiumSummaryFromList)</a></li><li><a href="#d-同一时间多腿组合单合并-findmultilegsbytime">D. 同一时间多腿组合单合并 (findMultiLegsByTime)</a></li><li><a href="#e-重复小单追踪-calcrepeatflowsummarydata">E. 重复小单追踪 (calcRepeatFlowSummaryData)</a></li></ul></li><li><a href="#3-外围系统联动与数据落库">3. 外围系统联动与数据落库</a></li><li><a href="#4-界面前端可视化">4. 界面前端可视化</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>please read /Users/zhijiebian/Documents/Workplace/VSCodeProjects/MonkeyScripts/qd_flow_data_handler_v3.js thoroughly, and summize what it does with details</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>对该 Tampermonkey 脚本进行深度阅读后，其主要功能、工作流程和核心技术逻辑系统化整理如下：</p>
+<h3 id="1-脚本定位与环境">1. 脚本定位与环境</h3>
+<ul>
+<li><strong>运行平台</strong>：QuantData Web 客户端（<code>https://v3.quantdata.us/</code> 页面）。</li>
+<li><strong>开发机制</strong>：基于 jQuery 进行 DOM 级轮询抓取，并利用 Tampermonkey 特权 API（如 <code>GM_xmlhttpRequest</code> 和本地 <code>localStorage</code>）实现前端页面与本地 API 服务的双向数据交换。</li>
+</ul>
+<hr/>
+<h3 id="2-核心功能模块与技术实现">2. 核心功能模块与技术实现</h3>
+<h4 id="a-dom-数据抓取与转换-processflows">A. DOM 数据抓取与转换 (<code>processFlows</code>)</h4>
+<p>脚本以固定时间间隔（实时模式下为 <strong>2秒</strong>，回填历史模式下为 <strong>4秒</strong>）轮询抓取 DOM 表格行 <code>div.tr[class*="__tableRow"]</code>：<br/>
+* <strong>字段提取</strong>：实时获取 <code>Time</code>（归一化为 <code>HH:mm:ss</code> 格式）、<code>Contract</code>（提取 Ticker, Expiration, Strike, Call/Put）、<code>Sentiment</code>（多空情绪）、<code>Spot</code>（现货价格）、<code>Quantity</code>、<code>Price</code>、<code>Side</code>（主动买盘 <code>A/AA</code> 或主动卖盘 <code>B/BB</code>）、<code>Bid-Ask</code>、<code>Premium</code>（以 $1,000 为单位换算）、<code>Type</code>（如 AUTO 算法单）、<code>ConsType</code>（合并类型）、<code>Volume</code> 和 <code>OI</code>（持仓量）。<br/>
+* <strong>开仓研判 (Open Action)</strong>：当 <code>qty</code>（成交量）大于 <code>oi</code>（昨日持仓量）时，脚本在数据中打上 <code>action: 'Open'</code> 标记，研判其为疑似主动开仓单。<br/>
+* <strong>TOS 格式转换</strong>：计算并格式化生成 ThinkOrSwim 标准的合约编码（例如 <code>.TSLA260612C425</code>），便于下游系统精确匹配。</p>
+<h4 id="b-数据去重与剪枝机制-prunetickersdata">B. 数据去重与剪枝机制 (<code>pruneTickersData</code>)</h4>
+<ul>
+<li><strong>去重校验</strong>：新行抓取后，会比对本地缓存库中同 Ticker 数组内的字段是否已存在，防止因 DOM 延迟刷新产生重复数据。</li>
+<li><strong>存储剪枝</strong>：为保证浏览器 <code>localStorage</code> 空间健康，脚本设置了 <strong>7天（10,080 分钟）</strong> 的历史去重窗口。</li>
+<li>每次追加新流水后，非大单的常规流水如果在内存中留存超过 <strong>60分钟</strong> 会自动从本地存储中剔除。</li>
+<li>达到“大单（Big Flow）”级别的数据将被保留 7 天，用来支持跨会话的大单总记与报表生成。</li>
+</ul>
+<h4 id="c-多空资金流向统计-addpremiumsummaryfromlist">C. 多空资金流向统计 (<code>addPremiumSummaryFromList</code>)</h4>
+<p>脚本根据每笔订单的情绪（Sentiment）和 Call/Put 类型，自动归纳其资金属性（看多或看空）：<br/>
+* <strong>看多（Bullish）资金</strong>：Call 主动买入，或 Put 主动卖出。<br/>
+* <strong>看空（Bearish）资金</strong>：Put 主动买入，或 Call 主动卖出。<br/>
+* 资金计算后汇总为 4 种累计资金量：<br/>
+  1. <code>netPremiumsAll</code>：总主动多空资金。<br/>
+  2. <code>netPremiumsBig</code>：大单主动资金。<br/>
+  3. <code>netPremiumsBigBuy</code>：大买单强多资金（侧重主动买盘 <code>A/AA</code>）。<br/>
+  4. <code>netPremiumsNeutral</code>：非主力通道（如 Mid 价成交）的被动/中性资金。</p>
+<h4 id="d-同一时间多腿组合单合并-findmultilegsbytime">D. 同一时间多腿组合单合并 (<code>findMultiLegsByTime</code>)</h4>
+<p>如果同一秒内在同个 Ticker 上发生了多笔大单成交，脚本会自动将这些行组合为<strong>多腿组合单（Multi-Legs Spread）</strong>：<br/>
+* 整体计算这组多腿订单的 Net Premium。<br/>
+* 拼接该组合单的 TOS 编码链路，并在日志输出上额外标记 <code>/Open</code>（疑似开仓）和 <code>/Neu</code>（中性价成交）。</p>
+<h4 id="e-重复小单追踪-calcrepeatflowsummarydata">E. 重复小单追踪 (<code>calcRepeatFlowSummaryData</code>)</h4>
+<ul>
+<li>主力在某些中小型行权价上可能不发送超大单，而是采用高频小单持续吸筹。</li>
+<li>脚本通过 <code>repeatFlowSummary</code> 持续记录同一 TOS 合约的累计订单数。</li>
+<li>当特定合约的累积金额达到 <code>repeatFlowThreshod</code>（默认 5,000 美金）且笔数 ≥ 3 时，自动标记为 <code>Repeat Flow</code>。</li>
+</ul>
+<hr/>
+<h3 id="3-外围系统联动与数据落库">3. 外围系统联动与数据落库</h3>
+<ul>
+<li><strong>异常告警联动 (Port 5008)</strong>：<br/>
+  当单笔 Net Premium 达到阈值，或高频重复单触发累积报警线时，通过 <code>GM_xmlhttpRequest</code> 将大单明细及推送报文发送至 <code>http://127.0.0.1:5008/option_flow</code> 控制器，从而触发外部 SMS 告警。</li>
+<li><strong>数据自动归档入库 (Port 5005)</strong>：<br/>
+  向本地 Python 数据库接口服务 <code>http://127.0.0.1:5005/api/add-flows</code> 发送 POST 请求将数据落库。</li>
+<li><strong>13:30 (收盘后)</strong>：自动把今日筛选出来的全量大单明细 <code>flows</code> 发送入库。</li>
+<li><strong>13:35</strong>：自动把今日各 Ticker 统计的 <code>summaries</code> 报表数据发送入库。</li>
+</ul>
+<hr/>
+<h3 id="4-界面前端可视化">4. 界面前端可视化</h3>
+<ul>
+<li>在 QuantData 页面顶部注入带有深色背景的控制面板。</li>
+<li>提供两个微型日志文本域：</li>
+<li><code>bb_big_summary</code>：大单组合与重复单监控日志。</li>
+<li><code>bb_summary</code>：各 Ticker（如优先监视的 TSLA、NVDA 等）的资金净流入大字报表。</li>
+<li>提供 <code>Save Big Flows</code>、<code>Copy All Summary</code>、<code>Calc Current</code> 等控制性按钮，方便日内分析及离线导出。</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

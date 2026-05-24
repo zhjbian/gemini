@@ -8,7 +8,7 @@ sys.path.append("/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading
 sys.path.append("/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools")
 
 from sqlalchemy import func
-from db_connection_legacy import get_global_session
+from db_connection import DBConn
 from models import SpikeMWAgg
 from tos_api.bb_tos import BBTOS
 
@@ -33,7 +33,6 @@ except ValueError:
     print("Invalid date format. Use YYYY-MM-DD")
     sys.exit(1)
 
-session = get_global_session()
 bbtos = BBTOS()
 
 output_data = {
@@ -57,25 +56,26 @@ price_gap = 0.01 if ticker in etfs else 0.02
 
 # Query the high-fidelity SpikeMWAgg table
 try:
-    spikes = session.query(SpikeMWAgg).filter(
-        SpikeMWAgg.ticker == ticker,
-        SpikeMWAgg.t_date == target_date,
-        (SpikeMWAgg.is_prev_close == False) | (SpikeMWAgg.is_prev_close == None),
-        func.abs(SpikeMWAgg.price_change) >= price_gap
-    ).order_by(SpikeMWAgg.time.asc()).all()
+    with DBConn().session() as session:
+        spikes = session.query(SpikeMWAgg).filter(
+            SpikeMWAgg.ticker == ticker,
+            SpikeMWAgg.t_date == target_date,
+            (SpikeMWAgg.is_prev_close == False) | (SpikeMWAgg.is_prev_close == None),
+            func.abs(SpikeMWAgg.price_change) >= price_gap
+        ).order_by(SpikeMWAgg.time.asc()).all()
 
-    for s in spikes:
-        record = {
-            "id": s.id,
-            "time": s.time.strftime("%H:%M:%S") if isinstance(s.time, datetime.time) else str(s.time),
-            "trading_hour": s.trading_hour,
-            "direction": s.direction,
-            "spot_price": float(s.spot_price) if s.spot_price else 0,
-            "target_price": float(s.target_price) if s.target_price else 0,
-            "price_change_pct": float(s.price_change) * 100 if s.price_change else 0,
-            "volume_agg": int(s.volume_agg) if s.volume_agg else 0
-        }
-        output_data["verified_spikes"].append(record)
+        for s in spikes:
+            record = {
+                "id": s.id,
+                "time": s.time.strftime("%H:%M:%S") if isinstance(s.time, datetime.time) else str(s.time),
+                "trading_hour": s.trading_hour,
+                "direction": s.direction,
+                "spot_price": float(s.spot_price) if s.spot_price else 0,
+                "target_price": float(s.target_price) if s.target_price else 0,
+                "price_change_pct": float(s.price_change) * 100 if s.price_change else 0,
+                "volume_agg": int(s.volume_agg) if s.volume_agg else 0
+            }
+            output_data["verified_spikes"].append(record)
 except Exception as e:
     output_data["error"] = str(e)
 

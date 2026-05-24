@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Institutional Order Flow Report: ES 09:55 Analysis</title>
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.7; color: #2d3748; max-width: 1000px; margin: 40px auto; padding: 20px; background-color: #fdfdfd; }
+        .report-wrapper { background: #fff; padding: 60px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top: 5px solid #2b6cb0; }
+        h1 { font-size: 2.2em; color: #1a365d; text-align: center; margin-bottom: 40px; }
+        h2 { font-size: 1.5em; color: #2c5282; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-top: 40px; }
+        h3 { font-size: 1.2em; color: #2d3748; margin-top: 30px; }
+        .meta-info { background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #e2e8f0; }
+        .stats-list { list-style: none; padding: 0; }
+        .stats-list li { margin-bottom: 8px; font-size: 0.95em; }
+        .highlight-box { background: #f0fff4; border-left: 5px solid #48bb78; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .warning-box { background: #fff5f5; border-left: 5px solid #f56565; padding: 20px; margin: 20px 0; border-radius: 4px; }
+        .section-content { margin-left: 10px; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        strong { color: #1a202c; }
+        .conclusion { font-weight: bold; font-size: 1.1em; color: #276749; display: block; margin: 15px 0; }
+        .footer { text-align: center; margin-top: 80px; color: #a0aec0; font-size: 0.85em; border-top: 1px solid #edf2f7; padding-top: 20px; }
+        .cli-path { font-family: 'SFMono-Regular', monospace; font-size: 0.85em; color: #718096; background: #f1f5f9; padding: 10px; border-radius: 4px; display: block; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="report-wrapper">
+        <span class="cli-path">╰─➤ /usr/local/bin/python3 ai_tape_analyst.py -t 09:55 -d 2026-05-06</span>
+        <h1>ES @ 09:55 机构订单流深度分析报告</h1>
+
+        <div class="meta-info">
+            <h3>Tape Context (6-min window)</h3>
+            <ul class="stats-list">
+                <li><strong>Price Movement:</strong> 7356.75 - 7362.25</li>
+                <li><strong>Total Volume:</strong> 16,918 contracts</li>
+                <li><strong>Institutional Signatures:</strong>
+                    <ul>
+                        <li>OFI / Depth Imbalance: 0.05 (Resting order pressure)</li>
+                        <li>Absorption Activity: <span class="highlight-green">HIGH</span> (159 high-volume stationary price snapshots)</li>
+                        <li>Cumulative Delta: <span class="highlight-red">BEARISH</span> (Net Delta: -1446)</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="section-content">
+            <h2>1. 这是否为“被动买方支撑区”（冰山单正在吸收激进抛盘）？</h2>
+            <p><span class="conclusion">结论：是。强烈迹象表明存在被动买方支撑区，有冰山单正在吸收激进抛盘。</span></p>
+            
+            <p><strong>详细分析：</strong></p>
+            <ul>
+                <li><strong>激进抛盘的确认 (Cumulative Delta: -1446):</strong> 窗口内显示出显著的净市场卖单，表明存在显著的激进抛盘压力。市场参与者正在主动以市价单抛售尝试压低价格。</li>
+                <li><strong>吸收活动的确认 (Absorption: 159 snapshots):</strong> 高吸收活动与大量稳定价格快照结合，是冰山单存在的典型特征。这意味着大量的激进卖单涌入，价格却未能被有效推低，卖单正被被动限价单“吞噬”。</li>
+                <li><strong>价格行为的印证:</strong> 在仅 5.5 点的窄幅价格区间内产生了高达 16,918 手的巨大成交量。这进一步印证了多空交战中下方存在强大的承接力量。</li>
+                <li><strong>OFI 辅助验证:</strong> OFI 虽然数值较小但保持为正，指向盘口上买方限价单略多于卖方限价单，起到了辅助验证作用。</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong>综合分析：</strong> 激进的卖方（负Delta）在试图推动价格下跌时，遇到了强大的被动买方（高吸收），这些买方在不让价格大幅下跌的情况下，吸收了大量的卖单，这正是冰山单形成支撑区的典型行为模式。
+            </div>
+
+            <!-- Absorption Data Evidence Table -->
+            <div style="margin: 20px 0; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+<div style="background: #2d3748; color: #fff; padding: 10px; font-weight: bold;">Top 50 吸收异常数据证据链</div>
+<table style="width: 100%; font-size: 0.82em; border-collapse: collapse;">
+<thead style="background: #edf2f7; border-bottom: 2px solid #cbd5e0;"><tr><th style="padding: 8px;">时间戳</th><th style="padding: 8px;">价格</th><th style="padding: 8px;">Delta</th><th style="padding: 8px;">成交量</th><th style="padding: 8px;">OFI</th></tr></thead>
+<tbody>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:17.242</td><td style="text-align: center;">7358.5</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-520</td><td style="text-align: center; font-weight: bold;">520</td><td style="text-align: center;">0.139</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:04.700</td><td style="text-align: center;">7360.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-266</td><td style="text-align: center; font-weight: bold;">266</td><td style="text-align: center;">0.007</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:57:46.903</td><td style="text-align: center;">7361.0</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-221</td><td style="text-align: center; font-weight: bold;">221</td><td style="text-align: center;">-0.084</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:04.661</td><td style="text-align: center;">7360.5</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-213</td><td style="text-align: center; font-weight: bold;">213</td><td style="text-align: center;">0.007</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:01.442</td><td style="text-align: center;">7360.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-181</td><td style="text-align: center; font-weight: bold;">181</td><td style="text-align: center;">0.007</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.809</td><td style="text-align: center;">7358.75</td><td style="text-align: center; color: #38a169; font-weight: bold;">133</td><td style="text-align: center; font-weight: bold;">141</td><td style="text-align: center;">0.173</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:04.697</td><td style="text-align: center;">7360.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-130</td><td style="text-align: center; font-weight: bold;">130</td><td style="text-align: center;">0.007</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:01.439</td><td style="text-align: center;">7360.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-111</td><td style="text-align: center; font-weight: bold;">111</td><td style="text-align: center;">0.007</td></tr>
+<tr style="background: #fff5f5; border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.845</td><td style="text-align: center;">7359.5</td><td style="text-align: center; color: #38a169; font-weight: bold;">108</td><td style="text-align: center; font-weight: bold;">108</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.849</td><td style="text-align: center;">7359.25</td><td style="text-align: center; color: #38a169; font-weight: bold;">88</td><td style="text-align: center; font-weight: bold;">88</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:17.241</td><td style="text-align: center;">7358.5</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-73</td><td style="text-align: center; font-weight: bold;">73</td><td style="text-align: center;">0.139</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.797</td><td style="text-align: center;">7358.75</td><td style="text-align: center; color: #38a169; font-weight: bold;">72</td><td style="text-align: center; font-weight: bold;">72</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.817</td><td style="text-align: center;">7359.5</td><td style="text-align: center; color: #38a169; font-weight: bold;">64</td><td style="text-align: center; font-weight: bold;">64</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:12.198</td><td style="text-align: center;">7359.75</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-36</td><td style="text-align: center; font-weight: bold;">64</td><td style="text-align: center;">0.186</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.821</td><td style="text-align: center;">7359.75</td><td style="text-align: center; color: #38a169; font-weight: bold;">59</td><td style="text-align: center; font-weight: bold;">59</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:14.652</td><td style="text-align: center;">7359.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-55</td><td style="text-align: center; font-weight: bold;">55</td><td style="text-align: center;">0.198</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:00.099</td><td style="text-align: center;">7360.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-50</td><td style="text-align: center; font-weight: bold;">52</td><td style="text-align: center;">0.194</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.825</td><td style="text-align: center;">7360.0</td><td style="text-align: center; color: #38a169; font-weight: bold;">51</td><td style="text-align: center; font-weight: bold;">51</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.857</td><td style="text-align: center;">7359.5</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-45</td><td style="text-align: center; font-weight: bold;">45</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:14.938</td><td style="text-align: center;">7359.0</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-41</td><td style="text-align: center; font-weight: bold;">41</td><td style="text-align: center;">0.198</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.841</td><td style="text-align: center;">7360.0</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-40</td><td style="text-align: center; font-weight: bold;">40</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:14.653</td><td style="text-align: center;">7359.25</td><td style="text-align: center; color: #38a169; font-weight: bold;">35</td><td style="text-align: center; font-weight: bold;">39</td><td style="text-align: center;">0.198</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:17.247</td><td style="text-align: center;">7358.5</td><td style="text-align: center; color: #38a169; font-weight: bold;">5</td><td style="text-align: center; font-weight: bold;">39</td><td style="text-align: center;">0.139</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:57:46.901</td><td style="text-align: center;">7361.25</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-38</td><td style="text-align: center; font-weight: bold;">38</td><td style="text-align: center;">-0.084</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:14.940</td><td style="text-align: center;">7359.0</td><td style="text-align: center; color: #38a169; font-weight: bold;">21</td><td style="text-align: center; font-weight: bold;">23</td><td style="text-align: center;">0.198</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.783</td><td style="text-align: center;">7358.25</td><td style="text-align: center; color: #38a169; font-weight: bold;">36</td><td style="text-align: center; font-weight: bold;">36</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:52:14.939</td><td style="text-align: center;">7359.0</td><td style="text-align: center; color: #e53e3e; font-weight: bold;">-20</td><td style="text-align: center; font-weight: bold;">36</td><td style="text-align: center;">0.198</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:55:49.813</td><td style="text-align: center;">7359.25</td><td style="text-align: center; color: #38a169; font-weight: bold;">34</td><td style="text-align: center; font-weight: bold;">36</td><td style="text-align: center;">0.173</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:57:56.742</td><td style="text-align: center;">7357.0</td><td style="text-align: center; color: #38a169; font-weight: bold;">10</td><td style="text-align: center; font-weight: bold;">34</td><td style="text-align: center;">0.073</td></tr>
+<tr style="border-bottom: 1px solid #edf2f7;"><td style="padding: 6px; text-align: center;">09:53:29.539</td><td style="text-align: center;">7360.75</td><td style="text-align: center; color: #38a169; font-weight: bold;">34</td><td style="text-align: center; font-weight: bold;">34</td><td style="text-align: center;">0.085</td></tr>
+</tbody></table></div>
+
+            <h2>2. 当前的不平衡（Imbalance）是在确认反转还是在确认延续？</h2>
+            <p><span class="conclusion">结论：当前的不平衡是在确认潜在的反转（或至少是下跌的暂停），而非下跌趋势的延续。</span></p>
+            
+            <p><strong>详细分析：</strong></p>
+            <ul>
+                <li><strong>卖家力量受阻：</strong> 在下跌趋势延续中，应看到价格与负 Delta 同步下跌。当前情况是，尽管卖方激进，但价格却在窄幅区间被“困”住。</li>
+                <li><strong>市场拒绝下行：</strong> 高成交量伴随价格拒绝进一步下行。这是一个重要的多头信号，预示市场正在寻找底部。</li>
+                <li><strong>能量积蓄：</strong> 大量合约在同一价格区域换手但价格波动有限，是能量在支撑位积蓄的表现，往往是反转前奏。</li>
+            </ul>
+
+            <div class="highlight-box">
+                <strong>核心逻辑：</strong> 这种“激进卖方被被动买方吸收”的不平衡状态，是市场下跌动能衰竭的早期信号。
+            </div>
+
+            <h2>3. 信心指数与具体交易建议</h2>
+            <p><strong>信心指数：<span style="color: #2b6cb0;">4/5 (较高信心)</span></strong></p>
+            
+            <div class="meta-info" style="background: #f0fff4; border-color: #c6f6d5;">
+                <p><strong>交易方向：做多 (Long)</strong></p>
+                <ul>
+                    <li><strong>潜在入场点：</strong> 7357.00 - 7358.00 附近（支撑区低端）</li>
+                    <li><strong>止损位 (Stop Loss)：</strong> 7355.50 (略低于 09:55 窗口最低价)</li>
+                    <li><strong>目标位 (Take Profit)：</strong> 第一目标 7362.25，第二目标 7365.00 - 7368.00</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <strong>风险管理建议：</strong> 务必控制仓位。密切关注后续订单流。如果价格跌破 7356.75 并伴随大量卖盘，则应果断离场。
+            </div>
+
+            <div class="highlight-box" style="background: #ebf8ff; border-left-color: #3182ce;">
+                <h3 style="margin-top: 0; color: #2c5282;">💡 OFI 0.138 深度解读（完整记录）</h3>
+                
+                <p><strong>1. 方向性：正值代表买方占优</strong></p>
+                <ul>
+                    <li><code>0.138</code> 是一个<strong>正数</strong>。这意味着在当前时刻，挂在盘口（Limit Order Book）上的<strong>买单总数（Bid Size）超过了卖单总数（Ask Size）</strong>。</li>
+                    <li>在 Adam Set 的理论中，这代表了<strong>被动支撑力量（Resting Liquidity）</strong>更强。</li>
+                </ul>
+
+                <p><strong>2. 量化程度：温和但坚定的倾斜</strong></p>
+                <ul>
+                    <li><strong>计算公式：</strong><br>
+                        <code style="background: #e2e8f0; padding: 5px; display: inline-block; margin: 10px 0;">OFI = (ΣBidSize[0-9] - ΣAskSize[0-9]) / (ΣBidSize[0-9] + ΣAskSize[0-9])</code>
+                    </li>
+                    <li><strong>0.138 是如何算出来的？（举例演示）</strong><br>
+                        假设在 09:52:17.241 这一秒：
+                        <ul>
+                            <li>买盘 10 层挂单总数 (ΣBidSize) = <strong>1,320 手</strong></li>
+                            <li>卖盘 10 层挂单总数 (ΣAskSize) = <strong>1,000 手</strong></li>
+                            <li>计算：<code>(1320 - 1000) / (1320 + 1000) = 320 / 2320 ≈ 0.138</code></li>
+                        </ul>
+                        这代表买盘挂单比卖盘多出约 32%，体现了明确的<strong>被动支撑意愿</strong>。
+                    </li>
+                    <li>虽然这不算“极端失衡”（极端通常指 0.5 以上），但在价格下跌过程中出现正的 OFI，是一个非常重要的<strong>背离信号</strong>。</li>
+                </ul>
+
+                <p><strong>3. 实战意义：机构的“托盘”行为</strong></p>
+                <ul>
+                    <li><strong>当时背景</strong>：Delta 是 <code>-73</code>（激进抛盘），说明有人在市价卖出。</li>
+                    <li><strong>OFI 反馈</strong>：<code>0.138</code>（被动买盘占优），说明在盘口挂单等候的买方不仅没有被吓跑，反而撤走了卖单或者增加了买单挂单。</li>
+                    <li><strong>结论</strong>：这证实了<strong>“人墙”确实存在</strong>。激进卖家在砸盘，但被动买家通过挂单在 7358.50 附近构筑了坚固的防御阵地。</li>
+                </ul>
+            </div>
+
+            <p><strong>总结：</strong> 市场行为显示激进卖方正在被被动买方吸收，价格在该区域形成暂时性底部。这是一个反转信号，提供了在支撑区域做多的机会。</p>
+        </div>
+
+        <div class="footer">
+            Archived by Antigravity on 2026-05-06 20:45:00<br>
+            Source: /Users/zhijiebian/Documents/00T4.pl | Project: Order-Flow-Intelligence
+        </div>
+        <section class="analysis-section">
+            <h2>技术细节：单价位吸收（Absorption）判定逻辑</h2>
+            <p>在实时探测器中，信号的触发不仅基于成交量，还隐含了对“价格停滞”的判定：</p>
+            <div class="logic-flow">
+                <strong>1. 隐含的窄幅区间（Narrow Range）：</strong><br>
+                插件通过 <code>rtVolumeMap</code> 锁定单一价位（Single Tick）。如果价格快速波动，成交量会被分散；只有当价格在某一精确价位“卡住”并持续成交，计数器才会触及 400 手阈值。因此，信号触发即代表价格在该点位经历了高强度的压力测试。<br><br>
+                <strong>2. 被动买盘支撑（Passive Support）：</strong><br>
+                当 <code>Delta < 0</code>（激进卖盘）与 <code>OFI > 0.2</code>（被动买盘挂单占优）同时出现时，确认了该价位存在“冰山单”吸收。
+            </div>
+            <div class="conviction-box conviction-high">
+                <strong>💡 核心结论：</strong><br>
+                该探测器监测的是 <strong>Intra-bar（K 线内部）</strong> 的微观订单流动态。它不需要等待 K 线收盘，只要在当前 5 分钟 K 线内，某一单价位成交量达标且盘口挂单支持反转，信号会**瞬时（Instant）**触发。这使得交易者能在形态完成前，优先观察到机构的筑底或派发行为。
+            </div>
+        </section>
+    </div>
+</body>
+</html>

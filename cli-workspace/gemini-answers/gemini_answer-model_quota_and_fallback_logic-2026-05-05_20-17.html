@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Model Quotas & Fallback Logic Analysis</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 20px auto; padding: 20px; background-color: #f9f9f9; }
+        .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; border-bottom: 2px solid #1a73e8; padding-bottom: 10px; }
+        h2 { color: #d93025; margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f1f3f4; font-weight: bold; }
+        .highlight { background-color: #fff3e0; padding: 15px; border-left: 5px solid #ff9800; margin: 20px 0; }
+        .success { color: #1e8e3e; font-weight: bold; }
+        .error { color: #d93025; font-weight: bold; }
+        code { background: #f1f3f4; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gemini 官方模型配额汇总 (免费层级)</h1>
+        <p>此文档总结了 Gemini API 免费层级 (Free Tier) 下不同模型的频率限制，用于指导 <code>auto_daily_report.py</code> 的模型选型。</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>模型系列</th>
+                    <th>具体模型名称</th>
+                    <th>每分钟请求 (RPM)</th>
+                    <th>每天请求 (RPD)</th>
+                    <th>每分钟 Token (TPM)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Pro 系列 (高性能)</strong></td>
+                    <td><code>3.1-pro</code>, <code>3-pro</code>, <code>2.5-pro</code></td>
+                    <td><span class="error">2 RPM</span></td>
+                    <td><span class="error">50 RPD</span></td>
+                    <td>32,000 TPM</td>
+                </tr>
+                <tr>
+                    <td><strong>Flash 系列 (平衡)</strong></td>
+                    <td><code>2.5-flash</code>, <code>2.0-flash</code>, <code>1.5-flash</code></td>
+                    <td><span class="success">15 RPM</span></td>
+                    <td><span class="success">1,500 RPD</span></td>
+                    <td>1,000,000 TPM</td>
+                </tr>
+                <tr>
+                    <td><strong>Flash-Lite (极速)</strong></td>
+                    <td><code>2.5-flash-lite</code></td>
+                    <td><span class="success">30 RPM</span></td>
+                    <td><span class="success">4,000 RPD</span></td>
+                    <td>4,000,000 TPM</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>深度解析：为什么自动化脚本中 Pro 模型频繁报错？</h2>
+        <div class="highlight">
+            <p><strong>1. 极低的 RPM (2 次/分) 陷阱：</strong><br>
+            Pro 系列每分钟仅允许 2 次请求。在处理多 Ticker 任务时，第三个 Ticker 往往会落在同一分钟内，从而必然触发 <code>429 RESOURCE_EXHAUSTED</code>。</p>
+            
+            <p><strong>2. 共享配额 (Shared Quota)：</strong><br>
+            同一个 Project 下的所有 Pro 模型（3.1, 3.0, 2.5）通常共享每天 50 次的额度。一旦其中一个耗尽，整个系列都会失效。</p>
+            
+            <p><strong>3. 预览版稳定性：</strong><br>
+            Preview 版模型在高峰时段更容易出现 <code>503 UNAVAILABLE</code> 错误，即使你还有配额。</p>
+        </div>
+
+        <h2>优化方案建议</h2>
+        <ul>
+            <li><strong>追求成功率</strong>：建议将 <code>gemini-2.5-flash</code> 设为首选模型，其 15 RPM 的配额足以应对日常自动化运行。</li>
+            <li><strong>追求精度</strong>：如果必须使用 Pro，建议在模型间切换或 Ticker 处理之间加入至少 <strong>30秒</strong> 的 <code>time.sleep</code>，以规避分钟级频率限制。</li>
+            <li><strong>重试策略</strong>：由于 Google 会在报错中通过 <code>retryDelay</code> 给出具体的建议等待时间，代码应优先解析该字段进行精准等待。</li>
+        </ul>
+
+        <p style="font-size: 0.8em; color: #666; margin-top: 50px;">
+            Archived by Antigravity on 2026-05-05 20:17:28<br>
+            Workspace: /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/
+        </p>
+    </div>
+</body>
+</html>

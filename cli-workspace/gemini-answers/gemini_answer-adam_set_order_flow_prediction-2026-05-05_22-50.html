@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A: Reverse Engineering Adam Set's Order Flow Strategy</title>
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.6; color: #2d3748; max-width: 1100px; margin: 30px auto; padding: 20px; background-color: #f7fafc; }
+        .qa-container { background: #fff; padding: 50px; border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.06); }
+        .question-section { background: #ebf8ff; border-left: 6px solid #3182ce; padding: 30px; border-radius: 8px; margin-bottom: 40px; }
+        .question-header { color: #2c5282; font-weight: bold; font-size: 1.2em; margin-bottom: 15px; display: flex; align-items: center; }
+        .answer-section { padding-left: 10px; }
+        .answer-header { color: #38a169; font-weight: bold; font-size: 1.4em; margin-bottom: 25px; border-bottom: 2px solid #f0f4f8; padding-bottom: 10px; }
+        h3 { color: #2d3748; margin-top: 30px; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; border: 1px solid #e2e8f0; text-align: left; font-size: 0.95em; }
+        th { background-color: #edf2f7; color: #4a5568; }
+        .tech-tag { background: #bee3f8; color: #2b6cb0; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 600; }
+        .code-block { background: #1a202c; color: #e2e8f0; padding: 20px; border-radius: 10px; font-family: 'SFMono-Regular', Consolas, monospace; overflow-x: auto; margin: 20px 0; font-size: 0.9em; }
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .feature-card { border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px; background: #fff; }
+        .label { color: #3182ce; font-weight: bold; }
+        .footer { text-align: center; margin-top: 60px; color: #a0aec0; font-size: 0.8em; border-top: 1px solid #edf2f7; padding-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="qa-container">
+        <!-- QUESTION SECTION -->
+        <div class="question-section">
+            <div class="question-header">
+                <span>[Question]</span>
+            </div>
+            <p>Adam Set is the best order flow trader on X, he often can call the exact high or low of big trend of the market, he primarily watch ES and NQ order flow. I am not sure how he could read the tape right almost every time, so I want to reverse engineer it, I need to save everyday's order flow data, so when Adam makes market top/bottom reversal call, I can use AI to analyze the order flow data of the day, and find the pattern, so I can have similar ability as Adam to read the tape and the market. I want to focus on ES first.</p>
+            <p>For data, the ticks data is easy to fetch and download. but I also to save the DOM data, the real time resting order data through out the RTH. I am using MotiveWave and dxFeed for order flow setup. Can you propose a solution?</p>
+        </div>
+
+        <!-- ANSWER SECTION -->
+        <div class="answer-section">
+            <div class="answer-header">
+                <span>[Answer]</span>
+            </div>
+            <p>这是一个非常深刻的量化交易课题。Adam Set 的核心优势在于他能通过盘口深度（DOM）洞察大机构的<strong>意图</strong>。为了实现对他的反向工程，我们需要构建一个高性能的数据采集与分析管线。</p>
+
+            <h3>1. 核心技术栈建议</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>模块</th>
+                        <th>推荐方案</th>
+                        <th>核心理由</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="label">数据采集</span></td>
+                        <td><span class="tech-tag">MotiveWave Java SDK</span></td>
+                        <td>利用现有 dxFeed 订阅，通过 <code>onDepth</code> 直接获取 L2/L3 原始数据。</td>
+                    </tr>
+                    <tr>
+                        <td><span class="label">捕捉频率</span></td>
+                        <td><span class="tech-tag">Snapshot (100-500ms)</span></td>
+                        <td>在 RTH 时段进行定期快照，平衡存储空间与数据精度。</td>
+                    </tr>
+                    <tr>
+                        <td><span class="label">数据存储</span></td>
+                        <td><span class="tech-tag">ClickHouse / HDF5</span></td>
+                        <td>专为高频时序数据优化，方便后期 AI 进行大规模模式匹配。</td>
+                    </tr>
+                    <tr>
+                        <td><span class="label">标注系统</span></td>
+                        <td><span class="tech-tag">Adam Call Tracker</span></td>
+                        <td>记录 Adam 喊单的精确时间戳，作为 AI 训练的 Ground Truth。</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2. MotiveWave Java SDK 实施思路</h3>
+            <p>你需要编写一个自定义 Study，通过 <code>onDepth</code> 回调监听深度变化并序列化导出：</p>
+            <div class="code-block">
+@Override
+public void onDepth(IDepth depth) {
+    long timestamp = System.currentTimeMillis();
+    // 提取前 10 档 Bids 和 Asks
+    List&lt;IDepthEntry&gt; bids = depth.getBids(); 
+    List&lt;IDepthEntry&gt; asks = depth.getAsks();
+    
+    // 序列化快照: Time | BidPrice,BidSize;... | AskPrice,AskSize;...
+    String snapshot = serializeDepth(timestamp, bids, asks);
+    // 异步刷入磁盘或数据库
+    AsyncLogger.log(snapshot);
+}
+            </div>
+
+            <h3>3. 特征工程：将“盘感”转化为 AI 特征</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <span class="label">Liquidity Grab (流动性劫掠)</span><br>
+                    <small>价格触及密集区后，挂单是被成交消耗还是主动撤销？揭示机构的真实意图。</small>
+                </div>
+                <div class="feature-card">
+                    <span class="label">Order Flow Imbalance (OFI)</span><br>
+                    <small>买卖盘挂单量的动态比率。识别 Adam 常说的“买盘支撑变厚”或“卖压增强”。</small>
+                </div>
+                <div class="feature-card">
+                    <span class="label">Spoofing Detection</span><br>
+                    <small>识别在价格临近时撤单的大额虚假挂单，判断是否存在诱多/诱空。建议关注 ES 500手以上的单子。</small>
+                </div>
+                <div class="feature-card">
+                    <span class="label">Iceberg Detection</span><br>
+                    <small>对比成交 Tick 与 DOM 消耗。如果 DOM 变动极小但成交极大，说明隐藏着巨大的冰山单。</small>
+                </div>
+            </div>
+
+            <h3>4. AI 复盘与分析逻辑</h3>
+            <p>当 Adam 发出呼号时，你可以利用 Gemini Pro 的长上下文能力：</p>
+            <ul>
+                <li><strong>输入</strong>：喊单点前后 15 分钟的结构化订单流数据。</li>
+                <li><strong>Prompt</strong>：<em>“分析此时间点前，7320 点附近的挂单是否出现了显著的吸收？Bids 的填补速度是否快于 Asks 的消耗速度？”</em></li>
+            </ul>
+
+            <p style="margin-top: 30px;"><strong>结论：</strong> 只有捕捉到 DOM，AI 才能理解 Adam 为何能在那个时刻看到“Tape”给出的反转信号。建议先从 ES 100ms 快照采集脚本开始实施。</p>
+        </div>
+
+        <div class="footer">
+            Archived by Antigravity on 2026-05-05 22:53:43<br>
+            Project: AdamSet-TapeReading-Reverse-Engineering | Workspace: gemini-answers
+        </div>
+    </div>
+</body>
+</html>

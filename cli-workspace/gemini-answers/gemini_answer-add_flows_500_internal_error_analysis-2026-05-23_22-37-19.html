@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - add_flows_500_internal_error_analysis</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-05-23 22:37:19</span>
+<span>Question summary: add_flows_500_internal_error_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#add_flows_500_internal_error_analysis">add_flows_500_internal_error_analysis</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#1-为什么报错日志没有记录在-bbt_data_web-log-中">1. 为什么报错日志没有记录在 bbt_data_web.log 中？</a></li><li><a href="#2-导致-post-api-add-flows-返回-500-错误的原因">2. 导致 POST /api/add-flows 返回 500 错误的原因</a></li><li><a href="#3-修复措施与验证结果">3. 修复措施与验证结果</a></li></ul></li><li><a href="#bbt_data_web_session_management_optimization">bbt_data_web_session_management_optimization</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#1-现有会话获取方式总结与评估">1. 现有会话获取方式总结与评估</a></li><li><a href="#2-跨应用-bbt_data_web-与-bbt_signal_web-共享数据库的-session-管理优化方案">2. 跨应用（bbt_data_web 与 bbt_signal_web）共享数据库的 Session 管理优化方案</a><ul><li><a href="#核心原则">核心原则</a></li><li><a href="#优化方案">优化方案</a></li></ul></li></ul></li><li><a href="#external_scripts_refactoring_and_verification">external_scripts_refactoring_and_verification</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#重构工作汇总">重构工作汇总</a></li><li><a href="#验证情况">验证情况</a></li></ul></li><li><a href="#session_management_summary_post_refactoring">session_management_summary_post_refactoring</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#1-底层连接池与上下文管理器-db_connection-py">1. 底层连接池与上下文管理器 (db_connection.py)</a></li><li><a href="#2-数据库查询层-db_query_module-db_query-py">2. 数据库查询层 (db_query_module/* &amp; db_query.py)</a></li><li><a href="#3-web-服务与控制器层-bbt_data_web-data_app-bbt_signal_web-signal_app">3. Web 服务与控制器层 (bbt_data_web/data_app/* &amp; bbt_signal_web/signal_app/*)</a></li><li><a href="#4-外部独立脚本与日常维护作业-gemini-skills-pytools">4. 外部独立脚本与日常维护作业 (.gemini/skills/* &amp; PyTools/*)</a></li></ul></li></ul></div>
+<section><h2 id="add_flows_500_internal_error_analysis">add_flows_500_internal_error_analysis</h2><section>
+<h3 id="question">Question</h3>
+<p>127.0.0.1 - - [23/May/2026 22:08:49] "POST /api/add-flows HTTP/1.1" 500 -<br/>
+but no errors in log /Users/zhijiebian/Documents/MyDoc/Finance/Current/Config/bbt_data_web.log</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<h3 id="1-为什么报错日志没有记录在-bbt_data_web-log-中">1. 为什么报错日志没有记录在 <code>bbt_data_web.log</code> 中？</h3>
+<p>在 <code>/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/data_app/options_flow.py</code> 的 <code>/api/add-flows</code> 端点中，异常捕捉（<code>except Exception as e</code>）只调用了 <code>print(e)</code>，并没有将异常记录至由 <code>BBLog.logger_d()</code> 管理的 <code>bbt_data_web.log</code> 文件。因此，此异常信息直接输出至 Flask 运行进程的标准输出（Stdout），而不会写入日志文件。</p>
+<hr/>
+<h3 id="2-导致-post-api-add-flows-返回-500-错误的原因">2. 导致 POST <code>/api/add-flows</code> 返回 500 错误的原因</h3>
+<p>该请求返回的具体异常为：<code>{"error":"'NoneType' object has no attribute 'net_premium'"}</code>。<br/>
+该错误源于：在 <code>add_flows_real_flows</code> 内部，系统首先通过 <code>DbQuery.option_flow_query_by_unique_columns(...)</code> 查询是否存在对应交易。如果该交易已存在，它会得到该交易的 <code>id</code>，并通过 <code>OptionFlow.query.get(flow_id)</code> 进一步读取对应的 <code>OptionFlow</code> 实例，随后更新其 <code>net_premium</code> 属性。<br/>
+* <code>DbQuery.option_flow_query_by_unique_columns(...)</code> 使用的是通过 <code>db_connection_legacy</code> 获取的全局长连接 Session (<code>get_global_session()</code>)。<br/>
+* <code>OptionFlow.query.get(...)</code> 使用的则是 Flask-SQLAlchemy 独立管理的 <code>db.session</code>。<br/>
+这两个会话使用的是不同的数据库连接实例。因为 MySQL 默认采用 <strong>可重复读（Repeatable Read）</strong> 事务隔离级别，当全局 Session 查询到外部进程写入的记录并返回其 ID 后，Flask 的 <code>db.session</code> 连接中当前的活跃事务快照尚未包含该 ID 对应的数据，导致 <code>.get(flow_id)</code> 无法查询到该记录而返回 <code>None</code>。因此，在对 <code>flow.net_premium</code> 进行赋值时，抛出了 <code>AttributeError: 'NoneType' object has no attribute 'net_premium'</code> 异常。<br/>
+此外，原代码在循环中将查询结果重新赋值给 <code>df</code>（即 <code>df = DbQuery.option_flow_query_by_unique_columns(...)</code>），从而破坏了原循环迭代器上下文中所使用的 <code>df</code> 变量。</p>
+<hr/>
+<h3 id="3-修复措施与验证结果">3. 修复措施与验证结果</h3>
+<ol>
+<li><strong>重构代码</strong>：将 <code>add_flows_real_flows</code> 的查询方式修改为直接统一通过 <code>OptionFlow.query.filter(...)</code> 利用当前请求自带的 <code>db.session</code> 进行判断，并在查询出匹配项时直接更新其属性。这不仅避免了多 Session 事务隔离带来的冲突，也修复了覆盖 <code>df</code> 的循环缺陷。</li>
+<li><strong>重启服务</strong>：由于当前 Flask 服务处于非 Debug 模式下运行，我们杀掉了旧服务进程（PID <code>3779</code>），并重新在后台拉起了服务进程：<br/>
+<code>bash
+   /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 -W ignore /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/bbt_data_app.py -f</code></li>
+<li><strong>请求验证</strong>：验证接口已能够正常接收数据并保存成功，返回 <code>200 OK</code>：<br/>
+<code>json
+   Status Code: 200
+   Response JSON: {"failed_flow":0,"failed_summary":0,"message":"Flows added successfully"}</code></li>
+</ol>
+</section></section><section><h2 id="bbt_data_web_session_management_optimization">bbt_data_web_session_management_optimization</h2><h3 id="question-2">Question</h3><p>please inspect all db access under /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web, summarize how DB sessions are obtained, and evaluate if they are reasonable, and provide a DB session management optimization plan when shared with bbt_signal_web.</p><h3 id="answer-2">Answer</h3><h3 id="1-现有会话获取方式总结与评估">1. 现有会话获取方式总结与评估</h3>
+<p>在 <code>bbt_data_web</code> 及共享模块中，目前并存三种不同的数据库会话获取方式：</p>
+<ol>
+<li><strong>Flask-SQLAlchemy 的 <code>db.session</code></strong>：<br/>
+   * <strong>评估</strong>：<strong>完全合理</strong>。它是 Flask 应用的标准做法，连接生命周期与 HTTP 请求上下文自动绑定（随请求创建，随请求结束而释放），在 Web 端能保证线程安全和连接生命周期的正确回收。</li>
+<li><strong>基于上下文管理器的 <code>DBConn().session()</code></strong>：<br/>
+   * <strong>评估</strong>：<strong>在独立脚本中合理，在 Web 请求内部混用不合理</strong>。它自带事务的自动提交与回滚机制，适合不依赖 Flask 的命令行脚本。但在 Flask 路由处理内部如果与 <code>db.session</code> 并用，会导致独立的库连接，触发事务版本隔离冲突。</li>
+<li><strong>全局单例会话 <code>get_global_session()</code></strong>：<br/>
+   * <strong>评估</strong>：<strong>不合理，存在重大隐患</strong>。全局共享的单例 Session 在多线程并发调用时极易引起线程安全冲突；同时因其连接生命周期不结束，MySQL 默认的可重复读（RR）隔离级别会使得查询出现快照过旧的现象（即读不到其他进程更新的数据）。</li>
+</ol>
+<hr/>
+<h3 id="2-跨应用-bbt_data_web-与-bbt_signal_web-共享数据库的-session-管理优化方案">2. 跨应用（bbt_data_web 与 bbt_signal_web）共享数据库的 Session 管理优化方案</h3>
+<p>由于 <code>db_query_module</code> 被 <code>bbt_data_web</code> (Port 5005)、<code>bbt_signal_web</code> (Port 5008) 和 <code>PyTools</code> 后台脚本三端共同依赖，应采取如下解耦与优化设计：</p>
+<h4 id="核心原则">核心原则</h4>
+<p><strong>“谁发起，谁管理”</strong>：Web 请求的 Session 由各自 Web 框架的生命周期控制；数据共享模块本身的数据库访问则由局部的上下文管理器独立管理。</p>
+<h4 id="优化方案">优化方案</h4>
+<ol>
+<li>
+<p><strong>读写方法重构为“上下文自治 Session”</strong>：<br/>
+   在 <code>db_query_module</code> 下的所有公共方法中，彻底废弃 <code>session = get_global_session()</code> 全局单例。<br/>
+   对于纯粹的数据读写方法，统一使用局部的 <code>DBConn().session()</code> 上下文管理器来包裹。例如：<br/>
+<code>python
+   @classmethod
+   def option_flow_query_by_contract_date(cls, contract, t_date):
+       with DBConn().session() as session:
+           results = session.query(OptionFlow).filter(
+               OptionFlow.contract == contract,
+               OptionFlow.transac_date == t_date
+           ).all()
+           return results</code><br/>
+<strong>效果</strong>：实现方法无状态、线程安全、即用即关闭，且不再依赖 Flask 的 <code>app_context</code>，<code>bbt_signal_web</code> 无需再使用 <code>with bbt_data_app.app_context():</code> 包裹，两个 Web 服务彻底解耦。</p>
+</li>
+<li>
+<p><strong>高级用法：会话注入（Dependency Injection）</strong>：<br/>
+   对于有些需要支持 Web 端统一事务控制的写入场景，支持可选传入外部 <code>session</code> 参数：<br/>
+<code>python
+   @classmethod
+   def option_flow_add(cls, ..., session=None):
+       if session is not None:
+           # 传入了外部会话（如 db.session），由外部统一控制 commit/rollback
+           cls._perform_add(session, ...)
+       else:
+           # 未传入会话，使用本地独立连接池会话，自动 commit/close
+           with DBConn().session() as local_session:
+               cls._perform_add(local_session, ...)</code></p>
+</li>
+<li>
+<p><strong>完全废除全局 Session</strong>：<br/>
+   彻底移除 <code>db_connection_legacy.py</code> 中的 <code>get_global_session()</code>，以强制避免任何静默的长连接事务挂起隐患。</p>
+</li>
+</ol></section><section><h2 id="external_scripts_refactoring_and_verification">external_scripts_refactoring_and_verification</h2><h3 id="question-3">Question</h3><p>请修复 <code>/Users/zhijiebian/.gemini/skills</code> 和 <code>/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools</code> 目录下依赖全局 Session 的外部维护脚本（如 <code>fetch_big_trades.py</code> 和 <code>spikes_mw_agg_maintenance.py</code>），将其切换为上下文管理器 <code>DBConn().session()</code> 形式；重新启动 5005 端口的后台 Flask 服务并进行接口及分析脚本的联调验证。</p><h3 id="answer-3">Answer</h3><p>已经成功完成了数据库 Session 管理的重构以及所有相关依赖的修复与测试验证工作。以下是本次重构的主要成果总结：</p>
+<h3 id="重构工作汇总">重构工作汇总</h3>
+<ol>
+<li>
+<p><strong>废弃全局 Session 机制</strong><br/>
+   - 移除了 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/db_connection_legacy.py">db_connection_legacy.py</a> 中的 <code>get_global_session()</code>。如果该函数被调用，将直接抛出 <code>RuntimeError</code>，以保证未来开发的安全性。<br/>
+   - 移除了主查询路由 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/db_query.py">db_query.py</a> 顶部的全局 <code>session = get_global_session()</code> 的导入与声明，使得查询层完全免于对全局 Session 的依赖。</p>
+</li>
+<li>
+<p><strong>重构查询模块与外部脚本</strong><br/>
+   - 重构了 <code>db_query_module/</code> 下的 10 个查询 Mixin 文件，改用上下文管理器 <code>with DBConn().session() as session:</code> 对数据库操作进行包裹。<br/>
+   - 修复了外部脚本 <a href="file:///Users/zhijiebian/.gemini/skills/spike-analysis/scripts/fetch_spikes.py">fetch_spikes.py</a>、<a href="file:///Users/zhijiebian/.gemini/skills/order-flow-analysis/scripts/fetch_big_trades.py">fetch_big_trades.py</a> 和 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/spike_db/spikes_mw_agg_maintenance.py">spikes_mw_agg_maintenance.py</a>，将其中的全局 Session 替换为 <code>DBConn().session()</code> 的局部上下文。</p>
+</li>
+<li>
+<p><strong>解耦服务端架构</strong><br/>
+   - 移除了 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_signal_web/signal_app/option_flow.py">option_flow.py</a> 对 Flask application context 的绑定，消除了在独立运行或多线程环境下使用底层数据库查询的上下文限制。</p>
+</li>
+</ol>
+<h3 id="验证情况">验证情况</h3>
+<ol>
+<li>
+<p><strong>自动化分析脚本运行测试</strong>：<br/>
+   - 运行 <code>fetch_spikes.py SPY 2026-05-22</code>，正常输出 JSON 数据。<br/>
+   - 运行 <code>fetch_big_trades.py 2026-05-22</code>，正常输出预聚合信号 JSON 数据。<br/>
+   - 运行 <code>spikes_mw_agg_maintenance.py 2026-05-22</code>，所有数据库的整理与更新计算正常执行完毕，无异常退出。</p>
+</li>
+<li>
+<p><strong>REST API 联调测试</strong>：<br/>
+   - 在后台重新启动了 <code>bbt_data_app</code>（Port 5005）。<br/>
+   - 通过 <code>post_add_flows.py</code> 模拟向接口 <code>/api/add-flows</code> 发送不同格式的期权流水数据，均返回 <code>200 OK</code> 且 <code>"failed_flow": 0</code>。数据库数据写入及事务管理运行正常。</p>
+</li>
+</ol>
+<p>更多更改与验证的详细信息，请参阅生成的 Walkthrough 文档：<br/>
+<a href="file:///Users/zhijiebian/.gemini/antigravity-ide/brain/8dbfaf04-5049-460c-8ca8-16b87b972ccb/walkthrough.md">walkthrough.md</a>。</p></section><section><h2 id="session_management_summary_post_refactoring">session_management_summary_post_refactoring</h2><h3 id="question-4">Question</h3><p>请对重构后的各个模块（包括底层连接、查询 Mixins、Web 视图控制器以及外部维护脚本）的数据库 Session 管理机制及生命周期进行系统化的技术汇总，并说明是如何实现线程安全和解耦的。</p><h3 id="answer-4">Answer</h3><p>本次重构彻底废弃了原有的全局单例 <code>get_global_session</code> 机制，将其替换为基于上下文管理器 <code>DBConn().session()</code> 的线程安全局部 Session 模式。以下为重构后各核心模块中的 Session 管理机制与生命周期汇总：</p>
+<h3 id="1-底层连接池与上下文管理器-db_connection-py">1. 底层连接池与上下文管理器 (<code>db_connection.py</code>)</h3>
+<ul>
+<li><strong>Session 获取</strong>：统一通过 <code>DBConn().session()</code> 动态获取 SQLAlchemy 的 <code>Session</code> 实例。</li>
+<li><strong>生命周期与事务</strong>：</li>
+<li>基于 Python 的上下文管理器 <code>with DBConn().session() as session:</code> 控制 Session 生命周期。</li>
+<li><strong>关闭机制</strong>：离开 <code>with</code> 作用域时，无论是否抛出异常，上下文管理器都会自动关闭 (close) 该 Session，并将连接释放回引擎连接池。</li>
+<li><strong>回滚机制</strong>：在 <code>with</code> 块内部发生未捕获异常时，上下文管理器会自动触发 <code>rollback()</code>，随后关闭连接，无需再手动在 <code>except</code> 块中调用回滚。</li>
+<li><strong>提交机制</strong>：写操作需要显式调用 <code>session.commit()</code> 进行事务持久化。</li>
+</ul>
+<h3 id="2-数据库查询层-db_query_module-db_query-py">2. 数据库查询层 (<code>db_query_module/*</code> &amp; <code>db_query.py</code>)</h3>
+<ul>
+<li><strong>Session 隔离</strong>：每个独立的数据查询 <code>@classmethod</code> 内部完全自包含 <code>with DBConn().session() as session:</code> 块。类成员之间不共享 Session 状态，确保了多线程环境下的线程隔离。</li>
+<li><strong>Detached 机制处理</strong>：针对部分只读查询方法需要向 Session 作用域外返回 ORM 实体（如 <code>Spike</code>、<code>SpikeMWAgg</code>）的情况，在 <code>with</code> 块退出前显式调用 <code>session.expunge_all()</code>。将实体脱离该 Session 的状态跟踪，避免由于 Session 提前关闭而导致属性延迟加载时触发 <code>DetachedInstanceError</code>。</li>
+<li><strong>Pandas 适配</strong>：对于使用 <code>pd.read_sql</code> 的数据框加载，连接参数统一替换为局部 <code>session.connection()</code>（代替已被废弃的 <code>session.bind</code>），且整个 <code>pd.read_sql</code> 操作完全局限在 <code>with</code> 上下文内完成。</li>
+</ul>
+<h3 id="3-web-服务与控制器层-bbt_data_web-data_app-bbt_signal_web-signal_app">3. Web 服务与控制器层 (<code>bbt_data_web/data_app/*</code> &amp; <code>bbt_signal_web/signal_app/*</code>)</h3>
+<ul>
+<li><strong>Flask 应用上下文解耦</strong>：</li>
+<li>重构后，底层 <code>DbQuery</code> 类方法在其内部自建并销毁局部 Session，使底层的数据库交互不依赖于 Flask 容器的状态。</li>
+<li>像 <code>bbt_signal_web/signal_app/option_flow.py</code> 这样的外围模块可以直接调用 <code>DbQuery.option_flow_add()</code>，消除了包裹 <code>with bbt_data_app.app_context():</code> 上下文的强制约束。</li>
+<li><strong>Flask-SQLAlchemy 共存</strong>：在 <code>bbt_data_app</code> 自身的接口路由中（如更新、直接查询匹配项），依然安全使用 Flask-SQLAlchemy 绑定在 App 线程上下文上的 <code>db.session</code>（例如 <code>OptionFlow.query</code>），保证了与 Web 服务器生命周期同步的同时，与底层数据层在事务边界上解耦。</li>
+</ul>
+<h3 id="4-外部独立脚本与日常维护作业-gemini-skills-pytools">4. 外部独立脚本与日常维护作业 (<code>.gemini/skills/*</code> &amp; <code>PyTools/*</code>)</h3>
+<ul>
+<li><strong>去全局单例化</strong>：脚本中已全部移除对 <code>db_connection_legacy.get_global_session</code> 的导入与调用。</li>
+<li><strong>脚本内局部作用域</strong>：</li>
+<li>在 <code>fetch_spikes.py</code>、<code>fetch_big_trades.py</code> 等分析脚本中，数据库的查询和转换均在局部的 <code>with DBConn().session()</code> 块中处理。</li>
+<li>在日常维护工具 <code>spikes_mw_agg_maintenance.py</code> 中，<code>consolidate_spikes</code> 与 <code>update_resolutions</code> 分别在其方法内部使用独立的上下文管理器块。彻底移除了方法末尾硬编码的 <code>session.close()</code> 和异常处理中冗余的 <code>session.rollback()</code>。</li>
+</ul></section></article>
+</main>
+</body>
+</html>

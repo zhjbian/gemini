@@ -43,7 +43,55 @@ def build_output_path(summary: str) -> Path:
     return OUTPUT_DIR / f"gemini_answer-{summary}-{timestamp}.html"
 
 
+def clean_latex(text: str) -> str:
+    replacements = {
+        r'\rightarrow': '→',
+        r'\leftarrow': '←',
+        r'\Rightarrow': '⇒',
+        r'\Leftarrow': '⇐',
+        r'\times': '×',
+        r'\approx': '≈',
+        r'\leq': '≤',
+        r'\le': '≤',
+        r'\geq': '≥',
+        r'\ge': '≥',
+        r'\neq': '≠',
+        r'\ne': '≠',
+        r'\pm': '±',
+        r'\cdot': '·',
+        r'\degree': '°',
+        r'\quad': ' ',
+        r'\qquad': '  ',
+        r'\%': '%',
+    }
+
+    def replace_formula(match):
+        formula = match.group(1)
+        is_formula = (
+            '\\' in formula 
+            or any(op in formula for op in ['^', '_', '≈', '×', '±', '→', '≤', '≥', '≠'])
+        )
+        if not is_formula:
+            return match.group(0)
+
+        # 1. Replace \text{...} -> ...
+        formula = re.sub(r'\\text\{([^{}]+)\}', r'\1', formula)
+        # 2. Replace common LaTeX operators
+        for latex_op, unicode_op in replacements.items():
+            formula = formula.replace(latex_op, unicode_op)
+        # 3. Clean up escapes
+        formula = re.sub(r'\\([_#*+-\\%])', r'\1', formula)
+        return formula
+
+    # Process double dollar signs first (block equations)
+    text = re.sub(r'\$\$(.*?)\$\$', replace_formula, text, flags=re.DOTALL)
+    # Process single dollar signs (inline equations)
+    text = re.sub(r'(?<!\$)\$(?!\$)(.+?)(?<!\$)\$(?!\$)', replace_formula, text)
+    return text
+
+
 def render_markdown(text: str, add_toc: bool = False) -> str:
+    text = clean_latex(text)
     # Always include the core extensions, but 'toc' is now handled globally if requested
     return markdown.markdown(
         text.strip(),
