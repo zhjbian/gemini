@@ -490,6 +490,32 @@ def append_to_html(target_path: Path, question: str, answer: str, summary: str) 
     target_path.write_text(str(soup))
 
 
+def append_to_md(target_path: Path, question: str, answer: str, summary: str) -> None:
+    content = target_path.read_text().strip()
+    
+    # Determine if it's single mode: does it contain `# Gemini Answer` and exactly one `## Question` and one `## Answer`?
+    h2_count = len(re.findall(r'^##\s', content, re.MULTILINE))
+    
+    if h2_count == 2 and "## Question" in content and "## Answer" in content:
+        # Extract the original summary from the title
+        title_match = re.search(r'^# Gemini Answer - (.*)', content, re.MULTILINE)
+        old_summary = title_match.group(1).strip() if title_match else "Original Analysis"
+        
+        # Demote existing ## to ###
+        restructured = content
+        # Remove the main title
+        restructured = re.sub(r'^# Gemini Answer - .*\n+', '', restructured)
+        # Demote ## to ###
+        restructured = re.sub(r'^##\s', '### ', restructured, flags=re.MULTILINE)
+        
+        content = f"# Gemini Answer\n\n## {old_summary}\n{restructured}"
+        
+    # Append the new section
+    new_section = f"\n\n## {summary}\n\n### Question\n{question}\n\n### Answer\n{answer}\n"
+    content += new_section
+    target_path.write_text(content)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Save a Gemini question/answer pair as an HTML report with automated Global TOC."
@@ -501,6 +527,7 @@ def main() -> None:
     parser.add_argument("--summary")
     parser.add_argument("--summary-file")
     parser.add_argument("--append-to", help="Existing HTML file to append to")
+    parser.add_argument("--md", action="store_true", help="Also generate/append to markdown (.md) file")
     args = parser.parse_args()
 
     question = read_text_arg(args.question, args.question_file, "question")
@@ -518,11 +545,25 @@ def main() -> None:
             raise SystemExit(f"Target file {target} does not exist for appending.")
         append_to_html(target, question, answer, summary)
         print(target)
+        if args.md:
+            md_target = target.with_suffix(".md")
+            if md_target.exists():
+                append_to_md(md_target, question, answer, summary)
+                print(md_target)
+            else:
+                md_content = f"# Gemini Answer - {summary}\n\n## Question\n{question}\n\n## Answer\n{answer}\n"
+                md_target.write_text(md_content)
+                print(md_target)
     else:
         OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
         output_path = build_output_path(summary)
         output_path.write_text(build_html(question, answer, summary))
         print(output_path)
+        if args.md:
+            md_path = output_path.with_suffix(".md")
+            md_content = f"# Gemini Answer - {summary}\n\n## Question\n{question}\n\n## Answer\n{answer}\n"
+            md_path.write_text(md_content)
+            print(md_path)
 
 
 if __name__ == "__main__":

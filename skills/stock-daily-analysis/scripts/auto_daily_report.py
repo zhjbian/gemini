@@ -17,9 +17,16 @@ import time
 
 # Tiered Fallback: 3.1 -> 3.0 -> 2.5 -> 2.0 -> 1.5
 GEMINI_MODEL_FALLBACK_LIST = [
-    "gemini-3.1-pro-preview", "gemini-3-pro-preview",
-    "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite",
-    "gemini-2.0-flash", "gemini-1.5-pro", "gemini-1.5-flash"
+    "gemini-3.5-flash",              # 优先选用最新 3.5 高性价比模型
+    "gemini-3.1-pro-preview",        # 其次选用 3.1 高推理 Pro 模型
+    "gemini-3-pro-preview",          # 3.0 Pro 备用
+    "gemini-2.5-pro",                # 2.5 Pro 备用
+    "gemini-2.5-flash",              # 2.5 Flash 备用
+    "gemini-2.5-flash-lite",         # 2.5 Lite 备用
+    "gemini-3.1-flash-lite",         # 3.1 Lite 备用
+    "gemini-2.0-flash",              # 2.0 Flash 备用
+    "gemini-pro-latest",             # 稳定生产 Pro 别名兜底
+    "gemini-flash-latest"            # 稳定生产 Flash 别名兜底
 ]
 SCRIPTS_DIR = "/Users/zhijiebian/.gemini/skills/stock-daily-analysis/scripts"
 GEMINI_KEY_FILE = "/Users/zhijiebian/Documents/MyDoc/Finance/Current/Config/gemini_key.conf"

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - es_order_flow_analysis_1230</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-05-25 09:36:55</span>
+<span>Question summary: es_order_flow_analysis_1230</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#institutional-order-flow-accumulation-report-es-12-30-seattle-time">Institutional Order Flow Accumulation Report: ES @ 12:30 (Seattle Time)</a></li><li><a href="#核心研判结论">核心研判结论</a></li><li><a href="#意图解析与背离">意图解析与背离</a></li><li><a href="#机构吸筹与阻力判定">机构吸筹与阻力判定</a></li><li><a href="#核心研判结论-2">核心研判结论</a></li><li><a href="#意图解析与背离-2">意图解析与背离</a></li><li><a href="#机构吸筹与阻力判定-2">机构吸筹与阻力判定</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>Order Flow Analysis Terminal Execution Output (2026-05-22 12:30)</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>╰─➤  /usr/local/bin/python3 /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/ai_tape_analyst.py -t 12:30 -d 2026-05-22 --realtime --no-email<br/>
+⌛ Generating real-time features for 2026-05-22 up to 12:30...</p>
+<h3 id="institutional-order-flow-accumulation-report-es-12-30-seattle-time">Institutional Order Flow Accumulation Report: ES @ 12:30 (Seattle Time)</h3>
+<p><strong>1. Recent 30-Min Micro-Tape (12:30 Seattle Time):</strong><br/>
+- Price Range: 7489.00 - 7506.75<br/>
+- Total Volume: 170728 contracts<br/>
+- Net Delta: -8990 (BEARISH)<br/>
+- Avg Depth Imbalance: 0.055<br/>
+- Absorption Signals: 316 snapshots<br/>
+- Key Absorption Levels: 7497.75 (14次/ 82, 看空吸收), 7496.25 (13次/ 496, 看多吸收), 7496.00 (12次/ 207, 看多吸收)</p>
+<p><strong>2. RTH Session Accumulation (Seattle Time 06:30 to 12:30):</strong><br/>
+- Price Range: 725.00 - 7524.00<br/>
+- Total Volume: 2156715 contracts<br/>
+- Net Delta: -10185 (BEARISH)<br/>
+- Price Change: 7496.75→7489.75 (-7.00) [空头打压]<br/>
+- Avg Depth Imbalance: -0.003<br/>
+- Absorption Signals: 3414 snapshots<br/>
+- Key Absorption Levels: 7508.00 (82次/ 1594, 看多吸收), 7507.50 (80次/ 269, 看多吸收), 7507.00 (76次/ 114, 看空吸收)</p>
+<p><strong>3. Pre-Market (PM) Session (Seattle Time 00:00 to 06:30):</strong><br/>
+- Price Range: 7469.50 - 7507.75<br/>
+- Total Volume: 493576 contracts<br/>
+- Net Delta: 4860 (BULLISH)<br/>
+- Price Change: 7488.75→7496.50 (+7.75) [多头推进]<br/>
+- Key Absorption Levels: 7500.00 (10次/ 182, 看空吸收), 7475.00 (9次/ 112, 看多吸收), 7489.00 (9次/ 462, 看多吸收)</p>
+<p><strong>4. Combined Today Overview (00:00 to 12:30 cumulative):</strong><br/>
+- Cumulative Delta: -5325 (BEARISH)<br/>
+- Total Session Volume: 2650291 contracts<br/>
+- Overall Price Range: 725.00 - 7524.00<br/>
+- Overall Price Change: 7488.75→7489.75 (+1.00) [卖盘被吸收]<br/>
+- Overall Key Absorption Levels: 7508.00 (82次/ 1594, 看多吸收), 7507.50 (80次/ 269, 看多吸收), 7507.00 (77次/ 174, 看空吸收)</p>
+<p><strong>5. RTH Delta-Price Structural Analysis (关键结构数据):</strong><br/>
+- RTH 30-Min Delta Progression (逐30分钟分解):<br/>
+  06:30-07:00: Delta=+7996, Imbalance=-0.009, Price 7496.75→7509.75 (+13.00), 多头推进<br/>
+  07:00-07:30: Delta=-2677, Imbalance=+0.046, Price 7510.00→7491.25 (-18.75), 空头打压<br/>
+  07:30-08:00: Delta=+3966, Imbalance=-0.038, Price 7491.25→7499.50 (+8.25), 多头推进<br/>
+  08:00-08:30: Delta=+1569, Imbalance=-0.079, Price 7499.50→7511.50 (+12.00), 多头推进<br/>
+  08:30-09:00: Delta=-286, Imbalance=-0.048, Price 7512.50→7511.00 (-1.50), 空头打压<br/>
+  09:00-09:30: Delta=-4478, Imbalance=-0.055, Price 7508.50→7508.25 (-0.25), 多空平衡<br/>
+  09:30-10:00: Delta=-430, Imbalance=-0.007, Price 7508.25→7507.25 (-1.00), 空头打压<br/>
+  10:00-10:30: Delta=+7524, Imbalance=-0.001, Price 7507.25→7522.25 (+15.00), 多头推进<br/>
+  10:30-11:00: Delta=-10209, Imbalance=+0.003, Price 7522.00→7508.25 (-13.75), 空头打压<br/>
+  11:00-11:30: Delta=+1470, Imbalance=-0.004, Price 7508.25→7507.00 (-1.25), 买盘被吸收<br/>
+  11:30-12:00: Delta=-5640, Imbalance=-0.011, Price 7507.25→7505.50 (-1.75), 空头打压<br/>
+  12:00-12:30: Delta=-8990, Imbalance=+0.055, Price 7505.50→7489.75 (-15.75), 空头打压<br/>
+- RTH Price Start→End: 7496.75 → 7489.75 (-7.00)<br/>
+- Current Price Position in RTH Range: 99.5% (0%=区间最低, 100%=区间最高)<br/>
+- Recent 30-Min Delta-Price Divergence: BEARISH_CONSISTENT: Delta负+价格跌，空头有效打压<br/>
+  (Delta=-8990, Price Change=-15.75)<br/>
+- Micro Delta Efficiency: 1.75 (每1000手Delta对应的价格变动)</p>
+<p><strong>Analysis Request (Adam Set Style &amp; Weighting Rules):</strong><br/>
+请基于上述数据（PM、RTH至今、最近30分钟、以及RTH逐30分钟Delta-Price结构分析），进行极其深入的机构行为研判。在得出核心结论和分析时，你必须严格遵守以下规则：</p>
+<ol>
+<li>
+<p>【数据一致性（绝对禁止幻觉）】：<br/>
+   - <strong>你必须严格基于输入数据进行分析，绝对不可篡改、编造或虚构任何统计数据</strong>。<br/>
+   - 你可以且必须对数据进行<strong>交叉验证和深层解读</strong>（例如"Delta为正但价格下跌意味着买盘被吸收"），但不可编造不存在的数据点。</p>
+</li>
+<li>
+<p>【研判核心逻辑 — Delta-Price 交叉验证】：<br/>
+   - <strong>Delta 方向本身不等于多空方向</strong>。你必须同时考察 Delta 的方向与价格的实际变动：<br/>
+     a) Delta 为正 + 价格上涨 = 真正的多头驱动（买盘有效推升价格）<br/>
+     b) Delta 为正 + 价格不涨或下跌 = 被动卖方吸收（Passive Selling Absorption）→ 看似有买盘，实际被大额被动卖单消化，这是<strong>潜在的空头信号</strong><br/>
+     c) Delta 为负 + 价格不跌或上涨 = 被动买方吸收（Passive Buying Absorption）→ 看似有卖盘，实际被大额被动买单消化，这是<strong>潜在的多头信号</strong><br/>
+     d) Delta 为负 + 价格下跌 = 真正的空头驱动（卖盘有效打压价格）</p>
+</li>
+</ol>
+<ul>
+<li>
+<p><strong>RTH 逐30分钟 Delta 趋势比全段累积 Delta 更重要</strong>：<br/>
+     全天累积 Delta 可能被早期的单向行情掩盖后期的趋势反转。你必须重点分析第5段"RTH Delta-Price Structural Analysis"中的逐30分钟 Delta 演变，识别 Delta 转折点和趋势方向。<br/>
+     例如：前1小时 Delta +2500，后2.5小时 Delta -7500 → 累积虽为负，但关键信息是<strong>后半段空头已完全接管</strong>。</p>
+</li>
+<li>
+<p><strong>价格在区间中的位置（Price Position）是关键判定指标</strong>：<br/>
+     若 RTH Price Position &lt; 40%，即使 Delta 为正，也说明买盘未能有效推升价格，市场偏弱。<br/>
+     若 RTH Price Position &gt; 60%，即使 Delta 为负，也说明卖盘未能有效打压价格，市场偏强。</p>
+</li>
+<li>
+<p><strong>吸收信号的双面性</strong>：<br/>
+     在某个价位反复出现吸收信号，不一定是"支撑"。如果价格在该价位反复受阻无法有效突破，则吸收代表的是反方向的阻力。你必须结合价格是从上方跌到吸收位（被动买方防守 = 潜在支撑）还是从下方涨到吸收位（被动卖方防守 = 潜在阻力）来判断其含义。</p>
+</li>
+<li>
+<p><strong>最近30分钟微观数据的权重</strong>取决于市场结构：在趋势行情中权重最高；但在长时间横盘震荡中，30分钟仅是噪音的一段截面，此时RTH逐30分钟的结构趋势和Delta-Price背离信号权重更高。</p>
+</li>
+</ul>
+<p>[VERDICT]</p>
+<h3 id="核心研判结论">核心研判结论</h3>
+<p>你必须严格按照以下格式输出核心研判结论，包含且仅包含以下三个条目（每个条目占一行，使用 <code>- **标签:**</code> 格式）：<br/>
+- <strong>多空方向:</strong> [看多/看空/中性] ([多头主控/空头主控/多空胶着]) - [一句话概括核心逻辑，引用关键价位和数据支撑]<br/>
+- <strong>重要关注价格:</strong> [列成2-3个关键价位及其角色（支撑/阻力），用逗号分隔]<br/>
+- <strong>实战交易策略:</strong> [买入/卖出] 参考价位 [具体价位]，止损 [具体止损价位]</p>
+<p>注：核心研判结论区域必须完全使用中文，不要包含任何英文对照（如 "Buy"、"Stop Loss" 等）。</p>
+<p>[ANALYSIS]</p>
+<h3 id="意图解析与背离">意图解析与背离</h3>
+<p>请结合微观与宏观数据进行<strong>极其详尽</strong>的背离论证与趋势判断。</p>
+<p>为了确保在手机上能够完美呈现并易于阅读，<strong>你必须使用"标题 → 数据子弹点 → 分析段落"的垂直线性格式来输出"意图解析与背离"的全部内容，绝不使用两列表格</strong>。具体格式如下：</p>
+<p>每个诊断项目按以下模板输出：<br/>
+- 先输出加粗标题行（如 <code>**1. 最近30分钟微观盘口**</code>）<br/>
+- 紧接下方使用缩进子弹点（Markdown 的 <code>-</code> 格式）逐条列出关键量化数据。例如：<br/>
+<code>**1. 最近30分钟微观盘口**
+    - 价格区间: 7502.75 - 7511.50
+    - 总成交量: 120026 手
+    - 净 Delta: 1470 (BULLISH)
+    - 关键吸收价位: 7507.75 (14次), 7507.50 (14次), 7505.25 (11次)</code><br/>
+- 数据子弹点之后，紧接一个空行，然后输出<strong>一段或多段</strong>深度分析文字（不缩进，正常段落格式）。分析必须深度解读上方数据所反映的机构意图。</p>
+<p>按此模板依次输出以下4个诊断项目：<br/>
+1. <strong>最近30分钟微观盘口</strong>：列出价格区间、总成交量、净 Delta、平均深度不平衡度、吸收信号总频次、关键吸收价位频次分布。分析段落须深度解读主动卖盘与被动买盘的博弈、支撑侵蚀等。<br/>
+2. <strong>全天 (PM+RTH) 累积 Delta</strong>：按阶段（盘前 PM、RTH 阶段、全天累计）分别列出数据子弹点。每个时段的数据子弹点必须包括：价格区间、总成交量、累积 Delta、价格变动情况（如：7508.25→7507.00 (-1.25) [买盘被吸收]）以及该时段的关键吸收价位（Absorption Levels）。分析段落必须分段，为每个时段提供独立的分析段落，且必须在分析中深入结合该时段的吸收点位与 Delta-Price 关系进行研判。<br/>
+3. <strong>Delta与价格背离判定</strong>：列出用于诊断背离的核心比对数据。分析段落须深入诊断是否存在背离及其表现与成因。<br/>
+4. <strong>趋势延续 vs 局部反转判定</strong>：列出关键判定条件或支撑/阻力跌破点位。分析段落须深度剖析是趋势中的健康回调还是酝酿大级别反转。</p>
+<h3 id="机构吸筹与阻力判定">机构吸筹与阻力判定</h3>
+<p>为了确保手机端的最佳阅读体验，<strong>你必须使用"标题 → 数据子弹点 → 分析段落"的垂直线性格式来输出"机构吸筹与阻力判定"的全部内容，绝不使用两列表格</strong>。格式与上方"意图解析与背离"完全一致。</p>
+<p>按此模板依次输出以下3个判定项目：<br/>
+1. <strong>RTH 阶段至今 (06:30 - 现在)</strong>：列出价格区间、总成交量、净 Delta、关键吸收价位及频次。分析段落须剖析开盘以来的吸收价格变化及被动吸收表现。<br/>
+2. <strong>盘前 (PM) 阶段 (00:00 - 06:30)</strong>：列出价格区间、总成交量、净 Delta、关键吸收价位与频次。分析段落须详细剖析盘前吸筹行为与被动支撑/阻力表现。<br/>
+3. <strong>综合判定（支撑与阻力区间划分）</strong>：列出所划定的"被动买方支撑区"和"被动卖方阻力区"的具体价格范围。分析段落须给出支撑与阻力强弱判定及交叉逻辑。</p>
+<p><strong>注意事项：</strong><br/>
+1. 你的输出中<strong>必须</strong>且<strong>只能</strong>包含 <code>[VERDICT]</code> 和 <code>[ANALYSIS]</code> 两个区块标记，分别置于对应的标题上方。<br/>
+2. 你的分析必须极其严谨、客观和中性，且以专业交易员的视角撰写，确保分析细节的饱满度与逻辑严密性（不可过于简略，字数和深度必须与你之前的全面分析报告一致）。<br/>
+3. 核心研判结论 <code>[VERDICT]</code> 区域必须完全使用中文，剔除一切英文直译或中英对照。<br/>
+4. 请<strong>不要</strong>在 <code>[ANALYSIS]</code> 部分输出任何冗长的“3. 关键点位与实战策略”或任何另外的交易策略分析小节，策略部分已经完全合并并在 <code>[VERDICT]</code> 中做精炼输出。</p>
+<p>DEBUG: Loaded Key from /Users/zhijiebian/Documents/MyDoc/Finance/Current/Config/gemini_key.conf (Prefix: AIzaSy...)</p>
+<p>==================================================<br/>
+🚀 AI Tape Analyst is scanning for available models...<br/>
+Trying model: gemini-3.1-pro-preview...<br/>
+  ! gemini-3.1-pro-preview quota exceeded, trying next...<br/>
+Trying model: gemini-3-pro-preview...<br/>
+  ! gemini-3-pro-preview quota exceeded, trying next...<br/>
+Trying model: gemini-2.5-pro...<br/>
+  ! gemini-2.5-pro quota exceeded, trying next...<br/>
+Trying model: gemini-2.5-flash...</p>
+<p>==================================================<br/>
+✅ Success with gemini-2.5-flash!<br/>
+==================================================</p>
+<p>[VERDICT]</p>
+<h3 id="核心研判结论-2">核心研判结论</h3>
+<ul>
+<li><strong>多空方向:</strong> 看空 (空头主控) - 近期RTH空头连续打压，尤其最近两小时Delta持续为负且价格大幅下跌，卖盘有效且近期关键价位多头吸收失效。</li>
+<li><strong>重要关注价格:</strong> 7496.00-7497.75 (近期支撑转阻力), 7508.00 (RTH重要阻力), 7489.00 (盘前支撑/当前考验位)</li>
+<li><strong>实战交易策略:</strong> 卖出 参考价位 7496.00，止损 7500.00</li>
+</ul>
+<p>[ANALYSIS]</p>
+<h3 id="意图解析与背离-2">意图解析与背离</h3>
+<p><strong>1. 最近30分钟微观盘口</strong><br/>
+  - 价格区间: 7489.00 - 7506.75<br/>
+  - 总成交量: 170728 contracts<br/>
+  - 净 Delta: -8990 (BEARISH)<br/>
+  - Avg Depth Imbalance: 0.055<br/>
+  - Absorption Signals: 316 snapshots<br/>
+  - 关键吸收价位: 7497.75 (14次/ 82, 看空吸收), 7496.25 (13次/ 496, 看多吸收), 7496.00 (12次/ 207, 看多吸收)</p>
+<p>最近30分钟的数据显示市场处于显著的空头主导态势。净Delta为-8990，同时价格大幅下跌了15.75点，这表明卖方主动性非常强，并且有效打压了价格。空头Delta and 价格下跌是高度一致的，这是典型的空头驱动行情。平均深度不平衡度为0.055，虽然是正值，但结合大幅下跌的价格，这可能意味着在价格下跌过程中，买方出价速度跟不上卖方的抛售速度，或者在某些低点有被动买盘尝试接盘但未能阻止价格下跌。<br/>
+吸收信号在7497.75出现14次看空吸收，意味着多头尝试在这一价格上方推动或防守，但最终被空头力量消化并压下价格，此点位已转为阻力。同时，7496.25和7496.00出现看多吸收，这显示在价格下跌到这些低位时，有被动买盘尝试承接。然而，鉴于Delta的强烈负值和价格的持续下跌，这些被动买盘可能暂时延缓了跌势，但并未能扭转方向，甚至可能成为下一个被空头突破的支撑。当前的微观结构清晰地指向空头力量的短期掌控，并且下方买盘的抵抗较为脆弱。</p>
+<p><strong>2. 全天 (PM+RTH) 累积 Delta</strong></p>
+<p><strong>盘前 (PM) 阶段 (00:00 - 06:30)</strong><br/>
+  - 价格区间: 7469.50 - 7507.75<br/>
+  - 总成交量: 493576 contracts<br/>
+  - 净 Delta: 4860 (BULLISH)<br/>
+  - 价格变动: 7488.75→7496.50 (+7.75) [多头推进]<br/>
+  - 关键吸收价位: 7500.00 (10次/ 182, 看空吸收), 7475.00 (9次/ 112, 看多吸收), 7489.00 (9次/ 462, 看多吸收)</p>
+<p>盘前时段，市场表现为多头推进。Delta为正4860，价格上涨了7.75点，这明确表明多头在开盘前积极买入并成功推动价格上行。在7500.00出现看空吸收，这表明多头在尝试突破该点位时遭遇被动卖盘阻力。同时，7475.00和7489.00的看多吸收则说明在价格回调时，有被动买盘承接，形成了有效的支撑。整体而言，盘前阶段多头占据主导，为RTH开盘奠定了上涨基调。</p>
+<p><strong>RTH 阶段 (06:30 - 12:30)</strong><br/>
+  - 价格区间: 725.00 - 7524.00 (注意：725.00可能为数据录入错误，应为7xxx)<br/>
+  - 总成交量: 2156715 contracts<br/>
+  - 净 Delta: -10185 (BEARISH)<br/>
+  - 价格变动: 7496.75→7489.75 (-7.00) [空头打压]<br/>
+  - 关键吸收价位: 7508.00 (82次/ 1594, 看多吸收), 7507.50 (80次/ 269, 看多吸收), 7507.00 (76次/ 114, 看空吸收)</p>
+<p>RTH开盘至今，虽然盘中波动剧烈，但累积净Delta显示为负10185，并且价格从开盘价7496.75下跌至7489.75。这表明尽管盘中存在多头反击，但整体RTH阶段空头占据优势，实现了价格的净下跌。关键吸收价位集中在7507.00-7508.00区间，其中7508.00和7507.50出现大量的看多吸收，这意味着在价格上涨至此区域时，多头持续买入，但未能有效突破，反而形成了一个强大的被动卖方阻力区域，随后价格回落。7507.00的看空吸收则进一步确认了该区域的阻力性质，价格在此受到抑制后回落。</p>
+<p><strong>全天累计 (00:00 - 12:30)</strong><br/>
+  - 累计 Delta: -5325 (BEARISH)<br/>
+  - 总成交量: 2650291 contracts<br/>
+  - 价格区间: 725.00 - 7524.00 (注意：725.00可能为数据录入错误，应为7xxx)<br/>
+  - 价格变动: 7488.75→7489.75 (+1.00) [卖盘被吸收]<br/>
+  - 关键吸收价位: 7508.00 (82次/ 1594, 看多吸收), 7507.50 (80次/ 269, 看多吸收), 7507.00 (77次/ 174, 看空吸收)</p>
+<p>全天累计Delta为负5325，表明从日内整体来看，主动卖盘略占优势。然而，全天价格仅从7488.75上涨1.00点至7489.75，这与负累计Delta形成了一定的背离。价格仅微涨1点，但Delta却显著为负，这暗示盘中存在大量的被动买盘吸收了主动卖盘，阻止了价格的进一步下跌。如果价格在盘前多头推动后，RTH阶段遭遇的卖盘被有效地吸收了，那么价格可能企稳。单结合RTH后半段的空头打压，这种吸收似乎正在被侵蚀。7508.00-7507.00区域是全天最重要的阻力区域，其中多头在此大量买入却未能有效推高价格，显示此处有强大的被动卖方力量，形成了重要的看空吸收区域。</p>
+<p><strong>3. Delta与价格背离判定</strong><br/>
+  - RTH 阶段至今 Delta: -10185 (BEARISH)<br/>
+  - RTH 阶段价格变动: 7496.75→7489.75 (-7.00)<br/>
+  - 全天累计 Delta: -5325 (BEARISH)<br/>
+  - 全天价格变动: 7488.75→7489.75 (+1.00)<br/>
+  - RTH 逐30分钟 Delta: 存在显著多空转换<br/>
+  - 最近30分钟 Delta: -8990 (BEARISH), 价格变动: -15.75</p>
+<p>从全天累计数据来看，Delta为负(-5325)但价格却微涨(+1.00)，这构成了一个明显的“被动买方吸收”背离信号。这意味着全天看，虽然有主动卖盘出现，但整体市场下方有足够的被动买盘进行承接，阻止了价格的下跌。然而，这种背离需要结合RTH逐30分钟的结构进行深入解读。<br/>
+RTH逐30分钟Delta显示出剧烈的多空转换：早期有强劲的多头推进(例如06:30-07:00的Delta=+7996, 价格+13.00；10:00-10:30的Delta=+7524, 价格+15.00)，但随后都被空头打压，尤其是在10:30-11:00出现了-10209的巨大负Delta伴随-13.75的价格下跌，以及最近30分钟的-8990 Delta和-15.75的价格下跌。<br/>
+因此，虽然全天累计Delta-Price存在“被动买方吸收”的迹象，但这是早期多头驱动和后期空头驱动的综合结果。更重要的是RTH后半段尤其是最近两个30分钟的Delta和价格表现：Delta持续为负且价格大幅下跌。这意味着近期这种“被动买方吸收”的现象已经减弱，空头力量正在有效地突破先前的支撑，并且这种打压是有效的。目前市场呈现“Delta负 + 价格跌”的清晰空头驱动，而非被动吸收。</p>
+<p><strong>4. 趋势延续 vs 局部反转判定</strong><br/>
+  - RTH 价格起始点: 7496.75<br/>
+  - RTH 价格当前点: 7489.75<br/>
+  - RTH 价格在区间中位置: 99.5% (说明当前价格接近RTH日内最低点)<br/>
+  - 近期关键高点阻力: 7508.00, 7507.50<br/>
+  - 最近30分钟空头驱动明确: Delta负，价格大幅下跌</p>
+<p>当前RTH价格位于日内最低区间(99.5%表示当前价格接近0%，即RTH区间底部)，结合近期强烈的空头驱动，市场表现出明显的向下趋势延续迹象。虽然盘前是多头推进，RTH开盘后也经历了几轮多头反击，但在10:30之后，市场的主导权明显转向空头。Delta持续为负，且每次负Delta都伴随着显著的价格下跌，尤其是最近两个30分钟的Delta分别为-5640和-8990，价格分别下跌了-1.75和-15.75。这说明空头在近期的打压非常有效，且强度逐渐增大。<br/>
+7508.00-7507.50区域是RTH阶段最重要的被动卖方阻力区，多头在此遭遇了强劲的看空吸收。一旦价格有效跌破RTH开盘价7496.75并持续走低，且当前未能有效在盘前支撑7489.00上方获得支撑，那么趋势很可能延续下行。目前看，多头试图反转的努力在7508.00附近已受挫，而空头正在将价格推向RTH区间的低端，显示趋势延续空头的可能性更高。目前的下跌是空头趋势的有效延续，而非健康回调。</p>
+<h3 id="机构吸筹与阻力判定-2">机构吸筹与阻力判定</h3>
+<p><strong>1. RTH 阶段至今 (06:30 - 现在)</strong><br/>
+  - 价格区间: 725.00 - 7524.00 (注意：725.00可能为数据录入错误，应为7xxx)<br/>
+  - 总成交量: 2156715 contracts<br/>
+  - 净 Delta: -10185 (BEARISH)<br/>
+  - 关键吸收价位: 7508.00 (82次/ 1594, 看多吸收), 7507.50 (80次/ 269, 看多吸收), 7507.00 (76次/ 114, 看空吸收)</p>
+<p>RTH阶段至今，虽然整体Delta为负，但价格波动剧烈。在7508.00和7507.50出现大量看多吸收，这是被动卖方吸收的典型表现。这意味着多头在这些价位积极买入，试图推动价格上涨，但其买盘被更强大的被动卖单消化，未能有效突破。随后7507.00的看空吸收进一步确认了这一区域是空头防守的要塞，价格在此处受到明确的阻力并掉头向下。这个区域可以被判定为RTH阶段重要的机构卖方阻力区，显示有大型卖盘集中在此进行分发。最近两小时的Delta急剧下降且价格大幅下跌，表明这种阻力作用持续有效，且空头已成功将其影响力转化为主动打压。</p>
+<p><strong>2. 盘前 (PM) 阶段 (00:00 - 06:30)</strong><br/>
+  - 价格区间: 7469.50 - 7507.75<br/>
+  - 总成交量: 493576 contracts<br/>
+  - 净 Delta: 4860 (BULLISH)<br/>
+  - 关键吸收价位: 7500.00 (10次/ 182, 看空吸收), 7475.00 (9次/ 112, 看多吸收), 7489.00 (9次/ 462, 看多吸收)</p>
+<p>盘前阶段，多头占据优势，净Delta为正，价格上涨。在7475.00和7489.00出现的看多吸收，是典型的被动买方吸筹行为。这意味着在价格下跌或企稳时，有机构在此承接卖盘，形成支撑。尤其是7489.00的吸收量高达462手，显示该价位存在较强的买盘防守，是盘前多头吸筹的重要区域。而7500.00的看空吸收则表明多头在此遭遇了被动卖盘阻力，短暂受阻。总的来说，盘前阶段多头在较低价位进行了有效的吸筹，并推高了价格，这些吸筹区域构成了一定的潜在支撑。</p>
+<p><strong>3. 综合判定（支撑与阻力区间划分）</strong><br/>
+  - 被动买方支撑区: 7489.00 - 7496.25 (弱支撑，面临空头考验)<br/>
+  - 被动卖方阻力区: 7507.00 - 7508.00 (强阻力，上方空头防守)</p>
+<p>综合来看，RTH阶段，7507.00-7508.00区间是日内重要的被动卖方阻力区。该区域出现了大量的看多吸收，但价格未能有效突破，且在RTH后半段此区域附近的Delta转为负值并伴随价格下跌，确认了其强阻力性质。在RTH多头尝试上攻受挫后，此区域成为了空头打压的起点。<br/>
+当前的被动买方支撑区域，可以初步划定在盘前吸筹点7489.00，以及近期30分钟出现看多吸收的7496.00-7496.25区域。然而，鉴于最近30分钟Delta为强烈负值且价格大幅下跌，价格已跌破RTH开盘价7496.75，并正在考验7489.00的盘前支撑。7497.75出现的看空吸收，也暗示该价位已从多头试图防守的价位转变为空头压制价格的阻力。这意味着多头在7496.00-7497.75的支撑作用正在被侵蚀，甚至可能转变为新的阻力。目前，空头力量明显占据上风，当前价格正在试图跌破盘前多头建立的支撑区，7507.00-7508.00的阻力非常稳固，而下方支撑则显得脆弱。</p>
+<p>==================================================<br/>
+✅ Analysis Complete<br/>
+==================================================<br/>
+✅ Real-time analysis completed. Report saved/updated to: /Users/zhijiebian/Documents/MyDoc/Finance/Current/MotiveWave_OrderFlow_Data/Realtime/es_order_flow_realtime_2026-05-22.html</p>
+</section>
+</article>
+</main>
+</body>
+</html>

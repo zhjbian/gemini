@@ -1,6 +1,6 @@
 ---
 name: gem-doc
-description: Save a Gemini answer from the current session into an HTML report file under `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers`. Use when the user wants the last answer saved, wants a specific answered question exported, or asks to document a Gemini response as a standalone `.html` file with timestamped naming.
+description: Save a Gemini answer from the current session into an HTML report file (and optionally a markdown file) under `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers`. Use when the user wants the last answer saved, wants a specific answered question exported, or asks to document a Gemini response as a standalone `.html` (and/or `.md`) file with timestamped naming.
 ---
 
 # Gem-Doc
@@ -14,7 +14,7 @@ description: Save a Gemini answer from the current session into an HTML report f
 
 ## Overview
 
-Save one answer from the current Gemini session as a standalone HTML report in `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers`.
+Save one answer from the current Gemini session as a standalone HTML report (and optionally a Markdown file) in `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers`.
 
 Prefer this skill when the user wants durable answer files instead of only chat history.
 
@@ -25,21 +25,23 @@ Prefer this skill when the user wants durable answer files instead of only chat 
    - If the user names a specific question or topic, find the matching user question and the answer that responded to it.
 
 2. Determine if creating a NEW report or APPENDING to an existing one.
-   - **APPENDING Rule**: All appends must result in a flat list of Level 1 heading sections (`h2`).
-   - **First-Time Append Restructuring**: If the existing report contains only a single Q/A (i.e., it is a fresh standalone export), the first append MUST wrap that original Q/A into its own `h2` section (labeled with the original summary) and demote the original `h2` headings to `h3`.
-   - **Subsequent Appends**: Every new Q/A pair added thereafter should be its own `h2` section.
+   - **APPENDING Rule**: All appends must result in a flat list of Level 1 heading sections (`h2` in HTML, `##` in Markdown).
+   - **First-Time Append Restructuring**: If the existing report contains only a single Q/A (i.e., it is a fresh standalone export), the first append MUST wrap that original Q/A into its own `h2` / `##` section (labeled with the original summary) and demote the original headings to `h3` / `###`.
+   - **Subsequent Appends**: Every new Q/A pair added thereafter should be its own `h2` / `##` section.
 
 3. Capture the answer text exactly and generate a summary (slug).
 
 4. Write/Append the file using the helper script:
-   - `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> --append-to <path>`
+   - Always generate the HTML file by default.
+   - **Markdown Generation Rule**: If the user explicitly asks to generate a `.md` (Markdown) file as well, or if they request the export in Markdown format, you must pass the `--md` flag to generate/append to both the `.html` and `.md` files.
+   - Run the script: `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> [--append-to <path>] [--md]`
 
-5. Report the saved path back to the user.
+5. Report the saved path(s) back to the user.
 
 ## Output Rules
 
 - Output directory: `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers`
-- Filename format: `gemini_answer-<summary_of_the_question>-<date>_<time>.html`
+- Filename format: `gemini_answer-<summary_of_the_question>-<date>_<time>.html` (and `.md` if `--md` is used).
 - Use underscores inside the summary portion, not hyphens.
 - The summary should be generated semantically from the question and answer together, then converted into a filesystem-safe slug.
 - Keep the generated summary concise and capped at no more than 6 words.
@@ -47,8 +49,7 @@ Prefer this skill when the user wants durable answer files instead of only chat 
 
 ## File Content Format
 
-Write the HTML report with these sections:
-
+For HTML reports, write them with these sections:
 - Title: `Gemini Answer`
 - Metadata row: saved timestamp and question summary
 - Table of contents is generated automatically by the Python script at the top of the 'Answer' block, you do not need to manually create one.
@@ -66,21 +67,23 @@ Write the HTML report with these sections:
   - `h3` for `Question` and `Answer` labels within those sections.
   - `h4` for sub-subsections.
 
+For Markdown reports (when `--md` is used):
+- Follow the same heading hierarchy (`# Title`, `## Section Title`, `### Question` / `### Answer`).
+- Preserve all formatting, math equations, code blocks, and markdown tables.
+
 ## Implementation Notes
 
 - Prefer temporary files for the question and answer content when invoking the helper script so multiline content is preserved safely.
 - Use `/tmp` for temporary files unless the current task already has a better local scratch location.
-- If the answer includes code fences, tables, numbered lists, file links, or section structure, preserve them in the rendered HTML.
-- Never replace a detailed chat answer with a shorter paraphrase just to make the HTML cleaner.
+- If the answer includes code fences, tables, numbered lists, file links, or section structure, preserve them in the rendered HTML/MD.
+- Never replace a detailed chat answer with a shorter paraphrase just to make the HTML/MD cleaner.
 - Before saving or appending, sanity-check that the document contains all substantive sections and key supporting details from the chat answer.
-- If appending into an existing HTML report instead of creating a standalone export, apply the same fidelity rule: append the exact answer text or a strictly more detailed version, not a condensed variant.
-- If appending into an existing HTML report, preserve or improve the structure:
-  - normalize heading levels so the document does not flatten every appended section to the same heading level
-  - do not manually renumber headings; CSS handles it automatically
+- If appending into an existing HTML/MD report instead of creating a standalone export, apply the same fidelity rule: append the exact answer text or a strictly more detailed version, not a condensed variant.
+- If appending into an existing HTML/MD report, preserve or improve the structure (normalize heading levels, do not manually renumber).
 - If the answer includes images, constrain them in the rendered HTML to `max-width: min(100%, 1500px)` and `max-height: 1500px`.
 - If the user's question or answer includes attached images or media artifacts:
   - ALWAYS copy the media files to a dedicated `images/` subfolder in the output directory (e.g., `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers/images/`).
-  - Embed them in the HTML report using relative markdown links (e.g., `![description](images/filename.png)`).
+  - Embed them in the HTML/MD report using relative markdown links (e.g., `![description](images/filename.png)`).
 - **NEVER use dark backgrounds or dark mode**: All generated HTML reports must use a light background theme (e.g., white or very light gray). Dark themes or dark backgrounds are strictly prohibited. Do not assign dark background fills to `body`, `html`, or card elements.
 - If the answer contains DBCPS code references, always use the `bitbucket-link` skill to generate code pointer links before saving the document.
 - If the answer contains DBCPS git commit ids, always use the `bitbucket-link` skill to determine the repo context and replace those ids with full Bitbucket commit links before saving the document.
@@ -91,9 +94,10 @@ Write the HTML report with these sections:
 ## Script
 
 Use:
+- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> [--md]`
+- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question <question> --answer-file <answer_file> [--md]`
+- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer <answer> [--md]`
+- When appending: `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> --append-to <path_to_html> [--md]`
 
-- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file>`
-- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question <question> --answer-file <answer_file>`
-- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer <answer>`
+The script prints the final output path(s) after writing.
 
-The script prints the final output path after writing the file.

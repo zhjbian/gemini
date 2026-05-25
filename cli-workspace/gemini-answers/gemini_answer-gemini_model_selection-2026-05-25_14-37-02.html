@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - gemini_model_selection</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-05-25 14:37:02</span>
+<span>Question summary: gemini_model_selection</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#1-推荐加入-model_list-的通用文本模型">1. 推荐加入 MODEL_LIST 的通用文本模型</a></li><li><a href="#2-建议的-model_list-配置代码">2. 建议的 MODEL_LIST 配置代码</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>Available Gemini models:<br/>
+  - models/gemini-2.5-flash<br/>
+  - models/gemini-2.5-pro<br/>
+  - models/gemini-2.0-flash<br/>
+  - models/gemini-2.0-flash-001<br/>
+  - models/gemini-2.0-flash-lite-001<br/>
+  - models/gemini-2.0-flash-lite<br/>
+  - models/gemini-2.5-flash-preview-tts<br/>
+  - models/gemini-2.5-pro-preview-tts<br/>
+  - models/gemma-4-26b-a4b-it<br/>
+  - models/gemma-4-31b-it<br/>
+  - models/gemini-flash-latest<br/>
+  - models/gemini-flash-lite-latest<br/>
+  - models/gemini-pro-latest<br/>
+  - models/gemini-2.5-flash-lite<br/>
+  - models/gemini-2.5-flash-image<br/>
+  - models/gemini-3-pro-preview<br/>
+  - models/gemini-3-flash-preview<br/>
+  - models/gemini-3.1-pro-preview<br/>
+  - models/gemini-3.1-pro-preview-customtools<br/>
+  - models/gemini-3.1-flash-lite-preview<br/>
+  - models/gemini-3.1-flash-lite<br/>
+  - models/gemini-3-pro-image-preview<br/>
+  - models/gemini-3.1-flash-image-preview<br/>
+  - models/gemini-3.5-flash<br/>
+  - models/gemini-3.1-flash-tts-preview<br/>
+  - models/gemini-robotics-er-1.5-preview<br/>
+  - models/gemini-robotics-er-1.6-preview<br/>
+  - models/gemini-2.5-computer-use-preview-10-2025<br/>
+  - models/gemini-embedding-001<br/>
+  - models/gemini-embedding-2-preview<br/>
+  - models/gemini-embedding-2<br/>
+  - models/gemini-2.5-flash-native-audio-latest<br/>
+  - models/gemini-2.5-flash-native-audio-preview-09-2025<br/>
+  - models/gemini-2.5-flash-native-audio-preview-12-2025<br/>
+  - models/gemini-3.1-flash-live-preview</p>
+<p>too many, which I can add to my model list</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>为了在 <code>ai_tape_analyst.py</code> 中建立一个既包含最新能力，又有充足配额弹性的<strong>备用重试队列</strong>，我们可以将上述获取到的 36 个模型进行筛选。</p>
+<p>在订单流分析任务中，模型需要处理大量的微观数据并进行复杂的逻辑研判，因此应当剔除以下类型的模型：<br/>
+* <strong>非文本生成模型</strong>（如 <code>embedding-001</code> 等嵌入模型）。<br/>
+* <strong>专用多媒体/语音/图像模型</strong>（如带有 <code>tts</code>、<code>image</code>、<code>native-audio</code> 等字样的模型）。<br/>
+* <strong>非通用实验性模型</strong>（如 <code>robotics</code> 机器人模型、<code>computer-use</code> 电脑控制模型）。<br/>
+* <strong>小规模端侧模型</strong>（如 <code>gemma</code> 等开源小模型，分析能力较弱）。</p>
+<hr/>
+<h3 id="1-推荐加入-model_list-的通用文本模型">1. 推荐加入 <code>MODEL_LIST</code> 的通用文本模型</h3>
+<p>以下是经过筛选的通用生成模型，按照<strong>模型能力由强到弱、版本由新到旧</strong>排列，非常适合作为顺序重试队列：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">推荐模型名称</th>
+<th style="text-align: left;">版本代际</th>
+<th style="text-align: left;">特点及定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-3.5-flash</code></strong></td>
+<td style="text-align: left;">3.5代 (最新)</td>
+<td style="text-align: left;">速度极快、效率极高、推理能力大幅提升的最新模型。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-3.1-pro-preview</code></strong></td>
+<td style="text-align: left;">3.1代 (主力Pro)</td>
+<td style="text-align: left;">逻辑推理能力极强，非常适合复杂的背离分析。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-3-pro-preview</code></strong></td>
+<td style="text-align: left;">3.0代 (主力Pro)</td>
+<td style="text-align: left;">前一代 Pro 预览版，性能扎实。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-2.5-pro</code></strong></td>
+<td style="text-align: left;">2.5代 (高精度)</td>
+<td style="text-align: left;">2.5 代最强精度模型。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-2.5-flash</code></strong></td>
+<td style="text-align: left;">2.5代 (中等速度)</td>
+<td style="text-align: left;">2.5 代高速度、高性价比模型。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-2.5-flash-lite</code></strong></td>
+<td style="text-align: left;">2.5代 (轻量级)</td>
+<td style="text-align: left;">2.5 代轻量化高速版本。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-2.0-flash</code></strong></td>
+<td style="text-align: left;">2.0代 (高速别名)</td>
+<td style="text-align: left;">2.0 代主力高速模型。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-3.1-flash-lite</code></strong></td>
+<td style="text-align: left;">3.1代 (轻量级)</td>
+<td style="text-align: left;">最新一代轻量化极速模型。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-pro-latest</code></strong></td>
+<td style="text-align: left;">生产别名</td>
+<td style="text-align: left;">自动指向当前最稳定的 Pro 生产版本别名。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong><code>gemini-flash-latest</code></strong></td>
+<td style="text-align: left;">生产别名</td>
+<td style="text-align: left;">自动指向当前最稳定的 Flash 生产版本别名。</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="2-建议的-model_list-配置代码">2. 建议的 <code>MODEL_LIST</code> 配置代码</h3>
+<p>你可以直接在 <code>ai_tape_analyst.py</code>（以及其他包含重试逻辑的脚本，如 <code>auto_daily_report.py</code>）中将 <code>MODEL_LIST</code> 更新为以下推荐 of 重试顺序：</p>
+<pre><code class="language-python"># 模型尝试列表：按照最新、最强模型优先，逐渐向低版本/高配额模型回退的逻辑排列
+MODEL_LIST = [
+    "gemini-3.5-flash",              # 优先选用最新 3.5 高性价比模型
+    "gemini-3.1-pro-preview",        # 其次选用 3.1 高推理 Pro 模型
+    "gemini-3-pro-preview",          # 3.0 Pro 备用
+    "gemini-2.5-pro",                # 2.5 Pro 备用
+    "gemini-2.5-flash",              # 2.5 Flash 备用
+    "gemini-2.5-flash-lite",         # 2.5 Lite 备用
+    "gemini-3.1-flash-lite",         # 3.1 Lite 备用
+    "gemini-2.0-flash",              # 2.0 Flash 备用
+    "gemini-pro-latest",             # 稳定生产 Pro 别名兜底
+    "gemini-flash-latest"            # 稳定生产 Flash 别名兜底
+]
+</code></pre>
+<p>这样的配置既能保证在配额充足时优先获得 Gemini 3.5/3.1 的最新分析逻辑与严密性，又能在遇到 <code>quota exceeded</code> 错误时逐级平滑降级，确保分析任务 100% 成功生成。</p>
+</section>
+</article>
+</main>
+</body>
+</html>
