@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES 期货订单流深度机构分析报告 (Seattle Time)</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-primary: #2563eb;
+            --accent-primary-hover: #1d4ed8;
+            --accent-success: #059669;
+            --accent-danger: #dc2626;
+            --accent-warning: #d97706;
+            --border-color: #e2e8f0;
+            --glow-color: rgba(37, 99, 235, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding: 30px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.06);
+            border-color: #2563eb33;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1e40af;
+            border-left: 4px solid var(--accent-primary);
+            padding-left: 12px;
+        }
+
+        .alert-box {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            color: #065f46;
+            font-size: 0.95rem;
+        }
+
+        .alert-box strong {
+            color: #047857;
+        }
+
+        .time-node {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .time-node:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .time-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .time-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-badge {
+            background-color: rgba(37, 99, 235, 0.06);
+            color: #1e40af;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: monospace;
+            border: 1px solid rgba(37, 99, 235, 0.15);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 0.9rem;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .metric-value.bullish {
+            color: #059669;
+        }
+
+        .metric-value.bearish {
+            color: #dc2626;
+        }
+
+        .metric-value.warning {
+            color: #d97706;
+        }
+
+        .analysis-text {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .analysis-text p {
+            margin: 0 0 10px 0;
+            font-size: 0.95rem;
+        }
+
+        .analysis-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight-text {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        .block-logic {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent-primary);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>ES 期货订单流深度机构分析报告</h1>
+        <p>数据源时区：西雅图当地时间 (Seattle Time / PDT)</p>
+    </header>
+
+    <div class="alert-box">
+        <strong>💡 时区与数据对齐说明</strong>：本报告已完全对齐西雅图当地交易时间（太平洋时间 PT）。分析使用的核心脚本为 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow/ai_tape_analyst.py" style="color:#047857; text-decoration:underline;">ai_tape_analyst.py</a>。由于 2026-05-19 的原始交易数据在 <code>07:22:47</code> 至 <code>07:31:00 PT</code> 之间存在约 10 分钟的数据中断（Gap），报告在此区间内补充分析了缺口前后临近的测试时间点，以获得完整的市场画卷。
+    </div>
+
+    <!-- 5月18日分析卡片 -->
+    <div class="card">
+        <h2>一、 2026-05-18 订单流分析（回调与恐慌盘吸收）</h2>
+        
+        <!-- 06:48 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">1. 开盘初期回调测试</span>
+                <span class="time-badge">06:48 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7428.00 - 7444.25</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">26,354 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.061</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (83次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bullish">+938</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：被动卖方阻力区（吸收主动买盘）。</p>
+                <p><span class="highlight-text">深度解析</span>：开盘后 18 分钟，多头尝试扫货（Delta +938），但价格在 7428.00 - 7444.25 区间面临压力。负的 OFI 搭配高达 83 次的高量吸收表明，多头的进攻遇到了机构在上方设置的被动卖限价单（冰山单），上涨动能在此初露受阻迹象。</p>
+            </div>
+        </div>
+
+        <!-- 09:53 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">2. 中盘被动卖方阻力区（大绿圈吸筹区）</span>
+                <span class="time-badge">09:53 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7400.75 - 7413.50</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">20,259 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.195</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (110次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bullish">+4,137</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：经典被动卖方阻力区 / 筹码派发（Passive Distribution）。</p>
+                <p><span class="highlight-text">深度解析</span>：此为开盘后多空剧烈交火的时间。主动多头极具侵略性，扫出 `+4,137` 手的净市价买单，但 OFI 显著转负（-0.195），吸收快照飙升至 110 次。主动多头倾尽全力吃进，但被机构布置在 7413 附近的被动卖单全部拦截并消化。大量消耗了多头的多头火力，为后续下行调整埋下伏笔。</p>
+            </div>
+        </div>
+
+        <!-- 11:59 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">3. 恐慌抛售高潮与反弹爆发点</span>
+                <span class="time-badge">11:59 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7374.00 - 7420.50 (波幅46.5点)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">54,750 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.056</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (140次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bullish">+5,070</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：空头回补与大规模被动匹配（Short Squeeze）。</p>
+                <p><span class="highlight-text">深度解析</span>：价格跌至全天最低点 7374.00 后发生巨量买单踩踏（5.4万手）。极高的正 Delta（+5070）表明空头在此处发生践踏式止损回补，市价大单以极快速度将价格在短短几分钟内强拉 46 点。在拉升过程中触碰了机构在 7420 附近的密集挂单（140次吸收），完成了筹码的闪电换手。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5月19日分析卡片 -->
+    <div class="card">
+        <h2>二、 2026-05-19 订单流分析（探底测试与支撑确认）</h2>
+        
+        <!-- 07:21 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">1. 盘前价格测底</span>
+                <span class="time-badge">07:21 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7356.50 - 7359.00</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">2,338 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.013</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value">LOW (14次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bearish">-198</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：趋势延续 / 盘前流动性测底。</p>
+                <p><span class="highlight-text">深度解析</span>：盘前价格向下探底测试。主动卖盘主导（-198），且吸收较低。此时空头砸盘正在寻找下方的真正限价流动性，为开盘后的机构拦截区域做铺垫。</p>
+            </div>
+        </div>
+
+        <!-- 07:32 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">2. 底部二次测试（被动买方拦截）</span>
+                <span class="time-badge">07:32 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7361.25 - 7370.75</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">18,243 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.057</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (25次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bearish">-555</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：被动买方支撑区（限价买单拦截砸盘）。</p>
+                <p><span class="highlight-text">深度解析</span>：在数据中断恢复后，空头以 `-555` Delta 继续市价砸盘，但价格在 7361 附近表现出抗跌，并伴随 25 次吸收信号。显示机构在此部署了被动买盘限价（冰山单）承接了大部分市价卖压，开始构筑局部底部。</p>
+            </div>
+        </div>
+
+        <!-- 07:48 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">3. 日内最低位确认</span>
+                <span class="time-badge">07:48 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7354.25 - 7362.25 (当日最低点测试)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">18,888 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bullish">+0.039</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (45次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bullish">+198</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：被动托底与主动反弹的共振（Bottom Accumulation）。</p>
+                <p><span class="highlight-text">深度解析</span>：这是全天最重要的探底转折时刻。价格探底 `7354.25` 后反弹，OFI 终于翻正（+0.039），显示限价支撑盘铺设；在最低点发生 45 次高量吸收，同时 Delta 翻正。空头下砸力量在此被机构吃干抹净，主动买单开始拉升价格，确立了全天铁板底部的有效性。</p>
+            </div>
+        </div>
+
+        <!-- 08:32 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">4. 回踩二次支撑测试</span>
+                <span class="time-badge">08:32 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7362.75 - 7372.00</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">16,258 手</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.001</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (21次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bearish">-754</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：被动买方再次防御支撑（Bottom Defense）。</p>
+                <p><span class="highlight-text">深度解析</span>：价格短线上冲后回踩，空头释放了强烈的 `-754` Delta 砸盘市价单，但吸收指标维持在 HIGH（21次），且价格稳妥防守在 7362.75 上方。这说明机构不希望价格再次跌破 07:48 PT 的低点，进行了主动拦截的二次确认，夯实了多头底部。</p>
+            </div>
+        </div>
+
+        <!-- 12:55 PT -->
+        <div class="time-node">
+            <div class="time-header">
+                <span class="time-title">5. 尾盘天量多空博弈换手</span>
+                <span class="time-badge">12:55 PT</span>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">价格区间</div>
+                    <div class="metric-value">7365.00 - 7379.25</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">总成交量</div>
+                    <div class="metric-value">120,753 手 (全天最高)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">深度不平衡度 (OFI)</div>
+                    <div class="metric-value bearish">-0.010</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">被动吸收强度</div>
+                    <div class="metric-value warning">HIGH (1302次)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">累计 Delta</div>
+                    <div class="metric-value bullish">+7,401</div>
+                </div>
+            </div>
+            <div class="analysis-text">
+                <p><span class="highlight-text">机构行为判定</span>：宽幅拉升、多头空头大对决与高位派发。</p>
+                <p><span class="highlight-text">深度解析</span>：收盘前半小时爆发了 `12万手` 极端天量。主动买单和空头踩踏平仓盘爆发了极强的 `+7401` Delta，试图强拉价格。但在 7375 - 7379 上方遭遇了交易所大机构极为庞大的限价卖单被动阻截（惊人的 1302 次高量吸收）。激进多头扫盘遇到高阻力墙，大资金在此价位完成了高效的筹码对轧，锁定了全天的多头战果，平稳过度至收盘。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 总结与启示 -->
+    <div class="card">
+        <h2>三、 深度总结：Adam 成功判定“这只是回调，大盘将大幅反弹”的逻辑</h2>
+        <div class="block-logic">
+            <strong>1. 砸盘 Delta 与价格跌幅的极限背离</strong><br>
+            在 5月18日 11:59 PT，市场出现高达 5.4万手和 `+5070` Delta 的巨量搏杀，而在 5月19日 07:32 PT / 08:32 PT，空头多次砸出 `-555` 和 `-754` Delta。但是在价格最核心防守线 7350 - 7360 区域，价格均在受到高 Absorption（被动限制）之后止跌。砸盘 Delta 无法压低价格，说明下方埋伏有大量的机构长线多头被动资金垫。
+        </div>
+        <div class="block-logic">
+            <strong>2. 空头筹码洗净与上方抛压真空</strong><br>
+            经过 18 日与 19 日早盘的三次砸盘与冰山单拦截，散户和动量空头的恐慌性市价单被机构被动多头全部接走，实现了筹码的彻底清洗。一旦下砸无力，多头仅用温和的买盘即可推动价格向上突破。
+        </div>
+        <div class="block-logic">
+            <strong>3. Higher Low 回踩的强支撑夯实</strong><br>
+            在 19 日的二次回踩（08:32 PT）中，面对 `-754` 的抛盘，价格稳稳防守在 7362.75 这一更高的低点（Higher Low）上，二次确认了机构托底防御线。这标志着下跌动能已实质性枯竭，多头已牢牢控制局势，反弹已是弦上之箭。
+        </div>
+    </div>
+
+    <div class="footer">
+        报告生成时间: 2026-05-24 | 订单流分析后台: <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow/ai_tape_analyst.py">ai_tape_analyst.py</a>
+    </div>
+</div>
+
+</body>
+</html>

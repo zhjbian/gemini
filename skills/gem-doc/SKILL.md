@@ -81,7 +81,7 @@ Write the HTML report with these sections:
 - If the user's question or answer includes attached images or media artifacts:
   - ALWAYS copy the media files to a dedicated `images/` subfolder in the output directory (e.g., `/Users/zhijiebian/.gemini/cli-workspace/gemini-answers/images/`).
   - Embed them in the HTML report using relative markdown links (e.g., `![description](images/filename.png)`).
-- Never set a global page-level background color in generated HTML. Do not assign background fills to `body`, `html`, or full-page wrapper elements unless the user explicitly asks for that styling.
+- **NEVER use dark backgrounds or dark mode**: All generated HTML reports must use a light background theme (e.g., white or very light gray). Dark themes or dark backgrounds are strictly prohibited. Do not assign dark background fills to `body`, `html`, or card elements.
 - If the answer contains DBCPS code references, always use the `bitbucket-link` skill to generate code pointer links before saving the document.
 - If the answer contains DBCPS git commit ids, always use the `bitbucket-link` skill to determine the repo context and replace those ids with full Bitbucket commit links before saving the document.
 - Prefer commit-pinned Bitbucket browse links over local filesystem paths for saved documentation.

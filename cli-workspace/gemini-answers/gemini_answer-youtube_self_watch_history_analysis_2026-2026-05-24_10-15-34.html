@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - youtube_self_watch_history_analysis_2026</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-05-24 10:15:34</span>
+<span>Question summary: youtube_self_watch_history_analysis_2026</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-核心数据概览">一、 核心数据概览</a></li><li><a href="#二-时间段分布特征">二、 时间段分布特征</a><ul><li><a href="#四大时段占比">四大时段占比</a></li><li><a href="#每小时观看频次分布-24小时统计">每小时观看频次分布（24小时统计）</a></li></ul></li><li><a href="#三-日期与星期活跃度分析">三、 日期与星期活跃度分析</a><ul><li><a href="#1-单日观看量前-10-名-高峰日期">1. 单日观看量前 10 名（高峰日期）</a></li><li><a href="#2-星期分布">2. 星期分布</a></li><li><a href="#3-月度分布">3. 月度分布</a></li></ul></li><li><a href="#四-频道与内容偏好统计">四、 频道与内容偏好统计</a><ul><li><a href="#最常观看的频道-top-20">最常观看的频道 Top 20</a></li><li><a href="#累计观看次数最多的具体视频-top-10">累计观看次数最多的具体视频 Top 10</a></li></ul></li><li><a href="#五-内容主题分类-基于标题关键词分析">五、 内容主题分类（基于标题关键词分析）</a><ul><li><a href="#语言分布">语言分布</a></li></ul></li><li><a href="#六-观看会话-session-分析">六、 观看会话（Session）分析</a><ul><li><a href="#最长连续观看会话-top-5">最长连续观看会话 Top 5</a></li></ul></li><li><a href="#七-视频间隔分析-inter-view-interval">七、 视频间隔分析（Inter-View Interval）</a></li><li><a href="#八-综合画像总结">八、 综合画像总结</a></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>请分析我的 YouTube 观看历史数据（Google Takeout 导出），统计 2026-01-01 之后的观看情况。<br/>
+数据文件：/Users/zhijiebian/Downloads/Takeout - Zhijie Bian/YouTube and YouTube Music/history/watch-history.html</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>基于对 Google Takeout 导出的 <code>watch-history.html</code> 文件（44.1MB，共 43,832 条全量记录）的完整解析，自 <strong>2026-01-01</strong> 之后的统计与深度分析结果如下：</p>
+<h2 id="一-核心数据概览">一、 核心数据概览</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>总观看次数</strong></td>
+<td>12,642 次</td>
+</tr>
+<tr>
+<td><strong>统计日期范围</strong></td>
+<td>2026-01-01 至 2026-05-24</td>
+</tr>
+<tr>
+<td><strong>日历天数</strong></td>
+<td>144 天</td>
+</tr>
+<tr>
+<td><strong>活跃天数</strong></td>
+<td>144 天（每天均有观看记录）</td>
+</tr>
+<tr>
+<td><strong>日均观看量</strong></td>
+<td>87.8 次/天</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><em>注：全量数据（含 2025 年）共 43,832 条记录，最早追溯至 2025-02-23。本次分析仅涵盖 2026-01-01 之后的 12,642 条。</em></p>
+</blockquote>
+<hr/>
+<h2 id="二-时间段分布特征">二、 时间段分布特征</h2>
+<h3 id="四大时段占比">四大时段占比</h3>
+<table>
+<thead>
+<tr>
+<th>时段分类</th>
+<th>时间区间</th>
+<th>累计观看次数</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>深夜时段</strong></td>
+<td>22:00 至 次日 06:00</td>
+<td>4,030 次</td>
+<td><strong>31.9%</strong></td>
+</tr>
+<tr>
+<td><strong>上午时段</strong></td>
+<td>06:00 至 12:00</td>
+<td>2,113 次</td>
+<td>16.7%</td>
+</tr>
+<tr>
+<td><strong>下午时段</strong></td>
+<td>12:00 至 18:00</td>
+<td>3,280 次</td>
+<td>25.9%</td>
+</tr>
+<tr>
+<td><strong>晚间时段</strong></td>
+<td>18:00 至 22:00</td>
+<td>3,219 次</td>
+<td>25.5%</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键发现</strong>：深夜时段（22:00 至次日 06:00）的观看量占全天总量的 <strong>31.9%</strong>，为所有时段中最高。这表明近三分之一的 YouTube 使用行为发生在深夜，对睡眠质量构成潜在影响。</p>
+</blockquote>
+<h3 id="每小时观看频次分布-24小时统计">每小时观看频次分布（24小时统计）</h3>
+<pre><code class="language-text">00:00 :   746 次 ****
+01:00 :   386 次 **
+02:00 :   187 次 *
+03:00 :    35 次 
+04:00 :    24 次 
+05:00 :    59 次 
+06:00 :    40 次 
+07:00 :   418 次 **
+08:00 :   827 次 *****
+09:00 :   332 次 **
+10:00 :   241 次 *
+11:00 :   255 次 *
+12:00 :   280 次 **
+13:00 :   296 次 **
+14:00 :   301 次 **
+15:00 :   978 次 ******
+16:00 :   648 次 ****
+17:00 :   777 次 *****
+18:00 :   689 次 ****
+19:00 :   661 次 ****
+20:00 :   818 次 *****
+21:00 : 1,051 次 ******
+22:00 : 1,373 次 ******** (全天最高峰)
+23:00 : 1,220 次 *******
+</code></pre>
+<p><strong>分析</strong>：<br/>
+- <strong>全天最高峰</strong>出现在 <strong>22:00</strong>（1,373 次），次高峰在 <strong>23:00</strong>（1,220 次）和 <strong>21:00</strong>（1,051 次），形成了明显的<strong>晚间 21:00 至 23:59 的连续高密度使用区间</strong>。<br/>
+- <strong>上午双峰</strong>：<strong>07:00</strong>（418 次）和 <strong>08:00</strong>（827 次）存在明显的晨间使用峰值，推测与起床后浏览资讯/财经频道相关。<br/>
+- <strong>下午峰值</strong>：<strong>15:00</strong>（978 次）是日间最高点，可能与下午休息或收盘后的信息消费相关。<br/>
+- <strong>凌晨使用</strong>：00:00 至 02:00 仍累计有 1,319 次观看记录，表明存在显著的熬夜观看行为。</p>
+<hr/>
+<h2 id="三-日期与星期活跃度分析">三、 日期与星期活跃度分析</h2>
+<h3 id="1-单日观看量前-10-名-高峰日期">1. 单日观看量前 10 名（高峰日期）</h3>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>日期</th>
+<th>星期</th>
+<th>观看次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>2026-04-30</strong></td>
+<td>周四</td>
+<td><strong>372</strong> 次</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2026-02-20</td>
+<td>周五</td>
+<td>297 次</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2026-03-28</td>
+<td>周六</td>
+<td>263 次</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2026-04-25</td>
+<td>周六</td>
+<td>240 次</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2026-03-07</td>
+<td>周六</td>
+<td>226 次</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2026-01-17</td>
+<td>周六</td>
+<td>219 次</td>
+</tr>
+<tr>
+<td>7</td>
+<td>2026-01-24</td>
+<td>周六</td>
+<td>206 次</td>
+</tr>
+<tr>
+<td>8</td>
+<td>2026-02-12</td>
+<td>周四</td>
+<td>185 次</td>
+</tr>
+<tr>
+<td>9</td>
+<td>2026-04-29</td>
+<td>周三</td>
+<td>185 次</td>
+</tr>
+<tr>
+<td>10</td>
+<td>2026-03-01</td>
+<td>周日</td>
+<td>182 次</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>特征</strong>：Top 10 高峰日中有 <strong>5 天为周六</strong>，反映周末闲暇时间的集中消费模式。单日最高 372 次（4月30日，周四），结合该日为月末交易日，推测可能与收盘后大量浏览财经复盘/分析视频相关。</p>
+</blockquote>
+<h3 id="2-星期分布">2. 星期分布</h3>
+<table>
+<thead>
+<tr>
+<th>星期</th>
+<th>观看次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>周一</td>
+<td>1,261</td>
+</tr>
+<tr>
+<td>周二</td>
+<td>1,422</td>
+</tr>
+<tr>
+<td>周三</td>
+<td>1,621</td>
+</tr>
+<tr>
+<td>周四</td>
+<td><strong>2,350</strong> (最高)</td>
+</tr>
+<tr>
+<td>周五</td>
+<td>1,873</td>
+</tr>
+<tr>
+<td>周六</td>
+<td><strong>2,334</strong></td>
+</tr>
+<tr>
+<td>周日</td>
+<td>1,781</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分析</strong>：周四（2,350 次）和周六（2,334 次）并列为观看量最高的两天。周四的异常高值可能与期权到期日（Options Expiration，通常为周四/周五）后的复盘行为有关。</p>
+<h3 id="3-月度分布">3. 月度分布</h3>
+<table>
+<thead>
+<tr>
+<th>月份</th>
+<th>观看次数</th>
+<th>日均</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-01</td>
+<td>2,086</td>
+<td>67.3</td>
+</tr>
+<tr>
+<td>2026-02</td>
+<td>2,487</td>
+<td>88.8</td>
+</tr>
+<tr>
+<td>2026-03</td>
+<td>2,536</td>
+<td>81.8</td>
+</tr>
+<tr>
+<td>2026-04</td>
+<td>2,892</td>
+<td><strong>96.4</strong> (最高)</td>
+</tr>
+<tr>
+<td>2026-05</td>
+<td>2,641</td>
+<td>110.0*</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><em>5月数据截至 5月24日，仅 24 天；折算日均为 110.0 次/天，为各月最高，呈持续递增趋势。</em></p>
+</blockquote>
+<p><strong>趋势</strong>：YouTube 使用量从 1 月（日均 67.3 次）逐月递增至 5 月（日均 110.0 次），表明使用习惯在加深而非收敛。</p>
+<hr/>
+<h2 id="四-频道与内容偏好统计">四、 频道与内容偏好统计</h2>
+<h3 id="最常观看的频道-top-20">最常观看的频道 Top 20</h3>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>频道名称</th>
+<th>观看次数</th>
+<th>内容类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Unknown Channel</td>
+<td>1,010</td>
+<td>已删除/私有视频</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Zack D. Films</strong></td>
+<td>397</td>
+<td>英文短视频/娱乐</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Luke Davidson</strong></td>
+<td>226</td>
+<td>英文短视频/喜剧</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>大雯和孩儿们</strong></td>
+<td>167</td>
+<td>中文家庭/生活</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Brighter with Herbert</td>
+<td>141</td>
+<td>英文短视频</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>浙江卫视音乐频道</strong></td>
+<td>129</td>
+<td>华语音乐/综艺</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Ben Azelart</td>
+<td>123</td>
+<td>英文短视频/娱乐</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>贝拉聊财金</strong></td>
+<td>119</td>
+<td>财经/投资</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>开心元元</strong></td>
+<td>108</td>
+<td>中文生活</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>王志安</strong></td>
+<td>95</td>
+<td>中文新闻/时评</td>
+</tr>
+<tr>
+<td>11</td>
+<td>北美王路飞</td>
+<td>88</td>
+<td>中文财经/北美生活</td>
+</tr>
+<tr>
+<td>12</td>
+<td>视野环球财经</td>
+<td>83</td>
+<td>中文财经</td>
+</tr>
+<tr>
+<td>13</td>
+<td>林凡LinfanCheer</td>
+<td>81</td>
+<td>中文音乐</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Polar Ranks</td>
+<td>80</td>
+<td>英文排名类</td>
+</tr>
+<tr>
+<td>15</td>
+<td>阿亮特别狠</td>
+<td>77</td>
+<td>中文娱乐</td>
+</tr>
+<tr>
+<td>16</td>
+<td>清一色脱口秀</td>
+<td>76</td>
+<td>中文脱口秀</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Alan Chen</td>
+<td>73</td>
+<td>中文财经/投资</td>
+</tr>
+<tr>
+<td>18</td>
+<td>芒果TV音乐</td>
+<td>66</td>
+<td>华语音乐/综艺</td>
+</tr>
+<tr>
+<td>19</td>
+<td>李先生Mr. Lee</td>
+<td>65</td>
+<td>中文内容</td>
+</tr>
+<tr>
+<td>20</td>
+<td>魔术趣玩方信</td>
+<td>65</td>
+<td>中文娱乐/魔术</td>
+</tr>
+</tbody>
+</table>
+<h3 id="累计观看次数最多的具体视频-top-10">累计观看次数最多的具体视频 Top 10</h3>
+<table>
+<thead>
+<tr>
+<th>重复次数</th>
+<th>视频标题</th>
+<th>频道</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>36次</strong></td>
+<td>杨丞琳/胡宇桐/李润祺《如愿》</td>
+<td>浙江卫视音乐频道</td>
+</tr>
+<tr>
+<td><strong>31次</strong></td>
+<td>林晓峰＆刘惜君《现代爱情故事》</td>
+<td>芒果TV音乐</td>
+</tr>
+<tr>
+<td><strong>28次</strong></td>
+<td>汪晨蕊《爱情转移》华语粤语丝滑切换</td>
+<td>浙江卫视音乐频道</td>
+</tr>
+<tr>
+<td><strong>27次</strong></td>
+<td>汪晨蕊《爱情转移》中国新歌声</td>
+<td>浙江卫视音乐频道</td>
+</tr>
+<tr>
+<td><strong>26次</strong></td>
+<td>叶倩文《爱的可能》金曲捞</td>
+<td>江苏卫视</td>
+</tr>
+<tr>
+<td><strong>19次</strong></td>
+<td>汪晨蕊《爱情转移》单曲纯享</td>
+<td>中国好声音</td>
+</tr>
+<tr>
+<td><strong>18次</strong></td>
+<td>李健《如愿》</td>
+<td>Gaia Elio</td>
+</tr>
+<tr>
+<td><strong>17次</strong></td>
+<td>光良/陈卓璇《勇气》我们的歌</td>
+<td>SMG音乐频道</td>
+</tr>
+<tr>
+<td><strong>15次</strong></td>
+<td>胡夏/李紫婷《遗憾》天赐的声音</td>
+<td>浙江卫视音乐频道</td>
+</tr>
+<tr>
+<td><strong>14次</strong></td>
+<td>单依纯《爱与痛的边缘》声生不息</td>
+<td>芒果TV音乐</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>特征</strong>：重复观看最多的视频全部为<strong>华语音乐综艺节目的纯享片段</strong>，以《如愿》《爱情转移》《爱的可能》等经典歌曲的现场表演为主，反映了强烈的华语音乐偏好与"循环播放"的收听习惯。</p>
+</blockquote>
+<hr/>
+<h2 id="五-内容主题分类-基于标题关键词分析">五、 内容主题分类（基于标题关键词分析）</h2>
+<table>
+<thead>
+<tr>
+<th>主题类别</th>
+<th>关键词命中次数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>中文内容</strong></td>
+<td>8,047</td>
+<td>标题含中文字符的视频总量</td>
+</tr>
+<tr>
+<td><strong>财经/交易/股票</strong></td>
+<td>1,473</td>
+<td>stock, trading, option, 期权, 交易等</td>
+</tr>
+<tr>
+<td><strong>汽车/交通</strong></td>
+<td>1,326</td>
+<td>car, tesla, ev, drive, 车等</td>
+</tr>
+<tr>
+<td><strong>新闻/政治</strong></td>
+<td>503</td>
+<td>trump, news, election等</td>
+</tr>
+<tr>
+<td><strong>音乐</strong></td>
+<td>403</td>
+<td>music, song, karaoke, 音乐等</td>
+</tr>
+<tr>
+<td><strong>教程/学习</strong></td>
+<td>375</td>
+<td>tutorial, learn, guide, 教程等</td>
+</tr>
+<tr>
+<td><strong>美食/烹饪</strong></td>
+<td>355</td>
+<td>cook, recipe, food, 美食等</td>
+</tr>
+<tr>
+<td><strong>科技/编程</strong></td>
+<td>263</td>
+<td>python, AI, tech, developer等</td>
+</tr>
+<tr>
+<td><strong>游戏</strong></td>
+<td>230</td>
+<td>game, roblox, minecraft等</td>
+</tr>
+<tr>
+<td><strong>健身/健康</strong></td>
+<td>86</td>
+<td>workout, gym, fitness等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="语言分布">语言分布</h3>
+<table>
+<thead>
+<tr>
+<th>语言</th>
+<th>视频数量</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>中文（标题含汉字）</strong></td>
+<td>4,687</td>
+<td><strong>37.1%</strong></td>
+</tr>
+<tr>
+<td><strong>非中文</strong></td>
+<td>7,955</td>
+<td>62.9%</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="六-观看会话-session-分析">六、 观看会话（Session）分析</h2>
+<p>以超过 30 分钟的观看间隔作为会话分割标准：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>总会话数</strong></td>
+<td>1,019 次</td>
+</tr>
+<tr>
+<td><strong>平均会话时长</strong></td>
+<td>22.1 分钟</td>
+</tr>
+<tr>
+<td><strong>平均每会话观看视频数</strong></td>
+<td>12.4 个</td>
+</tr>
+</tbody>
+</table>
+<h3 id="最长连续观看会话-top-5">最长连续观看会话 Top 5</h3>
+<table>
+<thead>
+<tr>
+<th>开始时间</th>
+<th>持续时长</th>
+<th>观看视频数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-03-05 22:36</td>
+<td><strong>198.6 分钟（3.3 小时）</strong></td>
+<td>166 个视频</td>
+</tr>
+<tr>
+<td>2026-02-13 19:31</td>
+<td>181.8 分钟（3.0 小时）</td>
+<td>33 个视频</td>
+</tr>
+<tr>
+<td>2026-03-24 17:08</td>
+<td>179.7 分钟（3.0 小时）</td>
+<td>150 个视频</td>
+</tr>
+<tr>
+<td>2026-02-28 23:19</td>
+<td>174.6 分钟（2.9 小时）</td>
+<td>57 个视频</td>
+</tr>
+<tr>
+<td>2026-04-04 22:39</td>
+<td>173.9 分钟（2.9 小时）</td>
+<td>31 个视频</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>关键发现</strong>：最长连续会话长达 3.3 小时（198.6 分钟），发生在 3月5日深夜 22:36 至次日凌晨 01:55，期间观看了 166 个视频（约 71.6 秒/个），符合快速浏览短视频的特征。多个最长会话均始于 <strong>晚间 19:00 至 23:00</strong>，进一步印证了深夜为高密度使用区间。</p>
+</blockquote>
+<hr/>
+<h2 id="七-视频间隔分析-inter-view-interval">七、 视频间隔分析（Inter-View Interval）</h2>
+<table>
+<thead>
+<tr>
+<th>间隔区间</th>
+<th>次数</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>&lt; 5 秒</strong></td>
+<td>2,931</td>
+<td><strong>23.2%</strong></td>
+</tr>
+<tr>
+<td><strong>5 秒 – 30 秒</strong></td>
+<td>3,825</td>
+<td><strong>30.3%</strong></td>
+</tr>
+<tr>
+<td>30 秒 – 1 分钟</td>
+<td>1,951</td>
+<td>15.5%</td>
+</tr>
+<tr>
+<td>1 分钟 – 5 分钟</td>
+<td>1,811</td>
+<td>14.4%</td>
+</tr>
+<tr>
+<td>5 分钟 – 30 分钟</td>
+<td>1,074</td>
+<td>8.5%</td>
+</tr>
+<tr>
+<td>&gt; 30 分钟</td>
+<td>1,018</td>
+<td>8.1%</td>
+</tr>
+<tr>
+<td><strong>中位间隔</strong></td>
+<td><strong>25.0 秒</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>分析</strong>：<strong>53.5%</strong> 的视频观看间隔小于 30 秒，中位间隔仅 25 秒。这意味着超过一半的视频被观看不到 30 秒就被切换，指向大量的<strong>短视频快速下滑浏览（Shorts Swiping）</strong>行为。结合频道偏好中 Zack D. Films、Luke Davidson、Ben Azelart 等短视频创作者占据前列，可以确认短视频消费占据了相当大的比例。</p>
+</blockquote>
+<hr/>
+<h2 id="八-综合画像总结">八、 综合画像总结</h2>
+<ol>
+<li><strong>使用强度</strong>：144 天内累计 12,642 次观看，日均 87.8 次，使用频率处于中高水平。月度趋势呈逐月递增，5 月日均已达 110 次/天。</li>
+<li><strong>时间分布异常</strong>：近 <strong>32%</strong> 的观看行为发生在深夜 22:00 至 06:00，凌晨 00:00-02:00 仍有 1,319 次记录，表明存在持续性的熬夜浏览习惯。</li>
+<li><strong>内容消费模式</strong>：以<strong>华语音乐综艺</strong>（循环播放经典歌曲表演）和<strong>英文短视频</strong>（快速浏览型）为两大主线；<strong>财经/交易</strong>内容（贝拉聊财金、北美王路飞、视野环球财经等）为第三大消费类别，与职业相关。</li>
+<li><strong>短视频依赖</strong>：53.5% 的视频间隔小于 30 秒，中位间隔仅 25 秒，表明超过一半的使用时间花在了快速浏览短内容上，而非深度消费长视频。</li>
+</ol>
+</section>
+</article>
+</main>
+</body>
+</html>
