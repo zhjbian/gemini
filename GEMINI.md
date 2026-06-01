@@ -2,4 +2,6 @@
 
 (2) 只要我提到 @gem-doc，请务必按照 skill /Users/zhijiebian/.gemini/skills/gem-doc/SKILL.md 的规则，根据提示，保存相关内容到一个新文件，或追加到一个已经存在的文件
 
-(3) 绝对不把Gemini API Key直接定义到source文件里 永远用BBU.get_gemini_api_key_from_file()取得
+(3) 绝对不把Gemini API Key直接定义到source文件里 永远用BBAI.get_gemini_api_key_from_file()取得
+
+(4) 不要写raw Gemini API call, 永远用BBAI.call_gemini
