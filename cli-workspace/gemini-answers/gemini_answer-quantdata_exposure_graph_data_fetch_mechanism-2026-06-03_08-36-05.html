@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - quantdata_exposure_graph_data_fetch_mechanism</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-06-03 08:36:05</span>
+<span>Question summary: quantdata_exposure_graph_data_fetch_mechanism</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#quantdata_exposure_graph_data_fetch_mechanism">quantdata_exposure_graph_data_fetch_mechanism</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#1-客户端内存数据回放机制-client-side-memory-playback">1. 客户端内存数据回放机制 (Client-Side Memory Playback)</a></li><li><a href="#2-持久长连接通信-websockets-sse">2. 持久长连接通信 (WebSockets / SSE)</a></li><li><a href="#验证与排查方法">验证与排查方法：</a></li></ul></li><li><a href="#get_quantdata_via_python_or_tampermonkey">get_quantdata_via_python_or_tampermonkey</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#方案一-使用-tampermonkey-推荐-开发难度低">方案一：使用 Tampermonkey（推荐，开发难度低）</a><ul><li><a href="#实现机制">实现机制</a></li><li><a href="#tampermonkey-脚本模板">Tampermonkey 脚本模板</a></li></ul></li><li><a href="#方案二-使用-python-适合独立后台任务">方案二：使用 Python（适合独立后台任务）</a><ul><li><a href="#实现步骤">实现步骤</a></li><li><a href="#python-示例代码框架-基于-websocket-client">Python 示例代码框架 (基于 websocket-client)</a></li></ul></li><li><a href="#总结建议">总结建议：</a></li></ul></li><li><a href="#quantdata_http_token_vs_websocket_token">quantdata_http_token_vs_websocket_token</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-http-链接-token-api-凭证">1. HTTP 链接 Token (API 凭证)</a></li><li><a href="#2-websocket-链接的-sessiontoken-网页会话凭证">2. WebSocket 链接的 sessionToken (网页会话凭证)</a></li><li><a href="#如何验证-socket-token-的时效性">如何验证 Socket Token 的时效性？</a></li><li><a href="#python-脚本的应对方案">Python 脚本的应对方案</a></li></ul></li><li><a href="#sec_websocket_key_vs_session_token">sec_websocket_key_vs_session_token</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#1-sec-websocket-key-是什么-rfc-6455-标准协议行为">1. Sec-WebSocket-Key 是什么？（RFC 6455 标准协议行为）</a></li><li><a href="#2-同一个-sessiontoken-的作用-应用层鉴权">2. 同一个 sessionToken 的作用（应用层鉴权）</a></li><li><a href="#总结">总结</a></li></ul></li><li><a href="#quantdata_websocket_routing_destination_stomp">quantdata_websocket_routing_destination_stomp</a><ul><li><a href="#question-5">Question</a></li><li><a href="#answer-5">Answer</a></li><li><a href="#1-核心路由机制-stomp-的-destination-主题">1. 核心路由机制：STOMP 的 destination（主题）</a></li><li><a href="#2-前端是如何知道这个组件实例-id-的">2. 前端是如何知道这个组件实例 ID 的？</a></li><li><a href="#3-如何在抓包中快速确认某个图表对应什么主题">3. 如何在抓包中快速确认某个图表对应什么主题？</a></li></ul></li><li><a href="#devtools_ws_messages_recording_timing_explanation">devtools_ws_messages_recording_timing_explanation</a><ul><li><a href="#question-6">Question</a></li><li><a href="#answer-6">Answer</a></li><li><a href="#如何在您的浏览器中观察到这个-subscribe-帧">如何在您的浏览器中观察到这个 SUBSCRIBE 帧？</a></li><li><a href="#我是如何得出这一段的">我是如何得出这一段的？</a></li></ul></li></ul></div>
+<section><h2 id="quantdata_exposure_graph_data_fetch_mechanism">quantdata_exposure_graph_data_fetch_mechanism</h2><section>
+<h3 id="question">Question</h3>
+<p>quantdata options expose by strike graph, I don't see new ajax calls, how does it fetch new data and update the graph?</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>根据技术分析，QuantData 的 Exposure by Strike 图表在不产生新 AJAX (Fetch/XHR) 请求的情况下获取并更新数据，通常是通过以下两种机制之一实现的：</p>
+<h3 id="1-客户端内存数据回放机制-client-side-memory-playback">1. 客户端内存数据回放机制 (Client-Side Memory Playback)</h3>
+<ul>
+<li><strong>表现分析</strong>：图表底部存在一个从 <code>9:00 PM</code> 到 <code>8:03 AM</code> 的时间滑块（Timeline Slider）以及播放/暂停控制键。</li>
+<li><strong>工作原理</strong>：页面在初次加载时，会通过一个 AJAX 请求一次性获取当天所有时间段的完整数据集（如包含各时间戳下不同 Strike 敞口数据的 JSON 序列）。当用户拖动滑块或进行自动播放时，前端图表库（如 Highcharts 或 Canvas 绘图库）仅在内存中过滤并重新渲染已有的数据片，防范了多余的重复网络请求。</li>
+</ul>
+<h3 id="2-持久长连接通信-websockets-sse">2. 持久长连接通信 (WebSockets / SSE)</h3>
+<ul>
+<li><strong>表现分析</strong>：当前 Network 面板显示 <code>"Currently recording network activity..."</code>，这表明控制台是在页面加载完成后才打开（或已被清空记录）的。</li>
+<li><strong>工作原理</strong>：实时数据更新通常依赖于 <strong>WebSocket</strong> 或 <strong>Server-Sent Events (SSE)</strong>。WebSocket 在页面初次加载时建立一次握手连接，后续的数据包会通过该持久的 TCP 通道以二进制或文本帧的形式源源不断地从服务器推送到浏览器，这不会触发新的 AJAX (XHR/Fetch) 请求。</li>
+</ul>
+<hr/>
+<h3 id="验证与排查方法">验证与排查方法：</h3>
+<ol>
+<li>
+<p><strong>步骤一：重新加载页面</strong><br/>
+   保持 Chrome DevTools 处于打开状态，并刷新页面（<code>Cmd + R</code>）。这能捕获到页面初始化阶段的所有网络行为。</p>
+</li>
+<li>
+<p><strong>步骤二：检查 WebSocket 连接</strong><br/>
+   * 在 Network 面板的过滤器中，从 <code>Fetch/XHR</code> 切换到 <strong><code>Socket</code></strong> (或 <code>WS</code>) 标签页。<br/>
+   * 如果存在 WebSocket 链接，点击该链接并选择 <strong><code>Messages</code></strong> 子标签页。在此处可以实时观测到服务器推送的 Strike 敞口数据帧。</p>
+</li>
+<li>
+<p><strong>步骤三：分析初始化 AJAX 响应数据</strong><br/>
+   * 切换回 <code>Fetch/XHR</code> 标签页，查找在页面刷新时发起的 API 请求。<br/>
+   * 检查其响应内容（Response），确认是否包含整个时间轴序列的 exposure 历史数据包。</p>
+</li>
+</ol>
+</section></section><section><h2 id="get_quantdata_via_python_or_tampermonkey">get_quantdata_via_python_or_tampermonkey</h2><h3 id="question-2">Question</h3><p>是socket 我能通过python或tampermonkey 获取这些数据吗</p><h3 id="answer-2">Answer</h3><p>通过 Python 或 Tampermonkey 都可以获取这些数据。从截图中可以看到，该页面使用的是 <strong>SockJS 协议包装的 STOMP 协议</strong>（特征为数据包前缀 <code>a["</code> 代表 SockJS Array，内部包含标准的 STOMP 头部 <code>MESSAGE
+destination:...</code>）。</p>
+<p>以下是两种实现方案的技术细节与选择建议：</p>
+<hr/>
+<h3 id="方案一-使用-tampermonkey-推荐-开发难度低">方案一：使用 Tampermonkey（推荐，开发难度低）</h3>
+<p><strong>优势</strong>：由于直接运行在浏览器中，<strong>无需处理身份验证与 JWT 令牌刷新</strong>。浏览器会自动处理 Session Token、Cookies 等安全要素。</p>
+<h4 id="实现机制">实现机制</h4>
+<p>利用 JavaScript 的<strong>猴子补丁 (Monkey Patching)</strong> 技术，在页面加载早期重写 <code>window.WebSocket</code> 构造函数，拦截并解析传入的数据。</p>
+<h4 id="tampermonkey-脚本模板">Tampermonkey 脚本模板</h4>
+<pre><code class="language-javascript">// ==UserScript==
+// @name         QuantData Exposure Data Interceptor
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  Intercept and parse SockJS/STOMP WebSocket traffic
+// @match        https://v3.quantdata.us/*
+// @grant        none
+// @run-at       document-start
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    const OriginalWebSocket = window.WebSocket;
+
+    window.WebSocket = function(url, protocols) {
+        console.log("[Sniffer] WebSocket connection to:", url);
+        const ws = new OriginalWebSocket(url, protocols);
+
+        ws.addEventListener('message', function(event) {
+            try {
+                const rawData = event.data;
+                // 1. 识别 SockJS 的 Array 帧数据 (以 a[" 开头)
+                if (rawData.startsWith('a["')) {
+                    const parsedArray = JSON.parse(rawData.substring(1)); // 剥离 "a" 前缀并解析为 JS 数组
+
+                    parsedArray.forEach(stompFrame =&gt; {
+                        // 2. 识别 STOMP 协议的 MESSAGE 类型数据
+                        if (stompFrame.startsWith('MESSAGE')) {
+                            // STOMP 协议格式为: HEADERS\n\nBODY\0
+                            const parts = stompFrame.split('\n\n');
+                            if (parts.length &gt; 1) {
+                                // 移除 STOMP 帧结尾的 Null 字符 \u0000
+                                const body = parts[1].replace(/\0$/, ''); 
+                                try {
+                                    const jsonData = JSON.parse(body);
+                                    console.log("[Sniffer] Intercepted exposure data:", jsonData);
+
+                                    // 3. 将数据转发给本地 Python 接收端
+                                    // sendToLocalServer(jsonData);
+                                } catch(e) {
+                                    // 忽略非 JSON 格式的 Body
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("[Sniffer] Error processing frame:", err);
+            }
+        });
+
+        return ws;
+    };
+
+    // 复制原型链和静态属性以确保兼容性
+    window.WebSocket.prototype = OriginalWebSocket.prototype;
+    Object.assign(window.WebSocket, OriginalWebSocket);
+
+    // 转发函数示例
+    function sendToLocalServer(data) {
+        fetch('http://127.0.0.1:5005/api/quantdata_exposure', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).catch(err =&gt; console.error("[Sniffer] Local forward failed:", err));
+    }
+})();
+</code></pre>
+<hr/>
+<h3 id="方案二-使用-python-适合独立后台任务">方案二：使用 Python（适合独立后台任务）</h3>
+<p><strong>优势</strong>：适合脱离浏览器运行的自动化脚本。<br/>
+<strong>挑战</strong>：需要获取有效的 <code>sessionToken</code>。该令牌通常作为 JWT 存储在 Session 周期中，如果过期（通常几小时到几天不等），Python 脚本必须模拟登录逻辑重新获取，或者通过 Selenium/Playwright 提取最新 Token。</p>
+<h4 id="实现步骤">实现步骤</h4>
+<ol>
+<li><strong>连接建立</strong>：通过 Websocket 连接到 <code>wss://v3.quantdata.us/websocket?sessionToken=YOUR_JWT_TOKEN</code>。</li>
+<li><strong>SockJS 握手</strong>：<br/>
+   - 建立连接后，服务器会先发送 <code>o</code> (Open 帧)。<br/>
+   - 客户端收到 <code>o</code> 后，需发送连接帧（包含在 JSON 数组中）：<br/>
+<code>json
+     ["CONNECT\naccept-version:1.1,1.0\nheart-beat:10000,10000\n\n\u0000"]</code></li>
+<li><strong>STOMP 订阅</strong>：<br/>
+   - 服务器返回 <code>CONNECTED</code> 帧后，客户端需要发送订阅帧以接收特定 Topic 的数据：<br/>
+<code>json
+     ["SUBSCRIBE\nid:sub-0\ndestination:/topic/tool/YOUR_TOOL_ID\n\n\u0000"]</code><br/>
+   - <em>注：<code>destination</code> 的具体路径可以从浏览器的 Network -&gt; Messages 列表中直接复制。</em></li>
+<li><strong>心跳维持</strong>：<br/>
+   - 每隔一定周期（通常 10 秒），客户端必须向服务器发送 <code>["\n"]</code> 帧，否则连接会被服务器强制关闭。</li>
+</ol>
+<h4 id="python-示例代码框架-基于-websocket-client">Python 示例代码框架 (基于 <code>websocket-client</code>)</h4>
+<pre><code class="language-python">import json
+import time
+import threading
+import websocket
+
+# 获取自浏览器 Network 面板中的完整 URL
+WS_URL = "wss://v3.quantdata.us/websocket?sessionToken=YOUR_JWT_TOKEN"
+DESTINATION = "/topic/tool/f8753dbf-e591-4461-af6b-5947b..." # 替换为实际 topic
+
+def send_heartbeat(ws):
+    while True:
+        time.sleep(10)
+        try:
+            ws.send('["\\n"]')
+        except Exception:
+            break
+
+def on_message(ws, message):
+    # 收到消息
+    if message.startswith('o'):
+        # 1. 收到 SockJS Open 帧，发送 STOMP CONNECT 帧
+        connect_frame = '["CONNECT\\naccept-version:1.1,1.0\\nheart-beat:10000,10000\\n\\n\\u0000"]'
+        ws.send(connect_frame)
+
+    elif message.startswith('a["CONNECTED'):
+        # 2. 连接成功，发送 SUBSCRIBE 订阅指定 Topic
+        sub_frame = f'["SUBSCRIBE\\nid:sub-0\\ndestination:{{DESTINATION}}\\n\\n\\u0000"]'
+        ws.send(sub_frame)
+        # 启动心跳线程
+        threading.Thread(target=send_heartbeat, args=(ws,), daemon=True).start()
+
+    elif message.startswith('a["MESSAGE'):
+        # 3. 解析接收到的数据帧
+        # 剥离 a[" 前缀并还原转义字符
+        payload = json.loads(message[1:])
+        for frame in payload:
+            if "MESSAGE" in frame:
+                parts = frame.split('\n\n')
+                if len(parts) &gt; 1:
+                    body = parts[1].replace('\x00', '')
+                    data = json.loads(body)
+                    print("Received Exposure Data:", data)
+
+def on_error(ws, error):
+    print("Error:", error)
+
+def on_close(ws, close_status_code, close_msg):
+    print("Connection closed")
+
+if __name__ == "__main__":
+    ws = websocket.WebSocketApp(
+        WS_URL,
+        on_message=on_message,
+        on_error=on_error,
+        on_close=on_close
+    )
+    ws.run_forever()
+</code></pre>
+<h3 id="总结建议">总结建议：</h3>
+<p>对于个人使用或与您的本地交易系统对接，建议使用 <strong>Tampermonkey</strong>。它编写简单，避免了模拟登录和验证码的复杂性。拦截到的数据可以通过简单的 <code>fetch</code> 推送至您在本地运行的 Flask Web 服务（例如本地的 <code>127.0.0.1:5005</code> 接口），再由 Python 进行入库与处理。</p></section><section><h2 id="quantdata_http_token_vs_websocket_token">quantdata_http_token_vs_websocket_token</h2><h3 id="question-3">Question</h3><p>quantdata这样的http链接 authorization token是长期有效的 socke的token机制和这个不同吗</p><h3 id="answer-3">Answer</h3><p>QuantData 的 HTTP 链接使用的 <code>authorization</code> 令牌与网页端 WebSocket 链接的 <code>sessionToken</code> 在设计和生命周期机制上通常是<strong>不同</strong>的。</p>
+<p>通过对您代码中 HTTP Token 的解析以及网页端安全实践的技术分析，原因如下：</p>
+<h3 id="1-http-链接-token-api-凭证">1. HTTP 链接 Token (API 凭证)</h3>
+<p>解析 <code>qd_oi.py</code> 中使用的 JWT 载荷（Payload）：<br/>
+* <strong>Base64 解码后内容</strong>：<code>{"createdTime": 1738728610997, "userId": "496d54cd-e993-4bfa-94a0-f450656de486", "iss": "Quant Data"}</code><br/>
+* <strong>特征</strong>：该 JWT <strong>没有包含 <code>exp</code> (Expiration Time，过期时间)</strong> 声明。这代表它是 QuantData 发放的长期/永久 API 授权证书，通常用于后台程序化拉取数据。</p>
+<h3 id="2-websocket-链接的-sessiontoken-网页会话凭证">2. WebSocket 链接的 <code>sessionToken</code> (网页会话凭证)</h3>
+<p>网页端（<code>v3.quantdata.us</code>）在建立 WebSocket 连接时使用的 <code>sessionToken</code> 是<strong>网页端用户的登录会话令牌</strong>。<br/>
+* <strong>安全机制差异</strong>：出于前端防劫持的安全要求，Web 会话的 JWT 几乎都包含 <code>exp</code>（过期时间）和 <code>iat</code>（签发时间）声明，其有效期通常为数小时到数天不等。一旦过期，建立 WebSocket 连接时握手就会失败（返回 401 或直接关闭 TCP）。</p>
+<hr/>
+<h3 id="如何验证-socket-token-的时效性">如何验证 Socket Token 的时效性？</h3>
+<p>您可以按照以下步骤验证两者的关系和时效性：</p>
+<ol>
+<li>
+<p><strong>步骤一：对比 Token 字符串</strong><br/>
+   对比网页 WebSocket 链接中的 <code>sessionToken=eyJ...</code> 与您 Python 代码中的 <code>authorization</code> 字符串。它们的内容通常是不一样的。</p>
+</li>
+<li>
+<p><strong>步骤二：解码 Socket Token 载荷</strong><br/>
+   复制网页 WebSocket <code>sessionToken</code> 的第二部分（即两个句点 <code>.</code> 之间的 Base64 字符串），并在控制台中解码：<br/>
+<code>bash
+   echo -n "YOUR_SOCKET_PAYLOAD_STRING" | base64 -d</code><br/>
+   检查解码后的 JSON 字典中是否包含 <code>"exp"</code> 字段。<br/>
+   * 如果<strong>存在</strong> <code>"exp": 1780000000</code> 这样的时间戳，则代表该 Token 会在该时间戳（Unix 时间）对应的时刻失效，无法长期硬编码使用。<br/>
+   * 如果<strong>不存在</strong> <code>"exp"</code> 且与 API Token 结构一致，则说明同样是长期有效的。</p>
+</li>
+</ol>
+<hr/>
+<h3 id="python-脚本的应对方案">Python 脚本的应对方案</h3>
+<p>如果确认网页 WebSocket 的 <code>sessionToken</code> 是短效的，Python 在进行独立的数据获取时可以采用以下方式：</p>
+<ul>
+<li><strong>方案 A（首选）</strong>：尝试直接使用您的<strong>长期 API Token</strong> 替换 Socket URL 中的 <code>sessionToken</code> 进行连接，看服务器是否支持使用 API Token 建立长连接：<br/>
+<code>wss://v3.quantdata.us/websocket?sessionToken=YOUR_LONG_TERM_API_TOKEN</code></li>
+<li><strong>方案 B（动态获取）</strong>：在 Python 脚本中先通过 <code>requests.post</code> 动态获取临时 <code>sessionToken</code>，然后再建立连接。</li>
+</ul></section><section><h2 id="sec_websocket_key_vs_session_token">sec_websocket_key_vs_session_token</h2><h3 id="question-4">Question</h3><p>多个quantdata页面用的同一个token 但Sec-WebSocket-Key不同 这是什么样的setup</p><h3 id="answer-4">Answer</h3><p>在 WebSocket 协议的设计中，<code>Sec-WebSocket-Key</code> 与您的用户凭证（<code>sessionToken</code>）属于两个完全不同层面的机制。</p>
+<p>简单来说：<strong><code>sessionToken</code> 是应用层的身份认证机制（由 QuantData 控制）；而 <code>Sec-WebSocket-Key</code> 是传输层/协议层的握手校验机制（由浏览器和 WebSocket 协议控制，与应用逻辑无关）。</strong></p>
+<p>具体的技术原理如下：</p>
+<h3 id="1-sec-websocket-key-是什么-rfc-6455-标准协议行为">1. <code>Sec-WebSocket-Key</code> 是什么？（RFC 6455 标准协议行为）</h3>
+<p>根据 WebSocket 官方标准（RFC 6455），为了防止代理服务器或缓存服务器误处理 WebSocket 升级请求，浏览器在每次发起 WebSocket 连接时，必须<strong>在底层随机生成一个 16 字节的值并进行 Base64 编码</strong>，作为 <code>Sec-WebSocket-Key</code> 发送给服务器。<br/>
+* <strong>随机生成</strong>：每次新建连接（刷新页面、打开新标签页、断线重连），浏览器都会生成一个新的随机 Key。所以它的值在不同连接之间<strong>永远是不同的</strong>。<br/>
+* <strong>握手验证</strong>：服务器收到该 Key 后，会将其与一个固定的 UUID 字符串（<code>258EAFA5-E914-47DA-95CA-C5AB0DC85B11</code>）拼接，计算 SHA-1 哈希值并转换成 Base64，作为 <code>Sec-WebSocket-Accept</code> 返回给浏览器。浏览器验证后确认服务器确实支持 WebSocket，从而完成协议升级（Upgrade）。<br/>
+* <strong>作用</strong>：它仅用于协议握手，<strong>不携带任何用户身份或权限信息</strong>。</p>
+<h3 id="2-同一个-sessiontoken-的作用-应用层鉴权">2. 同一个 <code>sessionToken</code> 的作用（应用层鉴权）</h3>
+<p>您的多个页面标签页都在同一个浏览器中运行，因此它们共享相同的本地存储（LocalStorage/Cookies）。<br/>
+* <strong>身份识别</strong>：所有页面都会读取这同一个长期有效的 JWT Token 并传给服务端。服务端解密该 Token 即可确认：这三个连接都属于 <code>userId: "496d54cd-e993-4bfa-94a0-f450656de486"</code>。<br/>
+* <strong>连接多开支持</strong>：QuantData 服务端允许同一个用户账号在多个标签页中建立并发的 WebSocket 链接，以同时展示不同的数据视图。</p>
+<h3 id="总结">总结</h3>
+<p>这种 Setup 属于标准的 Web 架构：<br/>
+1. <strong>浏览器层面</strong>：按照 W3C/RFC 标准，为每个 Socket 随机生成不同的 <code>Sec-WebSocket-Key</code> 头。<br/>
+2. <strong>应用逻辑层</strong>：使用相同的 <code>sessionToken</code> 传递用户凭证，实现多标签页并发读取数据。</p>
+<p>因此，您在使用 Python 模拟连接时，<code>Sec-WebSocket-Key</code> <strong>不需要手动指定</strong>（您所使用的 <code>websocket-client</code> 库会在发起握手时自动随机生成符合标准的 Key），您只需要确保在 URL 中传入正确的 <code>sessionToken</code> 即可。</p></section><section><h2 id="quantdata_websocket_routing_destination_stomp">quantdata_websocket_routing_destination_stomp</h2><h3 id="question-5">Question</h3><p>quantdata是什么知道那个页面从socket取得什么数据的</p><h3 id="answer-5">Answer</h3><p>QuantData 网页知道从 Socket 订阅什么数据，以及服务端如何定向推送，是通过 <strong>STOMP 协议的“发布/订阅（Publish/Subscribe）”路由机制</strong> 实现的。</p>
+<p>其具体的工作流程 and 识别机制如下：</p>
+<h3 id="1-核心路由机制-stomp-的-destination-主题">1. 核心路由机制：STOMP 的 <code>destination</code>（主题）</h3>
+<p>在 STOMP 协议（基于 WebSocket）中，客户端与服务端的通信是通过“主题（Topic）”进行路由分发的。<br/>
+当您打开一个图表页面时：<br/>
+1. <strong>客户端发起订阅</strong>：浏览器前端会发送一个 <code>SUBSCRIBE</code> 帧给服务器，告诉服务器：“我要监听这个主题（Destination）的数据”。<br/>
+   * 例如在您之前的抓包中，客户端发送了：<br/>
+<code>["SUBSCRIBE\nid:sub-0\ndestination:/topic/tool/f8753dbf-e591-4461-af6b-5947b...\n\n\u0000"]</code><br/>
+   * 这里的 <code>/topic/tool/f8753dbf-e591-4461-af6b-5947b...</code> 就是数据通道的地址。其中的 UUID（<code>f8753dbf-e591-4461-af6b...</code>）代表该特定图表或工具组件的实例 ID。<br/>
+2. <strong>服务端匹配并分发</strong>：服务端的 Message Broker（消息中间件，如 Spring Message Broker 或 RabbitMQ）会维护一个路由表。当有最新的 SPX Strike Exposure 数据产生时，服务端将数据发布到该主题，消息中间件就会把数据准确推送到所有订阅了该主题的 WebSocket 连接上。</p>
+<hr/>
+<h3 id="2-前端是如何知道这个组件实例-id-的">2. 前端是如何知道这个组件实例 ID 的？</h3>
+<p>在建立 WebSocket 连接之前，前端页面通常会先进行一次 HTTP API 初始化请求：<br/>
+1. 浏览器请求当前页面的配置接口（例如请求包含页面布局、组件列表的 API，如 <code>/api/page/custom/...</code> 或 <code>/api/layouts/...</code>）。<br/>
+2. 该 API 返回的 JSON 配置中包含了该页面所有 Widget（小部件）的唯一 ID（即那一串 UUID）。<br/>
+3. 前端 JavaScript 解析该配置后，动态拼接出订阅路径：<code>/topic/tool/{widgetId}</code>，然后通过 WebSocket 发送订阅请求。</p>
+<hr/>
+<h3 id="3-如何在抓包中快速确认某个图表对应什么主题">3. 如何在抓包中快速确认某个图表对应什么主题？</h3>
+<p>如果您想知道当前打开的页面从 Socket 获取了什么数据，可以通过以下步骤查找：</p>
+<ol>
+<li>
+<p><strong>查找订阅的主题（Destination）</strong>：<br/>
+   * 打开 DevTools -&gt; Network -&gt; Socket。<br/>
+   * 点击当前的 WebSocket 链接，切换到 <strong>Messages</strong> 标签。<br/>
+   * 在过滤栏搜索关键词 <strong><code>SUBSCRIBE</code></strong>（通常方向为绿色向上箭头 ⬆️，代表客户端发送）。<br/>
+   * 观察其 <code>destination</code> 字段。例如：<br/>
+<code>text
+     destination: /topic/tool/f8753dbf-e591-4461-af6b-5947bbf996c5</code><br/>
+     这说明该页面订阅了 ID 为 <code>f8753dbf-e591-4461-af6b-5947bbf996c5</code> 的小工具数据。</p>
+</li>
+<li>
+<p><strong>查看推送的数据结构</strong>：<br/>
+   * 过滤方向为红色向下箭头 ⬇️（代表服务端推送）且包含该主题的 <code>MESSAGE</code> 帧。<br/>
+   * 查看其内容，即可看到推送的具体数据结构（如价格、Strike、Exposure 敞口数值等）。</p>
+</li>
+</ol></section><section><h2 id="devtools_ws_messages_recording_timing_explanation">devtools_ws_messages_recording_timing_explanation</h2><h3 id="question-6">Question</h3><p>["SUBSCRIBE\nid:sub-0\ndestination:/topic/tool/f8753dbf-e591-4461-af6b-5947b...\n\n\u0000"] 这是哪里的 我没有看到</p><h3 id="answer-6">Answer</h3><p>您在当前截图的列表中没有看到 <code>SUBSCRIBE</code> 帧，是因为 <strong>Chrome 开发者工具（DevTools）默认只记录它“打开之后”传输的数据包</strong>。</p>
+<p>当您打开 DevTools 并切换到 Socket 标签页时，页面已经加载完成，WebSocket 链接已经建立，且最初的“订阅请求”已经在过去完成了。因此，您的列表里目前只能看到后续源源不断推送的实时数据（<code>MESSAGE</code>，方向向下 ⬇️） and 用于维持连接的心跳包（<code>["\n"]</code>，方向向上 ⬆️）。</p>
+<hr/>
+<h3 id="如何在您的浏览器中观察到这个-subscribe-帧">如何在您的浏览器中观察到这个 <code>SUBSCRIBE</code> 帧？</h3>
+<ol>
+<li>
+<p><strong>操作步骤</strong>：<br/>
+   * 保持 Chrome DevTools 窗口处于打开状态。<br/>
+   * 刷新页面（<code>Cmd + R</code> 或 <code>F5</code>）。<br/>
+   * 刷新后，WebSocket 将会重新断开并建立连接。</p>
+</li>
+<li>
+<p><strong>您将看到的完整时序（从上到下排列）</strong>：<br/>
+   * ⬇️ <strong><code>o</code></strong> (SockJS 连接开启帧)<br/>
+   * ⬆️ <strong><code>["CONNECT..."]</code></strong> (客户端发起 STOMP 握手请求)<br/>
+   * ⬇️ <strong><code>a["CONNECTED..."]</code></strong> (服务端确认握手成功)<br/>
+   * ⬆️ <strong><code>["SUBSCRIBE..."]</code></strong> (客户端发送订阅请求，指定 <code>destination</code> 路径)<br/>
+   * ⬇️ <strong><code>a["MESSAGE..."]</code></strong> (服务端开始连续推送业务数据)</p>
+</li>
+</ol>
+<hr/>
+<h3 id="我是如何得出这一段的">我是如何得出这一段的？</h3>
+<p>您在截图的 <code>Messages</code> 列表中，看到服务端推送的数据以如下内容开头：<br/>
+<code>a["MESSAGE\ndestination:/topic/tool/f8753dbf-e591-4461-af6b-5947b..."]</code></p>
+<p>这代表服务端向 <code>/topic/tool/f8753dbf-e591-4461-af6b-5947b...</code> 这个主题推送了消息。根据 STOMP 协议的设计，客户端<strong>必须先发送过对应主题的 <code>SUBSCRIBE</code> 帧</strong>，服务端才有可能向该连接推送此类消息。这就是上面订阅帧格式的推导依据。</p></section></article>
+</main>
+</body>
+</html>
