@@ -5,3 +5,5 @@
 (3) 绝对不把Gemini API Key直接定义到source文件里 永远用BBAI.get_gemini_api_key_from_file()取得
 
 (4) 不要写raw Gemini API call, 永远用BBAI.call_gemini
+
+(5) 对于网页的修改任务，请不要自动打开browser测试，这个通常需要太长时间了，你改好后，我来测试
