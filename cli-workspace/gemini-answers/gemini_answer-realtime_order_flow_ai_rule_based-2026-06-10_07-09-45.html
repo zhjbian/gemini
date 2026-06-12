@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - realtime_order_flow_ai_rule_based</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-06-10 07:09:45</span>
+<span>Question summary: realtime_order_flow_ai_rule_based</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#1-前端页面和逻辑修改">1. 前端页面和逻辑修改</a></li><li><a href="#2-后端-api-与规则引擎实现">2. 后端 API 与规则引擎实现</a></li><li><a href="#3-数据隔离与未勾选逻辑">3. 数据隔离与未勾选逻辑</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>盘中实时分析 <br/>
+请加入如下功能改进 <br/>
+在checkbox 「实时Order Flow」后面增加一个 checkbox 'AI分析实时Order Flow' 默认不选中</p>
+<p>如果 「实时Order Flow」选中 <br/>
+但「AI分析实时Order Flow」没有选中，则取得实时order flow，按不做AI分析，最rule based的分析<br/>
+如果 AI分析实时Order Flow 选中，则取得实时order flow 做AI分析</p>
+<p>分析结果里要有数据表明值AI分析的 还是rule base分析的</p>
+<p>如果 「实时Order Flow」没选中，则查询数据库中最后一个显示</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>我已经完成了您要求的改进。以下是具体的改动说明：</p>
+<h3 id="1-前端页面和逻辑修改">1. 前端页面和逻辑修改</h3>
+<ul>
+<li><strong>HTML 文件</strong>: <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/templates/bbt_signals.html"><code>bbt_signals.html</code></a></li>
+<li>在「实时Order Flow」复选框的后方，新增了一个名为 <code>AI分析实时Order Flow</code> 的复选框（ID: <code>realtimeOfAiCheckbox</code>），默认不选中。</li>
+<li><strong>JS 逻辑</strong>: <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/static/js/bbt_signals.js"><code>bbt_signals.js</code></a></li>
+<li>在盘中实时分析运行时，动态获取该复选框的勾选状态并绑定为 <code>useAiOf</code> 变量。</li>
+<li>请求 <code>/data/order_flow_signal_decision</code> 时，新增传递 <code>use_ai: useAiOf ? 'true' : 'false'</code>。</li>
+<li>调整了卡片底部元数据信息的显示机制：如果分析是 <code>Rule-Based</code>（规则引擎分析），UI 会呈现绿色风格的背景、<code>Analysis Method: Rule-Based</code>，且耗时显示为 <code>0.0s</code>；如果为 AI 分析，则呈现紫色的 <code>AI Model: [模型名称]</code> 风格。</li>
+</ul>
+<h3 id="2-后端-api-与规则引擎实现">2. 后端 API 与规则引擎实现</h3>
+<ul>
+<li><strong>后端路由</strong>: <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/data_app/bbt_signals.py"><code>bbt_signals.py</code></a></li>
+<li>修改了 <code>/data/order_flow_signal_decision</code> 接口，解析 <code>use_ai</code> 参数，并向下传递给 <code>run_live_order_flow_signal_analysis</code>。</li>
+<li><strong>规则引擎逻辑</strong>: <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/ai_tape_analyst.py"><code>ai_tape_analyst.py</code></a></li>
+<li>在 <code>analyze_realtime_accumulation</code> 函数中，当 <code>call_ai</code> 为 <code>False</code> 时，实现了一套纯规则的分析引擎（Rule-Based Engine）：<ol>
+<li><strong>竭尽与陷阱判定（最高优先级）</strong>：<br/>
+   * <strong>次高点/横盘区的买盘竭尽 (Lower High Buy Exhaustion / Supply Trap)</strong>：如果最后 15 分钟（连续 3 个 5 分钟 bar）Delta 全为正、推升效率低并伴随显著缩量，判定为 <code>Bearish</code> (看空)。<br/>
+   * <strong>次低点/横盘区的卖盘竭尽 (Higher Low Sell Exhaustion / Demand Trap)</strong>：如果最后 15 分钟 Delta 全为负、打压效率低并伴随显著缩量，判定为 <code>Bullish</code> (看多)。</li>
+<li><strong>顶点与底部反转（非开盘早期屏蔽时段）</strong>：<br/>
+   * <strong>区间高位顶点反转 (Top Reversal)</strong>：价格处于区间高位（Position &gt; 70%）且最近 30 分钟呈现 "买盘被吸收" (Delta &gt; 200, Price Change &lt;= 3)，判定为 <code>Bearish</code> (看空)。<br/>
+   * <strong>区间低位底部反转 (Bottom Reversal)</strong>：价格处于区间低位（Position &lt; 30%）且最近 30 分钟呈现 "卖盘被吸收" (Delta &lt; -200, Price Change &gt;= -3)，判定为 <code>Bullish</code> (看多)。</li>
+<li><strong>微观 Delta 与价格推进（常规情况）</strong>：<br/>
+   * 根据微观的 Delta 方向与价格方向对比，区分出真正的驱动（如多头推进）和被动吸收（如买盘被吸收 -&gt; 看空）。</li>
+<li><strong>关键点位与交易策略计算</strong>：<br/>
+   * 寻找历史吸收最频繁的阻力/支撑位作为核心参考位，并以此自动生成入场参考价和合理止损点。</li>
+<li><strong>格式输出与落地</strong>：<br/>
+   * 规则引擎会将判定结果组装成与大模型一致的 <code>[VERDICT]</code> 和 <code>[MICRO_ANALYSIS]</code> 标记文本，无缝对接下游的报告解析、落地 H5 渲染、邮件通知以及 DB 写入流程（<code>ai_model</code> 将记录为 <code>"Rule-Based"</code>，表明此数据为规则分析产生）。</li>
+</ol>
+</li>
+</ul>
+<h3 id="3-数据隔离与未勾选逻辑">3. 数据隔离与未勾选逻辑</h3>
+<ul>
+<li>如果「实时Order Flow」<strong>未勾选</strong>，前端在查询时向 <code>/data/order_flow_signal_decision</code> 传递 <code>run_live: false</code>。后端会绕过实时生成逻辑，直接从数据库按时间降序查询最新的一条数据展示，符合您“查询数据库中最后一个显示”的要求。</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

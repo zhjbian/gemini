@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - worldcup_2026_seattle_schedule</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1>Gemini Answer</h1>
+<div class="meta">
+<span>Saved: 2026-06-11 22:09:50</span>
+<span>Question summary: worldcup_2026_seattle_schedule</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#西雅图本土赛程安排-seattle-lumen-field-matches">西雅图本土赛程安排 (Seattle Lumen Field Matches)</a></li><li><a href="#开幕阶段与部分焦点战赛事安排-pdt">开幕阶段与部分焦点战赛事安排 (PDT)</a><ul><li><a href="#6月11日-周四-揭幕日">6月11日 (周四) — 揭幕日</a></li><li><a href="#6月12日-周五-美国-加拿大亮相日">6月12日 (周五) — 美国/加拿大亮相日</a></li><li><a href="#6月13日-周六-传统豪强登场">6月13日 (周六) — 传统豪强登场</a></li><li><a href="#6月14日-周日">6月14日 (周日)</a></li><li><a href="#6月15日-周一">6月15日 (周一)</a></li><li><a href="#6月16日-周二">6月16日 (周二)</a></li><li><a href="#6月17日-周三">6月17日 (周三)</a></li></ul></li><li><a href="#淘汰赛及决赛关键节点-西雅图时间-pdt">淘汰赛及决赛关键节点 (西雅图时间 PDT)</a></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>read /Users/zhijiebian/Downloads/2026 世界杯逐日赛事安排  请标注每场比赛的西雅图时间.pdf and @gem-doc to save to html file</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h1>2026年世界杯赛程安排（西雅图当地时间 - PDT）</h1>
+<p>2026年美加墨世界杯（共 104 场比赛）正在火热展开。由于赛事横跨三个国家和多个时区，以下为您整理的部分核心焦点赛程以及在西雅图 Lumen Field（卢曼体育场）举办的本土赛事，已全部转换为<strong>西雅图当地时间（太平洋时间 PDT）</strong>，方便您观赛。</p>
+<hr/>
+<h2 id="西雅图本土赛程安排-seattle-lumen-field-matches">西雅图本土赛程安排 (Seattle Lumen Field Matches)</h2>
+<p>以下为西雅图 Lumen Field（卢曼体育场）承办的小组赛阶段 4 场比赛详情：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">日期</th>
+<th style="text-align: left;">西雅图时间 (PDT)</th>
+<th style="text-align: left;">赛事对阵 / 阶段</th>
+<th style="text-align: left;">比赛地点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">6月15日 (周一)</td>
+<td style="text-align: left;"><strong>12:00 PM</strong></td>
+<td style="text-align: left;">🇧🇪 比利时 vs 🇪🇬 埃及 (小组赛)</td>
+<td style="text-align: left;">西雅图 Lumen Field</td>
+</tr>
+<tr>
+<td style="text-align: left;">6月19日 (周五)</td>
+<td style="text-align: left;"><strong>12:00 PM</strong></td>
+<td style="text-align: left;">🇺🇸 美国 vs 🇦🇺 澳大利亚 (小组赛)</td>
+<td style="text-align: left;">西雅图 Lumen Field</td>
+</tr>
+<tr>
+<td style="text-align: left;">6月22日 (周一)</td>
+<td style="text-align: left;"><strong>TBD</strong></td>
+<td style="text-align: left;">小组赛阶段比赛</td>
+<td style="text-align: left;">西雅图 Lumen Field</td>
+</tr>
+<tr>
+<td style="text-align: left;">6月26日 (周五)</td>
+<td style="text-align: left;"><strong>TBD</strong></td>
+<td style="text-align: left;">小组赛阶段比赛</td>
+<td style="text-align: left;">西雅图 Lumen Field</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="开幕阶段与部分焦点战赛事安排-pdt">开幕阶段与部分焦点战赛事安排 (PDT)</h2>
+<p>以下为世界杯首周（6月11日 - 6月17日）核心焦点赛事的逐日安排（全部采用<strong>西雅图当地时间 PDT</strong>标注）：</p>
+<h3 id="6月11日-周四-揭幕日">6月11日 (周四) — 揭幕日</h3>
+<ul>
+<li><strong>12:00 PM PDT</strong>：🇲🇽 墨西哥 vs 🇿🇦 南非 —— 🏟️ 墨西哥城阿兹特克体育场（揭幕战）</li>
+<li><strong>07:00 PM PDT</strong>：🇰🇷 韩国 vs 🇨🇿 捷克 —— 🏟️ 瓜达拉哈拉体育场</li>
+</ul>
+<h3 id="6月12日-周五-美国-加拿大亮相日">6月12日 (周五) — 美国/加拿大亮相日</h3>
+<ul>
+<li><strong>12:00 PM PDT</strong>：🇨🇦 加拿大 vs 🇧🇦 波黑 —— 🏟️ 多伦多体育场</li>
+<li><strong>06:00 PM PDT</strong>：🇺🇸 美国 vs 🇵🇾 巴拉圭 —— 🏟️ 洛杉矶 SoFi 体育场</li>
+</ul>
+<h3 id="6月13日-周六-传统豪强登场">6月13日 (周六) — 传统豪强登场</h3>
+<ul>
+<li><strong>12:00 PM PDT</strong>：🇶🇦 卡塔尔 vs 🇨🇭 瑞士 —— 🏟️ 旧金山湾区李维斯体育场</li>
+<li><strong>03:00 PM PDT</strong>：🇧🇷 巴西 vs 🇲🇦 摩洛哥 —— 🏟️ 纽约新泽西大都会人寿体育场</li>
+<li><strong>06:00 PM PDT</strong>：🇭🇹 海地 vs 🇬🇧 苏格兰 —— 🏟️ 波士顿吉列体育场</li>
+<li><strong>09:00 PM PDT</strong>：🇦🇺 澳大利亚 vs 🇹🇷 土耳其 —— 🏟️ 温哥华 BC Place 体育场</li>
+</ul>
+<h3 id="6月14日-周日">6月14日 (周日)</h3>
+<ul>
+<li><strong>10:00 AM PDT</strong>：🇩🇪 德国 vs 🇨🇼 库拉索 —— 🏟️ 休斯顿 NRG 体育场</li>
+<li><strong>01:00 PM PDT</strong>：🇳🇱 荷兰 vs 🇯🇵 日本 —— 🏟️ 达拉斯 AT&amp;T 体育场</li>
+<li><strong>04:00 PM PDT</strong>：🇨🇮 科特迪瓦 vs 🇪🇨 厄瓜多尔 —— 🏟️ 费城林肯金融体育场</li>
+<li><strong>07:00 PM PDT</strong>：🇸🇪 瑞典 vs 🇹🇳 突尼斯 —— 🏟️ 墨西哥蒙特雷体育场</li>
+</ul>
+<h3 id="6月15日-周一">6月15日 (周一)</h3>
+<ul>
+<li><strong>09:00 AM PDT</strong>：🇪🇸 西班牙 vs 🇨🇻 佛得角 —— 🏟️ 亚特兰大奔驰体育场</li>
+<li><strong>12:00 PM PDT</strong>：🇧🇪 比利时 vs 🇪🇬 埃及 —— 🏟️ 西雅图 Lumen Field</li>
+<li><strong>03:00 PM PDT</strong>：🇸🇦 沙特阿拉伯 vs 🇺🇾 乌拉圭 —— 🏟️ 迈阿密硬石体育场</li>
+<li><strong>06:00 PM PDT</strong>：🇮🇷 伊朗 vs 🇳🇿 新西兰 —— 🏟️ 洛杉矶 SoFi 体育场</li>
+</ul>
+<h3 id="6月16日-周二">6月16日 (周二)</h3>
+<ul>
+<li><strong>12:00 PM PDT</strong>：🇫🇷 法国 vs 🇸🇳 塞内加尔 —— 🏟️ 纽约新泽西大都会人寿体育场</li>
+<li><strong>03:00 PM PDT</strong>：🇮🇶 伊拉克 vs 🇳🇴 挪威 —— 🏟️ 波士顿吉列体育场</li>
+<li><strong>06:00 PM PDT</strong>：🇦🇷 阿根廷 vs 🇩🇿 阿尔及利亚 —— 🏟️ 堪萨斯城箭头体育场</li>
+<li><strong>09:00 PM PDT</strong>：🇦🇹 奥地利 vs 🇯🇴 约旦 —— 🏟️ 旧金山湾区李维斯体育场</li>
+</ul>
+<h3 id="6月17日-周三">6月17日 (周三)</h3>
+<ul>
+<li><strong>10:00 AM PDT</strong>：🇵🇹 葡萄牙 vs 🇨🇩 刚果民主共和国 —— 🏟️ 休斯顿 NRG 体育场</li>
+<li><strong>01:00 PM PDT</strong>：🇬🇧 英格兰 vs 🇭🇷 克罗地亚 —— 🏟️ 达拉斯 AT&amp;T 体育场</li>
+<li><strong>04:00 PM PDT</strong>：🇬🇭 加纳 vs 🇵🇦 巴拿马 —— 🏟️ 多伦多体育场</li>
+</ul>
+<hr/>
+<h2 id="淘汰赛及决赛关键节点-西雅图时间-pdt">淘汰赛及决赛关键节点 (西雅图时间 PDT)</h2>
+<p>世界杯后半程最激烈的淘汰赛阶段时间节点安排如下：</p>
+<ul>
+<li><strong>阶段 1：小组赛阶段</strong>：6月11日 – 6月27日 (PDT)</li>
+<li><strong>阶段 2：32强淘汰赛</strong>：6月28日 – 7月3日 (PDT)</li>
+<li><strong>阶段 3：16强淘汰赛</strong>：7月4日 – 7月7日 (PDT)</li>
+<li><strong>阶段 4：四分之一决赛</strong>：7月9日 – 7月11日 (PDT)</li>
+<li><strong>阶段 5：半决赛</strong>：7月14日 – 7月15日 (PDT)<br/>
+<em>(注：半决赛的西雅图当地开球时间通常为下午 </em><em>03:00 PM PDT</em><em> 或 </em><em>05:00 PM PDT</em><em>)</em></li>
+<li><strong>阶段 6：季军争夺战</strong>：7月18日 (PDT)</li>
+<li><strong>阶段 7：世界杯总决赛</strong>：<strong>7月19日 (周日) PDT</strong> —— 🏟️ 纽约新泽西大都会人寿体育场</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>
