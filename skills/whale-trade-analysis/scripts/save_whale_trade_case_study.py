@@ -25,6 +25,8 @@ def main():
     parser.add_argument("--images", nargs="*", default=[], help="List of absolute paths to screenshot images")
     parser.add_argument("--ai-model", default="gemini-1.5-pro", help="AI model used")
     parser.add_argument("--verify", choices=["Pending", "Correct", "Incorrect"], default="Pending", help="Verification actual result")
+    parser.add_argument("--options-flow-file", help="Path to file containing raw Options Flow markdown table")
+    parser.add_argument("--order-flow-file", help="Path to file containing raw Order Flow markdown table")
     args = parser.parse_args()
 
     # Verify input date format
@@ -122,6 +124,15 @@ def main():
                     current_detail["inputs"] = {}
                 current_detail["inputs"]["images"] = existing_imgs
 
+            if "inputs" not in current_detail:
+                current_detail["inputs"] = {}
+            if args.options_flow_file and os.path.exists(args.options_flow_file):
+                with open(args.options_flow_file, "r", encoding="utf-8") as f:
+                    current_detail["inputs"]["options_flow_md"] = f.read().strip()
+            if args.order_flow_file and os.path.exists(args.order_flow_file):
+                with open(args.order_flow_file, "r", encoding="utf-8") as f:
+                    current_detail["inputs"]["order_flow_md"] = f.read().strip()
+
             # Append the new analysis to the list
             analyses_list = current_detail.get("analyses", [])
             # Place the newest analysis at the beginning of the list (ordered descending)
@@ -148,10 +159,19 @@ def main():
             new_detail = {
                 "inputs": {
                     "images": relative_img_urls,
-                    "time_range": "N/A"
+                    "time_range": "N/A",
+                    "options_flow_md": "",
+                    "order_flow_md": ""
                 },
                 "analyses": [new_analysis_block]
             }
+
+            if args.options_flow_file and os.path.exists(args.options_flow_file):
+                with open(args.options_flow_file, "r", encoding="utf-8") as f:
+                    new_detail["inputs"]["options_flow_md"] = f.read().strip()
+            if args.order_flow_file and os.path.exists(args.order_flow_file):
+                with open(args.order_flow_file, "r", encoding="utf-8") as f:
+                    new_detail["inputs"]["order_flow_md"] = f.read().strip()
 
             study = WhaleTradeCaseStudy(
                 case_date=case_date_val,

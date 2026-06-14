@@ -75,38 +75,52 @@ When the user asks to analyze whale trades:
 When parsing the pasted Markdown tables, you must map the column values and apply the corresponding logic:
 
 #### A. Options Flow Table Columns
-- **Date**: Transaction date.
-- **Ticker**: Stock ticker.
-- **Time**: Exact timestamp (RTH/AfterHours).
-- **Expiration / Strike / C/P**: Expiration date, strike price, and Call/Put option type.
-- **Qty / Premium / Price**: Contract volume, absolute premium (in Millions USD), and trade price.
-- **BidAsk / Side**: The bid-ask spread quotes and the execution side (e.g., `A` for Ask, `B` for Bid, `M` for Midpoint).
+- **Date**: Transaction date in `YYYY-MM-DD` format (e.g., `2026-06-12`).
+- **Ticker**: Stock ticker (e.g., `META`).
+- **Time**: Exact transaction timestamp in `HH:MM:SS` format (e.g., `12:18:30`).
+- **Expiration**: Option expiration date (e.g., `Nov 20, 2026`).
+- **Strike**: Option strike price (e.g., `5.00`, `130.00`).
+- **C/P**: Option type, Call (`C`) or Put (`P`).
+- **Qty**: Contract volume (quantity of contracts traded).
+- **Premium**: Absolute premium size in Millions USD (e.g., `122.08` means $122.08M).
+- **Price**: Execution price per option contract.
+- **BidAsk**: The Bid-Ask spread quotes at execution time (e.g., `$559.10 x $563.45`).
+- **Side**: The execution side (`A` for Ask, `B` for Bid, `M` for Midpoint).
 - **Sentiment**: Preliminary direction indication (`Bullish`, `Bearish`, `Neutral`).
-- **SentiType (多空判断强度强度说明)**:
-  - **Strong**: Executed at Ask or Above Ask (stronger likelihood of active buying).
-  - **Weak**: Executed at Bid or Below Bid (stronger likelihood of active selling).
-  - **N.Strong / N.Weak**: Neutral-strong or Neutral-weak. The execution price is on one side of the midpoint, but extremely close to it (within the middle 1/3 of the bid-ask range). In these cases, the reliability of BidAsk-based sentiment is significantly reduced.
-- **Spot / DTE**: Stock spot price at transaction time, and dynamically calculated DTE (Days to Expiration).
+- **SentiType (多空判断强度)**:
+  - **Strong**: 交易成交价处于 Ask 或 Above Ask，为主动买入的可能性较高 (Strong active buying intent).
+  - **Weak**: 交易成交价处于 Bid 或 Below Bid，为主动卖出的可能性较高 (Strong active selling intent).
+  - **N.Strong / N.Weak**: `N` 表示 Neutral（中性）。指成交价虽偏向 Bid/Ask 中线某一侧，但极度贴近中线（处于整个 Bid-Ask 区间中间的 1/3 范围内）。在此情况下，基于成交价和 Bid/Ask 构成的多空判断可信度将显著下降 (Conflicting/Neutralized confidence due to proximity to midpoint).
+- **Spot**: Stock spot price at transaction time (e.g., `566.77`).
+- **DTE**: Days to Expiration (e.g., `161`).
 - **Contract**: The option contract symbol in ThinkOrSwim format (e.g., `.META261120C5`).
-- **ExecType**: Floor (`FLR`), Electronic, Split, etc.
+- **ExecType**: Execution venue type (e.g., `FLR` for Floor, `EL` for Electronic, `SPL` for Split).
 - **ConsType**: Trade consolidation type (`BLOCK`, `SWEEP`, etc.).
 - **Action (开平仓预判)**:
-  - If marked as **`Open`**, the transaction volume exceeds the static Open Interest (OI) of the contract, indicating a probable new opening position.
+  - 根据当日静态 Open Interest (OI) 与该笔交易成交量 (Qty/Volume) 的数量关系，粗略判断是否为新开仓。若 Qty/Volume > OI，则判断为 **`Open`** (开仓)。
 - **SprdId (组合交易 ID)**:
-  - Unique transaction identifier. Records with identical `SprdId` executed at the same second are legs of a single complex multi-leg order and must be analyzed collectively.
+  - `Spread ID` 的缩写。如果多笔交易的成交时间精确到同一秒，它们会被自动分配相同的 `SprdId`，在逻辑上它们被视为属于同一个复杂的跨腿组合交易 (Complex Multi-Leg Trade)，必须作为一个整体组合进行 Net Delta 与策略计算。
 
 #### B. Order Flow Table Columns
-- **Date / Ticker**: Transaction date and stock ticker.
+- **Date**: Transaction date.
+- **Ticker**: Stock ticker.
 - **Side**: Directional action (`Buy` or `Sell`).
 - **Type (大宗交易类型)**:
-  - **SingleTickBigTrade**: Single-tick lit market institutional block trade (executed instantly as a single block on a single tick, not accumulated from smaller trades).
-  - **SingleTickDarkTrade**: Single-tick dark pool (non-public) institutional block trade (executed instantly as a single block on a single tick).
-- **Premium / Volume / Price**: Absolute transaction size (in Millions USD), stock volume, and execution price.
-- **TradingHour / TradeTime**: Hour category (e.g. `RTH`) and millisecond-precision execution timestamp.
-- **Bid / Ask / Spread**: Best Bid, Best Ask, and bid-ask spread at execution time.
+  - **SingleTickBigTrade**: 公开（Lit）交易所中单笔瞬间成交的机构大宗交易（强调：是在单个 tick 上独立成交的单笔大单，而不是由许多小单累计组合而成的成交量）。
+  - **SingleTickDarkTrade**: 非公开（Dark Pool，暗池）交易所中单笔瞬间成交的机构大宗交易（强调：是在单个 tick 上独立成交的单笔大单，而不是由许多小单累计组合而成的成交量）。
+- **Premium**: Absolute transaction size in Millions USD (positive for Buy, negative for Sell).
+- **Volume**: Stock share volume.
+- **Price**: Execution price of the stock block.
+- **TradingHour**: Hour category (e.g., `RTH` for Regular Trading Hours, `PM` for Pre-Market, `AH` for After Hours).
+- **TradeTime**: Millisecond-precision execution timestamp (e.g., `12:35:00.755`).
+- **Bid**: Best Bid price at execution.
+- **Ask**: Best Ask price at execution.
+- **Spread**: Best Bid-Ask spread.
 - **OffPrice (偏价点数)**:
-  - The offset distance between the execution price and the bid-ask midpoint. Positive offset indicates execution closer to/above Ask; negative offset indicates execution closer to/below Bid. Used to detect premium/discount pricing inside dark pools or transaction lock details.
-- **DarkVol / isDP**: Cumulative volume at that price level inside dark pools, and a boolean flag indicating whether the transaction was executed in a Dark Pool (`True`/`False`).
+  - 交易成交价偏离当时买卖盘口 (Bid-Ask) 的偏离数值。正值代表偏向 Ask，负值代表偏向 Bid。常用于分析大宗暗池折溢价或机构大宗对锁细节。
+- **DarkVol**: Cumulative volume at that price level inside dark pools.
+- **isDP (暗池交易标识)**:
+  - 标记是否为 Dark Pool（暗池/非公开交易所）的大宗成交 (`True` or `False`).
 
 
 ### 2. Lit-Tape Order Flow Absorption & Joint Analysis
@@ -121,18 +135,25 @@ When parsing the pasted Markdown tables, you must map the column values and appl
 
 ### 3. Output Content Requirements
 The final report must contain:
-1. **Trade Identification & Parameters**: Time, size, ticker, option strikes, Bid/Ask context, and underlying price. **All contract legs MUST be referenced in ThinkOrSwim format (e.g., `.META261120C5`)**.
-2. **Detailed Spot Order Flow Analysis**: A dedicated section analyzing the spot stock block trades matching the option sweep times (timestamps, type, side, volume, price, offprice) and diagnosing the passive or active absorption nature of the block trades.
-3. **Institutional Strategy Deductions**: Detail the strategy (e.g. Call Buy, Put Buy, Covered Call, Stock Replacement, Conversions/Reversals, or Delta-Hedged Arbitrage).
-4. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).
-5. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
-6. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual leg with **Premium >= $50M**.
+1. **Bilingual Trading Terminology**: All options and order flow trading terminology used in the Chinese report must be followed by their corresponding English terms in parentheses (e.g., 跨期转换 (Calendar Conversion), 反转对锁 (Reversal Lock), 轧平 (Flatten/Net Out), 清扫流动性滑点 (Liquidity Sweeping Slippage), 多空对锁轧平 (Long-Short Lock Flattening / Delta Neutralization), 股息套利 (Dividend Arbitrage), 转换/反转套利 (Conversion/Reversal Arbitrage), 对锁盘口 (Crossing Orders / Locked Spread)).
+2. **Premium Currency Formatting**: For all premium values (权利金) referenced anywhere in the report (including single legs and aggregated portfolios), **always** use the unit **`M` (Millions USD)** (e.g., `$207.76M`, `$122.08M`). **Never** use Chinese units like **`亿`** (e.g., `$2.0776亿` is strictly prohibited).
+3. **Trade Identification & Parameters**: Time, size, ticker, option strikes, Bid/Ask context, and underlying price. **All contract legs MUST be referenced in ThinkOrSwim format (e.g., `.META261120C5`)**.
+4. **Detailed Spot Order Flow Analysis**: A dedicated section analyzing the spot stock block trades matching the option sweep times (timestamps, type, side, volume, price, offprice) and diagnosing the passive or active absorption nature of the block trades.
+5. **Institutional Strategy Deductions**: Detail the strategy (e.g. Call Buy, Put Buy, Covered Call, Stock Replacement, Conversions/Reversals, or Delta-Hedged Arbitrage).
+6. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).
+7. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
+8. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual leg with **Premium >= $50M**.
 
 ---
 
 ## Database Logging & Script Invocation
 
-You MUST save the completed report to the `whale_trade_case_studies` database table using the helper save script.
+You MUST save the completed report and raw input metadata tables to the `whale_trade_case_studies` database table using the helper save script.
+
+### Prep Raw Metadata Files
+If options flow and/or order flow tables were pasted by the user, you must first save their raw markdown table segments to temporary files:
+- Save the pasted Options Flow markdown table to `/tmp/options_flow_table.md` (if present).
+- Save the pasted Order Flow markdown table to `/tmp/order_flow_table.md` (if present).
 
 ### Script Execution Syntax
 
@@ -147,6 +168,8 @@ python3 /Users/zhijiebian/.gemini/skills/whale-trade-analysis/scripts/save_whale
   --summary "<summary>" \
   --detail-file "/tmp/case_study_detail.md" \
   --ai-model "<model_name>" \
+  [--options-flow-file "/tmp/options_flow_table.md"] \
+  [--order-flow-file "/tmp/order_flow_table.md"] \
   [--images "/path/to/img1.png" "/path/to/img2.png"]
 ```
 
@@ -158,7 +181,9 @@ python3 /Users/zhijiebian/.gemini/skills/whale-trade-analysis/scripts/save_whale
 - `--summary`: A short, descriptive one-line summary (in Chinese) of the analysis.
 - `--detail-file`: Absolute path to the file containing the full markdown text of the report.
 - `--ai-model`: The name of the AI model that performed this analysis (e.g., `gemini-1.5-pro` or `gemini-2.0-flash`).
+- `--options-flow-file` *(Optional)*: Absolute path to the file containing the raw Options Flow markdown table.
+- `--order-flow-file` *(Optional)*: Absolute path to the file containing the raw Order Flow markdown table.
 - `--images` *(Optional)*: Space-separated absolute paths to the screenshots. The script automatically renames each image as `whale_trade_<date>_<ticker>_<analyze_timestamp>_<idx>.<ext>`, copies them both to the web static assets directory (for Web UI rendering) and the skill's local `images/` directory (for archive backup), and logs their relative URLs in the database.
 
 ### Follow-up updates:
-If you are performing a follow-up analysis on a case that already exists in the database for the same date, ticker, and type, running this script will **automatically append** your new report block into the `detail` JSON column's `analyses` array chronologically, preserving previous entries, and update the summary.
+If you are performing a follow-up analysis on a case that already exists in the database for the same date, ticker, and type, running this script will **automatically append** your new report block into the `detail` JSON column's `analyses` array chronologically, preserving previous entries, and update the summary, while overwriting or updating the saved raw tables if provided.
