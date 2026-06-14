@@ -22,6 +22,16 @@ When the user asks to analyze whale trades:
    - Specific time range (e.g., `08:00 - 08:30`).
    - Ticker (default: `ES`).
 
+3. **Pasted Markdown Tables (OptionsFlow, OrderFlow, or OptionsFlowOrderFlow)**:
+   - The user may paste one or both exported Markdown segments directly.
+   - You must automatically identify the target **date** and **ticker** from the Level 1 headings:
+     - `# Options Flow 机构大单：<date> <ticker>` (e.g., `# Options Flow 机构大单：2026-06-12 META`)
+     - `# Order Flow 机构大单：<date> <ticker>` (e.g., `# Order Flow 机构大单：2026-06-12 META`)
+   - If only the Options Flow Markdown is pasted, classify the case study type as `OptionsFlow`.
+   - If only the Order Flow Markdown is pasted, classify the case study type as `OrderFlow`.
+   - If both are pasted, classify the case study type as `OptionsFlowOrderFlow`.
+   - Extract and process the table columns and rows under each heading.
+
 ---
 
 ## Analytical Guidelines
@@ -60,6 +70,43 @@ When the user asks to analyze whale trades:
 - **Two-Phase Open Interest (OI) Inference**:
   - **Phase 1 (Intraday/Static OI Comparison)**: When only the option transaction day's static OI (yesterday's cleared stock) is available, analyze the quantitative relationship between transaction Volume (V) and yesterday's OI to infer whether each leg leans toward opening (Open) or closing (Close).
   - **Phase 2 (Next-Day/Cleared OI Verification)**: Once the next-day cleared OI change is provided, verify and cross-reference the actual OI increase/decrease against the leg volume to firmly declare whether the leg was **Open** (OI surge matching volume) or **Close** (OI reduction matching volume).
+### 1. Markdown Data Columns and Interpretation
+
+When parsing the pasted Markdown tables, you must map the column values and apply the corresponding logic:
+
+#### A. Options Flow Table Columns
+- **Date**: Transaction date.
+- **Ticker**: Stock ticker.
+- **Time**: Exact timestamp (RTH/AfterHours).
+- **Expiration / Strike / C/P**: Expiration date, strike price, and Call/Put option type.
+- **Qty / Premium / Price**: Contract volume, absolute premium (in Millions USD), and trade price.
+- **BidAsk / Side**: The bid-ask spread quotes and the execution side (e.g., `A` for Ask, `B` for Bid, `M` for Midpoint).
+- **Sentiment**: Preliminary direction indication (`Bullish`, `Bearish`, `Neutral`).
+- **SentiType (多空判断强度强度说明)**:
+  - **Strong**: Executed at Ask or Above Ask (stronger likelihood of active buying).
+  - **Weak**: Executed at Bid or Below Bid (stronger likelihood of active selling).
+  - **N.Strong / N.Weak**: Neutral-strong or Neutral-weak. The execution price is on one side of the midpoint, but extremely close to it (within the middle 1/3 of the bid-ask range). In these cases, the reliability of BidAsk-based sentiment is significantly reduced.
+- **Spot / DTE**: Stock spot price at transaction time, and dynamically calculated DTE (Days to Expiration).
+- **Contract**: The option contract symbol in ThinkOrSwim format (e.g., `.META261120C5`).
+- **ExecType**: Floor (`FLR`), Electronic, Split, etc.
+- **ConsType**: Trade consolidation type (`BLOCK`, `SWEEP`, etc.).
+- **Action (开平仓预判)**:
+  - If marked as **`Open`**, the transaction volume exceeds the static Open Interest (OI) of the contract, indicating a probable new opening position.
+- **SprdId (组合交易 ID)**:
+  - Unique transaction identifier. Records with identical `SprdId` executed at the same second are legs of a single complex multi-leg order and must be analyzed collectively.
+
+#### B. Order Flow Table Columns
+- **Date / Ticker**: Transaction date and stock ticker.
+- **Side**: Directional action (`Buy` or `Sell`).
+- **Type (大宗交易类型)**:
+  - **SingleTickBigTrade**: Single-tick lit market institutional block trade (executed instantly as a single block on a single tick, not accumulated from smaller trades).
+  - **SingleTickDarkTrade**: Single-tick dark pool (non-public) institutional block trade (executed instantly as a single block on a single tick).
+- **Premium / Volume / Price**: Absolute transaction size (in Millions USD), stock volume, and execution price.
+- **TradingHour / TradeTime**: Hour category (e.g. `RTH`) and millisecond-precision execution timestamp.
+- **Bid / Ask / Spread**: Best Bid, Best Ask, and bid-ask spread at execution time.
+- **OffPrice (偏价点数)**:
+  - The offset distance between the execution price and the bid-ask midpoint. Positive offset indicates execution closer to/above Ask; negative offset indicates execution closer to/below Bid. Used to detect premium/discount pricing inside dark pools or transaction lock details.
+- **DarkVol / isDP**: Cumulative volume at that price level inside dark pools, and a boolean flag indicating whether the transaction was executed in a Dark Pool (`True`/`False`).
 
 
 ### 2. Lit-Tape Order Flow Absorption & Joint Analysis
