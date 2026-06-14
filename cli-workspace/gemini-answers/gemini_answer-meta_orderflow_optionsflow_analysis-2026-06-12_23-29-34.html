@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - meta_orderflow_optionsflow_analysis</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-12 23:29:34</span>
+<span>Question summary: meta_orderflow_optionsflow_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#股票端大单-order-flow-特征分析">股票端大单（Order Flow）特征分析</a></li><li><a href="#期权端大单-options-flow-特征分析">期权端大单（Options Flow）特征分析</a></li><li><a href="#现货与期权联动分析-套利与对冲行为">现货与期权联动分析（套利与对冲行为）</a></li><li><a href="#方向性研判结论">方向性研判结论</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>分析今天 META order flow和options flow 异常大单，以及是看涨还是跌。</p>
+<p><img alt="META Order Flow" src="images/meta_order_flow_20260612.png"/></p>
+<p><img alt="META Options Flow" src="images/meta_options_flow_20260612.png"/></p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>针对今日（2026-06-12）META（Meta Platforms）的股票大单（Order Flow）与期权链（Options Flow）异动，进行以下技术分析与数据关联研判：</p>
+<h3 id="股票端大单-order-flow-特征分析">股票端大单（Order Flow）特征分析</h3>
+<p>今日 META 股票大单净主动买入金额达 <strong>+3.08 亿美元</strong>，净买入量达 <strong>+539,989 股</strong>（以主动买入为正值，主动卖出为负值进行净值折算）。其主要呈现以下两个显著特征：</p>
+<ol>
+<li><strong>机构超高偏离度扫盘（High Off-Price Sweeps）</strong>：<br/>
+   * <strong>10:09:40</strong>：出现一笔 <strong>350,000 股</strong> 的 SingleTickBigTrade 主动买单，成交价 $572.47，偏离度（OffPrice）高达 <strong>$1.12</strong>（即成交价高出当时 Ask 卖一价 $1.12）。<br/>
+   * <strong>12:35:00</strong>：再次出现一笔 <strong>350,000 股</strong> 的 SingleTickBigTrade 主动买单，成交价 $566.97，偏离度高达 <strong>$2.29</strong>（高出当时 Ask 卖一价 $2.29）。<br/>
+   * <em>分析</em>：如此庞大的单笔体量（每笔成交额均近 2 亿美元）且以极高溢价直接扫盘，表明机构在现货市场的买入态度非常急迫，愿意承担高额滑点成本以快速建仓或完成对冲。</li>
+<li><strong>暗池与常规卖单对冲</strong>：<br/>
+   * 盘中伴随少量卖单，包括 12:00 处的常规大单卖出 125,000 股，以及 10:25 处的暗池（SingleTickDarkTrade）卖出 69,000 股（偏离度 -$0.42，跌破 Bid 买一价），但整体买方力量占据绝对主导地位。</li>
+</ol>
+<h3 id="期权端大单-options-flow-特征分析">期权端大单（Options Flow）特征分析</h3>
+<p>期权端在今日呈现了极罕见的<strong>超大额深实值看涨期权（Deep In-The-Money Calls）</strong>密集交易，集中在两个时间段：</p>
+<ol>
+<li><strong>12:18:30 的多期限组合大单</strong>：<br/>
+   * 该时间点密集出现了多笔行权价极低（<strong>$5.00</strong> 或 <strong>$10.00</strong>）的深实值 Call 块交易，成交类型全部为 <strong>FLR（Floor，场内交易）</strong>。<br/>
+   * <strong>主要买入方（主动打在 Ask 上，偏看多）</strong>：<ul>
+<li><code>Dec 18, 2026 5.00 Call</code>：成交 <strong>3,700 张</strong>，权利金高达 <strong>2.08 亿美元</strong>。</li>
+<li><code>Nov 20, 2026 5.00 Call</code>：成交 <strong>2,175 张</strong>，权利金达 <strong>1.22 亿美元</strong>。</li>
+<li><code>Jun 18, 2026 100.00/110.00 Call</code>：分别成交 600 张 and 450 张，合计权利金约 4800 万美元。</li>
+<li><strong>主要卖出方（主动打在 Bid 上，偏看空/平仓）</strong>：</li>
+<li><code>Mar 19, 2027 5.00 Call</code>：成交 <strong>1,400 张</strong>，权利金 <strong>7858 万美元</strong>。</li>
+<li><code>Jan 15, 2027 5.00 Call</code>：成交 <strong>700 张</strong>，权利金 <strong>3929 万美元</strong>。</li>
+<li><strong>中性交易（打在 Mid 中点）</strong>：</li>
+<li><code>Jun 18, 2026 5.00 Call</code>：成交 <strong>2,700 张</strong>，权利金 <strong>1.51 亿美元</strong>。</li>
+</ul>
+</li>
+<li><strong>09:45:20 的早期实值大单</strong>：<br/>
+   * 同样以 $5.00 Strike 的 Call 为主，买入与卖出方向交织，其中 <code>Dec 17, 2027 5.00 Call</code> 买入 <strong>740 张</strong>（权利金 4193 万美元）。</li>
+</ol>
+<h3 id="现货与期权联动分析-套利与对冲行为">现货与期权联动分析（套利与对冲行为）</h3>
+<p>将两张数据图表进行时间与体量关联，可以清晰推导出这是<strong>大型机构的系统性对冲或转换套利（Conversions/Reversals）操作</strong>：</p>
+<ol>
+<li><strong>时序高度吻合</strong>：<br/>
+   * 早上 <strong>09:45</strong> 期权端出现第一批 $5.00 Strike 大单后，约 24 分钟后（<strong>10:09</strong>），现货市场即出现第一笔 35 万股的扫盘买单。<br/>
+   * 中午 <strong>12:18</strong> 期权端爆发 12:18:30 的超大体量 Floor 块交易后，约 17 分钟后（<strong>12:35</strong>），现货市场再次爆发第二笔 35 万股的扫盘买单。<br/>
+   * <em>注</em>：大宗 Floor 交易在场内成交后，其向系统报告通常有十余分钟的延迟，时间差完全符合机构在期权市场成交后，在现货市场进行 Delta 动态对冲（Delta Hedging）或现货交割配对的时间窗口。</li>
+<li><strong>实值期权作为股票替代品</strong>：<br/>
+   * 行权价为 $5.00 且距离到期日较远的看涨期权，其 Delta 几乎等于 <strong>1.0</strong>。购买此类期权在财务盈亏上与直接持有 100 股现货完全一致。<br/>
+   * 机构交易总量达数千张（如 3,700 张合约等价于 37 万股正股），这与现货端两笔 <strong>35 万股</strong> 的扫盘规模高度契合。</li>
+<li><strong>交易性质研判</strong>：<br/>
+   * <strong>转换套利（Conversion Arbitrage）</strong>：机构可能在买入正股的同时，买入深实值 Put 并卖出深实值 Call（或反向操作 Reversal），利用期权平价公式（Put-Call Parity）锁定无风险利差、借贷利率差或股息红利。<br/>
+   * <strong>税收/保证金筹划（Tax/Margin Straddle）</strong>：通过在场内（Floor）对倒不同到期日同为 $5.00 行权价的深实值期权，可以实现在不暴露净敞口风险的情况下，转移账面损益或优化资本占用。</li>
+</ol>
+<h3 id="方向性研判结论">方向性研判结论</h3>
+<p>从专业交易分析的角度来看，这笔资金流向在<strong>短线价格行为上偏向“看涨（偏多）”</strong>，但在<strong>机构真实意图上是“方向中性（套利对锁）”</strong>。</p>
+<ol>
+<li>
+<p><strong>短线盘面影响：偏多（看涨）</strong><br/>
+   * <strong>流动性消耗</strong>：在股票端，机构在 <code>10:09</code> 和 <code>12:35</code> 的两笔 <strong>35万股</strong> 扫盘大单均以极高溢价直接扫货。<br/>
+   * <strong>价格推动</strong>：这种不计滑点成本的主动吃单（Sweep）会直接消耗上方卖单的流动性，在日内及短线层面会对股价产生直接的<strong>向上推动力</strong>。</p>
+</li>
+<li>
+<p><strong>机构头寸本质：中性（无方向性押注）</strong><br/>
+   * <strong>Delta 对冲特征</strong>：期权端出现的数亿美元 <code>$5.00 Strike</code>（深实值）看涨期权（Call），其 Delta 值几乎等于 1.0。<br/>
+   * <strong>套利对锁</strong>：机构在买入（Ask）和卖出（Bid）这些深实值期权的同时，必须在现货市场进行等量正股的配对交易（如买正股 + 卖实值 Call 的 Conversion 套利，或者卖正股 + 买实值 Call 的 Reversal 套利）。<br/>
+   * <strong>轧差敞口</strong>：这类 Floor 场内大单组合的净 Delta 敞口通常会被完全轧平成 <strong>0（Delta-Neutral）</strong>。这意味着机构并不是在赌 META 未来会大涨或大跌，而是为了赚取无风险的借贷利差、股息红利或进行税务结构调整。</p>
+</li>
+</ol>
+<ul>
+<li><strong>总结</strong>：<strong>短线偏多（看涨），中线中性。</strong></li>
+<li><strong>操作参考</strong>：不建议单凭此大单盲目追多。虽然日内主动性买盘很强推动了股价，但由于其本质是机构的低风险套利/对锁头寸，一旦其对冲买盘执行完毕，该资金并不会对股价提供持续的 directional（方向性）多头推力。</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

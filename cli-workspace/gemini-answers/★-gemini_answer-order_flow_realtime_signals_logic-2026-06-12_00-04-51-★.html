@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - order_flow_realtime_signals_logic</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-12 00:11:11</span>
+<span>Question summary: order_flow_realtime_signals_logic</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#order_flow_realtime_signals_logic">order_flow_realtime_signals_logic</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#1-订单流实时信号系统架构">1. 订单流实时信号系统架构</a></li><li><a href="#2-rule-based-多空方向判定规则体系">2. Rule-Based 多空方向判定规则体系</a></li><li><a href="#3-rule-based-信号强度判定规则-signal-strength-rules">3. Rule-Based 信号强度判定规则 (Signal Strength Rules)</a></li><li><a href="#4-机构大单与被动吸收强制覆盖引擎-overrides">4. 机构大单与被动吸收强制覆盖引擎 (Overrides)</a></li><li><a href="#5-ai-based-决策引擎的方向研判与约束">5. AI-Based 决策引擎的方向研判与约束</a></li></ul></li></ul></li><li><a href="#rth_volatility_aware_price_position_blockers">rth_volatility_aware_price_position_blockers</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a><ul><li><a href="#1-问题背景与回撤原因分析">1. 问题背景与回撤原因分析</a></li><li><a href="#2-改进方案-波动率敏感型价格位置安全拦截器">2. 改进方案：波动率敏感型价格位置安全拦截器</a></li><li><a href="#3-系统修改实现">3. 系统修改实现</a></li><li><a href="#4-改进结果验证">4. 改进结果验证</a></li></ul></li></ul></li></ul></div>
+
+
+<section><h2 id="order_flow_realtime_signals_logic">order_flow_realtime_signals_logic</h2><section>
+<h3 id="question">Question</h3>
+<p>现在 Order Flow 实时信号 的实现方案，请把 rule-based 和 AI-based 的详细设计与规则整理出来（包含多空方向判断、信号强度判定、机构大单与被动吸收覆盖机制等）。</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>订单流实时信号系统通过结合<strong>硬性量化规则（Rule-Based）</strong>与<strong>大语言模型宏观期权/筹码分析（AI-Based）</strong>，实时输出大盘的强力方向信号。系统的核心逻辑由后台特征生成引擎 <code>order_flow_feature_generator.py</code> 生成量价特征包，并由信号研判器 <code>ai_tape_analyst.py</code> 判定多空方向（Direction）与信号强度（Signal Strength），最终将结果与计算明细持久化存储至数据库。</p>
+<hr/>
+<h4 id="1-订单流实时信号系统架构">1. 订单流实时信号系统架构</h4>
+<p>系统通过分层设计的决策管道进行信号研判：<br/>
+1. <strong>数据与特征层</strong>：<code>order_flow_feature_generator.py</code> 实时订阅并聚合 ES 期货微观分笔数据，生成 5 分钟微观区间、30 分钟滚动态势、全天（PM+RTH）累积统计等指标。<br/>
+2. <strong>方向研判层</strong>：<code>ai_tape_analyst.py</code> 内置 Rule-Based 方向引擎与 AI-Based 方向提取器，输出看多（Bullish）、看空（Bearish）或中性（Neutral）的方向诊断。<br/>
+3. <strong>强度与覆盖层</strong>：计算全局预筛选比例并校对微观条件。若触发大单机构或被动限价单极限吸收，则激活强制覆盖引擎（Override Engine），最终输出 High、Medium 或 Low 信号强度。</p>
+<hr/>
+<h4 id="2-rule-based-多空方向判定规则体系">2. Rule-Based 多空方向判定规则体系</h4>
+<p>当未启用 AI 研判或作为基准规则时，方向判定根据区间相对位置、时间段以及主动与被动成交量的失衡进行多级匹配判定。</p>
+<h5>2.1 基础计算参数</h5>
+<ul>
+<li><strong>区间价格相对位置 (price_pos)</strong>：<br/>
+  price_pos = \frac{price_end - price_low}{price_high - price_low} × 100<br/>
+  （优先采用 RTH 阶段指标；若无 RTH 数据，则采用全天 session 指标，默认值为 50.0%）</li>
+<li><strong>开盘交易时段判定 (is_early_session)</strong>：<br/>
+  检测当前时间（Seattle 时间）是否处于 06:30 至 07:30 之间。</li>
+</ul>
+<h5>2.2 微观订单流失调与竭尽判定 (Supply / Demand Traps)</h5>
+<ul>
+<li><strong>分析窗口</strong>：最近 15 分钟（即最近 3 个 5 分钟微观分段 <code>micro_intervals</code>）。</li>
+<li><strong>指标计算</strong>：</li>
+<li><code>total_15m_delta</code> = 最近 3 个 5 分钟区间净 Delta 之和。</li>
+<li><code>total_15m_pchange</code> = 最近 3 个 5 分钟区间价格变动之和。</li>
+<li><code>vol_shrunked</code> (成交量显著缩水)：最近 3 个 5 分钟区间成交量之和 <code>current_15m_vol</code> 小于 <code>max_15m_vol * 0.7</code>（<code>max_15m_vol</code> 为整个微观区间列表中任意 15 分钟滚动成交量最大值）。</li>
+<li><code>push_efficiency</code> (Delta 价格推进效率)：<br/>
+    push_efficiency = \frac{total_15m_pchange}{total_15m_delta / 1000}<br/>
+    （仅在 abs(total_15m_delta) &gt; 100 时计算，否则为 0.0）</li>
+<li><strong>买盘竭尽 (Supply Trap) 判定</strong>：</li>
+<li>必须满足最近 3 个 5 分钟区间 Delta 均为正数（<code>all_deltas_pos</code>）。</li>
+<li>必须满足 <code>total_15m_pchange &lt;= 2.0</code> 点，或 <code>push_efficiency &gt; 0</code> 且 <code>push_efficiency &lt; 2.0</code>。</li>
+<li>必须满足 <code>vol_shrunked</code> 为 True。</li>
+<li>满足上述所有条件时，<code>is_supply_trap = True</code>。</li>
+<li><strong>卖盘竭尽 (Demand Trap) 判定</strong>：</li>
+<li>必须满足最近 3 个 5 分钟区间 Delta 均为负数（<code>all_deltas_neg</code>）。</li>
+<li>必须满足 <code>total_15m_pchange &gt;= -2.0</code> 点，或 <code>push_efficiency &gt; 0</code> 且 <code>push_efficiency &gt; -2.0</code>。</li>
+<li>必须满足 <code>vol_shrunked</code> 为 True。</li>
+<li>满足上述所有条件时，<code>is_demand_trap = True</code>。</li>
+</ul>
+<h5>2.3 实时多空方向判定逻辑优先级</h5>
+<p>系统通过以下优先级依次匹配当前的多空方向：<br/>
+1. <strong>买盘竭尽判定</strong>：<br/>
+   若 <code>is_supply_trap = True</code>，判定方向为 <strong>Bearish</strong>，控制权标签为 <strong>空头主控</strong>。<br/>
+<em>逻辑判词</em>："发现末端买盘竭尽/Supply Trap。微观15分钟正Delta下价格推升极度困难，伴随显著缩量，反弹无力，属于看空信号。"<br/>
+2. <strong>卖盘竭尽判定</strong>：<br/>
+   若 <code>is_demand_trap = True</code>，判定方向为 <strong>Bullish</strong>，控制权标签为 <strong>多头主控</strong>。<br/>
+<em>逻辑判词</em>："发现末端卖盘竭尽/Demand Trap。微观15分钟负Delta下价格下跌极度困难，伴随显著缩量，杀跌无力，属于看多信号。"<br/>
+3. <strong>高位买盘吸收判定</strong>：<br/>
+   若非开盘时段（<code>not is_early_session</code>），且价格处于 RTH 高位（<code>price_pos &gt; 70.0</code>），且最近 30 分钟微观状态 <code>dp_label == "买盘被吸收"</code>，判定方向为 <strong>Bearish</strong>，控制权标签为 <strong>空头主控</strong>。<br/>
+<em>逻辑判词</em>："区间高位顶点反转。当前处于RTH区间偏高位置(&gt;70%)，最近30分钟出现明显的买盘被吸收现象，多头动能枯竭，受阻回落。"<br/>
+4. <strong>低位卖盘吸收判定</strong>：<br/>
+   若非开盘时段（<code>not is_early_session</code>），且价格处于 RTH 低位（<code>price_pos &lt; 30.0</code>），且最近 30 分钟微观状态 <code>dp_label == "卖盘被吸收"</code>，判定方向为 <strong>Bullish</strong>，控制权标签为 <strong>多头主控</strong>。<br/>
+<em>逻辑判词</em>："区间低位底部反转。当前处于RTH区间偏低位置(&lt;30%)，最近30分钟出现明显的卖盘被吸收，空头力量耗尽，获得支撑。"<br/>
+5. <strong>微观 Delta 与价格关系回退判定</strong>：<br/>
+   若不满足上述高级形态，则根据最近 30 分钟的微观 Delta-Price 发散标签 (<code>dp_label</code>) 进行判定：<br/>
+   - <code>dp_label == "多头推进"</code> → 判定方向为 <strong>Bullish</strong>，控制权标签为 <strong>多头主控</strong>。<br/>
+   - <code>dp_label == "空头打压"</code> → 判定方向为 <strong>Bearish</strong>，控制权标签为 <strong>空头主控</strong>。<br/>
+   - <code>dp_label == "买盘被吸收"</code> → 判定方向为 <strong>Bearish</strong>，控制权标签为 <strong>空头主控</strong>。<br/>
+   - <code>dp_label == "卖盘被吸收"</code> → 判定方向为 <strong>Bullish</strong>，控制权标签为 <strong>多头主控</strong>。<br/>
+6. <strong>无明确发散标签时的量能占优判定</strong>：<br/>
+   若最近 30 分钟发散标签为 "多空平衡"：<br/>
+   - 若最近 30 分钟净 Delta <code>net_delta_30m &gt; 500</code> → 判定方向为 <strong>Bullish</strong>，控制权标签为 <strong>多头主控</strong>。<br/>
+   - 若最近 30 分钟净 Delta <code>net_delta_30m &lt; -500</code> → 判定方向为 <strong>Bearish</strong>，控制权标签为 <strong>空头主控</strong>。<br/>
+   - 否则 → 判定方向为 <strong>Neutral</strong>，控制权标签为 <strong>多空胶着</strong>。</p>
+<h5>2.4 微观 Delta-Price 发散标签 (<code>dp_label</code>) 定量定义</h5>
+<p>根据最近 30 分钟统计数据（<code>micro_stats</code>）：<br/>
+- 价格变化门槛 <code>price_change_threshold</code> = 5.0 点。<br/>
+- <strong>买盘被吸收</strong>：<code>net_delta &gt; 200</code> 手 且 <code>price_change &lt;= 5.0</code> 点。<br/>
+- <strong>卖盘被吸收</strong>：<code>net_delta &lt; -200</code> 手 且 <code>price_change &gt;= -5.0</code> 点。<br/>
+- <strong>多头推进</strong>：<code>net_delta &gt; 200</code> 手 且 <code>price_change &gt; 5.0</code> 点。<br/>
+- <strong>空头打压</strong>：<code>net_delta &lt; -200</code> 手 且 <code>price_change &lt; -5.0</code> 点.<br/>
+- <strong>多空平衡</strong>：其他任何情况。</p>
+<hr/>
+<h4 id="3-rule-based-信号强度判定规则-signal-strength-rules">3. Rule-Based 信号强度判定规则 (Signal Strength Rules)</h4>
+<p>根据已判定的多空方向，系统将信号强度（<code>Signal Strength</code>）划分为 <code>High</code>、<code>Medium</code>、<code>Low</code> 三个级别。</p>
+<h5>3.1 看多信号强度判定 (Bullish Strength)</h5>
+<h6>High 档判定条件 (必须同时满足以下三步)</h6>
+<ol>
+<li><strong>全局预筛选</strong>：delta_pct_vol = rth_delta / rth_vol ≤ 1.5% (或触发强制覆盖)。</li>
+<li><strong>大方向过滤</strong>：最近 30 分钟净 Delta 为正 (<code>net_delta_30m &gt; 0</code>) 或最近 15 分钟净 Delta 为正 (<code>last_15m_delta &gt; 0</code>)。若大单得分方向为 Bullish，亦可强制通过此项。</li>
+<li><strong>微观条件 (满足其一)</strong>：<br/>
+   - <strong>条件 A (放量主动量能)</strong>：最近 15 分钟累计 Delta ≥ 8000 手，或 5 分钟内单根 K 线最大 Delta ≥ 6000 手。<br/>
+   - <strong>条件 B (价格突变与被动吸收)</strong>：最近 5 分钟内存在单根 K 线满足 <code>price_change &gt;= 10.0</code> 点，且伴随 Delta &gt; 0、卖盘被吸收或属于需求竭尽。<br/>
+   - <strong>条件 C (背离幅度量能累积)</strong>：自日内 Delta 最低点以来的 Delta 回升额 (<code>delta_runup</code>) ≥ 10000 手，或最近 30 分钟净 Delta $&gt; 5000$ 手。<br/>
+   - <strong>条件 D (持续量价斜率)</strong>：最近 30 分钟价格变动 ≥ 15.0 点，且最近 30 分钟净 Delta $&gt; 0$。</li>
+</ol>
+<h6>Medium 档判定条件 (满足其一)</h6>
+<ul>
+<li>最近 15 分钟累计 Delta ≥ 3000 手，或 5 分钟内单根 K 线最大 Delta ≥ 2500 手。</li>
+<li>最近 5 分钟内存在单根 K 线满足 <code>price_change &gt;= 5.0</code> 点且 Delta &gt; 0。</li>
+<li>价格自日内低点反弹高度 <code>price_rise_from_low &gt;= 8.0</code> 点，且满足 Delta 自日内低谷回升 <code>delta_runup &gt;= 4000</code> 手或最近 30 分钟净 Delta &gt; 0。</li>
+<li>最近 30 分钟价格变动 ≥ 6.0 点，且最近 30 分钟净 Delta $&gt; 0$。</li>
+<li>触发了 <code>is_demand_trap</code> (卖盘竭尽)。</li>
+</ul>
+<h6>Low 档判定条件</h6>
+<ul>
+<li>未达到 High 或 Medium 门槛的所有看多信号。</li>
+</ul>
+<h5>3.2 看空信号强度判定 (Bearish Strength)</h5>
+<h6>High 档判定条件 (必须同时满足以下三步)</h6>
+<ol>
+<li><strong>全局预筛选</strong>：delta_pct_vol = rth_delta / rth_vol ≥ 1.5% (或触发强制覆盖)。</li>
+<li><strong>大方向过滤</strong>：最近 30 分钟净 Delta 为负 (<code>net_delta_30m &lt; 0</code>) 或最近 15 分钟净 Delta 为负 (<code>last_15m_delta &lt; 0</code>)。若大单得分方向为 Bearish，亦可强制通过此项。</li>
+<li><strong>微观条件 (满足其一)</strong>：<br/>
+   - <strong>条件 A (放量主动量能)</strong>：最近 15 分钟累计 Delta ≤ -8000 手，或 5 分钟内单根 K 线最小 Delta ≤ -6000 手。<br/>
+   - <strong>条件 B (价格突变与被动吸收)</strong>：最近 5 分钟内存在单根 K 线满足 <code>price_change &lt;= -10.0</code> 点，且伴随 Delta &lt; 0、买盘被吸收或属于供应竭尽。<br/>
+   - <strong>条件 C (背离幅度量能累积)</strong>：自日内 Delta 最高点以来的 Delta 下跌额 (<code>delta_drawdown</code>) ≥ 10000 手，或最近 30 分钟净 Delta $&lt; -5000$ 手。<br/>
+   - <strong>条件 D (持续量价斜率)</strong>：最近 30 分钟价格变动 ≤ -15.0 点，且最近 30 分钟净 Delta $&lt; 0$。</li>
+</ol>
+<h6>Medium 档判定条件 (满足其一)</h6>
+<ul>
+<li>最近 15 分钟累计 Delta ≤ -3000 手，或 5 分钟内单根 K 线最小 Delta ≤ -2500 手。</li>
+<li>最近 5 分钟内存在单根 K 线满足 <code>price_change &lt;= -5.0</code> 点且 Delta &lt; 0。</li>
+<li>价格自日内高点回落幅度 <code>price_drop_from_high &gt;= 8.0</code> 点，且满足 Delta 自日内顶峰回落 <code>delta_drawdown &gt;= 4000</code> 手或最近 30 分钟净 Delta &lt; 0。</li>
+<li>最近 30 分钟价格变动 ≤ -6.0 点，且最近 30 分钟净 Delta $&lt; 0$。</li>
+<li>触发了 <code>is_supply_trap</code> (买盘竭尽)。</li>
+</ul>
+<h6>Low 档判定条件</h6>
+<ul>
+<li>未达到 High 或 Medium 门槛的所有看空信号。</li>
+</ul>
+<hr/>
+<h4 id="4-机构大单与被动吸收强制覆盖引擎-overrides">4. 机构大单与被动吸收强制覆盖引擎 (Overrides)</h4>
+<p>系统引进了四个<strong>强力覆盖通道</strong>与两个<strong>方向拦截器</strong>，以适应异常的机构建仓及吸收行情。触发覆盖时，全局预筛选与条件 C 将被特许跳过，直接将最终强度输出为 <strong>High</strong>。</p>
+<h5>4.1 机构低位大单吸筹覆盖 (<code>inst_bull_accumulation</code>)</h5>
+<ul>
+<li><strong>判定公式</strong>：<br/>
+  (big_trade_net_2h ≥ 3000  或  big_trade_score ≥ 1500)  且  (price_position_pct ≤ 45.0%)</li>
+<li><strong>作用结果</strong>：强制判定方向为 <strong>Bullish</strong>，跳过预筛选与条件 C 验证，直接以 <strong>High</strong> 强度输出。</li>
+</ul>
+<h5>4.2 机构高位大单派发覆盖 (<code>inst_bear_distribution</code>)</h5>
+<ul>
+<li><strong>判定公式</strong>：<br/>
+  (big_trade_net_2h ≤ -3000  或  big_trade_score ≤ -1500)  且  (price_position_pct ≥ 55.0%)</li>
+<li><strong>作用结果</strong>：强制判定方向为 <strong>Bearish</strong>，跳过预筛选与条件 C 验证，直接以 <strong>High</strong> 强度输出。</li>
+</ul>
+<h5>4.3 被动买盘极限吸收覆盖 (<code>passive_bull_absorption</code>)</h5>
+<ul>
+<li><strong>判定公式</strong>：<br/>
+  (net_delta_30m &lt; -4000)  且  (price_change_30m ≥ -5.0)  且  (price_position_pct ≤ 30.0%)</li>
+<li><strong>作用结果</strong>：主动做空 Delta 达到极端阈值，但价格极度抗跌且处于区间底部。判定为主动空头被被动限价买单（Limit Buy）全部吃掉，强制判定方向为 <strong>Bullish</strong>，跳过考核，直接以 <strong>High</strong> 强度输出。</li>
+</ul>
+<h5>4.4 被动卖盘极限派发覆盖 (<code>passive_bear_distribution</code>)</h5>
+<ul>
+<li><strong>判定公式</strong>：<br/>
+  (net_delta_30m &gt; 4000)  且  (price_change_30m ≤ 5.0)  且  (price_position_pct ≥ 70.0%)</li>
+<li><strong>作用结果</strong>：主动做多 Delta 达到极端阈值，但价格受阻滞涨且处于区间顶部。判定为主动多头被被动限价卖单（Limit Sell）全部吞噬，强制判定方向为 <strong>Bearish</strong>，跳过考核，直接以 <strong>High</strong> 强度输出。</li>
+</ul>
+<h5>4.5 大单对向安全拦截器 (Safety Blockers)</h5>
+<ul>
+<li><strong>看多拦截</strong>：若 2 小时大单净累计额 ≥ 3000 手，<strong>强制将 Bearish High 强度降级/屏蔽</strong>（<code>is_bear_high = False</code>）。</li>
+<li><strong>看空拦截</strong>：若 2 小时大单净累计额 ≤ -3000 手，<strong>强制将 Bullish High 强度降级/屏蔽</strong>（<code>is_bull_high = False</code>）。</li>
+</ul>
+<hr/>
+<h4 id="5-ai-based-决策引擎的方向研判与约束">5. AI-Based 决策引擎的方向研判与约束</h4>
+<p>AI-Based 决策引擎结合实时期权 Gamma 分布进行宏观筹码推演，其方向判断逻辑需遵循严格的做市商物理法则。</p>
+<h5>5.1 API 安全调用原则</h5>
+<ul>
+<li><strong>零 API Key 暴露</strong>：严禁在任何源码或配置文件中写入明文 API Key，强制通过 <code>BBAI.get_gemini_api_key_from_file()</code> 动态加载。</li>
+<li><strong>统一代理接口</strong>：禁止在业务代码中直接编写原生 Gemini 客户端调用，所有交互必须强制经过 <code>BBAI.call_gemini()</code> 代理方法。</li>
+</ul>
+<h5>5.2 做市商物理对冲法则约束 (Market Maker Hedging Law)</h5>
+<p>AI 撰写方向判词时，必须严格遵守以下物理法则：<br/>
+- <strong>正 Gamma 机制约束 (Spot &gt; Zero Gamma)</strong>：<br/>
+  做市商采取<strong>逆势对冲</strong>（低买高卖）。这会降低波动性并将价格拉向主力期权大敞口行权价（行权钉住 Pinning 效应）。因此，在大盘接近 Call Wall 且敞口未退时，AI 不得研判为“多头突围暴涨”，必须判定为“已达目标价横盘/波动收窄”。<br/>
+- <strong>负 Gamma 机制约束 (Spot &lt; Zero Gamma)</strong>：<br/>
+  做市商采取<strong>顺势对冲</strong>（价格下跌时必须加速卖出期货以维持 Delta 中性）。这会引起波动率自我强化与雪崩式抛压。因此，在此机制下若价格逼近主力 Put Wall，AI 绝对禁止判定为“钉住横盘/支撑极强”，必须研判为“趋势加深”或“下行破位”。</p>
+<h5>5.3 AI 提取决策标签逻辑</h5>
+<ul>
+<li><strong>多空方向提取</strong>：系统检索 AI 回复中包含 <code>多空方向</code> 的行，寻找 <code>["看多", "多头主控", "做多"]</code> 与 <code>["看空", "空头主控", "做空"]</code> 的最早出现位置；若无匹配行，匹配前 200 字，按最早出现或包含的词汇确定为 <code>Bullish</code> 或 <code>Bearish</code>。</li>
+<li><strong>机构行为强制重写</strong>：在 AI 推理得出方向后，若当前触发了上述机构吸筹/派发（<code>inst_bull_accumulation</code> 或 <code>inst_bear_distribution</code>）指标，无论 AI 推导结论为何，均会被强行重写为机构方向，并赋予 <code>High</code> 强度级别。</li>
+</ul>
+<h5>5.4 AI 输出报告结构规范</h5>
+<p>AI 研判输出严格遵守以下卡片结构，以便前端渲染模块正则重组：</p>
+<pre><code>[VERDICT]
+- **多空研判方向 (Forecast):** [看多/看空/中性，及基于主力 Gamma 的对冲推演]
+- **市场现时情绪 (Sentiment):** [描述做市商对冲偏好与 Spot/Zero Gamma 关系]
+- **多空主力集群Gamma比率:** [例如 1 : 3.3 等格式化比值]
+- **重要关注价格:** [Zero Gamma, Call/Put Wall 点位]
+- **最后30分钟Call/Put Wall移动**: [Strike 与 敞口金额双重偏移]
+- **操作建议:** [操作风险偏好与空间限制]
+
+[TREND_ANALYSIS]
+- **走势研判类型:** [上涨/下跌/已达目标价横盘]
+- **历史轨迹分析:** [开盘至今筹码与墙变动趋势]
+- **轨迹预判逻辑:** [Gamma 敞口变化下做市商 delta 对冲推演行为]
+
+[MARKET_ANALYSIS]
+- [做市商对冲盘对当前价格的挤压或钉住效应分析]
+</code></pre>
+</section></section><section><h2 id="rth_volatility_aware_price_position_blockers">rth_volatility_aware_price_position_blockers</h2><h3 id="question-2">Question</h3><p>针对 8:00 和 8:30 还判断为 HIGH Bullish 但半小时后回撤了 65 点的情况，如何引入“单日最大波动率（RTH Range %）”因素来改进 Order Flow 实时信号的强度分析？请给出合理的判定阈值和具体修改方案。</p><h3 id="answer-2">Answer</h3><h4 id="1-问题背景与回撤原因分析">1. 问题背景与回撤原因分析</h4>
+<p>在 2026-06-12 早盘：<br/>
+- <strong>08:00:00</strong> 信号：当时价格处于 RTH 日内区间的 <strong>96.1%</strong> 的极高位，RTH 累计 Delta 为 +27393 手。<br/>
+- <strong>08:30:00</strong> 信号：当时价格处于 RTH 日内区间的 <strong>97.1%</strong> 的极高位，RTH 累计 Delta 为 +22942 手。<br/>
+系统在以上两个时刻均输出了 <strong>HIGH</strong> 强度的看多信号。然而，由于市场当时已严重超买延伸（ES 日内波幅高达 1.28%），在极高位继续追多，最终遭遇了机构的被动卖盘强力吸收（Supply Trap），导致了随后的 65 点深度回撤。<br/>
+这表明单一的绝对价格位置拦截器在震荡突破行情和趋势衰竭行情之间缺乏区分度。</p>
+<hr/>
+<h4 id="2-改进方案-波动率敏感型价格位置安全拦截器">2. 改进方案：波动率敏感型价格位置安全拦截器</h4>
+<p>为了改进此机制，我们引入了<strong>日内波动率（RTH Range %）</strong>作为二次判定因子，将绝对的价格位置拦截规则升级为基于波动率区间的动态拦截逻辑。</p>
+<h5>2.1 核心公式</h5>
+<ul>
+<li><strong>RTH 波动率百分比 (<code>rth_range_pct</code>)</strong>：<br/>
+  rth_range_pct = \frac{rth_high - rth_low}{rth_low} × 100%</li>
+<li><strong>拦截逻辑规则</strong>：</li>
+<li><strong>看多强信号拦截</strong>：若当前相对价格位置 ≥ 85.0%，且日内波幅 ≥ 0.75%，则拦截并屏蔽 <strong>HIGH</strong> Bullish 信号，降级为 <strong>Medium</strong>。</li>
+<li><strong>看空强信号拦截</strong>：若当前相对价格位置 ≤ 15.0%，且日内波幅 ≥ 0.75%，则拦截并屏蔽 <strong>HIGH</strong> Bearish 信号，降级为 <strong>Medium</strong>。</li>
+</ul>
+<h5>2.2 0.75% 阈值的专业量化依据</h5>
+<ul>
+<li><strong>窄幅震荡区间（&lt; 0.75%）</strong>：<br/>
+  在 ES 处于 5500–6000 点区间时，0.75% 对应约 41.25–45.0 点的波动空间。若日内波动在 20–35 点以内（&lt; 0.75%），说明市场尚未打破箱体。此时价格触及边界（≥ 85.0% 或 ≤ 15.0%）往往是箱体突破（Breakout）的启动点，具有极强的爆发性与顺势追单价值，因此<strong>不予拦截</strong>。</li>
+<li><strong>趋势超买/超卖区间（≥ 0.75%）</strong>：<br/>
+  若日内波幅已达或超过 0.75%，说明价格已完成了大级别的单边运载。此时在区间的边缘（≥ 85% 或 ≤ 15%）进场极易买在日内最高点或卖在最低点。因此<strong>必须拦截降级</strong>，规避追高或追空风险。</li>
+</ul>
+<hr/>
+<h4 id="3-系统修改实现">3. 系统修改实现</h4>
+<p>我们在以下四个核心 Python 模块中完成了规则的升级和数据的层层传递：</p>
+<h5>3.1 规则优化器逻辑升级</h5>
+<p>在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/order_flow_rules_optimizer.py#L72-L184">order_flow_rules_optimizer.py</a> 中修改 <code>evaluate_optimized_rules</code> 方法签名与拦截逻辑：</p>
+<pre><code class="language-python">def evaluate_optimized_rules(date_str, time_str, 
+                             net_delta_30m, price_change_30m, price_position_pct,
+                             last_15m_delta, max_5m_delta, min_5m_delta,
+                             delta_pct_vol, delta_runup, delta_drawdown,
+                             is_likely_bullish, is_likely_bearish,
+                             pre_bullish, pre_bearish,
+                             cond_a_bull, cond_c_bull, cond_d_bull,
+                             cond_a_bear, cond_c_bear, cond_d_bear,
+                             rth_high=None, rth_low=None, rth_range_pct=None):
+    # ...
+    # 动态计算 RTH 波动率百分比
+    if rth_range_pct is None:
+        if rth_low is not None and rth_high is not None and rth_low &gt; 0:
+            rth_range_pct = (rth_high - rth_low) / rth_low * 100
+        else:
+            rth_range_pct = 0.0
+
+    debug_info['rth_range_pct'] = rth_range_pct
+
+    # 结合波动率宽度的安全拦截器
+    if price_position_pct &gt;= 85.0 and rth_range_pct &gt;= 0.75:
+        is_bull_high = False
+        debug_info['blocked_bull_by_high_price_position'] = True
+    if price_position_pct &lt;= 15.0 and rth_range_pct &gt;= 0.75:
+        is_bear_high = False
+        debug_info['blocked_bear_by_low_price_position'] = True
+</code></pre>
+<h5>3.2 实时监控引擎适配</h5>
+<p>在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/order_flow_sentinel.py#L378-L389">order_flow_sentinel.py</a> 中清洗 dummy 初始值并下发实参：</p>
+<pre><code class="language-python">    rth_high_val = float(rth_high) if rth_high &gt; -900000.0 else None
+    rth_low_val = float(rth_low) if rth_low &lt; 900000.0 else None
+
+    is_bull_high, is_bear_high, opt_info = evaluate_optimized_rules(
+        # ...
+        rth_high=rth_high_val, rth_low=rth_low_val
+    )
+</code></pre>
+<h5>3.3 历史回测重灌引擎适配</h5>
+<p>在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/backfill_order_flow_signals.py#L257-L266">backfill_order_flow_signals.py</a> 中传递已获取的 RTH 高低点：</p>
+<pre><code class="language-python">    is_opt_bull_high, is_opt_bear_high, opt_info = evaluate_optimized_rules(
+        # ...
+        rth_high=rth_high, rth_low=rth_low
+    )
+</code></pre>
+<h5>3.4 AI解读核心分析引擎适配</h5>
+<p>在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/ai_tape_analyst.py#L451-L460">ai_tape_analyst.py</a> 中适配评估规则的调用签名：</p>
+<pre><code class="language-python">    rth_high = rth_stats.get('price_high') if rth_stats else None
+    rth_low = rth_stats.get('price_low') if rth_stats else None
+
+    is_opt_bull_high, is_opt_bear_high, opt_info = evaluate_optimized_rules(
+        # ...
+        rth_high=rth_high, rth_low=rth_low
+    )
+</code></pre>
+<hr/>
+<h4 id="4-改进结果验证">4. 改进结果验证</h4>
+<p>我们重新执行了数据库重灌脚本，对 2026-06-12 的信号进行重算并入库，经 SQL 查询验证：<br/>
+- <strong>08:00:00</strong> 信号的 <code>signal_strength</code> 从 <strong>High</strong> 顺利降级为 <strong>Medium</strong>（处于 96.1% 相对高位且 RTH 波动 1.28%）。<br/>
+- <strong>08:30:00</strong> 信号的 <code>signal_strength</code> 从 <strong>High</strong> 顺利降级为 <strong>Medium</strong>（处于 97.1% 相对高位且 RTH 波动 1.28%）。<br/>
+- 新逻辑完美避免了在当日高位产生盲目强看多信号，极大降低了回撤陷阱概率。</p></section></article>
+</main>
+</body>
+</html>

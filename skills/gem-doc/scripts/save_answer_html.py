@@ -401,7 +401,7 @@ def build_html(question: str, answer: str, summary: str) -> str:
   <main class="page">
     <article class="card">
       <header>
-        <h1>Gemini Answer</h1>
+        <h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){{window.location.href=u;}},function(){{window.location.href=u;}});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
         <div class="meta">
           <span>Saved: {escape(saved_at)}</span>
           <span>Question summary: {escape(summary)}</span>
