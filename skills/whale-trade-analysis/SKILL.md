@@ -70,6 +70,14 @@ When the user asks to analyze whale trades:
 - **Two-Phase Open Interest (OI) Inference**:
   - **Phase 1 (Intraday/Static OI Comparison)**: When only the option transaction day's static OI (yesterday's cleared stock) is available, analyze the quantitative relationship between transaction Volume (V) and yesterday's OI to infer whether each leg leans toward opening (Open) or closing (Close).
   - **Phase 2 (Next-Day/Cleared OI Verification)**: Once the next-day cleared OI change is provided, verify and cross-reference the actual OI increase/decrease against the leg volume to firmly declare whether the leg was **Open** (OI surge matching volume) or **Close** (OI reduction matching volume).
+
+- **Daily Timeframe Macro Alignment Rule (日K时间级别宏观对齐法则)**:
+  - For all ES or stock order flow case studies, the analysis must evaluate the intraday order flow signatures through the lens of the **Daily Timeframe (日K时间级别) macro structure**.
+  - Synthesize the order flow features to diagnose whether the session represents:
+    - **Daily Bottom Accumulation (日K底部吸筹)**: Characterized by passive limit-order absorption (被动吸筹拦截) of aggressive market-sell pressure at major multi-day/weekly support zones, micro-selling delta exhaustion (5分钟微观抛压衰竭), and dominant block trade buy imbalance, preparing for a potential trend reversal and massive rally (大幅拉涨).
+    - **Daily Top Distribution (日K顶部出货)**: Characterized by passive limit-order resistance (被动出货拦截 / Iceberg Resistance) absorbing aggressive market-buy sweeps at key daily resistance levels, buying exhaustion, and dominant block trade sell imbalance, preparing for a potential trend reversal and massive dump (大幅砸盘).
+  - Explicitly identify the transition between aggressive sweeps (主动推进) and passive limit defense (被动拦截) at these major macro turning points.
+
 ### 1. Markdown Data Columns and Interpretation
 
 When parsing the pasted Markdown tables, you must map the column values and apply the corresponding logic:
@@ -123,26 +131,27 @@ When parsing the pasted Markdown tables, you must map the column values and appl
   - 标记是否为 Dark Pool（暗池/非公开交易所）的大宗成交 (`True` or `False`).
 
 
-### 2. Lit-Tape Order Flow Absorption & Joint Analysis
-- **Mandatory Order Flow Section**: For all `OptionsFlowOrderFlow` joint cases, you **must** dedicate a full section to analyzing the spot stock or index futures order flow. 
-- **Stock Block Metrics**: Extract and document the specific order flow block metrics from the `order_flow_big_trade` table:
-  - Exact execution timestamps (millisecond precision).
-  - Trade execution type (e.g. `SingleTickBigTrade`, `SingleTickDarkTrade`).
-  - Order side (`Buy` or `Sell`) and trade execution side offset (`true_side`).
-  - Total block volume and dollar premium transaction size.
-  - Price execution relative to standard market quote (i.e. off-market pricing offset `off_price`).
-- **Absorption & Divergence Analysis**: Compare cumulative Delta with price progression. Look for "Supply Traps" (positive Delta but dropping price) or "Demand Traps" (negative Delta but rising price) to diagnose passive institutional limit-order absorption. Do not treat the stock block as a static delta hedge without examining its specific clearing behavior and market impact.
+### 2. Deep Order Flow Metrics & Joint Analysis (ES & Stock Order Flow)
+For all pure `OrderFlow` cases (especially ES index futures) and joint `OptionsFlowOrderFlow` cases, you **must** conduct a deep, multi-layered order flow analysis instead of just listing big block trades. Retrieve the real-time order flow signal context (such as from `OrderFlowSignal` in the database or `ai_tape_analyst.py` features) and follow this strict structure:
+- **核心研判结论与依据 (Executive Verdict & Core Reasoning)**: Positioned right at the start of the report (before Section 1, non-numbered). Explicitly state the Joint Verdict (综合研判结果) and Core Reasoning Basis (研判核心依据).
+- **1. 交易识别与核心参数 (Trade Identification & Parameters)**: Analyze and compare the pre-market (PM) and regular trading hours (RTH) cumulative metrics, including price ranges, total volume (contracts), net Delta (trend direction), and average Depth Imbalances.
+- **2. 常规时段30分钟走势结构 (RTH 30-Min Progression Structure)**: Structure a chronological breakdown of RTH in 30-minute progression intervals, documenting Net Delta, price movement, average Depth Imbalance, and the corresponding price-delta setup judgment (e.g. 多头推进 (Bullish Push), 空头打压 (Bearish Attack), 买盘被吸收 (Buying Absorption), 卖盘被吸收 (Selling Absorption)).
+- **3. 5分钟微观走势分解 (Micro 5-Min Progression Logs)**: Decompose the recent trading window into 5-minute segments, reporting Delta, price start/end, and price changes, highlighting micro delta-price divergence as key structural signatures. Render it exactly as a bulleted list of logs (e.g., `* **06:30-06:35**: Delta=+5,815, 价格 7308.00→7292.50 (-15.50) [买盘初现被动吸收]`), which the frontend will auto-convert to a styled table.
+- **4. 关键吸收价格与筹码分布 (Key Absorption Levels)**: Identify the Frequency Top 3 and Volume Top 3 price levels of passive institutional order absorption, indicating whether they represent 看多吸收 (Passive Buy Absorption / Iceberg Support) or 看空吸收 (Passive Sell Absorption / Iceberg Resistance).
+- **5. 背离与意图研判 (Divergence & Intent Analysis)**: Conduct a thorough delta-price divergence analysis to classify institutional intent (e.g. bottom reversal vs. trend continuation), diagnose potential supply/demand traps (such as buying absorption traps where positive Delta is absorbed by passive limit sellers at resistance), and check delta efficiency. Explicitly align with the **Daily Timeframe Macro Alignment Rule (日K时间级别宏观对齐法则)** to diagnose bottom accumulation or top distribution.
+- **6. 支撑与阻力区间划分 (Support & Resistance Zones)**: Delineate clear boundaries for the 被动买方支撑区 (Passive Buy Support Zone) and 被动卖方阻力区 (Passive Sell Resistance Zone) based on the absorption levels and the decay-weighted institutional big trade sentiment score.
 
 ### 3. Output Content Requirements
 The final report must contain:
 1. **Bilingual Trading Terminology**: All options and order flow trading terminology used in the Chinese report must be followed by their corresponding English terms in parentheses (e.g., 跨期转换 (Calendar Conversion), 反转对锁 (Reversal Lock), 轧平 (Flatten/Net Out), 清扫流动性滑点 (Liquidity Sweeping Slippage), 多空对锁轧平 (Long-Short Lock Flattening / Delta Neutralization), 股息套利 (Dividend Arbitrage), 转换/反转套利 (Conversion/Reversal Arbitrage), 对锁盘口 (Crossing Orders / Locked Spread)).
 2. **Premium Currency Formatting**: For all premium values (权利金) referenced anywhere in the report (including single legs and aggregated portfolios), **always** use the unit **`M` (Millions USD)** (e.g., `$207.76M`, `$122.08M`). **Never** use Chinese units like **`亿`** (e.g., `$2.0776亿` is strictly prohibited).
 3. **Trade Identification & Parameters**: Time, size, ticker, option strikes, Bid/Ask context, and underlying price. **All contract legs MUST be referenced in ThinkOrSwim format (e.g., `.META261120C5`)**.
-4. **Detailed Spot Order Flow Analysis**: A dedicated section analyzing the spot stock block trades matching the option sweep times (timestamps, type, side, volume, price, offprice) and diagnosing the passive or active absorption nature of the block trades.
-5. **Institutional Strategy Deductions**: Detail the strategy (e.g. Call Buy, Put Buy, Covered Call, Stock Replacement, Conversions/Reversals, or Delta-Hedged Arbitrage).
-6. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).
-7. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
-8. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual leg with **Premium >= $50M**.
+4. **Detailed Deep Order Flow Analysis**: For any index futures or stock order flow analysis, you must include a comprehensive section matching the exact 6-part structure defined above.
+5. **No Duplicate Block Trades Table**: **NEVER** duplicate the raw block trades table inside the report body. The table of single-tick institutional block trades must ONLY be passed to the database via the `--order-flow-file` argument of the save script, so that it is rendered independently under the "大宗大单交易明细 (Order Flow Big Trades)" section on the page, avoiding duplication.
+6. **Institutional Strategy Deductions**: Detail the strategy (e.g. Call Buy, Put Buy, Covered Call, Stock Replacement, Conversions/Reversals, or Delta-Hedged Arbitrage).
+7. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).
+8. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
+9. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual option contract leg with **Premium >= $50M**.
 
 ---
 
