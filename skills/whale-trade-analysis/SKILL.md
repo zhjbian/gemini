@@ -72,11 +72,27 @@ When the user asks to analyze whale trades:
   - **Phase 2 (Next-Day/Cleared OI Verification)**: Once the next-day cleared OI change is provided, verify and cross-reference the actual OI increase/decrease against the leg volume to firmly declare whether the leg was **Open** (OI surge matching volume) or **Close** (OI reduction matching volume).
 
 - **Daily Timeframe Macro Alignment Rule (日K时间级别宏观对齐法则)**:
-  - For all ES or stock order flow case studies, the analysis must evaluate the intraday order flow signatures through the lens of the **Daily Timeframe (日K时间级别) macro structure**.
-  - Synthesize the order flow features to diagnose whether the session represents:
-    - **Daily Bottom Accumulation (日K底部吸筹)**: Characterized by passive limit-order absorption (被动吸筹拦截) of aggressive market-sell pressure at major multi-day/weekly support zones, micro-selling delta exhaustion (5分钟微观抛压衰竭), and dominant block trade buy imbalance, preparing for a potential trend reversal and massive rally (大幅拉涨).
-    - **Daily Top Distribution (日K顶部出货)**: Characterized by passive limit-order resistance (被动出货拦截 / Iceberg Resistance) absorbing aggressive market-buy sweeps at key daily resistance levels, buying exhaustion, and dominant block trade sell imbalance, preparing for a potential trend reversal and massive dump (大幅砸盘).
+  - For all ES, stock order flow, and stock option flow (OptionsFlow / OptionsFlowOrderFlow) case studies, the analysis must evaluate the trade setup through the lens of the **Daily Timeframe (日K时间级别) macro structure** (e.g., Bollinger Band lower limit, key moving averages, and major transaction volume profiles).
+  - Synthesize the options and order flow features to diagnose whether the session represents:
+    - **Daily Bottom Accumulation (日K底部吸筹)**: Characterized by passive limit-order absorption (被动吸筹拦截) of aggressive market-sell pressure at major multi-day/weekly support zones, micro-selling delta exhaustion (5分钟微观抛压衰竭), and dominant block trade buy imbalance, preparing for a potential trend reversal and massive rally (大幅拉涨). If it coincides with massive DITM call crossing packages, evaluate if it represents a long-term **Stock Replacement (股票替代)** position disguised as neutral arbitrage.
+    - **Daily Top Distribution (日K顶部出货)**: Characterized by passive limit-order resistance (被动出货拦截 / Iceberg Resistance) absorbing aggressive market-buy sweeps at key daily resistance levels, buying exhaustion, and dominant block trade sell imbalance, preparing for a potential trend reversal and massive dump (大幅砸盘). If it coincides with massive DITM put crossing or conversion/collar packages near the ex-dividend date, evaluate if it represents a long-term **Stock Replacement (期权保护/股票替代)** or distribution position disguised as neutral arbitrage.
   - Explicitly identify the transition between aggressive sweeps (主动推进) and passive limit defense (被动拦截) at these major macro turning points.
+
+- **Dividend-Subsidized Stock Replacement Campaign Rule (股息补贴型股票替代建仓法则)**:
+  - When analyzing massive options flow (especially DITM call crossings) on stocks near a daily structural bottom, check if it coincides with an upcoming ex-dividend date (股权登记除权日).
+  - If it does, do not automatically dismiss it as a purely neutral dividend arbitrage. It may be a highly sophisticated **Dividend-Subsidized Stock Replacement Campaign (股息补贴型股票替代建仓战役)**:
+    - The institution utilizes long-term DITM calls as a **Stock Replacement (股票替代)** to establish a massive long position at the bottom without causing upward market slippage.
+    - They buy short-term DITM calls and immediately exercise them on Friday to capture the cash dividend, which directly subsidizes and offsets the carry cost/premium of their long-term bullish calls.
+    - When the short-term options are exercised and the crossing hedges are settled (cleared on Monday morning, showing short-term OI dropping to 0 and far-term OI flat due to clearing netting), the removal of the market maker's short hedges releases the stock to rally (e.g., rising 3-5% on ex-dividend day).
+    - Under this setup, classify the case study direction as **Bullish (看多)** rather than neutral, as the ultimate intent of the client is long-term bullish accumulation.
+
+- **Dividend-Subsidized Options Protection/Distribution Campaign Rule (股息回笼型期权保护与高位出货战役法则)**:
+  - When analyzing massive options flow (especially DITM put crossings or conversion/collar packages) on stocks near a daily structural top (日线级别顶部), check if it coincides with an upcoming ex-dividend date (股权登记除权日).
+  - If it does, do not automatically dismiss it as a purely neutral dividend arbitrage. It may be a highly sophisticated **Dividend-Subsidized Options Protection/Distribution Campaign (股息回笼型期权保护与高位出货战役)**:
+    - The institution utilizes long-term DITM Puts as a **Stock Replacement (期权保护/股票替代)** to establish a massive protective/short position at the top without causing downward market slippage or triggering premature panic selling.
+    - They engage in crossing transactions involving short-term DITM Calls (or Conversions) to capture the cash dividend, which directly subsidizes and offsets the premium cost of their long-term bearish Puts.
+    - When the short-term options are exercised and the ex-dividend date passes, the removal of the market maker's long delta hedges (which were supporting the stock price) combined with the exhaustion of dividend-chasing buying pressure causes the stock to collapse (e.g., dropping 3-5% post-dividend).
+    - Under this setup, classify the case study direction as **Bearish (看空)** rather than neutral, as the ultimate intent of the institution is hedging or distribution at the cyclical top.
 
 - **底部吸筹行为判定细则 (Rules for Bottom Accumulation Identification)**:
   在分析底部吸筹（Daily Bottom Accumulation）案例时，必须通过以下微观订单流数据特征进行研判与撰写报告：
