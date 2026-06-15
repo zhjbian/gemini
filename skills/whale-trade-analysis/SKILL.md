@@ -78,6 +78,18 @@ When the user asks to analyze whale trades:
     - **Daily Top Distribution (日K顶部出货)**: Characterized by passive limit-order resistance (被动出货拦截 / Iceberg Resistance) absorbing aggressive market-buy sweeps at key daily resistance levels, buying exhaustion, and dominant block trade sell imbalance, preparing for a potential trend reversal and massive dump (大幅砸盘).
   - Explicitly identify the transition between aggressive sweeps (主动推进) and passive limit defense (被动拦截) at these major macro turning points.
 
+- **底部吸筹行为判定细则 (Rules for Bottom Accumulation Identification)**:
+  在分析底部吸筹（Daily Bottom Accumulation）案例时，必须通过以下微观订单流数据特征进行研判与撰写报告：
+  1. **被动吸收与大单属性判定 (Passive Absorption & Order Side Identification)**：被动限价托底防御（Passive Limit Floor Defense）在常规以主动方（Aggressor）为主的成交明细中，因市价卖单砸击 Bid 侧限价买单，会被记录为 **Sell** 属性（成交在 Bid 侧）。分析时，不能仅凭大单表中的 Sell 标记断定机构在砸盘。如果价格在支撑区间频繁成交大额 Sell 单而无法继续下破，必须判定为**机构被动吸收防御（Limit Absorption）**。若在低相对位置出现瞬间成交的巨额 **Buy** 单（成交在 Ask 侧或之上），判定为**主动市价扫盘确认（Aggressive Sweep Confirm）**。
+  2. **微观抛压衰竭判定 (Micro Selling Pressure Exhaustion Verification)**：当价格在吸筹区间下探测试时，观察 5分钟微观 Delta 变化。如果价格下行但净卖出 Delta 绝对值呈现断崖式萎缩（例如萎缩 50% 以上），判定为**空头抛压衰竭（Exhaustion）**。
+  3. **区间锁定与 Delta 效率负背离 (Range Locking & Negative Delta Efficiency)**：若日内 CVD 累积为高额正值（主动买单涌入），但价格不涨反跌或横盘震荡，判定为存在高位冰山卖单（Passive Sell Absorption）压制价格，属于机构为了获取更多低价筹码而进行的**区间锁定（Range Locking）**行为。
+
+- **高位出货行为判定细则 (Rules for Top Distribution Identification)**:
+  在分析高位出货（Daily Top Distribution）案例时，必须通过以下微观订单流数据特征进行研判与撰写报告：
+  1. **被动封顶与大单属性判定 (Passive Resistance & Order Side Identification)**：被动限价封顶出货（Passive Limit Ceiling Defense）在常规成交明细中，因市价买单撞击 Ask 侧的限价卖单，会被记录为 **Buy** 属性（成交在 Ask 侧）。分析时，不能仅凭大单表中的 Buy 标记断定多头强力突破。如果价格在阻力区间频繁成交大额 Buy 单而无法上破，必须判定为**机构被动限价封顶出货（Limit Resistance/Passive Sell Absorption）**。若在高相对位置出现瞬间成交的巨额 **Sell** 单（成交在 Bid 侧或之下），判定为**主动市价扫盘砸盘（Aggressive Sweep Sell/Bearish Push）**。
+  2. **微观买盘衰竭判定 (Micro Buying Pressure Exhaustion Verification)**：当价格在阻力区间向上反弹拉升测试时，观察 5分钟微观 Delta 变化。如果价格上行但净买入 Delta 绝对值呈现断崖式萎缩（例如萎缩 50% 以上），判定为**多头买盘衰竭（Exhaustion）**。
+  3. **区间锁定与 Delta 效率正背离 (Range Locking & Positive Delta Efficiency)**：若日内 CVD 累积为高额负值（主动砸盘涌入），但价格不跌反涨或横盘震荡，判定为存在低位冰山买单（Passive Buy Absorption）托底价格，属于机构为了能在高位出掉更多筹码而进行的**区间锁定（Range Locking）**行为。
+
 ### 1. Markdown Data Columns and Interpretation
 
 When parsing the pasted Markdown tables, you must map the column values and apply the corresponding logic:
