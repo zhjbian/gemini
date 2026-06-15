@@ -152,13 +152,19 @@ For all pure `OrderFlow` cases (especially ES index futures) and joint `OptionsF
 - **4. 关键吸收价格与筹码分布 (Key Absorption Levels)**: Identify the Frequency Top 3 and Volume Top 3 price levels of passive institutional order absorption, indicating whether they represent 看多吸收 (Passive Buy Absorption / Iceberg Support) or 看空吸收 (Passive Sell Absorption / Iceberg Resistance).
 - **5. 背离与意图研判 (Divergence & Intent Analysis)**: Conduct a thorough delta-price divergence analysis to classify institutional intent (e.g. bottom reversal vs. trend continuation), diagnose potential supply/demand traps (such as buying absorption traps where positive Delta is absorbed by passive limit sellers at resistance), and check delta efficiency. Explicitly align with the **Daily Timeframe Macro Alignment Rule (日K时间级别宏观对齐法则)** to diagnose bottom accumulation or top distribution.
 - **6. 支撑与阻力区间划分 (Support & Resistance Zones)**: Delineate clear boundaries for the 被动买方支撑区 (Passive Buy Support Zone) and 被动卖方阻力区 (Passive Sell Resistance Zone) based on the absorption levels and the decay-weighted institutional big trade sentiment score.
+- **7. 机构意图强度定量分析 (Quantitative Institutional Intent Strength)**: Document the detailed calculation process of the signal strength score (out of 100) and classification (High / Medium / Low):
+  1. **被动拦截与吸收得分 (M_pa)**: Report the passive absorption/resistance volume and its score (out of 30).
+  2. **累积 Delta-价格背离得分 (M_div)**: Report the tail 60m CVD, the tail price change, and its score (out of 25).
+  3. **主动扫盘确认得分 (M_sw)**: Report the active buy/sell volume in the bottom/top 50% price range, any single large sweep tick, and its score (out of 25).
+  4. **微观动能衰竭得分 (M_ex)**: Report the count of detected 5m Delta exhaustion cycles and its score (out of 20).
+  Sum these components to state the final composite score and the strength level.
 
 ### 3. Output Content Requirements
 The final report must contain:
 1. **Bilingual Trading Terminology**: All options and order flow trading terminology used in the Chinese report must be followed by their corresponding English terms in parentheses (e.g., 跨期转换 (Calendar Conversion), 反转对锁 (Reversal Lock), 轧平 (Flatten/Net Out), 清扫流动性滑点 (Liquidity Sweeping Slippage), 多空对锁轧平 (Long-Short Lock Flattening / Delta Neutralization), 股息套利 (Dividend Arbitrage), 转换/反转套利 (Conversion/Reversal Arbitrage), 对锁盘口 (Crossing Orders / Locked Spread)).
 2. **Premium Currency Formatting**: For all premium values (权利金) referenced anywhere in the report (including single legs and aggregated portfolios), **always** use the unit **`M` (Millions USD)** (e.g., `$207.76M`, `$122.08M`). **Never** use Chinese units like **`亿`** (e.g., `$2.0776亿` is strictly prohibited).
 3. **Trade Identification & Parameters**: Time, size, ticker, option strikes, Bid/Ask context, and underlying price. **All contract legs MUST be referenced in ThinkOrSwim format (e.g., `.META261120C5`)**.
-4. **Detailed Deep Order Flow Analysis**: For any index futures or stock order flow analysis, you must include a comprehensive section matching the exact 6-part structure defined above.
+4. **Detailed Deep Order Flow Analysis**: For any index futures or stock order flow analysis, you must include a comprehensive section matching the exact 7-part structure defined above.
 5. **No Duplicate Block Trades Table**: **NEVER** duplicate the raw block trades table inside the report body. The table of single-tick institutional block trades must ONLY be passed to the database via the `--order-flow-file` argument of the save script, so that it is rendered independently under the "大宗大单交易明细 (Order Flow Big Trades)" section on the page, avoiding duplication.
 6. **Institutional Strategy Deductions**: Detail the strategy (e.g. Call Buy, Put Buy, Covered Call, Stock Replacement, Conversions/Reversals, or Delta-Hedged Arbitrage).
 7. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).

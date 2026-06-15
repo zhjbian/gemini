@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - es_orderflow_accumulation_strength_model</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-14 20:12:40</span>
+<span>Question summary: es_orderflow_accumulation_strength_model</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#1-核心定量指标体系-quantitative-metrics-system">1. 核心定量指标体系 (Quantitative Metrics System)</a><ul><li><a href="#1-1-被动拦截与吸收得分-m_pa-最大-30分">1.1 被动拦截与吸收得分 (M_pa, 最大 30分)</a></li><li><a href="#1-2-累积-delta-价格背离得分-m_div-最大-25分">1.2 累积 Delta-价格背离得分 (M_div, 最大 25分)</a></li><li><a href="#1-3-主动扫盘确认得分-m_sw-最大-25分">1.3 主动扫盘确认得分 (M_sw, 最大 25分)</a></li><li><a href="#1-4-微观动能衰竭得分-m_ex-最大-20分">1.4 微观动能衰竭得分 (M_ex, 最大 20分)</a></li></ul></li><li><a href="#2-强度综合打分与划分矩阵-strength-scoring-matrix">2. 强度综合打分与划分矩阵 (Strength Scoring Matrix)</a></li><li><a href="#3-双向实证对照-以-es-近期实际交易日为例">3. 双向实证对照（以 ES 近期实际交易日为例）</a><ul><li><a href="#看多方向-es-底部吸筹-daily-bottom-accumulation">看多方向：ES 底部吸筹 (Daily Bottom Accumulation)</a></li><li><a href="#看空方向-es-高位出货-daily-top-distribution">看空方向：ES 高位出货 (Daily Top Distribution)</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>ES OrderFlow 在 2026-06-09 2026-06-10 2026-06-11的分析结论是对的 现在我需要对 ES 机构底部吸筹 做定量分析 请推荐方案 强度分成 High Medium Low</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>为避免 LaTeX 公式渲染导致的乱码问题，以下将所有公式和符号转换为纯文本形式，重新输出定量化分析方案：</p>
+<h1>订单流机构吸筹/出货强度定量分析方案 (Multi-Dimensional Institutional Intent Strength Model)</h1>
+<h2 id="1-核心定量指标体系-quantitative-metrics-system">1. 核心定量指标体系 (Quantitative Metrics System)</h2>
+<p>打分模型由四个独立且互补 of 订单流物理特征指标构成，总分 100 分。</p>
+<h3 id="1-1-被动拦截与吸收得分-m_pa-最大-30分">1.1 被动拦截与吸收得分 (M_pa, 最大 30分)</h3>
+<ul>
+<li><strong>理论逻辑</strong>：机构建仓或出货的核心特征是“限价单被动拦截（Limit Absorption）”，表现为价格处于关键支撑/阻力区间时，大宗市价砸盘（或扫盘）无法使价格继续突破，表明冰山限价单正在吞噬主动流。</li>
+<li><strong>底部吸筹 (Accumulation) 计算规则</strong>：<br/>
+  In low relative price area (bottom 30% of day's price range), sum volume of SingleTickBigTrade where Side = 'Sell' (hitting Bid) and the price did not break below execution price within 5 minutes (P_after_5m &gt;= P_exec).</li>
+<li><strong>高位出货 (Distribution) 计算规则</strong>：<br/>
+  In high relative price area (top 30% of day's price range), sum volume of SingleTickBigTrade where Side = 'Buy' (hitting Ask) and the price did not break above execution price within 5 minutes (P_after_5m &lt;= P_exec).</li>
+<li><strong>量化评分细则</strong>（以 ES 合约常规交易时段 RTH 为基准）：</li>
+<li><strong>M_pa = 30 分 (High)</strong>：累计被动量 &gt;= 40,000 手（或累计权利金 &gt;= $30M）。</li>
+<li><strong>M_pa = 15 分 (Medium)</strong>：累计被动量在 15,000 - 40,000 手之间。</li>
+<li><strong>M_pa = 5 分 (Low)</strong>：累计被动量 &lt; 15,000 手。</li>
+</ul>
+<h3 id="1-2-累积-delta-价格背离得分-m_div-最大-25分">1.2 累积 Delta-价格背离得分 (M_div, 最大 25分)</h3>
+<ul>
+<li><strong>理论逻辑</strong>：CVD（累积 Delta）与收盘价发生偏离。Delta 效率为负（吸筹背离）或正（出货背离），表明主动方的抛压或买盘已被限价单对手盘完全中和。</li>
+<li><strong>底部吸筹 (Accumulation) 条件</strong>：<br/>
+  RTH 尾盘 60 分钟内，满足以下条件之一：<br/>
+  1. 价格上涨 (Price_change &gt; 0) 且 CVD &lt; 0（净主动卖盘占优）。<br/>
+  2. 价格横盘波动 &lt;= 5 点，但 CVD 持续录得巨额主动卖出（CVD &lt; -10,000 手）。</li>
+<li><strong>高位出货 (Distribution) 条件</strong>：<br/>
+  RTH 尾盘 60 分钟内，满足以下条件之一：<br/>
+  1. 价格下跌 (Price_change &lt; 0) 且 CVD &gt; 0（净主动买盘占优）。<br/>
+  2. 价格横盘波动 &lt;= 5 点，但 CVD 持续录得巨额主动买入（CVD &gt; +10,000 手）。</li>
+<li><strong>量化评分细则</strong>：</li>
+<li><strong>M_div = 25 分 (High)</strong>：发生显著的背离状态，持续时间 &gt;= 45 分钟，且背离段内 CVD 绝对值变动 &gt;= 8,000 手。</li>
+<li><strong>M_div = 12 分 (Medium)</strong>：发生轻度背离，持续时间在 20 - 45 分钟之间，CVD 绝对值变动在 3,000 - 8,000 手之间。</li>
+<li><strong>M_div = 0 分 (Low)</strong>：无背离，价格与 CVD 同向波动（Delta 效率为常规正值）。</li>
+</ul>
+<h3 id="1-3-主动扫盘确认得分-m_sw-最大-25分">1.3 主动扫盘确认得分 (M_sw, 最大 25分)</h3>
+<ul>
+<li><strong>理论逻辑</strong>：机构在完成限价被动吸筹（或出货）后，通常会伴随市价扫盘大单以实现脱离建仓区（或派发区）的确认动作。</li>
+<li><strong>底部吸筹 (Accumulation) 计算规则</strong>：<br/>
+  统计低位探底回升期间，成交在 Ask 侧或 Above Ask 侧的主动扫盘大单（SingleTickBigTrade）的累计金额与成交量：</li>
+<li><strong>V_active_buy</strong> = 交易属性为买入（Side = 'Buy'）的主动扫盘大单累计成交量。</li>
+<li><strong>高位出货 (Distribution) 计算规则</strong>：<br/>
+  统计高位冲高回落期间，成交在 Bid 侧或 Below Bid 侧的主动扫盘砸盘大单（SingleTickBigTrade）的累计金额与成交量：</li>
+<li><strong>V_active_sell</strong> = 交易属性为卖出（Side = 'Sell'）的主动扫盘大单累计成交量。</li>
+<li><strong>量化评分细则</strong>：</li>
+<li><strong>M_sw = 25 分 (High)</strong>：累计主动大单量 &gt;= 25,000 手（或累计金额 &gt;= $18M），且出现至少一笔单 Tick 超过 3,000 手的市价清扫流动性大单。</li>
+<li><strong>M_sw = 12 分 (Medium)</strong>：累计主动大单量在 10,000 - 25,000 手之间。</li>
+<li><strong>M_sw = 5 分 (Low)</strong>：累计主动大单量 &lt; 10,000 手。</li>
+</ul>
+<h3 id="1-4-微观动能衰竭得分-m_ex-最大-20分">1.4 微观动能衰竭得分 (M_ex, 最大 20分)</h3>
+<ul>
+<li><strong>理论逻辑</strong>：测试前序高低点时，对手盘主动进攻动能的快速萎缩，是确认防线牢固的信号。</li>
+<li><strong>底部吸筹 (Accumulation) 衰竭测试</strong>：<br/>
+  价格向下测试支撑线时，5 分钟微观净卖出 Delta 呈现断崖式萎缩。</li>
+<li><strong>Exhaustion Ratio</strong> = min(|CVD_5m_t1|, |CVD_5m_t2|) / |CVD_5m_t0| &lt;= 50%<br/>
+  （即测试低点时的后序 5 分钟成交 Delta 较前序砸盘段萎缩 50% 以上）。</li>
+<li><strong>高位出货 (Distribution) 衰竭测试</strong>：<br/>
+  价格向上测试阻力线时，5 分钟微观净买入 Delta 呈现断崖式萎缩。</li>
+<li><strong>Exhaustion Ratio</strong> = min(|CVD_5m_t1|, |CVD_5m_t2|) / |CVD_5m_t0| &lt;= 50%<br/>
+  （即测试高点时的后序 5 分钟成交 Delta 较前序推升段萎缩 50% 以上）。</li>
+<li><strong>量化评分细则</strong>：</li>
+<li><strong>M_ex = 20 分 (High)</strong>：在低位（或高位）测试中，录得至少 2 次以上 5 分钟级 Delta 萎缩幅度 &gt;= 70% 且价格未跌破前低的衰竭特征。</li>
+<li><strong>M_ex = 10 分 (Medium)</strong>：录得 1 次 5 分钟级 Delta 衰竭特征（萎缩幅度在 50% - 70% 之间）。</li>
+<li><strong>M_ex = 0 分 (Low)</strong>：测试过程中 Delta 动能无衰竭，主动流持续强力破位。</li>
+</ul>
+<hr/>
+<h2 id="2-强度综合打分与划分矩阵-strength-scoring-matrix">2. 强度综合打分与划分矩阵 (Strength Scoring Matrix)</h2>
+<p>根据四个维度的加权汇总，计算机构意图综合得分：<br/>
+* <strong>S = M_pa + M_div + M_sw + M_ex</strong> （最大 100 分）</p>
+<p>最终强度级别根据以下得分阈值进行归类：</p>
+<pre><code>     得分 (S)         强度级别 (Strength)                       技术定义与操作建议
+ ────────────────────────────────────────────────────────────────────────────────────────────────────
+   S &gt;= 75 分           High (强强度)          被动吸收、累计背离、主动扫盘、微观衰竭高度共振。
+                                             代表日K级别重要拐点已确立，后市反转或延续的概率极高。
+
+   50 &lt;= S &lt; 75 分      Medium (中强度)        有明显的限价吸收或动能衰竭，但主动扫盘确认不够显著。
+                                             可能进入区间震荡、磨底（或磨顶）阶段，需等待进一步确认。
+
+   S &lt; 50 分           Low (弱强度)           数据偏散户或高频市价单摩擦，无机构系统性建仓或出货迹象。
+                                             多为常规日内均值回归或杂乱震荡。
+</code></pre>
+<hr/>
+<h2 id="3-双向实证对照-以-es-近期实际交易日为例">3. 双向实证对照（以 ES 近期实际交易日为例）</h2>
+<h3 id="看多方向-es-底部吸筹-daily-bottom-accumulation">看多方向：ES 底部吸筹 (Daily Bottom Accumulation)</h3>
+<p>以 <strong>2026-06-09</strong> 为例进行打分：<br/>
+1. <strong>被动吸收 M_pa</strong>：12:55 - 13:00 期间在底部爆发了 <strong>-10,691 手</strong> 的极端负 Delta 砸盘，但价格逆势上涨 +7.75 点，触发了大规模冰山买单防御。得分：<strong>30分</strong>。<br/>
+2. <strong>CVD背离 M_div</strong>：尾盘 60 分钟内累积 Delta 为负（-4,682 手），价格逆势上涨 +20.75 点，Delta 效率显著为负。得分：<strong>25分</strong>。<br/>
+3. <strong>主动扫盘 M_sw</strong>：09:42 出现 516 手 Ask 侧主动 Buy 扫盘大单，但尾盘大单量未能达到 High 标准。得分：<strong>12分</strong>。<br/>
+4. <strong>微观衰竭 M_ex</strong>：10:07 探底回升期间，微观抛压在 7265.50 附近多次出现 5 分钟级断崖式下降（萎缩率达 68%）。得分：<strong>10分</strong>。<br/>
+* <strong>综合得分</strong>：30 + 25 + 12 + 10 = 77 分。<br/>
+* <strong>评定等级</strong>：<strong>High（底部强吸筹）</strong>。</p>
+<h3 id="看空方向-es-高位出货-daily-top-distribution">看空方向：ES 高位出货 (Daily Top Distribution)</h3>
+<p>假想对称下跌日打分：<br/>
+1. <strong>被动拦截 M_pa</strong>：价格测试日内高位阻力时，爆发出 <strong>+12,000 手</strong> 的强正 Delta（市价买单），但价格受限于阻力线，收线不涨反跌，确立上方强冰山卖单（Iceberg Limit Seller）。得分：<strong>30分</strong>。<br/>
+2. <strong>CVD背离 M_div</strong>：在反弹测试中，CVD 累积流入 +8,000 手，但价格横盘或阴跌 12 点，形成买盘被动吸收的正背离。得分：<strong>25分</strong>。<br/>
+3. <strong>主动砸盘 M_sw</strong>：跌破区间下沿时，瞬间在 Bid 侧触发多笔单 Tick &gt; 2,500 手的主动砸盘确认大单（Active Sell Sweep）。得分：<strong>25分</strong>。<br/>
+4. <strong>微观衰竭 M_ex</strong>：在测试前高阻力时，多头主动买入 Delta 从 +8,000 手萎缩至 +1,500 手（萎缩 81%），确认买盘衰竭。得分：<strong>20分</strong>。<br/>
+* <strong>综合得分</strong>：30 + 25 + 25 + 20 = 100 分。<br/>
+* <strong>评定等级</strong>：<strong>High（高位强出货）</strong>。</p>
+</section>
+</article>
+</main>
+</body>
+</html>
