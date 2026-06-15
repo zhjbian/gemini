@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - es_orderflow_pivot_points_identification</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-14 20:58:46</span>
+<span>Question summary: es_orderflow_pivot_points_identification</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#1-枢轴点-pivot-的微观结构定义">1. 枢轴点 (Pivot) 的微观结构定义</a></li><li><a href="#2-4维定量识别模型-pivot-identification-model">2. 4维定量识别模型 (Pivot Identification Model)</a><ul><li><a href="#维度-a-大宗大单对锁密集度-crossing-volume-profile-cvp">维度 A：大宗大单对锁密集度 (Crossing Volume Profile - CVP)</a></li><li><a href="#维度-b-市价扫盘动能跃迁带-aggressive-sweep-jump-asj">维度 B：市价扫盘动能跃迁带 (Aggressive Sweep Jump - ASJ)</a></li><li><a href="#维度-c-被动冰山吸收拦截区-passive-iceberg-level-pil">维度 C：被动冰山吸收拦截区 (Passive Iceberg Level - PIL)</a></li><li><a href="#维度-d-盘口失衡与-delta-转换线-delta-flip-line-dfl">维度 D：盘口失衡与 Delta 转换线 (Delta Flip Line - DFL)</a></li></ul></li><li><a href="#3-双向-pivot-判定法则与交易逻辑">3. 双向 Pivot 判定法则与交易逻辑</a><ul><li><a href="#规则-1-多头收复枢轴-bullish-reclaim-pivot-以-es-7340-为例">规则 1：多头收复枢轴 (Bullish Reclaim Pivot) - 以 ES 7340 为例</a></li><li><a href="#规则-2-空头跌破枢轴-bearish-breakdown-pivot-对称下跌情况">规则 2：空头跌破枢轴 (Bearish Breakdown Pivot) - 对称下跌情况</a></li></ul></li><li><a href="#4-落地算法实现路线图-implementation-roadmap">4. 落地算法实现路线图 (Implementation Roadmap)</a></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>对于我的trading系统 下一个功能模块是 通过ES的order flow数据识别日线级别的pivot点位 <br/>
+比如 Adam Set 的post说<br/>
+Adam Set Signal:<br/>
+2026-06-10 10:24:53 Seattle Time<br/>
+... (ES: 7340 is the most important pivot point).<br/>
+请推荐方案来识别这些pivot点位</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>为避免 LaTeX 公式渲染导致的乱码问题，以下将所有公式和符号转换为纯文本形式，重新输出定量化分析方案：</p>
+<h1>订单流日线级别枢轴点 (Pivot) 定量识别方案</h1>
+<h2 id="1-枢轴点-pivot-的微观结构定义">1. 枢轴点 (Pivot) 的微观结构定义</h2>
+<p>在微观订单流中，一个有效的日K级别枢轴点（如 ES 7340）通常不是单一的支撑或阻力线，而是满足以下特征的价格带：<br/>
+1. <strong>流动性交汇区</strong>：历史大宗对锁盘口（Crossing Orders）或暗池交易最集中的成交价格。<br/>
+2. <strong>动能跃迁带</strong>：市价扫盘单（Sweeps）在此点位发生方向性失衡与速度激增。<br/>
+3. <strong>多空筹码转换线（S/R Flip）</strong>：前序被动冰山单被主动扫盘吞噬后，发生支撑/阻力角色互换的点位。</p>
+<hr/>
+<h2 id="2-4维定量识别模型-pivot-identification-model">2. 4维定量识别模型 (Pivot Identification Model)</h2>
+<p>通过以下四个维度的订单流指标进行综合评分与物理点位定位，设候选点位为 P。</p>
+<h3 id="维度-a-大宗大单对锁密集度-crossing-volume-profile-cvp">维度 A：大宗大单对锁密集度 (Crossing Volume Profile - CVP)</h3>
+<ul>
+<li><strong>原理</strong>：机构大宗交易（Block Trades）通常在特定中性价格进行对锁，该价格是多空资金共识的平衡点，也是后续突破后的枢轴线。</li>
+<li><strong>量化方法</strong>：<br/>
+  在 N 日窗口内，统计每个价格 tick 上的大宗对锁及暗池交易累计量：</li>
+<li><strong>CVP_Volume(P)</strong> = Sum(Volume_i) 其中 Price_i = P，且 Type_i 属于 ('SingleTickBigTrade', 'SingleTickDarkTrade')</li>
+<li><strong>枢轴筛选</strong>：提取 CVP_Volume 局部极大值（Local Peaks）对应的价格作为候选 Pivot，记为 <strong>P_cvp</strong>。</li>
+</ul>
+<h3 id="维度-b-市价扫盘动能跃迁带-aggressive-sweep-jump-asj">维度 B：市价扫盘动能跃迁带 (Aggressive Sweep Jump - ASJ)</h3>
+<ul>
+<li><strong>原理</strong>：当价格突破 Pivot 点时，会引发止损单（Stop Orders）触发与机构追单，表现为市价扫盘单（Sweeps）的成交笔数 and 滑点在极短时间内（如 10 秒内）出现数量级跃迁。</li>
+<li><strong>量化方法</strong>：<br/>
+  对于每个突破事件，计算滑点与成交量比率（Slippage-to-Volume Ratio）：</li>
+<li><strong>ASJ_Score(P)</strong> = (Price_after_10s - Price_break) / Volume_active<br/>
+  当价格经过 P 点时，若出现极小的 Volume 却产生极大的价格位移，说明该价格点发生了“流动性空洞”与“主动单吞噬”。</li>
+<li><strong>枢轴筛选</strong>：ASJ_Score 发生突变信号的价格，记为 <strong>P_asj</strong>。</li>
+</ul>
+<h3 id="维度-c-被动冰山吸收拦截区-passive-iceberg-level-pil">维度 C：被动冰山吸收拦截区 (Passive Iceberg Level - PIL)</h3>
+<ul>
+<li><strong>原理</strong>：枢轴点通常是前序强被动防线（被动吸收看多/看空）。当该防线在后序交易日被市价扫盘有效突破并站稳时，防线即转化为枢轴点。</li>
+<li><strong>量化方法</strong>：<br/>
+  提取前序 5-10 个交易日中，被动吸收频次最高的价格水平。</li>
+<li><strong>PIL_Volume(P)</strong> = 历史累计被动拦截量。</li>
+<li><strong>枢轴筛选</strong>：选择历史 PIL_Volume 最大的 Top 3 价格，记为 <strong>P_pil</strong>。</li>
+</ul>
+<h3 id="维度-d-盘口失衡与-delta-转换线-delta-flip-line-dfl">维度 D：盘口失衡与 Delta 转换线 (Delta Flip Line - DFL)</h3>
+<ul>
+<li><strong>原理</strong>：CVD（累积净 Delta）在跨越该价格时发生方向性翻转，或者买卖盘口深度（Market Depth Imbalance）在该点位发生逆转。</li>
+<li><strong>量化方法</strong>：<br/>
+  监测日内交易中，CVD 从持续负值转为正值（或相反）时，所对应的价格节点。</li>
+<li><strong>DFL_Price</strong> = 满足 CVD = 0 且 d(CVD)/dt 达到局部的极值时的标的价格 P。</li>
+</ul>
+<hr/>
+<h2 id="3-双向-pivot-判定法则与交易逻辑">3. 双向 Pivot 判定法则与交易逻辑</h2>
+<p>枢轴点的判定必须包含双向（多头与空头）对称逻辑，以下为具体的量化交易触发规则：</p>
+<h3 id="规则-1-多头收复枢轴-bullish-reclaim-pivot-以-es-7340-为例">规则 1：多头收复枢轴 (Bullish Reclaim Pivot) - 以 ES 7340 为例</h3>
+<ul>
+<li><strong>市场背景</strong>：前序价格在 Pivot（7340）下方运行，7340 累积了大量被动卖盘。</li>
+<li><strong>量化触发条件</strong>：<br/>
+  1. <strong>主动收复 (Reclaim)</strong>：价格以单 Tick &gt; 3,000 手的主动 Buy 扫盘单突破 7340。<br/>
+  2. <strong>回踩站稳 (Stick/Support Confirm)</strong>：价格回踩 7340 附近（如 7338.00 - 7342.00），此时大单明细中在 7340 出现 Sell 属性大单（主动空头砸盘），但价格<strong>拒绝下跌</strong>（V_passive_buy 增加），表明前序阻力位已成功转为被动支撑（S/R Flip）。</li>
+<li><strong>系统研判</strong>：触发 <strong>"Whale Rally Pending"</strong>，转向多头主控（Bullish Dominance）。</li>
+</ul>
+<h3 id="规则-2-空头跌破枢轴-bearish-breakdown-pivot-对称下跌情况">规则 2：空头跌破枢轴 (Bearish Breakdown Pivot) - 对称下跌情况</h3>
+<ul>
+<li><strong>市场背景</strong>：前序价格在 Pivot（例如 7300）上方运行，7300 累积了大量被动买盘支撑。</li>
+<li><strong>量化触发条件</strong>：<br/>
+  1. <strong>主动跌破 (Breakdown)</strong>：价格以单 Tick &gt; 3,000 手的主动 Sell 扫盘单向下跌破 7300。<br/>
+  2. <strong>反弹受阻 (Resistance Confirm)</strong>：价格反弹测试 7300 附近（如 7298.00 - 7302.00），大单明细中在 7300 出现 Buy 属性大单（主动多头扫盘拉升），但价格<strong>拒绝上涨</strong>（V_passive_sell 增加），表明前序支撑位已转为被动阻力。</li>
+<li><strong>系统研判</strong>：触发 <strong>"Whale Dump Pending"</strong>，转向空头主控（Bearish Dominance）。</li>
+</ul>
+<hr/>
+<h2 id="4-落地算法实现路线图-implementation-roadmap">4. 落地算法实现路线图 (Implementation Roadmap)</h2>
+<ol>
+<li><strong>筹码 Profile 聚类 (Clustering)</strong>：<br/>
+   对 P_cvp 与 P_pil 进行高密度聚类（Binning size = 1.0 点），将多日内重合度最高的价格带（如 7340 +- 2.0点）确立为“系统候选 Pivot 点位”。</li>
+<li><strong>实时监测引擎 (Sentinel Engine)</strong>：<br/>
+   实时订阅盘口数据，当价格接近候选 Pivot 点（距离 &lt;= 5 点）时，启动微观 Delta 监测：<br/>
+   * 计算突破时的扫盘流速（CVD 变化率）。<br/>
+   * 计算回踩时的被动吸收量。</li>
+<li><strong>信号可视化</strong>：<br/>
+   在 Web 界面上绘制自动生成的 Pivot 枢轴线，并标注当前的突破与站稳状态。</li>
+</ol>
+</section>
+</article>
+</main>
+</body>
+</html>
