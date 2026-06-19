@@ -214,7 +214,9 @@ python3 /Users/zhijiebian/.gemini/skills/whale-trade-analysis/scripts/save_whale
   --ai-model "<model_name>" \
   [--options-flow-file "/tmp/options_flow_table.md"] \
   [--order-flow-file "/tmp/order_flow_table.md"] \
-  [--images "/path/to/img1.png" "/path/to/img2.png"]
+  [--images "/path/to/img1.png" "/path/to/img2.png"] \
+  [--strength-score <score>] \
+  [--strength-level <level>]
 ```
 
 #### Parameters:
@@ -228,6 +230,8 @@ python3 /Users/zhijiebian/.gemini/skills/whale-trade-analysis/scripts/save_whale
 - `--options-flow-file` *(Optional)*: Absolute path to the file containing the raw Options Flow markdown table.
 - `--order-flow-file` *(Optional)*: Absolute path to the file containing the raw Order Flow markdown table.
 - `--images` *(Optional)*: Space-separated absolute paths to the screenshots. The script automatically renames each image as `whale_trade_<date>_<ticker>_<analyze_timestamp>_<idx>.<ext>`, copies them both to the web static assets directory (for Web UI rendering) and the skill's local `images/` directory (for archive backup), and logs their relative URLs in the database.
+- `--strength-score` *(Optional)*: Institutional intent strength score (0-100), e.g., 90.
+- `--strength-level` *(Optional)*: Institutional intent strength level (High/Medium/Low), e.g., High.
 
 ### Follow-up updates:
 If you are performing a follow-up analysis on a case that already exists in the database for the same date, ticker, and type, running this script will **automatically append** your new report block into the `detail` JSON column's `analyses` array chronologically, preserving previous entries, and update the summary, while overwriting or updating the saved raw tables if provided.

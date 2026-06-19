@@ -27,6 +27,8 @@ def main():
     parser.add_argument("--verify", choices=["Pending", "Correct", "Incorrect"], default="Pending", help="Verification actual result")
     parser.add_argument("--options-flow-file", help="Path to file containing raw Options Flow markdown table")
     parser.add_argument("--order-flow-file", help="Path to file containing raw Order Flow markdown table")
+    parser.add_argument("--strength-score", type=int, help="Institutional intent strength score (0-100)")
+    parser.add_argument("--strength-level", choices=["High", "Medium", "Low"], help="Institutional intent strength level (High/Medium/Low)")
     args = parser.parse_args()
 
     # Verify input date format
@@ -41,6 +43,25 @@ def main():
 
     with open(detail_file_path, "r", encoding="utf-8") as f:
         detail_text = f.read().strip()
+
+    # Construct strength_analysis dict if arguments provided
+    strength_analysis = None
+    if args.strength_score is not None and args.strength_level is not None:
+        strength_analysis = {}
+        if args.direction in ["Bullish", "Neutral"]:
+            strength_analysis["accumulation"] = {
+                "level": args.strength_level,
+                "score": args.strength_score,
+                "metrics": {},
+                "breakdown": {}
+            }
+        if args.direction in ["Bearish", "Neutral"]:
+            strength_analysis["distribution"] = {
+                "level": args.strength_level,
+                "score": args.strength_score,
+                "metrics": {},
+                "breakdown": {}
+            }
 
     # Image files copying & URL resolution
     target_img_dir = os.path.join(web_dir, "static", "images", "whale_trade_case_studies")
@@ -139,6 +160,9 @@ def main():
             analyses_list.insert(0, new_analysis_block)
             current_detail["analyses"] = analyses_list
 
+            if strength_analysis:
+                current_detail["strength_analysis"] = strength_analysis
+
             existing.detail = current_detail
             from sqlalchemy.orm.attributes import flag_modified
             flag_modified(existing, "detail")
@@ -165,6 +189,9 @@ def main():
                 },
                 "analyses": [new_analysis_block]
             }
+
+            if strength_analysis:
+                new_detail["strength_analysis"] = strength_analysis
 
             if args.options_flow_file and os.path.exists(args.options_flow_file):
                 with open(args.options_flow_file, "r", encoding="utf-8") as f:
