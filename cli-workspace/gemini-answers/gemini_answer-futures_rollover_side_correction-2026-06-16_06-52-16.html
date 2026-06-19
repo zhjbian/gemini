@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - futures_rollover_side_correction</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-16 06:52:16</span>
+<span>Question summary: futures_rollover_side_correction</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#一-交割周订单流底层机制的定位">一、 交割周订单流底层机制的定位</a></li><li><a href="#二-系统模块的重构与升级">二、 系统模块的重构与升级</a></li><li><a href="#三-2026-06-15-案例数据重新解析与验证结果">三、 2026-06-15 案例数据重新解析与验证结果</a></li><li><a href="#四-数据库及案例分析报告回填">四、 数据库及案例分析报告回填</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>请对Exporter以及csv数据分析模块今天改进 尽最大可能在交割的4 至 5 个交易日 也能正确判断</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>我们已完成了关于美股交割换月期间，期货成交方向与价格校正模块 of ES 的重构、数据重新解析、数据库特征更新以及案例分析报告的全部回填工作。以下为本次交付的技术性陈述与验证结果汇总。</p>
+<h3 id="一-交割周订单流底层机制的定位">一、 交割周订单流底层机制的定位</h3>
+<p>在交割换月周，MotiveWave 连续合约图表（在 2026-06-15 显示 ESU26 约 7620 的价格带）底层的 Delta 数据实际直接来自于当前最活跃的到期合约（即 <code>ESM26</code>，其原生成交 Delta 在 12:55-13:00 为 <code>-3,061</code>，极度吻合图表显示的 <code>-2,900左右</code>）。而在连续图表上，历史价格被叠加了与下季度合约之间的基差（本案中对齐基差精确为 <code>+63.75</code> 点）。<br/>
+* <strong>二进制 Native Side 准确性</strong>：MotiveWave 本地二进制历史归档 <code>.tick_data</code> 文件中的 <code>sideByte</code>（偏移 13/14）是由交易所直接撮合成交的原始买卖方向，<strong>不受任何连续合约 Back-adjustment 干扰</strong>，是绝对准确的。因此，在二进制数据解析中绝对不应应用任何 Tick Test 纠偏，应直接提取原生 <code>sideByte</code>。<br/>
+* <strong>实时 Back-adjust 干扰</strong>：在交割周的实时交易中，MotiveWave 传递给实时 <code>onTick</code> 的成交价格会被加上基差调整（例如平移约 64 点），但 DOM 盘口价格在导出时如果不作同步调整，就会导致 <code>tick.isAskTick()</code> 产生 100% 被误判为 ASK 的重大偏差。</p>
+<hr/>
+<h3 id="二-系统模块的重构与升级">二、 系统模块的重构与升级</h3>
+<p>针对上述物理机制，我们对 Java 实时导出端 and Python 特征分析端进行了系统性的升级：<br/>
+1. <strong>Python 二进制解析器</strong>：在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/mw_tick_parser_backfill_raw.py">mw_tick_parser_backfill_raw.py</a> 中新增了 <code>--align-price-to</code> 命令行参数。如果指定了对齐目标合约（如 ESU26），解析器会分别读取两合约在当天的第一个有效 Tick 价格，动态计算并四舍五入得出基差 <code>offset</code>，然后自适应地将主连价格加上该 offset，并将 <code>Contract</code> 标记为连续合约符号。同时彻底移除了 binary 解析中的错误纠偏代码。<br/>
+2. <strong>Java 实时导出器</strong>：在 <a href="file:///Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/StudyOrderFlowDataExporter.java">StudyOrderFlowDataExporter.java</a> 中：<br/>
+   * <strong>实时 onTick 端</strong>：增加了对 DOM 实时买一（Bid 0）和卖一（Ask 0）价格的追踪。在交割周内，当检测到实时 tick 价格与 DOM 中点 <code>mid</code> 发生由于 Back-adjust 导致的巨大偏离（如大于 1.0 点）时，动态逆向平移 tick 价格以对齐 DOM 盘口，并使用 Quote Rule 进行买卖方向的精准判定，规避了 Back-adjust 对 <code>isAskTick()</code> 的失真影响。<br/>
+   * <strong>二进制 backfill 端</strong>：在 <code>parseTickDataFile</code> 中同步删除了 isRollover 纠偏，恢复对原生的 <code>sideByte</code> 的直接读写。<br/>
+3. <strong>Python 特征生成与 Sentinel</strong>：在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/order_flow_feature_generator.py">order_flow_feature_generator.py</a> 和 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/order_flow_sentinel.py">order_flow_sentinel.py</a> 中，彻底移除了交割周对 CSV 原有 Side 重新进行纠偏转换的逻辑，直接信任并使用 CSV 文件中原生的、已经对齐判定好的 <code>Side</code> 列。</p>
+<hr/>
+<h3 id="三-2026-06-15-案例数据重新解析与验证结果">三、 2026-06-15 案例数据重新解析与验证结果</h3>
+<p>我们使用重构后的工具，对 2026-06-15 的数据进行了重构：</p>
+<pre><code class="language-bash">python3 mw_tick_parser_backfill_raw.py --date 2026-06-15 --ticker ESM26 --align-price-to ESU26
+</code></pre>
+<p>工具自动识别并计算出基差 <code>+63.75</code> 点，成功生成了 <code>426,362</code> 行无重复的干净 tick file <code>ES_20260615_TICKS.csv</code>。</p>
+<p><strong>数据对齐对比结果：</strong><br/>
+* <strong>12:30-13:00</strong>（最后半小时）：累计 Delta 为 <strong><code>-1,965.0</code></strong>（原错判为正值扫盘 <code>+15,434</code>），价格在 7624.25 到 7628.25 反弹，完美呈现强烈的<strong>量价负背离</strong>和<strong>被动买盘吸收</strong>特征。<br/>
+* <strong>12:55-13:00</strong>（收盘前5分钟）：累计 Delta 完美恢复为真实的 <strong><code>-3,061.0</code></strong>（原错判为正值扫盘 <code>+13,480</code>），与你在图表上看到的 <code>-2,900左右</code> 吻合。<br/>
+* <strong>13:00-13:15</strong>（收盘后）：累计 Delta 为 <strong><code>-605.0</code></strong>（原为 <code>-1,142</code>），价格回落至 7626.50。</p>
+<hr/>
+<h3 id="四-数据库及案例分析报告回填">四、 数据库及案例分析报告回填</h3>
+<ol>
+<li><strong>OrderFlowSignal 特征回填</strong>：我们运行了新编写的 <code>backfill_0615_clean_data.py</code>，成功刷新并更新了 MySQL 中 <code>order_flow_signals</code> 2026-06-15 的共计 15 个信号节点的全部特征（包括 <code>recent_micro_5m</code>, <code>rth_delta_progression</code>, 累积 Volume 等）。</li>
+<li><strong>WhaleTradeCaseStudy 报告回填</strong>：我们运行了修正后的 <code>update_micro_full_20260615.py</code> 和 <code>import_reports_to_db.py</code>，将 <code>whale_trade_case_studies</code> 对应案例（ID = 19）下的三篇分析报告内容进行了全面的升级：<br/>
+   * <strong>追加分析一（Report 2 / 深度解析报告）</strong>：完全更新了 <code>## 2. 常规时段30分钟走势结构</code> 下的表格，将 81 条 5 分钟微观数据及累积 Delta 参数全部更新为去重对齐后的精准数值。将 500 手 Sell 机构大单的成交价格更新为对齐后的价格 <strong><code>7623.75</code></strong> (对应结算价格 7560.00)。<br/>
+   * <strong>追加分析二（Report 1 / 吸收机制论证报告）</strong>：将 12:30-13:00 的 Delta 数字修正为 <strong><code>-1,965</code></strong>，并从订单流博弈角度（主动抛单与被动吸纳）对该时段的吸收和派发性质进行了严密的论证。<br/>
+   * <strong>追加分析三（Report 0 / 盘口辩证分析报告）</strong>：将收盘前 5 分钟的 Delta 修正为 <strong><code>-3,061</code></strong>，彻底解决了之前“顺势扫盘却看空”的逻辑矛盾，转而从“收盘量价负背离所印证的机构被动派发博弈结果”这一逻辑链条进行论证，实现了报告的高度自洽。</li>
+</ol>
+<p>相关的工作进度及明细，你可以查看更新后的 <a href="file:///Users/zhijiebian/.gemini/antigravity-ide/brain/4da893f8-0b0f-4ac2-9d7e-9efd42d2dc19/task.md">task.md</a> 以及 <a href="file:///Users/zhijiebian/.gemini/antigravity-ide/brain/4da893f8-0b0f-4ac2-9d7e-9efd42d2dc19/walkthrough.md#futures-rollover-direction--price-alignment-futures-rollover-方向与价格校正">walkthrough.md</a>。目前所有子任务均已圆满完成。</p>
+</section>
+</article>
+</main>
+</body>
+</html>
