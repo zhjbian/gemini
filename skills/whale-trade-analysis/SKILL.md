@@ -106,6 +106,13 @@ When the user asks to analyze whale trades:
   2. **微观买盘衰竭判定 (Micro Buying Pressure Exhaustion Verification)**：当价格在阻力区间向上反弹拉升测试时，观察 5分钟微观 Delta 变化。如果价格上行但净买入 Delta 绝对值呈现断崖式萎缩（例如萎缩 50% 以上），判定为**多头买盘衰竭（Exhaustion）**。
   3. **区间锁定与 Delta 效率正背离 (Range Locking & Positive Delta Efficiency)**：若日内 CVD 累积为高额负值（主动砸盘涌入），但价格不跌反涨或横盘震荡，判定为存在低位冰山买单（Passive Buy Absorption）托底价格，属于机构为了能在高位出掉更多筹码而进行的**区间锁定（Range Locking）**行为。
 
+- **OI清算对决与多空判定终极法则 (Ultimate Rule of OI Clearing and Directional Verdict)**:
+  在分析包含次日持仓量（OI）清算变动的情况时，必须遵循以下核心决策与推导原则：
+  1. **清算数据（OI Change）具有最高表决权**：对于极深实值期权（Deep In-the-Money, DITM，包括 DITM Call 和 DITM Put）的大单或扫货行为，若次日清算后发现其持仓量（OI）出现大幅萎缩、没有对应增长甚至完全归零，说明该合约已被提前行权（Early Exercise）或平仓对锁（Delta Neutralization）。系统**必须强制**将该笔资金流的方向权重归零，并最终判定为**中性（Neutral）**。任何技术指标、技术分析（如日线图底部/顶部、均线支撑或阻力等）或盘面形态均无权推翻此清算结论。
+  2. **区分“点位”与“动能”**：技术图表的价格位置（Price Location，例如日线图底部/阻力位）仅用于评估“在发生实质方向性交易的前提下，其胜率与盈亏比表现如何”；而期权成交量和订单流数据则用于评估“是否存在具有方向性的主动性资金动能（Momentum）”。当资金动能本身被清算证实为中性时，无论技术图表的位置多么完美，也**绝对不能**给出发动方向性行情的判定结论（Bullish/Bearish）。
+  3. **双向对称性与通用性设计**：此清算判定法则在多空方向上完全对称适用。无论是在日K底部出现的 DITM Call 大宗扫盘（不可盲目因底部形态判定为看多，若 OI 归零则代表中性对锁或股息套利），还是在日K阻力高位出现的 DITM Put 大宗扫盘（不可盲目判定为看空，若 OI 归零则代表中性保护性锁仓、转换套利或清算轧差），只要次日 OI 归零，均必须判定为**中性（Neutral）**。
+
+
 ### 1. Markdown Data Columns and Interpretation
 
 When parsing the pasted Markdown tables, you must map the column values and apply the corresponding logic:
