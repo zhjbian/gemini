@@ -214,14 +214,13 @@
 <span>Saved: 2026-06-20 20:01:44</span>
 <span>Question summary: tpo_and_volume_profile_analysis</span>
 </div>
-</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#一-tpo-market-profile-分析">一、 TPO Market Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的痛点-为何-太慢">2. 日内交易的痛点（为何“太慢”）</a></li><li><a href="#3-针对日内交易的优化方案">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#二-volume-profile-分析">二、 Volume Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用-2">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的优势-实时性强">2. 日内交易的优势（“实时性强”）</a></li><li><a href="#3-针对日内交易的优化方案-2">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#三-两者在日内交易中的协同优化框架">三、 两者在日内交易中的协同优化框架</a><ul><li><a href="#总结实施方案">总结实施方案：</a></li></ul></li></ul></li></ul></div>
-<section>
-<h2 id="question">Question</h2>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#tpo_and_volume_profile_analysis">tpo_and_volume_profile_analysis</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-tpo-market-profile-分析">一、 TPO Market Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的痛点-为何-太慢">2. 日内交易的痛点（为何“太慢”）</a></li><li><a href="#3-针对日内交易的优化方案">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#二-volume-profile-分析">二、 Volume Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用-2">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的优势-实时性强">2. 日内交易的优势（“实时性强”）</a></li><li><a href="#3-针对日内交易的优化方案-2">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#三-两者在日内交易中的协同优化框架">三、 两者在日内交易中的协同优化框架</a><ul><li><a href="#总结实施方案">总结实施方案：</a></li></ul></li></ul></li><li><a href="#tpo_shape_classification">tpo_shape_classification</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#tpo_tail_detection">tpo_tail_detection</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-买方尾部拒绝-buying-tail-bottom-excess">1. 买方尾部拒绝 (Buying Tail / Bottom Excess)</a></li><li><a href="#2-卖方尾部拒绝-selling-tail-top-excess">2. 卖方尾部拒绝 (Selling Tail / Top Excess)</a></li><li><a href="#3-区间合并与字母标注">3. 区间合并与字母标注</a></li></ul></li></ul></div>
+<section><h2 id="tpo_and_volume_profile_analysis">tpo_and_volume_profile_analysis</h2><section>
+<h3 id="question">Question</h3>
 <p>TPO market profile 每30分钟才更新一次 对于日内交易太慢了<br/>
 请对TPO market profile和volume profile 分别分析</p>
-</section>
-<section>
-<h2 id="answer">Answer</h2>
+</section><section>
+<h3 id="answer">Answer</h3>
 <p>针对 TPO Market Profile（时间价格机会分布）和 Volume Profile（成交量分布）在日内交易中的滞后性问题，以下从拍卖市场理论（Auction Market Theory）与订单流微观结构的视角，为您对两者进行深度对比分析，并提供适合日内高频交易的实时化改造方案。</p>
 <hr/>
 <h3 id="一-tpo-market-profile-分析">一、 TPO Market Profile 分析</h3>
@@ -292,8 +291,28 @@
 <li><strong>静态坐标（TPO）</strong>：使用前一日的 TPO 边界（VAH, VAL, POC, Tails）作为今日日内交易的静态警戒线。</li>
 <li><strong>动态执行（Volume Profile + Order Flow）</strong>：在静态警戒线附近，放弃等待 30 分钟的 TPO 字母更新，转而通过 <strong>实时 Volume Profile 的 VPOC 漂移</strong> 和 <strong>5分钟微观成交量 Delta 的变化</strong> 实时做出买入或卖出决策。这既保留了拍卖市场理论的宏观结构优势，又解决了日内交易的滞后问题。</li>
 </ol>
-</section>
-</article>
+</section></section><section><h2 id="tpo_shape_classification">tpo_shape_classification</h2><h3 id="question-2">Question</h3><p>如果识别出是：b shape, P shape, B shape 或其他常规分析的shape 请注明</p><h3 id="answer-2">Answer</h3><p>已将经典 TPO 形态结构的字母标记（如 b型、P型、B型、D型）显式集成到日内形态（Day Type）分类逻辑中。</p>
+<p>修改逻辑：<br/>
+在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/market_profile_analyst.py">market_profile_analyst.py</a> 中的 <code>classify_day_type</code> 函数中，对各个分类进行了显式标注：<br/>
+* B型盘面：Double Distribution Day 标注为 双分布趋势日 - 字母'B'型盘面。<br/>
+* b型盘面：保留原有 字母'b'型盘面 - 多头平仓/被动买盘吸收 描述。<br/>
+* P型盘面：保留原有 字母'P'型盘面 - 空头回补/被动卖盘吸收 描述.<br/>
+* D型盘面：<br/>
+  * Normal Day 标注为 典型平衡日 - 字母'D'型/对称平衡盘面。<br/>
+  * Non-Trend Day 标注为 无趋势盘整日 - 窄幅'D'型/对称平衡盘面。<br/>
+  * 偏弱的单边拉升/下跌变体（Normal Variation Day）分别标注为 'D'型震荡偏弱盘面 和 'D'型震荡偏强盘面。</p></section><section><h2 id="tpo_tail_detection">tpo_tail_detection</h2><h3 id="question-3">Question</h3><p>日内尾部拒绝 (Tails) 是怎么判定的</p><h3 id="answer-3">Answer</h3><p>在 Market Profile 分析引擎中，日内尾部拒绝（Tails，在经典拍卖市场理论中也称为 Excess）的判定逻辑如下：</p>
+<h3 id="1-买方尾部拒绝-buying-tail-bottom-excess">1. 买方尾部拒绝 (Buying Tail / Bottom Excess)</h3>
+<p>买方尾部拒绝用于识别当日低价区发生的机构主动性买盘介入：<br/>
+* <strong>扫描方向：</strong> 从当日最低价开始，沿价格序列从小到大向上顺序扫描。<br/>
+* <strong>判定标准：</strong> 如果某个价格水平的 TPO 计数（即在该价格停留过的 15分钟 bracket 周期数）恰好等于 1，则将该价格归入候选买方尾部。一旦扫描到某个价格水平的 TPO 计数大于 1，扫描立即终止。<br/>
+* <strong>过滤阈值：</strong> 如果候选价格水平的个数少于 2 个（即连续的单 TPO 价格少于 2 ticks，高度小于 0.50 点），则判定此处的拒绝强度不足，不能构成有效的买方尾部（将其清空）。</p>
+<h3 id="2-卖方尾部拒绝-selling-tail-top-excess">2. 卖方尾部拒绝 (Selling Tail / Top Excess)</h3>
+<p>卖方尾部拒绝用于识别当日高价区发生的机构主动性卖盘抛压：<br/>
+* <strong>扫描方向：</strong> 从当日最高价开始，沿价格序列从大到小向下逆序扫描。<br/>
+* <strong>判定标准：</strong> 同样地，如果某个价格水平的 TPO 计数恰好等于 1，则将该价格归入候选卖方尾部。一旦扫描到某个价格水平的 TPO 计数大于 1，扫描立即终止。<br/>
+* <strong>过滤阈值：</strong> 同样如果候选价格水平的个数少于 2 个（少于 2 ticks / 小于 0.50 点），则判定不构成有效的卖方尾部并将其清空。</p>
+<h3 id="3-区间合并与字母标注">3. 区间合并与字母标注</h3>
+<p>在识别出符合上述阈值要求的原始价格序列后，系统会通过合并辅助函数将连续的价格档位压缩为区间展示（如 <code>7323.75 - 7331.25</code>），同时调取该价格区间内唯一的 TPO 周期字母，并在结论中加以标注（如 <code>(G)</code> 周期），以指示具体的发生时间段。</p></section></article>
 </main>
 </body>
 </html>
