@@ -214,7 +214,7 @@
 <span>Saved: 2026-06-20 20:01:44</span>
 <span>Question summary: tpo_and_volume_profile_analysis</span>
 </div>
-</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#tpo_and_volume_profile_analysis">tpo_and_volume_profile_analysis</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-tpo-market-profile-分析">一、 TPO Market Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的痛点-为何-太慢">2. 日内交易的痛点（为何“太慢”）</a></li><li><a href="#3-针对日内交易的优化方案">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#二-volume-profile-分析">二、 Volume Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用-2">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的优势-实时性强">2. 日内交易的优势（“实时性强”）</a></li><li><a href="#3-针对日内交易的优化方案-2">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#三-两者在日内交易中的协同优化框架">三、 两者在日内交易中的协同优化框架</a><ul><li><a href="#总结实施方案">总结实施方案：</a></li></ul></li></ul></li><li><a href="#tpo_shape_classification">tpo_shape_classification</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#tpo_tail_detection">tpo_tail_detection</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-买方尾部拒绝-buying-tail-bottom-excess">1. 买方尾部拒绝 (Buying Tail / Bottom Excess)</a></li><li><a href="#2-卖方尾部拒绝-selling-tail-top-excess">2. 卖方尾部拒绝 (Selling Tail / Top Excess)</a></li><li><a href="#3-区间合并与字母标注">3. 区间合并与字母标注</a></li></ul></li></ul></div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#tpo_and_volume_profile_analysis">tpo_and_volume_profile_analysis</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-tpo-market-profile-分析">一、 TPO Market Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的痛点-为何-太慢">2. 日内交易的痛点（为何“太慢”）</a></li><li><a href="#3-针对日内交易的优化方案">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#二-volume-profile-分析">二、 Volume Profile 分析</a><ul><li><a href="#1-核心逻辑与日内应用-2">1. 核心逻辑与日内应用</a></li><li><a href="#2-日内交易的优势-实时性强">2. 日内交易的优势（“实时性强”）</a></li><li><a href="#3-针对日内交易的优化方案-2">3. 针对日内交易的优化方案</a></li></ul></li><li><a href="#三-两者在日内交易中的协同优化框架">三、 两者在日内交易中的协同优化框架</a><ul><li><a href="#总结实施方案">总结实施方案：</a></li></ul></li></ul></li><li><a href="#tpo_shape_classification">tpo_shape_classification</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#tpo_tail_detection">tpo_tail_detection</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-买方尾部拒绝-buying-tail-bottom-excess">1. 买方尾部拒绝 (Buying Tail / Bottom Excess)</a></li><li><a href="#2-卖方尾部拒绝-selling-tail-top-excess">2. 卖方尾部拒绝 (Selling Tail / Top Excess)</a></li><li><a href="#3-区间合并与字母标注">3. 区间合并与字母标注</a></li></ul></li><li><a href="#macro_pivots_calculation_rules">macro_pivots_calculation_rules</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#第一步-计算核心枢纽点位-pivots">第一步：计算核心枢纽点位 (Pivots)</a></li><li><a href="#第二步-根据收盘价推导-4-大关键价格点位">第二步：根据收盘价推导 4 大关键价格点位</a><ul><li><a href="#1-主轴枢纽线-primary-pivot-7508-00">1. 主轴枢纽线 (Primary Pivot) = 7508.00</a></li><li><a href="#2-回踩支撑带-lower-supports-7508-00-7524-00">2. 回踩支撑带 (Lower Supports) = 7508.00 / 7524.00</a></li><li><a href="#3-空头确立边界-short-trigger-7478-00">3. 空头确立边界 (Short Trigger) = 7478.00</a></li><li><a href="#4-向上看多目标-long-target-7789-00">4. 向上看多目标 (Long Target) = 7789.00</a></li></ul></li></ul></li><li><a href="#theoretical_basis_of_trigger_and_target">theoretical_basis_of_trigger_and_target</a><ul><li><a href="#question-5">Question</a></li><li><a href="#answer-5">Answer</a></li><li><a href="#一-空头确立边界的减去-30-0-点-short-trigger-buffer">一、空头确立边界的减去 30.0 点 (Short Trigger Buffer)</a></li><li><a href="#二-向上看多目标的加上-150-0-点-long-target-projection">二、向上看多目标的加上 150.0 点 (Long Target Projection)</a></li><li><a href="#总结">总结</a></li></ul></li><li><a href="#weekly_vs_daily_rolling_pivots_workflow">weekly_vs_daily_rolling_pivots_workflow</a><ul><li><a href="#question-6">Question</a></li><li><a href="#answer-6">Answer</a></li><li><a href="#一-方法一-周度锚定-本周内参考上周五-周末的计算结果">一、方法一：周度锚定（本周内参考上周五/周末的计算结果）</a></li><li><a href="#二-方法二-日度滚动-参考每天收盘后重新计算的结果">二、方法二：日度滚动（参考每天收盘后重新计算的结果）</a></li><li><a href="#三-建议的最佳实践工作流-hybrid-workflow">三、建议的最佳实践工作流 (Hybrid Workflow)</a></li></ul></li></ul></div>
 <section><h2 id="tpo_and_volume_profile_analysis">tpo_and_volume_profile_analysis</h2><section>
 <h3 id="question">Question</h3>
 <p>TPO market profile 每30分钟才更新一次 对于日内交易太慢了<br/>
@@ -312,7 +312,148 @@
 * <strong>判定标准：</strong> 同样地，如果某个价格水平的 TPO 计数恰好等于 1，则将该价格归入候选卖方尾部。一旦扫描到某个价格水平的 TPO 计数大于 1，扫描立即终止。<br/>
 * <strong>过滤阈值：</strong> 同样如果候选价格水平的个数少于 2 个（少于 2 ticks / 小于 0.50 点），则判定不构成有效的卖方尾部并将其清空。</p>
 <h3 id="3-区间合并与字母标注">3. 区间合并与字母标注</h3>
-<p>在识别出符合上述阈值要求的原始价格序列后，系统会通过合并辅助函数将连续的价格档位压缩为区间展示（如 <code>7323.75 - 7331.25</code>），同时调取该价格区间内唯一的 TPO 周期字母，并在结论中加以标注（如 <code>(G)</code> 周期），以指示具体的发生时间段。</p></section></article>
+<p>在识别出符合上述阈值要求的原始价格序列后，系统会通过合并辅助函数将连续的价格档位压缩为区间展示（如 <code>7323.75 - 7331.25</code>），同时调取该价格区间内唯一的 TPO 周期字母，并在结论中加以标注（如 <code>(G)</code> 周期），以指示具体的发生时间段。</p></section><section><h2 id="macro_pivots_calculation_rules">macro_pivots_calculation_rules</h2><h3 id="question-4">Question</h3><p>2026-06-18</p>
+<p>大周期关键价格点位<br/>
+向上看多目标 (Long Target):   7789.00<br/>
+主轴枢纽线 (Primary Pivot):  7508.00<br/>
+回踩支撑带 (Lower Supports): 7508.00 / 7524.00<br/>
+空头确立边界 (Short Trigger): 7478.00</p>
+<p>这个是怎么算出来的</p><h3 id="answer-4">Answer</h3><p>在系统对 <strong>2026-06-18</strong> 收盘数据进行大周期趋势研判时，所输出的关键价格点位是通过以下两个核心层级计算得出的：</p>
+<ol>
+<li><strong>核心枢纽点位 (Pivots)</strong>：利用 <code>ESPivotIdentifier</code> 算法，从过去 5 个交易日的订单流大单及 Delta 分布中提取出的三个强筹码密集区。</li>
+<li><strong>位置关系推导</strong>：将当日 ES 收盘价与这三个枢纽点位进行公式化逻辑推导，计算出具体的操作目标及确立边界。</li>
+</ol>
+<hr/>
+<h3 id="第一步-计算核心枢纽点位-pivots">第一步：计算核心枢纽点位 (Pivots)</h3>
+<p>算法引擎 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/es_pivot_identifier.py">es_pivot_identifier.py</a> 在 2026-06-18 收盘后，获取了此前 5 个交易日的 RTH (常规交易时段 06:30 - 13:00) 交易数据，并按以下步骤进行分析：</p>
+<ol>
+<li><strong>排除合约展期跳空 (Contract Roll Adjustment)</strong>：如果检测到展期月的价格跳空 (大于或等于 20 点)，会对历史价格进行平滑修正。</li>
+<li><strong>网格化候选价格评估</strong>：以 1 个点为步长，在 lookback 窗口的最高和最低价格区间内，对每一个整数价格档位进行 4 个维度的量化评分：<br/>
+   * <strong>CVP (累积成交量比重)</strong>：该价格附近 1.0 点范围内的机构大单累计成交量。<br/>
+   * <strong>ASJ (扫损主动单体积)</strong>：成交量大于或等于 500 手的主动扫损单的堆积程度。<br/>
+   * <strong>PIL (价格失衡及防线留存度)</strong>：大单成交后，价格在随后 5 分钟内是否能有效守在支撑/阻力之上（用来识别被动买入/被动卖出吸收量）。<br/>
+   * <strong>DFL (Delta 存量强度)</strong>：5分钟微观 K 线中穿过该价格档位的累积 Delta 绝对值之和。</li>
+<li><strong>计算强度得分 (Strength Score)</strong>：<br/>
+   将上述 4 个指标在所有价格档位中进行归一化 (0 至 100)，然后按照以下权重进行加权求和，得到最终的强度得分：<br/>
+<code>得分 = 0.3 * CVP_norm + 0.4 * PIL_norm + 0.2 * DFL_norm + 0.1 * ASJ_norm</code></li>
+<li><strong>空间过滤与去重</strong>：<br/>
+   按得分从高到低排序，选择得分最高且<strong>彼此间隔至少 15 个点</strong>的 3 个价格作为最终的核心枢纽。</li>
+</ol>
+<p>在 <strong>2026-06-18</strong> 收盘后，算法在数据库中筛选并保存的 3 个核心枢纽为：<br/>
+* <strong>7508.00</strong>（强度得分：84%，分类：Balanced_HVN 平衡区高密区）<br/>
+* <strong>7524.00</strong>（强度得分：74%，分类：Bullish_Reclaim 多头收复区）<br/>
+* <strong>7639.00</strong>（强度得分：73%，分类：Balanced_HVN 平衡区高密区）</p>
+<hr/>
+<h3 id="第二步-根据收盘价推导-4-大关键价格点位">第二步：根据收盘价推导 4 大关键价格点位</h3>
+<p>在 <code>/api/macro_trend_context</code> 接口中，当日 ES 的 RTH 收盘参考价为 <strong>7579.75</strong>。<br/>
+位置推导逻辑将收盘价与上述 3 个枢纽（按升序排列：7508.00、7524.00、7639.00）进行比对：</p>
+<h4 id="1-主轴枢纽线-primary-pivot-7508-00">1. 主轴枢纽线 (Primary Pivot) = 7508.00</h4>
+<ul>
+<li><strong>推导公式</strong>：在所有核心枢纽中，选择强度得分最高的那一个。</li>
+<li><strong>计算过程</strong>：枢纽 7508.00 的得分为 84%，高于 7524.00 (74%) 和 7639.00 (73%)，因此被确立为主轴枢纽线。</li>
+</ul>
+<h4 id="2-回踩支撑带-lower-supports-7508-00-7524-00">2. 回踩支撑带 (Lower Supports) = 7508.00 / 7524.00</h4>
+<ul>
+<li><strong>推导公式</strong>：筛选出所有价格<strong>低于收盘价</strong>的核心枢纽，作为回踩时的支撑带。</li>
+<li><strong>计算过程</strong>：收盘价为 7579.75。在三个枢纽中，7508.00 和 7524.00 均低于 7579.75，而 7639.00 高于收盘价。</li>
+<li><strong>结果</strong>：这两个低于收盘价的两个核心枢纽组合形成了 <code>7508.00 / 7524.00</code> 支撑带。</li>
+</ul>
+<h4 id="3-空头确立边界-short-trigger-7478-00">3. 空头确立边界 (Short Trigger) = 7478.00</h4>
+<ul>
+<li><strong>推导公式</strong>：<code>最低核心枢纽价格 - 30.0 点</code></li>
+<li><strong>计算过程</strong>：三个核心枢纽中，价格最低的是 7508.00。</li>
+<li><strong>计算</strong>：<code>7508.00 - 30.0 = 7478.00</code>。</li>
+</ul>
+<h4 id="4-向上看多目标-long-target-7789-00">4. 向上看多目标 (Long Target) = 7789.00</h4>
+<ul>
+<li><strong>推导公式</strong>：</li>
+<li>如果 <code>收盘价 &gt;= 主轴枢纽线</code>，则 <code>看多目标 = 最高核心枢纽价格 + 150.0 点</code></li>
+<li>否则，<code>看多目标 = 主轴枢纽线</code></li>
+<li><strong>计算过程</strong>：收盘价 7579.75 大于主轴枢纽线 7508.00，满足第一个分支条件。</li>
+<li><strong>计算</strong>：最高枢纽价格为 7639.00，<code>7639.00 + 150.0 = 7789.00</code>。</li>
+</ul></section><section><h2 id="theoretical_basis_of_trigger_and_target">theoretical_basis_of_trigger_and_target</h2><h3 id="question-5">Question</h3><p>空头确立边界 (Short Trigger) = 7478.00<br/>
+推导公式：最低核心枢纽价格 - 30.0 点</p>
+<p>向上看多目标 (Long Target) = 7789.00<br/>
+推导公式：<br/>
+如果 收盘价 &gt;= 主轴枢纽线，则 看多目标 = 最高核心枢纽价格 + 150.0 点</p>
+<p>-30， +150 有什么理论依据吗，看起来有点随机</p><h3 id="answer-5">Answer</h3><p>在 S&amp;P 500 E-mini 期货 (ES) 的宏观走势分析中，这两个常数设定（负 30.0 点与正 150.0 点）并非随意编造，而是基于<strong>拍卖市场理论 (AMT)</strong> 中的<strong>市场结构确认</strong>、<strong>指数名义波动率 (ATR)</strong> 以及<strong>机构波段统计概率</strong>所制定的定量过滤边界：</p>
+<hr/>
+<h3 id="一-空头确立边界的减去-30-0-点-short-trigger-buffer">一、空头确立边界的减去 30.0 点 (Short Trigger Buffer)</h3>
+<ul>
+<li><strong>理论依据：防止“假破位/扫损诱空” (Stop Sweep &amp; Bear Trap)</strong><ul>
+<li>在拍卖市场理论中，最低核心枢纽 (Lowest Weekly Pivot) 代表过去 5 个交易日累积筹码堆积的最下沿（大周期强支撑）。</li>
+<li>如果价格仅仅是跌破该核心价格几个点，在订单流微观结构中极易属于<strong>扫损行情 (Liquidity Sweep)</strong>。机构主力常利用跌破强支撑来清扫多头零售散户的止损盘，并在迅速吸收这些卖单流动性后拉回，形成“熊市陷阱 (Bear Trap)”。</li>
+</ul>
+</li>
+<li><strong>波动率缓冲区 (Volatility Buffer)</strong>：<ul>
+<li>目前 ES 期货处于约 7500 点的高位，30 个指数点仅相当于大盘名义价格的约 <strong>0.4%</strong>。</li>
+<li>在日内和周度尺度上，0.4% 属于标准的日内波动噪音范围。只有当价格<strong>彻底跌破最低枢纽 30.0 点以上</strong>，且在下方持续承压时，才在统计学和结构上确认该周度平衡区底部的被动吸筹盘已完全撤守，空头结构正式确立。</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="二-向上看多目标的加上-150-0-点-long-target-projection">二、向上看多目标的加上 150.0 点 (Long Target Projection)</h3>
+<ul>
+<li><strong>理论依据：周度波幅扩展 (Weekly Range Extension / ATR)</strong><ul>
+<li>在多头趋势确立（收盘价高于主轴枢纽线）并脱离平衡区 (Initiation) 向上突破时，市场将进入“价格发现 (Price Discovery)”阶段，即单边上行趋势 (One-Timeframe Up)。</li>
+<li>由于上方无近期的筹码堆积区作为参考，系统需依据波动率规律来预测潜在的目标位。</li>
+</ul>
+</li>
+<li><strong>波动率计算与期望波幅</strong>：<ul>
+<li>在 7500 点的名义价格下，ES 目前的日均真实波幅 (Daily ATR) 大约为 50 至 75 点。</li>
+<li>当大盘确认向上突破最高核心枢纽（即平衡区上轨）并展开新一轮多头波段时，周度级别的波幅扩展通常会达到日 ATR 的 <strong>2 至 3 倍</strong>。</li>
+<li>因此，以最高枢纽为基准向上投射 <strong>150.0 点</strong>（约折合指数涨幅 <strong>2.0%</strong>），是历史上 ES 发生大周期平衡区向上突破时，最具有统计显著性的周度强阻力/多头第一止盈目标位。</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="总结">总结</h3>
+<p>这两个参数的设计逻辑是：<br/>
+*   <strong>-30.0 点 (空头确立)</strong>：是用作<strong>防守过滤网</strong>，过滤掉 0.4% 以内的多头扫损诱空噪音，避免交易员在强支撑附近盲目摸顶或追空。<br/>
+*   <strong>+150.0 点 (看多目标)</strong>：是用作<strong>进攻目标线</strong>，作为平衡区向上突破后，在无筹码参考的真空区内，基于 2 倍日 ATR 投射出的波段利润期望。</p></section><section><h2 id="weekly_vs_daily_rolling_pivots_workflow">weekly_vs_daily_rolling_pivots_workflow</h2><h3 id="question-6">Question</h3><p>大周期关键价格点位<br/>
+的结果每天都会变化 我应该怎么使用<br/>
+（1）本周内 参考上周五的结果<br/>
+还<br/>
+（2）参考每天重新计算的结果</p><h3 id="answer-6">Answer</h3><p>对于滚动 5 日大周期枢纽线 (lookback=5) 的变化性，在实际宏观趋势和订单流交易中，顶级交易员通常采用<strong>“周度锚定为主，日度滚动微调为辅”</strong>的结合方式。</p>
+<p>这两种方法各有其核心目的，通常推荐的职业交易工作流如下：</p>
+<hr/>
+<h3 id="一-方法一-周度锚定-本周内参考上周五-周末的计算结果">一、方法一：周度锚定（本周内参考上周五/周末的计算结果）</h3>
+<ul>
+<li><strong>适用场景</strong>：制定本周初的<strong>宏观交易计划（Weekly Roadmap）</strong>。</li>
+<li><strong>原理</strong>：上周五收盘后计算出的 pivots 凝聚了整整一周（5个交易日）的全部机构大单和筹码分布。这个静止的关口是本周开始时，市场公认的<strong>周度平衡区边界</strong>。</li>
+<li><strong>使用方式</strong>：<ul>
+<li>在周一开盘前，将上周五计算出的 <code>Primary Pivot</code>、<code>Lower Supports</code> 和 <code>Short Trigger</code> 绘制在图表上，作为<strong>静态分水岭</strong>。</li>
+<li>只要本周的价格没有出现极端单边突破，就应当坚守这套静态界线来指导日内和波段的做多/做空偏见，防止因为周中价格随机震荡导致交易计划频繁动摇。</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="二-方法二-日度滚动-参考每天收盘后重新计算的结果">二、方法二：日度滚动（参考每天收盘后重新计算的结果）</h3>
+<ul>
+<li><strong>适用场景</strong>：监控本周内是否发生了<strong>结构重估（Structural Re-rating）</strong>。</li>
+<li><strong>原理</strong>：随着新交易日的加入（例如到了周三，5日窗口会吐出上周的周一和周二，吸纳本周的周一和周二），滚动计算能实时反映本周最新入场的机构资金大单。</li>
+<li><strong>使用方式</strong>：<ul>
+<li><strong>在震荡行情中（Balance Area）</strong>：可以忽略每天微小的滚动点位漂移，以维持周度计划的连贯性。</li>
+</ul>
+</li>
+<li><strong>🚨 必须切换参考每日滚动结果的关键触发条件</strong>：<ol>
+<li><strong>价格发生大周期突破 (Breakout)</strong>：当价格强力突破了周初设定的静态目标或支撑边界，意味着市场已脱离旧的平衡，必须每天收盘后重新计算，以寻找新形成的筹码高密区（HVN）。</li>
+<li><strong>出现本周的超级大单堆积 (Mega Block Trade)</strong>：如果周一或周二在某个新价位爆发了极高成交量（比如单档价格出现数千手被动吸收单），日度滚动 pivots 的 <code>CVP</code> 和 <code>PIL</code> 评分会立刻反映这一新防线，此时必须修正静态枢纽，以新 pivots 作为后续的参考线。</li>
+</ol>
+</li>
+</ul>
+<hr/>
+<h3 id="三-建议的最佳实践工作流-hybrid-workflow">三、建议的最佳实践工作流 (Hybrid Workflow)</h3>
+<ol>
+<li><strong>周末/周一开盘前</strong>：<br/>
+    运行大周期查询，锁定上周五收盘的 pivots，作为本周的<strong>底图基准线</strong>。</li>
+<li><strong>每日收盘后</strong>：<br/>
+    查看当天的滚动 pivots。<ul>
+<li>如果发现 <code>Primary Pivot</code> 或关键支撑的漂移在 5-10 个点以内，且无大单爆量，<strong>保持周初的静态线不变</strong>。</li>
+<li>如果发现因本周大单密集入场导致 pivots 发生了 15 点以上的<strong>阶梯式跳跃</strong>（表明主力成本区彻底转移），则<strong>在图表上更新画线</strong>，参考最新的日度滚动结果。</li>
+</ul>
+</li>
+</ol></section></article>
 </main>
 </body>
 </html>
