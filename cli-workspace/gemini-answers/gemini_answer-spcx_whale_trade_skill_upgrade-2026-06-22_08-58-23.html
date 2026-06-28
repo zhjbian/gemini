@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - spcx_whale_trade_skill_upgrade</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-22 08:58:23</span>
+<span>Question summary: spcx_whale_trade_skill_upgrade</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#错误分析原因分析-root-cause-analysis">错误分析原因分析 (Root Cause Analysis)</a></li><li><a href="#agent-skill-whale-trade-analysis-升级内容-skill-upgrades">Agent Skill whale-trade-analysis 升级内容 (Skill Upgrades)</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>为什么</p>
+<p>Whale Trade 案例分析 - 分析报告:<br/>
+DB Table 'WhaleTradeCaseStudy', Column 'detail'<br/>
+Trade Date: 2026-06-18, Ticker: SPCX,  Big Order Type: OptionsFlow + OrderFlow<br/>
+Analysis report timestamp: 2026-06-22 06:32:46<br/>
+Report title: 机构大单深度分析报告：SPCX 战略级底部吸筹与股票替代建仓解析</p>
+<p>产生了错误的分析和结论 <br/>
+请更新升级 agent skill whale-trade-analysis</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>该大单（2026-06-18 SPCX 远期期权与现货大单组合，分析报告时间 2026-06-22 06:32:46）产生错误研判与看多结论的核心技术原因如下：</p>
+<h3 id="错误分析原因分析-root-cause-analysis">错误分析原因分析 (Root Cause Analysis)</h3>
+<ol>
+<li><strong>期权侧成交属性误判 (Misinterpretation of Option Print Sides)</strong>:<br/>
+   在此案交易明细中，<code>.SPCX270617C250</code>（DTE=364 天的远期看涨期权）成交在 Ask 侧（Side: A），被分析引擎自动识别为“主动买入看涨（Bullish）”。但在实际机构大宗交易（Floor/CROSS）中，由于流动性溢价或跨期对锁协议，机构在大批量卖出看涨期权（Short Call）时，其成交价也可能被做市商以 Ask 侧报价记录，导致字面多空情绪失真。</li>
+<li><strong>现货对冲 Delta 方向逻辑倒置 (MM Delta Hedging Direction Inversion)</strong>:<br/>
+   在 08:53:40 成交 of 1,580,000 股现货大宗交易（成交价 177.87，金额 $281.00M）属于与该期权组合关联 of 对锁现货交易（Tied-to-Stock）。<br/>
+   * 机构构筑的真实头寸是<strong>买入 20,000 手 170.00P (Long Put)</strong> 加上 <strong>卖出 20,000 手 250.00C (Short Call)</strong>。此组合具有负 Delta 敞口（Net Delta 约为 -0.79，相当于 -1,580,000 股现货敞口）。<br/>
+   * 作为对手方的做市商（Market Maker）承接了相反的敞口，拥有正 Delta（+0.79，即 +1,580,000 股）。为了维持 Delta 中性（Delta Neutral），做市商必须在现货市场上<strong>卖出对冲 1,580,000 股</strong>。<br/>
+   * 原报告错误地将这笔做市商的对冲卖单（Hedging Sell）解读为做市商买入现货以对冲做多头寸，从而得出了“机构战略吸筹”的相反结论。</li>
+<li><strong>过度依赖宏观低位形态 (Over-reliance on Daily Bottom Location)</strong>:<br/>
+   此前大单处于 176.00 - 180.00 的日K线相对低位，触发了分析引擎中“日K底部吸筹 (Daily Bottom Accumulation)”和“股票替代建仓 (Stock Replacement)”的优先匹配规则，未能充分考虑在该位置构建巨额合成做空（Synthetic Short）以谋求下行突破的可能性。</li>
+</ol>
+<hr/>
+<h3 id="agent-skill-whale-trade-analysis-升级内容-skill-upgrades">Agent Skill <code>whale-trade-analysis</code> 升级内容 (Skill Upgrades)</h3>
+<p>为彻底解决此类期权对锁现货及大宗组合的方向性误判，已对 <code>/Users/zhijiebian/.gemini/skills/whale-trade-analysis/SKILL.md</code> 进行了升级，增加并强化了以下决策机制：</p>
+<ul>
+<li><strong>新增“看空风险逆转与做市商对冲法则” (Bearish Risk Reversal &amp; MM Hedging Rule)</strong>:</li>
+<li><strong>结构识别</strong>: 明确规定当相同 <code>SprdId</code> 下出现 Long Put（通常成交在 Midpoint 或 Ask）与 Short Call（通常成交在 Midpoint 或 Bid）的组合时，强制将其判定为<strong>看空风险逆转组合 (Bearish Risk Reversal)</strong> 或合成做空（Synthetic Short）。</li>
+<li><strong>对冲方向判定</strong>: 强制规定该看空组合对应的对锁现货大宗交易（Tied-to-Stock）属于做市商的<strong>对冲卖单 (Hedging Sell)</strong>，即使在交易 tape 上因跨腿对锁原因显示为 Buy/Ask 属性，在研判时也必须作为空头供给进行对冲核算。</li>
+<li><strong>行情印证修正</strong>: 当标的资产在交易日后发生 5% - 10% 以上的下行破位或大跌时，引导分析模型将后续的暴跌走势作为方向性印证，对多空方向进行自适应重构。</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

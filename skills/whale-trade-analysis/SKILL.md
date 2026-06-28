@@ -62,6 +62,21 @@ When the user asks to analyze whale trades:
 - **Hedge Identification**: 
   - **Pure Arbitrage & Tied-to-Stock Rolls (Neutral)**: If the package is a same-expiration conversion/reversal, or a complex multi-leg roll with identical `SprdId` matched 1:1 against a stock block (Tied-to-Stock), classify it as **Neutral**.
   - **Calendar Diagonal Stock Replacement (Bearish/Defensive)**: If the package involves "selling immediate stock + buying far-OTM LEAPS Call + selling nearer-term Call" (but without same-SprdId exact stock delta-lock), even though the nominal static Delta is hedged, the immediate Delta exposure is slashed. Classify this as **Bearish**.
+  - **Bearish Risk Reversal & MM Hedging Rule (看空风险逆转与做市商对冲法则)**: 
+    - If a large options package (sharing the same `SprdId`) contains a Long Put (typically executed at Midpoint or Ask) and a Short Call (typically executed at Midpoint or Bid), it constitutes a **Bearish Risk Reversal (看空风险逆转组合)** or a Bearish Synthetic Short (合成做空).
+    - When analyzing its **Tied-to-Stock (期权对锁现货)** block trade:
+      - The option package Net Delta is negative (e.g. Put Delta of -0.46, Short Call Delta of -0.33, Net Delta of -0.79).
+      - The Market Maker (MM) as the counterparty is Long Call + Short Put, which has a positive Delta (+0.79).
+      - To remain Delta Neutral, the MM **MUST sell stock** as a hedge.
+      - Therefore, the matched stock block trade (Tied-to-Stock) represents a **hedging sell** by the MM, even if it is printed as Ask/Buy in the raw tape due to crossing trade conventions.
+      - If the stock price subsequently drops significantly (e.g. 5% - 10%+), it strongly validates that this trade was a bearish play from the beginning.
+      - Under this scenario, classify the case study direction as **Bearish (看空)** and write the report from the bearish risk reversal perspective.
+
+- **全要素三向评估法则 (Universal Three-Scenario Evaluation Rule)**:
+  - For **ALL** types of analysis (whether OptionsFlow, OrderFlow, or joint OptionsFlow + OrderFlow), you **must** evaluate three competing scenario hypotheses: **Bullish (看多)**, **Bearish (看空)**, and **Neutral (中性)**.
+  - Assign a quantitative confidence score (out of 10 or 100) to each of the three scenarios based on the available data evidence (e.g. print sides, premiums, Tied-to-Stock delta matching, macro chart locations, next-day OI changes, and subsequent price actions).
+  - The scenario receiving the highest score will serve as the final verdict.
+  - The final analysis report must dedicate a separate section detailing the specific analysis, evidence, and logical deduction for each of the three possibilities (Bullish Scenario, Bearish Scenario, and Neutral Scenario).
 
 - **Comprehensive Re-synthesis Rule**:
   - Whenever new or follow-up information (such as next-day OI updates or additional spot block transactions) is provided, you **must** perform a fully integrated, comprehensive re-analysis of the entire trade package using all available cumulative inputs.
@@ -195,6 +210,7 @@ The final report must contain:
 7. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).
 8. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
 9. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual option contract leg with **Premium >= $50M**.
+10. **Three-Scenario Evaluation (三向评估分析)**: For joint `OptionsFlow + OrderFlow` cases, the report must include a section explicitly presenting the detailed analysis, evidence, and confidence score calculations (Bullish, Bearish, and Neutral) for each of the three hypotheses. The final joint verdict must correspond to the scenario with the highest score.
 
 ---
 

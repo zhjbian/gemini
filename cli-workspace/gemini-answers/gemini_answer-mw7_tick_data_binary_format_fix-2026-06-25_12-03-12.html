@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - mw7_tick_data_binary_format_fix</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-25 12:03:12</span>
+<span>Question summary: mw7_tick_data_binary_format_fix</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#problem-analysis">Problem Analysis</a><ul><li><a href="#root-cause">Root Cause</a></li><li><a href="#evidence-of-the-bug">Evidence of the Bug</a></li><li><a href="#mw7-binary-format-decoded">MW7 Binary Format (Decoded)</a></li><li><a href="#fix-applied-to-mw_tick_parser_backfill_raw-py">Fix Applied to mw_tick_parser_backfill_raw.py</a><ul><li><a href="#1-find_record_format-detect_mw_version">1. find_record_format() → detect_mw_version()</a></li><li><a href="#2-get_first_tick_price-updated-for-mw7">2. get_first_tick_price() — Updated for MW7</a></li><li><a href="#3-main-parsing-loop-dual-format-support">3. Main Parsing Loop — Dual format support</a></li></ul></li><li><a href="#verification-results">Verification Results</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>resume</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h2 id="problem-analysis">Problem Analysis</h2>
+<p>After upgrading MotiveWave from v6 to v7, the <code>mw_tick_parser_backfill_raw.py</code> script was producing CSV tick data with severely incorrect BID/ASK side classification. The delta plotted by <code>plot_es_volume_delta.py</code> was completely wrong as a result.</p>
+<h3 id="root-cause">Root Cause</h3>
+<p>MotiveWave v7 changed the <code>.tick_data</code> binary file format fundamentally:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>MW6</th>
+<th>MW7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Byte Order</td>
+<td>Little-endian</td>
+<td><strong>Big-endian</strong></td>
+</tr>
+<tr>
+<td>Header</td>
+<td>Variable length (~40 bytes)</td>
+<td>Fixed 28 bytes (magic=0x3281bb96)</td>
+</tr>
+<tr>
+<td>Record size</td>
+<td>Variable (heuristic scan)</td>
+<td>Fixed 28 bytes</td>
+</tr>
+<tr>
+<td>Side determination</td>
+<td>Direct byte[13] read (0=BID, 1=ASK)</td>
+<td><strong>Compare trade_price against ask/bid prices</strong></td>
+</tr>
+<tr>
+<td>Record content</td>
+<td>side, time_delta, price, size</td>
+<td>time_delta, size, price, ask_price, ask_size, bid_price, bid_size</td>
+</tr>
+</tbody>
+</table>
+<h3 id="evidence-of-the-bug">Evidence of the Bug</h3>
+<p>BID/ASK distribution comparison:</p>
+<table>
+<thead>
+<tr>
+<th>Data Source</th>
+<th>BID</th>
+<th>ASK</th>
+<th>Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Old backup CSV (correct)</strong></td>
+<td>394,205 (50.4%)</td>
+<td>387,179 (49.6%)</td>
+<td>Normal</td>
+</tr>
+<tr>
+<td><strong>Broken new CSV (MW6 parser on MW7 data)</strong></td>
+<td>944,369 (96.0%)</td>
+<td>39,332 (4.0%)</td>
+<td>Severely wrong</td>
+</tr>
+<tr>
+<td><strong>Fixed new CSV (MW7 parser)</strong></td>
+<td>548,176 (55%)</td>
+<td>448,789 (45%)</td>
+<td>Normal</td>
+</tr>
+</tbody>
+</table>
+<h3 id="mw7-binary-format-decoded">MW7 Binary Format (Decoded)</h3>
+<p><strong>Header (28 bytes, big-endian):</strong></p>
+<pre><code>[0:4]   magic            (int32)  = 0x3281bb96
+[4:8]   version          (int32)  = 1
+[8:12]  record_count     (int32)
+[12:20] start_timestamp  (int64)  milliseconds
+[20:28] end_timestamp    (int64)  milliseconds
+</code></pre>
+<p><strong>Record (28 bytes, big-endian):</strong></p>
+<pre><code>[0:4]   time_delta_ms    (int32)  offset from hour start
+[4:8]   trade_size       (int32)  number of contracts
+[8:12]  trade_price      (float32) execution price
+[12:16] ask_price        (float32) best ask at time of trade
+[16:20] ask_size         (int32)  ask depth at best ask
+[20:24] bid_price        (float32) best bid at time of trade
+[24:28] bid_size         (int32)  bid depth at best bid
+</code></pre>
+<p><strong>Side Determination Logic (MW7):</strong><br/>
+- If <code>trade_price &gt;= ask_price</code> → <strong>ASK</strong> (buyer-initiated, lifting the ask)<br/>
+- If <code>trade_price &lt;= bid_price</code> → <strong>BID</strong> (seller-initiated, hitting the bid)<br/>
+- Otherwise → midpoint trade, default to ASK</p>
+<h3 id="fix-applied-to-mw_tick_parser_backfill_raw-py">Fix Applied to <code>mw_tick_parser_backfill_raw.py</code></h3>
+<p><strong>Modified file:</strong> <code>PyTools/order_flow_analysis/mw_tick_parser_backfill_raw.py</code></p>
+<h4 id="1-find_record_format-detect_mw_version">1. <code>find_record_format()</code> → <code>detect_mw_version()</code></h4>
+<p>Replaced the old heuristic-only function with a version-aware detector that returns <code>(header_size, rec_size, mw_version)</code>:</p>
+<pre><code class="language-python">def detect_mw_version(data):
+    """Detect MotiveWave binary format version.
+
+    Returns: (header_size, rec_size, mw_version)
+      - MW7: header=28, rec_size=28, version=7
+      - MW6: header=variable, rec_size=variable, version=6
+      - Unknown: (-1, -1, 0)
+    """
+    if len(data) &lt; 56:
+        return -1, -1, 0
+
+    # --- Try MW7 format first ---
+    magic = struct.unpack('&gt;i', data[0:4])[0]
+    if magic == 0x3281bb96:
+        version_field = struct.unpack('&gt;i', data[4:8])[0]
+        record_count = struct.unpack('&gt;i', data[8:12])[0]
+        if version_field &gt;= 1 and record_count &gt; 0:
+            rec = data[28:56]
+            td = struct.unpack('&gt;i', rec[0:4])[0]
+            tsize = struct.unpack('&gt;i', rec[4:8])[0]
+            tprice = struct.unpack('&gt;f', rec[8:12])[0]
+            if 0 &lt;= td &lt; 3600000 and 10 &lt; tprice &lt; 100000 and 0 &lt;= tsize &lt; 1000000:
+                return 28, 28, 7
+
+    # --- Fall back to MW6 heuristic scan ---
+    start = -1
+    for i in range(40, 300):
+        if i + 13 &gt; len(data): continue
+        td = struct.unpack('&lt;i', data[i+1:i+5])[0]
+        pr = struct.unpack('&lt;f', data[i+5:i+9])[0]
+        sz = struct.unpack('&lt;i', data[i+9:i+13])[0]
+        if 0 &lt;= td &lt; 3600000 and 10 &lt; pr &lt; 100000 and 0 &lt;= sz &lt; 1000000:
+            start = i
+            break
+    if start == -1: return -1, -1, 0
+
+    for rec_size in range(16, 40):
+        next_i = start + rec_size
+        if next_i + 13 &gt; len(data): continue
+        td = struct.unpack('&lt;i', data[next_i+1:next_i+5])[0]
+        pr = struct.unpack('&lt;f', data[next_i+5:next_i+9])[0]
+        sz = struct.unpack('&lt;i', data[next_i+9:next_i+13])[0]
+        if 0 &lt;= td &lt; 3600000 and 10 &lt; pr &lt; 100000 and 0 &lt;= sz &lt; 1000000:
+            return start, rec_size, 6
+    return start, -1, 0
+</code></pre>
+<h4 id="2-get_first_tick_price-updated-for-mw7">2. <code>get_first_tick_price()</code> — Updated for MW7</h4>
+<pre><code class="language-python">rec_start, rec_size, mw_ver = detect_mw_version(data)
+if rec_start != -1 and rec_size != -1:
+    record = data[rec_start:rec_start+rec_size]
+    if mw_ver == 7:
+        price = struct.unpack('&gt;f', record[8:12])[0]   # big-endian float at offset 8
+    else:
+        price = struct.unpack('&lt;f', record[5:9])[0]     # little-endian float at offset 5
+    return price
+</code></pre>
+<h4 id="3-main-parsing-loop-dual-format-support">3. Main Parsing Loop — Dual format support</h4>
+<pre><code class="language-python">rec_start, rec_size, mw_ver = detect_mw_version(data)
+
+if mw_ver == 7:
+    record_count = struct.unpack('&gt;i', data[8:12])[0]
+    num_records = min(record_count, (len(data) - rec_start) // rec_size)
+else:
+    num_records = (len(data) - rec_start) // rec_size
+
+for i in range(num_records):
+    pos = rec_start + i * rec_size
+    record = data[pos:pos+rec_size]
+
+    if mw_ver == 7:
+        # MW7: big-endian, 28-byte records
+        time_delta = struct.unpack('&gt;i', record[0:4])[0]
+        t_time = hour_start_ms + time_delta
+        volume = struct.unpack('&gt;i', record[4:8])[0]
+        price = struct.unpack('&gt;f', record[8:12])[0]
+        ask_price = struct.unpack('&gt;f', record[12:16])[0]
+        bid_price = struct.unpack('&gt;f', record[20:24])[0]
+        if price &gt;= ask_price:
+            side = "ASK"
+        elif price &lt;= bid_price:
+            side = "BID"
+        else:
+            side = "ASK"  # midpoint trades default to ASK
+    else:
+        # MW6: little-endian
+        time_delta = struct.unpack('&lt;i', record[1:5])[0]
+        t_time = hour_start_ms + time_delta
+        price = struct.unpack('&lt;f', record[5:9])[0]
+        volume = struct.unpack('&lt;i', record[9:13])[0]
+        side = "ASK" if record[13] != 0 else "BID"
+</code></pre>
+<h3 id="verification-results">Verification Results</h3>
+<p>After the fix, both ES and NQ backfills produce correct data:</p>
+<pre><code>--- Processing ESU26 ---
+Detected MotiveWave format: MW7 (rec_size=28)
+Success! Processed 996,965 ticks for 2026-06-25.
+
+ES BID/ASK: BID 548,176 (55%) / ASK 448,789 (45%) ✓
+
+--- Processing NQU26 ---
+Detected MotiveWave format: MW7 (rec_size=28)
+Success! Processed 404,393 ticks for 2026-06-25.
+
+NQ BID/ASK: BID 203,556 (50.3%) / ASK 200,837 (49.7%) ✓
+</code></pre>
+<p>The <code>plot_es_volume_delta.py</code> script (which reads the CSV output) will now produce correct delta charts since the underlying BID/ASK data is accurate.</p>
+</section>
+</article>
+</main>
+</body>
+</html>

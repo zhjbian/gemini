@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - whale_trade_scoring_calculation</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-22 12:41:14</span>
+<span>Question summary: whale_trade_scoring_calculation</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#一-期权与订单流联合分析中的三向置信度评分-three-scenario-evaluation">一、 期权与订单流联合分析中的三向置信度评分 (Three-Scenario Evaluation)</a><ul><li><a href="#1-看空假设-bearish-hypothesis-评估依据">1. 看空假设 (Bearish Hypothesis) 评估依据</a></li><li><a href="#2-看多假设-bullish-hypothesis-评估依据">2. 看多假设 (Bullish Hypothesis) 评估依据</a></li><li><a href="#3-中性假设-neutral-hypothesis-评估依据">3. 中性假设 (Neutral Hypothesis) 评估依据</a></li></ul></li><li><a href="#二-订单流机构意图强度定量分析-quantitative-institutional-intent-strength">二、 订单流机构意图强度定量分析 (Quantitative Institutional Intent Strength)</a><ul><li><a href="#1-被动拦截与吸收得分-m_pa-满分-30-分">1. 被动拦截与吸收得分 (M_pa) —— 满分 30 分</a></li><li><a href="#2-累积-delta-价格背离得分-m_div-满分-25-分">2. 累积 Delta-价格背离得分 (M_div) —— 满分 25 分</a></li><li><a href="#3-主动扫盘确认得分-m_sw-满分-25-分">3. 主动扫盘确认得分 (M_sw) —— 满分 25 分</a></li><li><a href="#4-微观动能衰竭得分-m_ex-满分-20-分">4. 微观动能衰竭得分 (M_ex) —— 满分 20 分</a></li></ul></li><li><a href="#三-意图强度级别划分-strength-level">三、 意图强度级别划分 (Strength Level)</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>分数是怎么计算的</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>在 <code>whale-trade-analysis</code>（机构大单分析）体系中，分数的计算包含两个维度的评估体系：<strong>联合分析中的三向评估置信度评分</strong>，以及<strong>纯订单流（如ES期货）的机构意图强度评分</strong>。</p>
+<p>以下是具体的计算逻辑和标准：</p>
+<hr/>
+<h3 id="一-期权与订单流联合分析中的三向置信度评分-three-scenario-evaluation">一、 期权与订单流联合分析中的三向置信度评分 (Three-Scenario Evaluation)</h3>
+<p>对于 <code>OptionsFlow + OrderFlow</code> 联合案例（如上述 SPCX 的分析），模型需要对三种相互竞争的假设进行<strong>置信度（Confidence Score）</strong>量化评估。各个假设的评分并不是简单的套用公式，而是基于以下数据证据的交叉验证与权衡：</p>
+<h4 id="1-看空假设-bearish-hypothesis-评估依据">1. 看空假设 (Bearish Hypothesis) 评估依据</h4>
+<ul>
+<li><strong>资金倾斜度</strong>：看空方向的期权权利金（Premium）与看多权利金的绝对比例。SPCX 案例中，Sep 18 205P/225C 等看空风险逆转组合（Bearish Risk Reversal）的权利金总额高达 252.50M，看空与看多权利金之比超过 5:1。</li>
+<li><strong>对手方对冲传导（Delta Transmission）</strong>：计算组合的净 Delta。当客户买入 Put 并卖出 Call 构成合成空头时，其净 Delta 显著为负。做市商（Market Maker）作为对手方持有合成多头（正 Delta），为了维持 Delta 中性，必须在现货市场卖出对应数量的股票（SPCX 案例中估算为约 1.93M 股）。</li>
+<li><strong>现货大宗的协同性</strong>：Lit 或暗池（Dark Pool）中大宗卖单（Sell）的成交量及笔数是否占绝对主导。SPCX 案例中 9 笔大宗卖单 vs 2 笔买单，且 64% 通过暗池隐蔽出货，与做市商对冲卖压高度吻合。</li>
+<li><strong>后市表现证伪验证</strong>：价格在交易后是否出现单边暴跌（SPCX 跌幅达 9.5% - 10%），确认看空逻辑的胜出。</li>
+<li><strong>最终评分</strong>：在本案中评估为 <strong>85 - 88 分</strong>（极高置信度）。</li>
+</ul>
+<h4 id="2-看多假设-bullish-hypothesis-评估依据">2. 看多假设 (Bullish Hypothesis) 评估依据</h4>
+<ul>
+<li><strong>资金规模</strong>：日内买入的 Call 扫单或现货买单的资金总额。本案中短期 Call 权利金仅约 18.02M 且到期日（DTE）仅 2 天，多头力量微弱。</li>
+<li><strong>逻辑合理性</strong>：短期买入 Call 是否可能是套利锁仓的单腿，或者属于低风险日内博反弹。由于无法解释全天 9.5% 的股价暴跌，且资金规模与看空头寸差距悬殊，该假设极易被证伪。</li>
+<li><strong>最终评分</strong>：在本案中评估为 <strong>5 分</strong>（极低置信度）。</li>
+</ul>
+<h4 id="3-中性假设-neutral-hypothesis-评估依据">3. 中性假设 (Neutral Hypothesis) 评估依据</h4>
+<ul>
+<li><strong>结构特征</strong>：交易是否为无方向性的市场中性策略（如平价转换套利 Conversion/Reversal Arbitrage、Delta 中性对锁或波动率策略如 Straddle）。本案中虽存在 2,004 手 Jul 17 220 Put/Call Straddle，但其并非主要交易。</li>
+<li><strong>持仓变动（OI 清算）</strong>：如果次日清算后发现巨额 DITM 合约的持仓量（OI）未增加甚至归零，说明属于提前行权或多空轧差平仓，中性得分将直接升至最高（拥有最高表决权）。但在本案中，主要的风险逆转组合到期日长达 94 天，属于远期方向性建仓，而非中性对锁。</li>
+<li><strong>最终评分</strong>：在本案中评估为 <strong>10 分</strong>（低置信度）。</li>
+</ul>
+<hr/>
+<h3 id="二-订单流机构意图强度定量分析-quantitative-institutional-intent-strength">二、 订单流机构意图强度定量分析 (Quantitative Institutional Intent Strength)</h3>
+<p>对于纯订单流分析（尤其是 ES 指数期货），系统会计算一个满分为 <strong>100 分</strong> 的机构意图强度综合得分（Composite Score），由以下四个细分模块相加得出：</p>
+<h4 id="1-被动拦截与吸收得分-m_pa-满分-30-分">1. 被动拦截与吸收得分 (M_pa) —— 满分 30 分</h4>
+<ul>
+<li><strong>计算逻辑</strong>：评估关键支撑位或阻力位上，被动限价单（Limit Orders / Iceberg）吸收主动市价单（Aggressive Market Orders）的成交量。</li>
+<li><strong>打分标准</strong>：当价格测试关键位置时，成交量异常放大但价格未能突破（出现 Passive Buy/Sell Absorption），吸收的成交量占日内总大宗成交量的比例越高，此项得分越接近 30 分。</li>
+</ul>
+<h4 id="2-累积-delta-价格背离得分-m_div-满分-25-分">2. 累积 Delta-价格背离得分 (M_div) —— 满分 25 分</h4>
+<ul>
+<li><strong>计算逻辑</strong>：衡量累积成交量 Delta（CVD Delta）与价格走势的背离程度。</li>
+<li><strong>打分标准</strong>：例如在尾盘 60 分钟内，CVD 持续下行（空头主动砸盘）本案价格横盘甚至小幅收涨，表明存在强大的被动买家托底，Delta 效率出现严重的负背离。背离时间越长、成交 Delta 绝对值越大，此项得分越接近 25 分。</li>
+</ul>
+<h4 id="3-主动扫盘确认得分-m_sw-满分-25-分">3. 主动扫盘确认得分 (M_sw) —— 满分 25 分</h4>
+<ul>
+<li><strong>计算逻辑</strong>：评估在价格区间底部（或顶部）50% 范围内，主动市价买单/卖单（Aggressive Sweeps）的成交量和单笔瞬间大单的确认度。</li>
+<li><strong>打分标准</strong>：主动推进的市价清扫流动性大单体量越大、在突破时表现的主动 Delta 越强，此项得分越接近 25 分。</li>
+</ul>
+<h4 id="4-微观动能衰竭得分-m_ex-满分-20-分">4. 微观动能衰竭得分 (M_ex) —— 满分 20 分</h4>
+<ul>
+<li><strong>计算逻辑</strong>：检测 5 分钟微观 Delta 在价格尝试测试新低或新高时的衰竭周期数。</li>
+<li><strong>打分标准</strong>：若价格创新低，但 5 分钟卖出 Delta 呈现断崖式萎缩（例如萎缩 50% 以上），判定为空头抛压衰竭（Exhaustion）。在一个测试波段中检测到的衰竭信号次数越多，此项得分越接近 20 分。</li>
+</ul>
+<hr/>
+<h3 id="三-意图强度级别划分-strength-level">三、 意图强度级别划分 (Strength Level)</h3>
+<p>将上述四个模块的得分相加（M_pa + M_div + M_sw + M_ex），得出总分，并划分为三个级别：<br/>
+* <strong>High (高强度)</strong>：总分大于或等于 80 分。表明机构资金意图高度一致，主动性与被动吸筹/出货特征极度明显。<br/>
+* <strong>Medium (中强度)</strong>：总分在 60 分（含）到 80 分之间。表明有明显的机构参与，但部分指标存在分歧或尚未得到完全确认。<br/>
+* <strong>Low (低强度)</strong>：总分小于 60 分。表明资金流向散乱，以震荡和无序交易为主。</p>
+</section>
+</article>
+</main>
+</body>
+</html>
