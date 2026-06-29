@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - order_flow_sentinel_trigger_rules</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-28 17:21:58</span>
+<span>Question summary: order_flow_sentinel_trigger_rules</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#1-基础指标评估规则-base-heuristics">1. 基础指标评估规则 (Base Heuristics)</a></li><li><a href="#2-三大优化逻辑规则-optimized-rules">2. 三大优化逻辑规则 (Optimized Rules)</a><ul><li><a href="#1-方案一-大单净量安全网-big-trade-net-filter">(1) 方案一：大单净量安全网 (Big Trade Net Filter)</a></li><li><a href="#2-方案二-被动吸筹-分发背离规则-passive-absorption-distribution">(2) 方案二：被动吸筹/分发背离规则 (Passive Absorption / Distribution)</a></li><li><a href="#3-方案三-时间衰减加权大单评分与相对位置覆盖">(3) 方案三：时间衰减加权大单评分与相对位置覆盖</a></li></ul></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>PyTools/order_flow_analysis/order_flow_sentinel.py trigger的order flow分析记录的规则是什么</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>在 <code>PyTools/order_flow_analysis/order_flow_sentinel.py</code> 中，触发订单流分析并记录信号的核心判断逻辑由<strong>基础指标评估</strong>和<strong>三大优化方案引擎（基于 <code>order_flow_rules_optimizer.py</code>）</strong>共同决定。</p>
+<p>具体规则如下：</p>
+<h3 id="1-基础指标评估规则-base-heuristics">1. 基础指标评估规则 (Base Heuristics)</h3>
+<p>哨兵每 5 分钟获取最近 30 分钟内（6 个 5 分钟 Bar）的 Delta 和价格变化：<br/>
+- <strong>预设条件过滤 (Pre-condition)</strong>:<br/>
+  * <strong>多头预设 (<code>pre_bullish</code>)</strong>: 累计 RTH Delta 占比总成交量比例 <code>delta_pct_vol &lt;= 0.015</code>。<br/>
+  * <strong>空头预设 (<code>pre_bearish</code>)</strong>: 累计 RTH Delta 占比总成交量比例 <code>delta_pct_vol &gt;= 0.015</code>。<br/>
+- <strong>触发因子 (Conditions A, C, D)</strong>:<br/>
+  * <strong>条件 A (15分钟动量)</strong>: 最近 15 分钟 Delta <code>&gt;= 8000</code> 或单个 5 分钟 Delta <code>&gt;= 6000</code>（看多）；看空反之为 <code>&lt;= -8000</code> 或 <code>&lt;= -6000</code>。<br/>
+  * <strong>条件 C (CVD 趋势/Runup)</strong>: 累计 Delta 较日内低谷的回升值 <code>delta_runup &gt;= 10000</code>，或 30 分钟净 Delta <code>&gt; 5000</code>（看多）；看空反之（<code>delta_drawdown &gt;= 10000</code> 或 <code>&lt;-5000</code>）。<br/>
+  * <strong>条件 D (价量收敛/共振)</strong>: 30 分钟价格上涨 <code>&gt;= 15</code> 点且 30 分钟净 Delta <code>&gt; 0</code>（看多）；看空反之为价格下跌 <code>&lt;= -15</code> 点且 30 分钟净 Delta <code>&lt; 0</code>。</p>
+<hr/>
+<h3 id="2-三大优化逻辑规则-optimized-rules">2. 三大优化逻辑规则 (Optimized Rules)</h3>
+<p>在基础指标之上，哨兵调用了优化引擎，通过以下三个方案直接干预、覆盖或阻断信号判定：</p>
+<h4 id="1-方案一-大单净量安全网-big-trade-net-filter">(1) 方案一：大单净量安全网 (Big Trade Net Filter)</h4>
+<p>统计过去 <strong>2 小时内</strong> 机构大单的累计净成交量（以 3000 手为强力阈值）：<br/>
+- <strong>多头防线</strong>: 若 2 小时大单净买量 <code>&gt;= 3000</code> 手，<strong>无条件屏蔽 (Block) 所有看空信号</strong>（<code>is_bear_high = False</code>）。<br/>
+- <strong>空头防线</strong>: 若 2 小时大单净卖量 <code>&lt;= -3000</code> 手，<strong>无条件屏蔽 (Block) 所有看多信号</strong>（<code>is_bull_high = False</code>）。</p>
+<h4 id="2-方案二-被动吸筹-分发背离规则-passive-absorption-distribution">(2) 方案二：被动吸筹/分发背离规则 (Passive Absorption / Distribution)</h4>
+<p>当价格与 Delta 发生背离时（即量在暴增但价格不为所动），捕捉机构的被动吃单行为：<br/>
+- <strong>被动多头吸筹 (<code>passive_bull_absorption</code>)</strong>: <br/>
+  * 过去 30 分钟 Delta 暴跌 <code>net_delta_30m &lt; -4000</code>；<br/>
+  * 但价格跌不动 <code>price_change_30m &gt;= -5.0</code>；<br/>
+  * 且价格处于日内相对低位 <code>price_position_pct &lt;= 30.0%</code>。<br/>
+  * <strong>动作</strong>: 一旦触发，<strong>直接强制激活看多判定</strong>（即令 <code>pre_bullish = True</code>，<code>cond_c_bull = True</code>）。<br/>
+- <strong>被动空头分发 (<code>passive_bear_distribution</code>)</strong>:<br/>
+  * 过去 30 分钟 Delta 暴涨 <code>net_delta_30m &gt; 4000</code>；<br/>
+  * 但价格涨不动 <code>price_change_30m &lt;= 5.0</code>；<br/>
+  * 且价格处于日内相对高位 <code>price_position_pct &gt;= 70.0%</code>。<br/>
+  * <strong>动作</strong>: 一旦触发，<strong>直接强制激活看空判定</strong>。</p>
+<h4 id="3-方案三-时间衰减加权大单评分与相对位置覆盖">(3) 方案三：时间衰减加权大单评分与相对位置覆盖</h4>
+<p>基于过去大单的生成时间，采用指数衰减（近期的权重更高）计算大单情感得分：<br/>
+- <strong>多头覆盖 (Likely Bullish)</strong>: 若大单综合流向判定为 <code>Bullish</code>，直接无视微观 delta 走势，令 <code>is_likely_bullish = True</code>。<br/>
+- <strong>低位机构吸筹强行触发 (<code>inst_bull_accumulation</code>)</strong>:<br/>
+  * 若近 2 小时大单净量 <code>&gt;= 3000</code> 或大单情绪得分 <code>&gt;= 1500</code>；<br/>
+  * 并且价格处于偏低位置 <code>price_position_pct &lt;= 45.0%</code>。<br/>
+  * <strong>动作</strong>: <strong>无条件强制触发 <code>is_bull_high = True</code></strong>。<br/>
+- <strong>高位机构出货强行触发 (<code>inst_bear_distribution</code>)</strong>:<br/>
+  * 若近 2 小时大单净量 <code>&lt;= -3000</code> 或大单情绪得分 <code>&lt;= -1500</code>；<br/>
+  * 并且价格处于偏高位置 <code>price_position_pct &gt;= 55.0%</code>。<br/>
+  * <strong>动作</strong>: <strong>无条件强制触发 <code>is_bear_high = True</code></strong>。</p>
+</section>
+</article>
+</main>
+</body>
+</html>
