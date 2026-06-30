@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - smashelito_weekly_plan_analysis</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-29 19:56:05</span>
+<span>Question summary: smashelito_weekly_plan_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#smashelito_weekly_plan_analysis">smashelito_weekly_plan_analysis</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#一-核心交易理论与分析方法-trading-philosophy-methodology">一、 核心交易理论与分析方法 (Trading Philosophy &amp; Methodology)</a><ul><li><a href="#1-多时间框架拍卖状态-multi-timeframe-auction-status">1. 多时间框架拍卖状态 (Multi-Timeframe Auction Status)</a></li><li><a href="#2-价值区穿越逻辑-value-area-traverse-rules">2. 价值区穿越逻辑 (Value Area Traverse Rules)</a></li><li><a href="#3-周度极端边界防守法则-weekly-extremes-safeguard">3. 周度极端边界防守法则 (Weekly Extremes &amp; Safeguard)</a></li></ul></li><li><a href="#二-本周核心价格点位提取-key-price-levels">二、 本周核心价格点位提取 (Key Price Levels)</a><ul><li><a href="#1-核心枢纽线-weekly-smashlevel">1. 核心枢纽线 (Weekly Smashlevel)</a></li><li><a href="#2-上行看多目标与阻力带-upside-targets-resistances">2. 上行看多目标与阻力带 (Upside Targets &amp; Resistances)</a></li><li><a href="#3-下行看空目标与支撑带-downside-targets-supports">3. 下行看空目标与支撑带 (Downside Targets &amp; Supports)</a></li></ul></li><li><a href="#三-实战战术推演-tactical-scenarios">三、 实战战术推演 (Tactical Scenarios)</a><ul><li><a href="#场景-a-买方强势响应-bullish-response">场景 A：买方强势响应 (Bullish Response)</a></li><li><a href="#场景-b-卖方动能延续-bearish-continuation">场景 B：卖方动能延续 (Bearish Continuation)</a></li></ul></li><li><a href="#smashelito_daily_plan_analysis">smashelito_daily_plan_analysis</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#一-核心交易理论与分析方法-intraday-methodology-theory">一、 核心交易理论与分析方法 (Intraday Methodology &amp; Theory)</a><ul><li><a href="#1-市场生成信息冲突的研判-conflicting-market-generated-information">1. 市场生成信息冲突的研判 (Conflicting Market-Generated Information)</a></li><li><a href="#2-价格针尖-长针拒绝逻辑-spike-low-volume-area-rejection">2. 价格针尖/长针拒绝逻辑 (Spike / Low-Volume Area Rejection)</a></li><li><a href="#3-日内操作军规-intraday-rules">3. 日内操作军规 (Intraday Rules)</a></li><li><a href="#4-vix-联协验证-vix-correlation-validation">4. VIX 联协验证 (VIX Correlation Validation)</a></li></ul></li><li><a href="#二-6月29日核心日内点位-key-intraday-levels">二、 6月29日核心日内点位 (Key Intraday Levels)</a><ul><li><a href="#1-日内生死枢纽线-daily-smashlevel">1. 日内生死枢纽线 (Daily Smashlevel)</a></li><li><a href="#2-上行日内目标-upside-intraday-targets">2. 上行日内目标 (Upside Intraday Targets)</a></li><li><a href="#3-下行日内目标-downside-intraday-targets">3. 下行日内目标 (Downside Intraday Targets)</a></li></ul></li><li><a href="#三-日内交易战术推演-tactical-execution-scenarios">三、 日内交易战术推演 (Tactical Execution Scenarios)</a></li></ul></div>
+
+
+<section><h2 id="smashelito_weekly_plan_analysis">smashelito_weekly_plan_analysis</h2><section>
+<h3 id="question">Question</h3>
+<p>Smashelito(@smashelito) 另外一个X的order flow trader，他每周末post weekly analysis，每天post daily analysis。<br/>
+和Adam Set不一样，他不做涨跌的方向性预测，但他分享基于order flow的pivot，上涨点位和下跌点位。</p>
+<p>下面是他的这周的weekly plan</p>
+<p>Smashelito Signal:<br/>
+2026-06-27 18:22:42 Seattle Time<br/>
+IsSignal: False, Direction: <br/>
+Post: #ES_F | $SPX Weekly Plan | June 29 - 3 July<br/>
+🟥 Daily: OTFD<br/>
+🟨 Weekly: BALANCE<br/>
+🟩 Monthly: OTFU<br/>
+The key this shortened week is whether sellers can sustain downside momentum following Tuesday’s true gap lower and Friday’s weak close, which printed below last week’s value area.</p>
+<p>注意他的分析在X post的图片上，</p>
+<p>请分析他的分析接 试着解释他的方式方法 and 理论，提取关于点位的信息</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>根据从 Smashelito 本周（6月29日 - 7月3日）周度计划图表中提取出的全量 OCR 文本和结构数据，以下为您深度解构他的<strong>交易理论体系、核心分析方法以及本周的关键价格点位</strong>：</p>
+<p><img alt="Smashelito Weekly Plan Chart" src="images/weekly_plan.png"/></p>
+<hr/>
+<h2 id="一-核心交易理论与分析方法-trading-philosophy-methodology">一、 核心交易理论与分析方法 (Trading Philosophy &amp; Methodology)</h2>
+<p>Smashelito 的分析完全基于<strong>拍卖市场理论 (Auction Market Theory)</strong> 与 <strong>市场轮廓/量价分布 (Market Profile / Volume Profile)</strong>。他的核心分析框架可拆解为以下三个支柱：</p>
+<h3 id="1-多时间框架拍卖状态-multi-timeframe-auction-status">1. 多时间框架拍卖状态 (Multi-Timeframe Auction Status)</h3>
+<p>他使用 <strong>单向趋势推进 (One-Time Framing, OTF)</strong> 状态来评估各周期多空动能：<br/>
+* <strong>OTFU (One-Time Framing Up - 单边向上)</strong>：高点 and 低点持续抬升。<br/>
+* <strong>OTFD (One-Time Framing Down - 单边向下)</strong>：高点 and 低点持续下破。<br/>
+* <strong>BALANCE (平衡震荡)</strong>：价格在既定区间内横盘盘整。<br/>
+* <strong>本周结构定位</strong>：<br/>
+  * <strong>日线 (Daily)</strong>: <strong>OTFD</strong> (看空推进，终止点/拐点为 <strong>7459.50</strong>)。<br/>
+  * <strong>周线 (Weekly)</strong>: <strong>BALANCE</strong> (7周大区间平衡，区间为 <strong>7247.25 - 7648.75</strong>)。<br/>
+  * <strong>月线 (Monthly)</strong>: <strong>OTFU</strong> (看多推进，终止点/安全边界为 <strong>7199.50</strong>)。</p>
+<h3 id="2-价值区穿越逻辑-value-area-traverse-rules">2. 价值区穿越逻辑 (Value Area Traverse Rules)</h3>
+<ul>
+<li><strong>价值区 (Value Area, VA)</strong> 代表上周 70% 成交量集中的区域，由价值区上沿 (VAH) 和价值区下沿 (VAL) 锁定。</li>
+<li><strong>Smashelito 的核心假说</strong>：如果价格能够重新站回并企稳于价值区下沿 (VAL)，代表市场对“低价”的拒绝，价格将大概率横穿整个价值区（Value Traverse）去测试价值区上沿 (VAH)。反之，若无法站回，则向下测试前期的平衡区低点。</li>
+</ul>
+<h3 id="3-周度极端边界防守法则-weekly-extremes-safeguard">3. 周度极端边界防守法则 (Weekly Extremes &amp; Safeguard)</h3>
+<ul>
+<li><strong>Weekly Extremes (周度极端边界)</strong>：分为极端高点（Extreme High）和极端低点（Extreme Low）。</li>
+<li>他的风控理念指出，<strong>周度极端边界是情绪化交易的防火墙</strong>。在极端边界之外追单极易遭遇“均值回归”的机构拦截（被动吸筹或被动阻力）。交易员应在极端低点寻找买入支持，在极端高点寻找卖出阻力，拒绝在中间的震荡带进行情绪化追单。</li>
+</ul>
+<hr/>
+<h2 id="二-本周核心价格点位提取-key-price-levels">二、 本周核心价格点位提取 (Key Price Levels)</h2>
+<p>根据图表及文本，本周 $ES 的价格版图如下（点位均以非除权连续合约价格为准）：</p>
+<h3 id="1-核心枢纽线-weekly-smashlevel">1. 核心枢纽线 (Weekly Smashlevel)</h3>
+<ul>
+<li><strong>7410.00</strong>：上周的价值区下沿 (VAL)，也是周五的 Halfback (50%回撤位)。这是本周多空的生死线。</li>
+<li><strong>站稳 7410</strong>：否定上周五的弱势收盘，确立买方短期夺回主控权。</li>
+<li><strong>承压于 7410</strong>：确认空头动能延续，价格将继续向下测试。</li>
+</ul>
+<h3 id="2-上行看多目标与阻力带-upside-targets-resistances">2. 上行看多目标与阻力带 (Upside Targets &amp; Resistances)</h3>
+<ul>
+<li><strong>7472.00</strong>：上周价值区上沿 (VAH)，若站稳 7410 后的第一目标位。</li>
+<li><strong>7527.25</strong>：上周遗留的未补缺口 (Unfilled Gap)，空头强力防御区。</li>
+<li><strong>7530.00 - 7560.00</strong>：强阻力带（包含历史高点 ATH 7540.00 区域）。</li>
+<li><strong>7560.00</strong>：<strong>周度极端高点 (Weekly Extreme High)</strong>，机构被动卖盘密集区，在此预计有强烈抛压。</li>
+<li><strong>7648.75</strong>：RTH 历史高点 (RTH All-Time High)。</li>
+</ul>
+<h3 id="3-下行看空目标与支撑带-downside-targets-supports">3. 下行看空目标与支撑带 (Downside Targets &amp; Supports)</h3>
+<ul>
+<li><strong>7360.00</strong>：上周五的最低点，跌破 7410 后的首要防守测试位。</li>
+<li><strong>7280.00 - 7250.00</strong>：多周平衡区底部强支撑带。</li>
+<li><strong>7250.00</strong>：<strong>周度极端低点 (Weekly Extreme Low)</strong>，与年内低点成交量加权平均价 (YTD Low VWAP) 高度重合，机构被动买盘防守大本营。</li>
+<li><strong>7199.50</strong>：月度 OTFU 趋势终止位（跌破此位置将破坏月线级别多头结构）。</li>
+<li><strong>7160.00</strong>：长期宏观支撑位。</li>
+</ul>
+<hr/>
+<h2 id="三-实战战术推演-tactical-scenarios">三、 实战战术推演 (Tactical Scenarios)</h2>
+<h3 id="场景-a-买方强势响应-bullish-response">场景 A：买方强势响应 (Bullish Response)</h3>
+<ul>
+<li><strong>激活条件</strong>：开盘突破并站稳 <strong>7410</strong> 之上。</li>
+<li><strong>战术路径</strong>：向 <strong>7472</strong> 推进，若突破 7472，则进一步向 <strong>7527.25 - 7530</strong> 缺口阻力带以及 <strong>7560</strong> 极端高点发起冲击。</li>
+</ul>
+<h3 id="场景-b-卖方动能延续-bearish-continuation">场景 B：卖方动能延续 (Bearish Continuation)</h3>
+<ul>
+<li><strong>激活条件</strong>：价格受阻于 <strong>7410</strong> 之下，或无法站稳 7410。</li>
+<li><strong>战术路径</strong>：向测试上周五低点 <strong>7360</strong>，若跌破 7360，空头将大举向下碾压，测试多周平衡底部的 <strong>7280 - 7250</strong> 密集支撑区（Weekly Extreme Low）。</li>
+</ul>
+</section></section><section><h2 id="smashelito_daily_plan_analysis">smashelito_daily_plan_analysis</h2><h3 id="question-2">Question</h3><p>以下是关盘后他的daily 分析 </p>
+<p>smashelito Signal:<br/>
+2026-06-29 08:02:16 Seattle Time<br/>
+IsSignal: False, Direction: <br/>
+Post: [Posted at 06/28/2026 14:57:30]</p>
+<h1>ES_F Daily Plan | June 29</h1>
+<p>As discussed in the Weekly Plan, Friday’s close was weak, but value remained largely unchanged relative to Thursday, making early-week value development important to monitor for directional clues.<br/>
+We can essentially treat the highlighted low-volume</p>
+<p>请深度解构他的交易理论体系、核心分析方法以及关键价格点位</p><h3 id="answer-2">Answer</h3><p>根据从 Smashelito <code>6月29日</code> 的 $ES 日度计划（Daily Plan）图表中提取的完整文本及拍卖分布数据，以下为您深度解构他的日内交易理论体系、分析逻辑以及具体的核心点位：</p>
+<p><img alt="Smashelito Daily Plan Chart" src="images/daily_plan.png"/></p>
+<hr/>
+<h2 id="一-核心交易理论与分析方法-intraday-methodology-theory">一、 核心交易理论与分析方法 (Intraday Methodology &amp; Theory)</h2>
+<p>与周度宏观框架相比，Smashelito 在日度分析中更聚焦于<strong>盘口结构冲突、市场参与者性质以及波动率多维度联协</strong>：</p>
+<h3 id="1-市场生成信息冲突的研判-conflicting-market-generated-information">1. 市场生成信息冲突的研判 (Conflicting Market-Generated Information)</h3>
+<p>他对前一交易日（周五）的盘面异动给出了极高价值的结构化定性：<br/>
+* <strong>缺口回补揭示卖方虚弱 (True Gap Filled)</strong>：周五开盘出现低开缺口（True Gap Down），但该缺口在开盘后被多头瞬间回补。在拍卖理论中，真正的强势卖方（Stronger Sellers）绝不会允许缺口被轻易回补。这表明日内卖方力量实际上较为松散。<br/>
+* <strong>M周期收弱 (M-Period Weakness)</strong>：虽然价值区间（Value Area）与周四基本持平，但周五的最后一周期（收盘前30分钟，即 M-Period）出现了尾盘杀跌。这属于典型的“尾盘被动出货”，导致收盘价格偏弱。</p>
+<h3 id="2-价格针尖-长针拒绝逻辑-spike-low-volume-area-rejection">2. 价格针尖/长针拒绝逻辑 (Spike / Low-Volume Area Rejection)</h3>
+<ul>
+<li>他将上周价值区下沿（VAL）下方的<strong>低成交量区 (Low-Volume Area, LVA)</strong> 视为一个“<strong>Spike (价格长针/针尖)</strong>”。</li>
+<li><strong>市场接受度判断 (Acceptance vs. Rejection)</strong>：</li>
+<li>如果价格在 LVA 内部或下方运行（称为 <strong>Acceptance 接受</strong>），说明市场认可了低价，这属于明显的<strong>看空信号</strong>。</li>
+<li>如果价格能迅速收回至 LVA 上方（称为 <strong>Rejection 拒绝</strong>），说明低价被市场拒绝，价格将大概率返回原有价值区（Return to Value）。</li>
+</ul>
+<h3 id="3-日内操作军规-intraday-rules">3. 日内操作军规 (Intraday Rules)</h3>
+<ul>
+<li><strong>不追单原则 (Anti-Chasing Rules)</strong>：</li>
+<li>拒绝在<strong>终极上行目标 (Final Upside Target, FUT)</strong> 之上盲目追多。</li>
+<li>拒绝在<strong>终极下行目标 (Final Downside Target, FDT)</strong> 之下盲目追空。</li>
+<li><strong>纪律重于冲动 (Discipline over impulse)</strong>：不追单并不等于要立刻反手开反向单，而是保持空仓等待均值回归。</li>
+</ul>
+<h3 id="4-vix-联协验证-vix-correlation-validation">4. VIX 联协验证 (VIX Correlation Validation)</h3>
+<p>他引入 VIX 指数作为 $ES 走势的过滤器：<br/>
+* 密切关注 VIX 关键点位：<strong>19.44</strong> 和 <strong>17.38</strong>。<br/>
+* <strong>判定规则</strong>：若 VIX 大于 <strong>19.44</strong>，表明大盘市场处于极度脆弱状态（WEAK），此时做多应保持最高警惕。</p>
+<hr/>
+<h2 id="二-6月29日核心日内点位-key-intraday-levels">二、 6月29日核心日内点位 (Key Intraday Levels)</h2>
+<h3 id="1-日内生死枢纽线-daily-smashlevel">1. 日内生死枢纽线 (Daily Smashlevel)</h3>
+<ul>
+<li><strong>7410.00 / 7412.00</strong>：对应前一交易日周五的 Halfback（50%回撤线）及上周价值区下沿 (VAL)。</li>
+<li><strong>突破并站稳 7410</strong>：确认价格拒绝低价区，日内转为多头主控。</li>
+<li><strong>承压于 7410 下方</strong>：空头继续控盘，下行压力维持。</li>
+</ul>
+<h3 id="2-上行日内目标-upside-intraday-targets">2. 上行日内目标 (Upside Intraday Targets)</h3>
+<ul>
+<li><strong>7444.00 (UT1 - 第一上行目标)</strong>：对应上周的最大成交量控制点 (VPOC - Volume Point of Control)。</li>
+<li><strong>7472.00 (FUT - 终极上行目标)</strong>：对应上周价值区上沿 (VAH)。</li>
+<li><strong>7508.00 - 7520.00</strong>：若多头动能爆发的延伸阻力带。</li>
+<li><strong>7527.25</strong>：上周缺口位置 (True Gap)。</li>
+</ul>
+<h3 id="3-下行日内目标-downside-intraday-targets">3. 下行日内目标 (Downside Intraday Targets)</h3>
+<ul>
+<li><strong>7369.00 (DT1 - 第一下行目标)</strong>：周五的异常底部支撑区（Excess Base）。</li>
+<li><strong>7335.00 (FDT - 终极下行目标)</strong>：最终下行支撑区。</li>
+<li><strong>7280.00 - 7250.00</strong>：宏观多周平衡下沿大支撑带（Weekly Extreme Low）。</li>
+</ul>
+<hr/>
+<h2 id="三-日内交易战术推演-tactical-execution-scenarios">三、 日内交易战术推演 (Tactical Execution Scenarios)</h2>
+<p>Smashelito 将以 <strong>7410</strong> 处的盘口行为作为开盘后的唯一判断基准：</p>
+<ul>
+<li>
+<p><strong>多头剧本 (Bullish Path)</strong>：<br/>
+  价格开盘直接站稳 <strong>7410</strong>，说明周五尾盘的弱势被市场否定。第一目标看向上方筹码密集区 <strong>7444</strong>。若多头在 7444 持续增仓并被市场接受，则最终目标看向上周阻力高沿 <strong>7472</strong>。</p>
+</li>
+<li>
+<p><strong>空头剧本 (Bearish Path)</strong>：<br/>
+  价格开盘承压于 <strong>7410</strong> 下方。战术上直接看跌向周五低点附近的 <strong>7369</strong>。如果在 7369 处未见明显的吸收（Absorption）和主动买盘介入，则空头动能将继续下泻至日内防守终点 <strong>7335</strong>。</p>
+</li>
+</ul></section></article>
+</main>
+</body>
+</html>

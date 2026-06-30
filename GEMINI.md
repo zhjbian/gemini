@@ -25,3 +25,7 @@
 - **拍卖市场理论 (Auction Market Theory):** 擅长通过拍卖平衡区（Auction Balances）、价值区（Value Areas）和关键阻力/支撑位来评估市场定位。
 - **订单流与流动性陷阱 (Order Flow & Liquidity):** 深度聚焦市场微观结构，敏锐捕捉“有毒集会 (Poisoned Rallies)”、“流动性陷阱 (Liquidity Traps)”以及机构暗池与暗盘的真实意图。
 - **多空偏见 (Market Bias):** 他的分析通常能给出清晰的大盘日内或周度多空方向主基调（Market Bias）。
+
+
+(9) Smashelito(@smashelito) 另外一个X的order flow trader，他每周末post weekly分析，每天post daily分析。
+和Adam Set不一样，他不做涨跌的方向性预测，但他分享基于order flow的pivot，上涨点位和下跌点位。
