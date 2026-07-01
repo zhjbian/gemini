@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - smashelito_level_strength_determination</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-06-30 00:49:51</span>
+<span>Question summary: smashelito_level_strength_determination</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>周度目标路径强度标注 (Level Strength Badges)：<br/>
+新增了智能评估机制与对应的彩色徽标（极强 Critical / 强 Strong / 中 Medium），为点位列表提供清晰的视觉和交易重要性层级。</p>
+<p>强度是怎么决定的</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p>每个点位的强度等级（极强、强、中）是由前端解析函数 getLevelStrength 结合点位属性与技术注释中的 Auction Market Theory (拍卖市场理论) 核心术语进行规则匹配并自动评定的。</p>
+<p>以下是具体的划分逻辑与背后的交易学依据：</p>
+<ol>
+<li>
+<p>极强 (Critical)<br/>
+- 匹配关键字：extreme、极端、ath、历史高点、otfu、终止位、大本营、vwap。<br/>
+- 判定示例：<br/>
+  - 7560.00：周度极端高点 (Weekly Extreme High) -&gt; 触发“极端”<br/>
+  - 7250.00：周度极端低点，与 YTD Low VWAP 重合 -&gt; 触发“极端”、“vwap”<br/>
+  - 7199.50：月度 OTFU 趋势终止位 -&gt; 触发“otfu”、“终止位”<br/>
+- 交易学逻辑：这些点位代表大周期（High Timeframe, HTF）资金的核心生死防线。极值边界通常是机构资金被动吸收（Passive Absorption）或被动派发（Passive Offering）的设防大本营。在常态行情下，价格触及此类位置极易引发大级别反转；一旦此级别点位被有效击穿，代表大周期结构发生根本性转变。</p>
+</li>
+<li>
+<p>强 (Strong)<br/>
+- 匹配关键字：vah (价值区上沿)、val (价值区下沿)、生死线、gap、缺口、支撑带、阻力带、防守。<br/>
+- 判定示例：<br/>
+  - 7472.00：上周价值区上沿 (VAH) -&gt; 触发“vah”<br/>
+  - 7527.25：上周遗留的未补缺口 (Unfilled Gap) -&gt; 触发“gap”、“缺口”<br/>
+  - 7280.00 - 7250.00：多周平衡区底部强支撑带 -&gt; 触发“支撑带”<br/>
+- 交易学逻辑：这些点位代表中短期价值分布（Value Areas）的边界或多空均衡的临界点（如 Smashlevel）。价值区边界是活跃波段资金（Responsive Participants）在周度或日内级别进行博弈与防守的关键节点，未补缺口（Gap）则具有极强的磁吸效应和回补后的反作用力。</p>
+</li>
+<li>
+<p>中 (Medium)<br/>
+- 匹配关键字：未触发上述强/极强规则的其余点位。<br/>
+- 判定示例：<br/>
+  - 7160.00：长期宏观支撑位。<br/>
+- 交易学逻辑：这些点位多为长线周期中的单一筹码水平线或区间内的高成交密集区（HVN）。虽然它们在趋势行进中会起到中继阻挡或缓冲作用，但其防守资金的密集度及反转确定性相比“极值/边界点位”要弱，容易在强单边趋势中被直接穿透。</p>
+</li>
+</ol>
+</section>
+</article>
+</main>
+</body>
+</html>
