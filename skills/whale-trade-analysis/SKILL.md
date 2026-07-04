@@ -82,9 +82,13 @@ When the user asks to analyze whale trades:
   - Whenever new or follow-up information (such as next-day OI updates or additional spot block transactions) is provided, you **must** perform a fully integrated, comprehensive re-analysis of the entire trade package using all available cumulative inputs.
   - Re-synthesize and update the final directional verdict, strategy description, and report text, rather than writing a disconnected partial update or simply appending incomplete notes.
 
-- **Two-Phase Open Interest (OI) Inference**:
+- **Two-Phase Open Interest (OI) Inference (两阶段持仓量研判规则)**:
   - **Phase 1 (Intraday/Static OI Comparison)**: When only the option transaction day's static OI (yesterday's cleared stock) is available, analyze the quantitative relationship between transaction Volume (V) and yesterday's OI to infer whether each leg leans toward opening (Open) or closing (Close).
-  - **Phase 2 (Next-Day/Cleared OI Verification)**: Once the next-day cleared OI change is provided, verify and cross-reference the actual OI increase/decrease against the leg volume to firmly declare whether the leg was **Open** (OI surge matching volume) or **Close** (OI reduction matching volume).
+  - **Phase 2 (Next-Day/Cleared OI Verification)**: Once the next-day cleared OI change is provided or available, verify and cross-reference the actual OI increase/decrease against the leg volume to firmly declare whether the leg was **Open** (OI surge matching volume) or **Close** (OI reduction matching volume).
+  - **Proactive Next-Day Query Rule (次日主动查询规则)**: 
+    - 如果调用此分析技能的时间处于**大单成交后的第一个交易日早上 06:30 之后**（此时清算持仓已在交易所公布并导入系统，需考虑周末及节假日顺延），分析人员**必须主动编写并运行临时查询脚本**，通过 `QDOI.oi_by_date` 接口或直接查询本地 `open_interest`/`daily_oi_change` 表，获取每个合约的**第一个交易日清算后实际持仓量 (Next-Day Cleared OI)**。
+    - 将第一个交易日实际持仓量的净变化（即 `第一个交易日清算OI - 成交前一日静态OI`）与该大单的成交量 (Qty) 进行比对。
+    - 绝不允许在成交后的第一个交易日 06:30 之后仍仅凭成交当日的静态数据进行猜测。必须使用清算后的真实持仓量变化作为定性分析的最高判准，并将完整的持仓变动数据（如“Prev OI -> Cur OI, Change = +X”）写入报告中进行综合研判。
 
 - **Daily Timeframe Macro Alignment Rule (日K时间级别宏观对齐法则)**:
   - For all ES, stock order flow, and stock option flow (OptionsFlow / OptionsFlowOrderFlow) case studies, the analysis must evaluate the trade setup through the lens of the **Daily Timeframe (日K时间级别) macro structure** (e.g., Bollinger Band lower limit, key moving averages, and major transaction volume profiles).
@@ -123,9 +127,13 @@ When the user asks to analyze whale trades:
 
 - **OI清算对决与多空判定终极法则 (Ultimate Rule of OI Clearing and Directional Verdict)**:
   在分析包含次日持仓量（OI）清算变动的情况时，必须遵循以下核心决策与推导原则：
-  1. **清算数据（OI Change）具有最高表决权**：对于极深实值期权（Deep In-the-Money, DITM，包括 DITM Call 和 DITM Put）的大单或扫货行为，若次日清算后发现其持仓量（OI）出现大幅萎缩、没有对应增长甚至完全归零，说明该合约已被提前行权（Early Exercise）或平仓对锁（Delta Neutralization）。系统**必须强制**将该笔资金流的方向权重归零，并最终判定为**中性（Neutral）**。任何技术指标、技术分析（如日线图底部/顶部、均线支撑或阻力等）或盘面形态均无权推翻此清算结论。
-  2. **区分“点位”与“动能”**：技术图表的价格位置（Price Location，例如日线图底部/阻力位）仅用于评估“在发生实质方向性交易的前提下，其胜率与盈亏比表现如何”；而期权成交量和订单流数据则用于评估“是否存在具有方向性的主动性资金动能（Momentum）”。当资金动能本身被清算证实为中性时，无论技术图表的位置多么完美，也**绝对不能**给出发动方向性行情的判定结论（Bullish/Bearish）。
-  3. **双向对称性与通用性设计**：此清算判定法则在多空方向上完全对称适用。无论是在日K底部出现的 DITM Call 大宗扫盘（不可盲目因底部形态判定为看多，若 OI 归零则代表中性对锁或股息套利），还是在日K阻力高位出现的 DITM Put 大宗扫盘（不可盲目判定为看空，若 OI 归零则代表中性保护性锁仓、转换套利或清算轧差），只要次日 OI 归零，均必须判定为**中性（Neutral）**。
+  1. **清算数据（OI Change）具有最高表决权**：对于极深实值期权（Deep In-the-Money, DITM，包括 DITM Call 和 DITM Put）的大单或扫货行为，若次日清算后发现其持仓量（OI）出现大幅萎缩、没有对应增长甚至完全归零，说明该合约已被提前行权（Early Exercise）或平仓对锁（Delta Neutralization）。系统**通常必须强制**将该笔资金流的方向权重归零，并最终判定为**中性（Neutral）**。
+  2. **🚨 【TSLA极深实值期权与空头获利了结例外法则】 🚨**：
+     * **特别例外**：针对个股 **TSLA**，由于机构频繁使用极深实值期权（Delta 接近 1.0）进行高确定性的方向性押注，其平仓行为具有极强的方向指示性。
+     * **空头获利了结（看多反转信号）**：若 TSLA 处于持续下跌趋势中，且次日清算数据证实盘中密集的大额 DITM Puts（及实值 Puts 扫盘）发生了**大规模平仓离场（OI 骤降）**，这表明主力空头已达成阶段性盈利目标并进行**获利了结（Bearish Profit-Taking / Short Covering）**。
+     * **方向判定**：由于空头大宗退场直接移除了盘面上的负 Delta 砸盘压力与下行推力，这在技术上构成了强烈的**看多/反弹/见底（Bullish / Bottom Reversal）**信号。在此情形下，系统**必须**判定该案例的多空方向为**看多 (Bullish)**，绝对不能死板地将其归为“中性 (Neutral)”。
+  3. **区分“点位”与“动能”**：技术图表的价格位置（Price Location，例如日线图底部/阻力位）仅用于评估“在发生实质方向性交易的前提下，其胜率与盈亏比表现如何”；而期权成交量 and 订单流数据则用于评估“是否存在具有方向性的主动性资金动能（Momentum）”。当资金动能本身被清算证实为中性时，无论技术图表的位置多么完美，也**绝对不能**给出发动方向性行情的判定结论（Bullish/Bearish）。
+  4. **双向对称性与通用性设计**：此清算判定法则在多空方向上完全对称适用。无论是在日K底部出现的 DITM Call 大宗扫盘（不可盲目因底部形态判定为看多，若 OI 归零则代表中性对锁或股息套利），还是在日K阻力高位出现的 DITM Put 大宗扫盘（不可盲目判定为看空，若 OI 归零则代表中性保护性锁仓、转换套利或清算轧差），除了 TSLA 等高 Beta 活跃股的方向性平仓例外，只要次日 OI 归零，均必须判定为**中性（Neutral）**。
 
 
 ### 1. Markdown Data Columns and Interpretation

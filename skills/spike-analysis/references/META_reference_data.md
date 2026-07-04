@@ -1,4 +1,4 @@
-# Spike Analysis: Historical Reference Data (SPY)
+# Spike Analysis: Historical Reference Data (META)
 
 **Analysis Parameters:**
 - **Generated**: 2026-07-04 10:29
@@ -6,9 +6,9 @@
 - **Hit Logic**: **RTH ONLY** within 20 trading days.
 - **Delayed Logic**: Targets hit strictly AFTER 20 days.
 - **Drawdown Logic**: Calculated **ONLY for successful hits**; tracks max excursion until moment of hit.
-- **Filters**: Min Change 1.0%; Price Buffer $0.50; Clusters Merged.
+- **Filters**: Min Change 3.0%; Price Buffer $1.00; Clusters Merged.
 - **De-duplication**: Bursts on special days ['2026-02-06'] aggregated by minute/bucket.
-- **Total Valid Spikes (Normalized)**: 171
+- **Total Valid Spikes (Normalized)**: 446
 
 ---
 
@@ -20,9 +20,9 @@ Analysis shows that **Volume >= 20** is the key threshold for consistent **70%+ 
 
 | Bucket | Count | Avg Move | Target Hit Rate | Avg Days (T) | DD (Target) | Delayed Hit Rate | Avg Days (D) | DD (Delayed) | Min Hit Rate |
 |---|---|---|---|---|---|---|---|---|---|
-| PM | 25 | 2.16% | 40.00% | 4.6 | 1.56% | 4.00% | 23.0 | 4.18% | 44.00% |
-| RTH | 84 | 3.83% | 32.14% | 3.9 | 1.05% | 2.38% | 24.0 | 2.34% | 67.86% |
-| AH | 62 | 4.68% | 24.19% | 8.9 | 0.93% | 0.00% | 0.0 | 0.00% | 50.00% |
+| PM | 24 | 7.80% | 37.50% | 11.1 | 6.28% | 8.33% | 32.5 | 6.16% | 91.67% |
+| RTH | 93 | 6.73% | 56.99% | 7.7 | 3.25% | 8.60% | 29.4 | 6.13% | 95.70% |
+| AH | 329 | 5.49% | 59.88% | 7.5 | 2.65% | 5.78% | 24.9 | 4.63% | 80.85% |
 
 ---
 
@@ -30,12 +30,10 @@ Analysis shows that **Volume >= 20** is the key threshold for consistent **70%+ 
 
 | Bucket | Count | Avg Move | Target Hit Rate | Avg Days (T) | DD (Target) | Delayed Hit Rate | Avg Days (D) | DD (Delayed) | Min Hit Rate |
 |---|---|---|---|---|---|---|---|---|---|
-| <10 | 51 | 3.47% | 33.33% | 5.2 | 1.53% | 1.96% | 27.0 | 3.37% | 72.55% |
-| **10-19** | 11 | 4.23% | 27.27% | 1.7 | 0.42% | 0.00% | 0.0 | 0.00% | 54.55% |
-| **20-49** | 11 | 6.05% | 9.09% | 1.0 | 0.00% | 9.09% | 21.0 | 1.31% | 54.55% |
-| **50-100** | 4 | 3.40% | 0.00% | 0.0 | 0.00% | 0.00% | 0.0 | 0.00% | 50.00% |
-| **100-499** | 5 | 3.24% | 80.00% | 2.2 | 0.20% | 0.00% | 0.0 | 0.00% | 80.00% |
-| >=5000 | 2 | 1.08% | 100.00% | 1.0 | 0.21% | 0.00% | 0.0 | 0.00% | 100.00% |
+| <10 | 69 | 6.60% | 57.97% | 7.2 | 3.16% | 5.80% | 32.5 | 7.08% | 97.10% |
+| **10-19** | 15 | 6.34% | 60.00% | 10.0 | 3.76% | 13.33% | 25.5 | 5.35% | 86.67% |
+| **20-49** | 6 | 8.30% | 50.00% | 8.3 | 3.31% | 16.67% | 21.0 | 6.62% | 100.00% |
+| **50-100** | 3 | 8.46% | 33.33% | 8.0 | 1.80% | 33.33% | 33.0 | 3.45% | 100.00% |
 
 ---
 
@@ -43,14 +41,13 @@ Analysis shows that **Volume >= 20** is the key threshold for consistent **70%+ 
 
 | Bucket | Count | Avg Move | Target Hit Rate | Avg Days (T) | DD (Target) | Delayed Hit Rate | Avg Days (D) | DD (Delayed) | Min Hit Rate |
 |---|---|---|---|---|---|---|---|---|---|
-| <10 | 22 | 1.93% | 40.91% | 5.1 | 1.73% | 4.55% | 23.0 | 4.18% | 45.45% |
-| **10-19** | 1 | 7.74% | 0.00% | 0.0 | 0.00% | 0.00% | 0.0 | 0.00% | 0.00% |
-| **1000-2000** | 1 | 0.98% | 0.00% | 0.0 | 0.00% | 0.00% | 0.0 | 0.00% | 0.00% |
-| >=5000 | 1 | 2.77% | 100.00% | 0.0 | 0.00% | 0.00% | 0.0 | 0.00% | 100.00% |
+| <10 | 21 | 7.88% | 38.10% | 10.4 | 5.72% | 9.52% | 32.5 | 6.16% | 90.48% |
+| **10-19** | 2 | 5.70% | 50.00% | 17.0 | 10.74% | 0.00% | 0.0 | 0.00% | 100.00% |
+| **100-499** | 1 | 10.18% | 0.00% | 0.0 | 0.00% | 0.00% | 0.0 | 0.00% | 100.00% |
 
 ---
 
-### Skill Guidelines (SPY Specific)
+### Skill Guidelines (META Specific)
 
 1. **Tier 1 (Instant Magnets - 90%+ Confidence)**:
     - Any **PM** spike with **10+** Volume.

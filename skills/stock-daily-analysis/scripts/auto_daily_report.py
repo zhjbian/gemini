@@ -339,7 +339,7 @@ def generate_report(ticker, date_str, send_email=False):
 
 if __name__ == "__main__":
     # If no ticker is provided, default to the master list
-    default_tickers = ["TSLA", "NVDA", "GOOGL", "MU", "ORCL"]
+    default_tickers = ["TSLA", "NVDA", "GOOGL", "MU", "TSM", "ORCL"]
     # default_tickers = ["MU"]
     
     target_tickers = default_tickers

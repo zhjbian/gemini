@@ -25,35 +25,36 @@ These files are stored in:
 
 Use the statistics found natively in these reference documents to determine what volume bounds constitute a Tier 1 or Tier 2 magnet for that specific ticker.
 
-### Rule 1: The Filter Wall (The Absolute "Ignore" Rule)
-Any spike returned with `"trading_hour": "AH"` (After-Hours) is structural noise, heavily dragging down predictability. **IGNORE IT COMPLETELY.** Do not include standard AH spikes in your ranked list.
-* **The ETF Dark Pool Exception**: The ONLY exception is if you are classifying a Macro ETF (SPY/QQQ) AND the AH print is flagged as a Dark Pool (`"is_dp" == true`). In ETFs, these specific AH structural dumps historically boast 100% resolution hit rates. For ETFs only, allow AH Dark Pool prints as Tier 1 Magnets.
+### Rule 1: The Filter Wall & Dark Pool Exception
+*   **ETFs (SPY/QQQ)**: AH (After-Hours) spikes are ignored **unless** `"is_dp" == true` OR `"volume_agg" >= 5000`. These large-volume/Dark Pool AH prints act as highly reliable Tier 1 Magnets.
+*   **Individual Stocks (TSLA/NVDA/META/GOOGL/TSM)**: AH spikes are ignored **unless** `"volume_agg" >= 500` OR `"is_dp" == true`. Large-volume AH blocks settle institutional positions and act as strong magnets (Hit Rate > 80%).
+*   **Standard AH Noise**: Discard any AH spike with `"volume_agg" < 100` that is not flagged as `is_dp`.
 
 ### Rule 2: Dynamic Volume Tiering (Fallback Guide)
-If a `<TICKER>_reference_data.md` file does not exist for the requested equity, apply the following broad heuristics based on whether it is a High-Beta single stock or a Macro ETF:
+If a `<TICKER>_reference_data.md` file does not exist for the requested equity, apply the following broad heuristics based on whether it is a High-Beta single stock, a Macro ETF, or an ADR:
 
-#### Path A: High-Beta / Individual Stocks (e.g., TSLA, NVDA, AAPL)
-*   **Tier 1: Instant Institutional Magnets (90%+ Hit Rate)**
+#### Path A: High-Beta / Individual Stocks (e.g., TSLA, NVDA, META, GOOGL, AAPL)
+*   **Tier 1: Instant Institutional Magnets (80%+ Hit Rate)**
     -   `"trading_hour"` is **`PM`** (Pre-Market) AND `"volume_agg"` is **`>= 10`**.
-    -   `"trading_hour"` is **`RTH`** (Regular Trading Hours) AND `"volume_agg"` is **`>= 50`**.
+    -   `"trading_hour"` is **`RTH`** (Regular Trading Hours) AND `"volume_agg"` is **`>= 500`** (Elevated threshold to avoid momentum runaway traps).
+    -   `"trading_hour"` is **`AH`** AND `"volume_agg"` is **`>= 1000`**.
 *   **Tier 2: High-Confidence Swings (~70% Hit Rate)**
-    -   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`10`** and **`49`**.
+    -   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`50`** and **`499`** (and not in an aggressive breakout trend).
 *   **Noise Filter (Discard)**:
-    -   **IGNORE** any RTH spike with **Volume < 10**.
-    -   **IGNORE** any PM spike with **Volume < 10**.
-    -   **IGNORE** all standard **AH** spikes (except for ETF Dark Pools).
+    -   **IGNORE** any RTH spike with **Volume < 50** for volatile tech stocks (NVDA, GOOGL) to prevent high-drawdown losses.
+    -   **ADR Exception**: For foreign ADRs (e.g., TSM), PM spikes with **Volume >= 2** are allowed as Tier 2 magnets (historical 90% hit rate).
 
 #### Path B: Macro ETFs (e.g., SPY, QQQ, IWM, DIA)
 *   **Tier 1: Instant Macro Magnets (90%+ Hit Rate)**
     *   `"trading_hour"` is **`PM`** AND `"volume_agg"` is **`>= 20`**.
     *   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is **`>= 100`**.
-    *   OR `"trading_hour"` is **`AH`** AND `"is_dp"` is true (Dark Pool print).
+    *   OR `"trading_hour"` is **`AH`** AND (`"is_dp" == true` OR `"volume_agg" >= 5000`).
 *   **Tier 2: Multi-Week Swing Magnets (~70%+ Hit Rate)**
     *   `"trading_hour"` is **`RTH`** AND `"volume_agg"` is between **`20`** and **`99`**.
 *   **Noise Filter (Discard)**:
     -   **IGNORE** any RTH spike with **Volume < 20**.
-    -   **IGNORE** any PM spike with **Volume < 20**.
-    -   **IGNORE** all standard AH spikes (non-Dark Pool).
+    -   **IGNORE** any PM spike with **Volume < 20** (except QQQ PM where volume >= 2 can be considered as Tier 2).
+    -   **IGNORE** all standard AH spikes (non-Dark Pool and volume < 5000).
 
 ### Directional Magnetism
 Regardless of pathway:
