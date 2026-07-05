@@ -224,20 +224,28 @@
 <p>系统在盘尾依据盘前 (PM) 和常规交易时段 (RTH) 的 Delta 累积、价格变动以及吸收信号的统计，将盘面划分为五种基调（Day Type），默认为 <strong>Balanced（均衡震荡）</strong>。</p>
 <h3 id="1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</h3>
 <p>判定满足以下<strong>任意一条</strong>即可：<br/>
-- <code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &gt;= -5.0</code><br/>
+- <code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
 <em>(全天大额净卖出，但 RTH 价格抗跌)</em><br/>
-- <code>pm_delta &lt; -500,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &gt; 10.0</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
+- <code>pm_delta &lt; -5,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &gt; 10.0</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
 <em>(盘前极强的主动抛压被全部吸收且价格逆势大涨，且 RTH 时段没有出现严重回调)</em><br/>
 - <code>total_delta &lt; 0</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>bull_absorb_count &gt; bear_absorb_count</code><br/>
 <em>(全天净卖出，但价格大涨超过 20 点，且看多吸收信号多于看空)</em><br/>
 - <code>bottom_zone_delta &lt; -10,000</code> 且 <code>bottom_zone_dper &gt; -1.5</code><br/>
-<em>(在价格全天振幅底部的 25% 区间内，遭受超过 1 万手的抛压，但其底部 DPER 大于 -1.5，即每 1000 手净卖单向下推低价格的效率不足 1.5 点，表明被冰山买单有效拦截)</em></p>
+<em>(在价格全天振幅底部的 25% 区间内，遭受超过 1 万手的抛压，但其底部 DPER 大于 -1.5，即每 1000 手净卖单向下推低价格的效率不足 1.5 点，表明被冰山买单有效拦截)</em><br/>
+- <code>top3_bear_30m_delta_sum &lt; -15,000</code> 且 <code>top3_bear_30m_price_change_sum &gt;= -10.0</code><br/>
+<em>(空头倾泄火力最猛的 3 个 30分钟区间内，净卖单超过 1.5万手，但价格几乎不跌，中观吸收)</em><br/>
+- <code>top10_bear_5m_delta_sum &lt; -15,000</code> 且 <code>top10_bear_5m_price_change_sum &gt;= -10.0</code><br/>
+<em>(空头倾泄火力最猛的 10 个 5分钟区间内，净卖单超过 1.5万手，但价格几乎不跌，微观极值吸收)</em></p>
 <h3 id="2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</h3>
 <p>判定满足以下<strong>任意一条</strong>即可：<br/>
-- <code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &lt;= 5.0</code><br/>
-- <code>pm_delta &gt; 500,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &lt; -10.0</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
+- <code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
+- <code>pm_delta &gt; 5,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &lt; -10.0</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
 - <code>total_delta &gt; 0</code> 且 <code>rth_price_change &lt;= -25.0</code> 且 <code>bear_absorb_count &gt; bull_absorb_count</code><br/>
-- <code>top_zone_delta &gt; 10,000</code> 且 <code>top_zone_dper &lt; 1.5</code></p>
+- <code>top_zone_delta &gt; 10,000</code> 且 <code>top_zone_dper &lt; 1.5</code><br/>
+- <code>top3_bull_30m_delta_sum &gt; 15,000</code> 且 <code>top3_bull_30m_price_change_sum &lt;= 10.0</code><br/>
+<em>(多头倾泄火力最猛的 3 个 30分钟区间内，净买单超过 1.5万手，但价格几乎不涨，中观吸收)</em><br/>
+- <code>top10_bull_5m_delta_sum &gt; 15,000</code> 且 <code>top10_bull_5m_price_change_sum &lt;= 10.0</code><br/>
+<em>(多头倾泄火力最猛的 10 个 5分钟区间内，净买单超过 1.5万手，但价格几乎不涨，微观极值吸收)</em></p>
 <h3 id="3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</h3>
 <ul>
 <li><code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>dper &gt;= 1.5</code><br/>
@@ -267,7 +275,7 @@
 - <em>(全天总成交量达到 200 万手即满分)</em></p>
 <h3 id="4-divergence-score-15-权重">4. Divergence Score (15% 权重)</h3>
 <p>考核全天整体价格表现与动能的背离程度。<br/>
-- <strong>Passive 类</strong>: 若 RTH 涨跌幅绝对值 <code>&lt; 5.0</code>，则满分 15 分。否则 <code>max(0.0, 15.0 - abs(rth_price_change) / 2.0)</code><br/>
+- <strong>Passive 类</strong>: 若 RTH 涨跌幅绝对值 <code>&lt; 10.0</code>，则满分 15 分。否则 <code>max(0.0, 15.0 - abs(rth_price_change) / 2.0)</code><br/>
 <em>(Passive 要求价格不应该出现顺势的单边大幅变动，否则背离不成立)</em><br/>
 - <strong>Active 类</strong>: <code>min(abs(rth_price_change) / 40.0, 1.0) * 15.0</code><br/>
 <em>(要求有大级别的顺势价格推进，达到 40 点涨跌幅即满分)</em></p>
