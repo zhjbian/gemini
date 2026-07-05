@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - day_type_and_scoring_rules</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-07-04 23:21:47</span>
+<span>Question summary: day_type_and_scoring_rules</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#day_type_and_scoring_rules">day_type_and_scoring_rules</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#day-type-日终定性-判断规则">Day Type (日终定性) 判断规则</a><ul><li><a href="#1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</a></li><li><a href="#2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</a></li><li><a href="#3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</a></li><li><a href="#4-active-selling-主动卖方推进">4. Active Selling (主动卖方推进)</a></li></ul></li><li><a href="#强度定量评分计算规则-scoring-breakdown">强度定量评分计算规则 (Scoring Breakdown)</a><ul><li><a href="#1-zone-dper-score-40-权重">1. Zone DPER Score (40% 权重)</a></li><li><a href="#2-delta-score-20-权重">2. Delta Score (20% 权重)</a></li><li><a href="#3-volume-score-20-权重">3. Volume Score (20% 权重)</a></li><li><a href="#4-divergence-score-15-权重">4. Divergence Score (15% 权重)</a></li><li><a href="#5-squeeze-score-5-权重">5. Squeeze Score (5% 权重)</a></li><li><a href="#综合等级-strength-grade">综合等级 (Strength Grade)</a></li></ul></li><li><a href="#dper_examples">dper_examples</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#dper-delta-price-efficiency-ratio-实例解析">DPER (Delta-Price Efficiency Ratio) 实例解析</a><ul><li><a href="#实例-1-正常的顺势推进-active-type">实例 1：正常的顺势推进 (Active Type)</a></li><li><a href="#实例-2-底部的被动吸收-passive-buying-的常规防守">实例 2：底部的被动吸收 (Passive Buying 的常规防守)</a></li><li><a href="#实例-3-底部的极端背离-passive-buying-满分场景">实例 3：底部的极端背离 (Passive Buying 满分场景)</a></li></ul></li><li><a href="#delta_and_volume_strength_logic">delta_and_volume_strength_logic</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-为什么-volume-总成交量-越大-强度越高">1. 为什么 Volume (总成交量) 越大，强度越高？</a></li><li><a href="#2-为什么-absolute-delta-绝对净动能-越大-强度越高">2. 为什么 Absolute Delta (绝对净动能) 越大，强度越高？</a></li></ul></li></ul></div>
+<section><h2 id="day_type_and_scoring_rules">day_type_and_scoring_rules</h2><section>
+<h3 id="question">Question</h3>
+<p>请详细记录现在day type的判断规则和强度计算规则 用@gem-doc</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<h2 id="day-type-日终定性-判断规则">Day Type (日终定性) 判断规则</h2>
+<p>系统在盘尾依据盘前 (PM) 和常规交易时段 (RTH) 的 Delta 累积、价格变动以及吸收信号的统计，将盘面划分为五种基调（Day Type），默认为 <strong>Balanced（均衡震荡）</strong>。</p>
+<h3 id="1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</h3>
+<p>判定满足以下<strong>任意一条</strong>即可：<br/>
+- <code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &gt;= -5.0</code><br/>
+<em>(全天大额净卖出，但 RTH 价格抗跌)</em><br/>
+- <code>pm_delta &lt; -500,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &gt; 10.0</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
+<em>(盘前极强的主动抛压被全部吸收且价格逆势大涨，且 RTH 时段没有出现严重回调)</em><br/>
+- <code>total_delta &lt; 0</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>bull_absorb_count &gt; bear_absorb_count</code><br/>
+<em>(全天净卖出，但价格大涨超过 20 点，且看多吸收信号多于看空)</em><br/>
+- <code>bottom_zone_delta &lt; -10,000</code> 且 <code>bottom_zone_dper &gt; -1.5</code><br/>
+<em>(在价格全天振幅底部的 25% 区间内，遭受超过 1 万手的抛压，但其底部 DPER 大于 -1.5，即每 1000 手净卖单向下推低价格的效率不足 1.5 点，表明被冰山买单有效拦截)</em></p>
+<h3 id="2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</h3>
+<p>判定满足以下<strong>任意一条</strong>即可：<br/>
+- <code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &lt;= 5.0</code><br/>
+- <code>pm_delta &gt; 500,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &lt; -10.0</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
+- <code>total_delta &gt; 0</code> 且 <code>rth_price_change &lt;= -25.0</code> 且 <code>bear_absorb_count &gt; bull_absorb_count</code><br/>
+- <code>top_zone_delta &gt; 10,000</code> 且 <code>top_zone_dper &lt; 1.5</code></p>
+<h3 id="3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</h3>
+<ul>
+<li><code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>dper &gt;= 1.5</code><br/>
+<em>(大额净买入，价格大幅上涨，且全天价格效率达到至少 1.5 点 / 1000手)</em></li>
+</ul>
+<h3 id="4-active-selling-主动卖方推进">4. Active Selling (主动卖方推进)</h3>
+<ul>
+<li><code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &lt;= -20.0</code> 且 <code>dper &gt;= 1.5</code> <br/>
+<em>(大额净卖出，价格大幅下跌，且由于是向下推进，DPER 公式计算出的绝对效率需要大于等于 1.5)</em></li>
+</ul>
+<hr/>
+<h2 id="强度定量评分计算规则-scoring-breakdown">强度定量评分计算规则 (Scoring Breakdown)</h2>
+<p>系统基于 5 个核心维度对盘口强弱进行打分，总计 100 分。该评分用于量化当前 Day Type 趋势逻辑的可靠程度。</p>
+<h3 id="1-zone-dper-score-40-权重">1. Zone DPER Score (40% 权重)</h3>
+<p>此项考核当前 Day Type 定性逻辑的专属关键微观区域内（如 Passive Buying 考量底部区间）的价格效率背离。<br/>
+- <strong>Passive Buying</strong>: <code>min(max(-bottom_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code><br/>
+<em>(底部 DPER 越偏负代表买方拦截越强，达到 -2.0 及以下即为满分 40)</em><br/>
+- <strong>Passive Selling</strong>: <code>min(max(-top_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code><br/>
+- <strong>Active / Selling</strong>: <code>min(abs(dper) / 2.0, 1.0) * 40.0</code></p>
+<h3 id="2-delta-score-20-权重">2. Delta Score (20% 权重)</h3>
+<p>考核全天的净动能体量。<br/>
+- <strong>公式</strong>: <code>min(abs(total_delta) / 30000.0, 1.0) * 20.0</code><br/>
+- <em>(全天绝对净 Delta 达到 30,000 手即满分)</em></p>
+<h3 id="3-volume-score-20-权重">3. Volume Score (20% 权重)</h3>
+<p>考核全天的市场参与度。<br/>
+- <strong>公式</strong>: <code>min(total_volume / 2000000.0, 1.0) * 20.0</code><br/>
+- <em>(全天总成交量达到 200 万手即满分)</em></p>
+<h3 id="4-divergence-score-15-权重">4. Divergence Score (15% 权重)</h3>
+<p>考核全天整体价格表现与动能的背离程度。<br/>
+- <strong>Passive 类</strong>: 若 RTH 涨跌幅绝对值 <code>&lt; 5.0</code>，则满分 15 分。否则 <code>max(0.0, 15.0 - abs(rth_price_change) / 2.0)</code><br/>
+<em>(Passive 要求价格不应该出现顺势的单边大幅变动，否则背离不成立)</em><br/>
+- <strong>Active 类</strong>: <code>min(abs(rth_price_change) / 40.0, 1.0) * 15.0</code><br/>
+<em>(要求有大级别的顺势价格推进，达到 40 点涨跌幅即满分)</em></p>
+<h3 id="5-squeeze-score-5-权重">5. Squeeze Score (5% 权重)</h3>
+<p>考核尾盘时段 (12:45-13:00 PT) 是否出现机构的止损踩踏爆发（Squeeze）。<br/>
+- <strong>完全爆发</strong>: 若 Passive Buying 且 15分钟 <code>delta &lt; 0</code> 且 <code>price_change &gt;= 15.0</code>（或 Passive Selling 的反向），满分 <code>5.0</code>。<br/>
+- <strong>局部发酵 (基于 CSM)</strong>: 若出现 CSM 与 Day Type 同向的极端情况，得分 <code>min(abs(price_change_15m) / 25.0, 1.0) * 5.0</code>。<br/>
+- <strong>否则</strong>: 0分。</p>
+<h3 id="综合等级-strength-grade">综合等级 (Strength Grade)</h3>
+<ul>
+<li><strong>High</strong>: Total Score &gt;= 75.0</li>
+<li><strong>Medium</strong>: Total Score &gt;= 45.0</li>
+<li><strong>Low</strong>: Total Score &lt; 45.0</li>
+</ul>
+</section></section><section><h2 id="dper_examples">dper_examples</h2><h3 id="question-2">Question</h3><p>请加入对DPER的实例解释</p><h3 id="answer-2">Answer</h3><h2 id="dper-delta-price-efficiency-ratio-实例解析">DPER (Delta-Price Efficiency Ratio) 实例解析</h2>
+<p>DPER (价格效率比) 用于衡量“每一千手净 Delta 动能，能推升或打压多少点的价格”。它是判断市场中主动买卖（市价单）与被动拦截（限价冰山单）之间博弈强度的核心指标。</p>
+<ul>
+<li><strong>基础公式</strong>: <code>DPER = Price_Change / (Delta / 1000.0)</code></li>
+</ul>
+<h3 id="实例-1-正常的顺势推进-active-type">实例 1：正常的顺势推进 (Active Type)</h3>
+<p>假设在某个趋势向上的日子，RTH 时段内：<br/>
+- 净 Delta = +15,000 手 (强力的市价买盘)<br/>
+- 价格上涨 = +30 点<br/>
+- <strong>计算 DPER</strong> = <code>30 / (15000 / 1000) = +2.0</code><br/>
+- <strong>解析</strong>: 每一千手主动净买单，成功将价格推升了 2 点。由于 DPER &gt;= 1.5，这表明多头推进效率极高，上方没有太大的被动限价单阻力，这是典型的 <strong>Active Buying (主动买方推进)</strong> 场景。</p>
+<h3 id="实例-2-底部的被动吸收-passive-buying-的常规防守">实例 2：底部的被动吸收 (Passive Buying 的常规防守)</h3>
+<p>假设在某个下跌放量的日子，价格打到了全天振幅底部的 25% 区间，此时我们观察这个底部微观区间 (Bottom Zone)：<br/>
+- 底部区间 Delta = -10,000 手 (空头在底部仍在用市价单疯狂砸盘)<br/>
+- 底部区间价格变动 = -5 点 (价格仅微弱下跌)<br/>
+- <strong>计算 Bottom Zone DPER</strong> = <code>-5 / (-10000 / 1000) = +0.5</code><br/>
+- <strong>解析</strong>: 正常情况下 1 万手的巨大抛压可能会让价格跌去 15-20 点，但这里只跌了 5 点。说明底部有极厚的被动多头限价单在“托底”。空头的打压效率低下（DPER 仅为正数 0.5），这是多头吸筹的初步迹象，但价格依然在跟随 Delta 顺势下跌。</p>
+<h3 id="实例-3-底部的极端背离-passive-buying-满分场景">实例 3：底部的极端背离 (Passive Buying 满分场景)</h3>
+<p>同样是在底部 25% 区间，如果抛压被完全逆转：<br/>
+- 底部区间 Delta = -10,000 手 (空头同样在疯狂砸盘)<br/>
+- 底部区间价格变动 = +20 点 (价格不跌反涨！)<br/>
+- <strong>计算 Bottom Zone DPER</strong> = <code>+20 / (-10000 / 1000) = -2.0</code><br/>
+- <strong>解析</strong>: 此时 DPER 为负数！说明不仅空头的巨额抛压没有让价格下跌，反而被下方的多头冰山单全数吃掉，并且多头的买气直接将价格逆势推高了 20 点。<br/>
+- <strong>打分应用</strong>: 在 Zone DPER Score 的 40分满分公式中：<code>min(max(-bottom_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code>，带入 <code>-2.0</code> 后：<code>max(-(-2.0), 0) = 2.0</code>，<code>2.0 / 2.0 = 1.0</code>。最终得分 <code>1.0 * 40.0 = 40.0</code>。这代表着最完美的、具有极高反转胜率的底部被动吸筹形态，因此系统会给予 40 分满分的权重。</p></section><section><h2 id="delta_and_volume_strength_logic">delta_and_volume_strength_logic</h2><h3 id="question-3">Question</h3><p>强度定量评分计算规则 (Scoring Breakdown)</p>
+<ol start="2">
+<li>Delta Score (20% 权重)</li>
+</ol>
+<p>考核全天的净动能体量。<br/>
+- 公式: min(abs(total_delta) / 30000.0, 1.0) * 20.0<br/>
+- (全天绝对净 Delta 达到 30,000 手即满分)<br/>
+3. Volume Score (20% 权重)</p>
+<p>考核全天的市场参与度。<br/>
+- 公式: min(total_volume / 2000000.0, 1.0) * 20.0<br/>
+- (全天总成交量达到 200 万手即满分)</p>
+<p>为什么全天的Delta和volume 需要的值越大 强度越大？背后的逻辑是什么？</p><h3 id="answer-3">Answer</h3><p>在订单流 (Order Flow) 分析中，<strong>成交量 (Volume)</strong> 和 <strong>净动能 (Delta)</strong> 的绝对体量之所以与“日类型 (Day Type)”的强度（Strength Score）成正比，其核心逻辑可以归结为两个词：<strong>机构参与度 (Institutional Conviction)</strong> 与 <strong>结构的坚固性 (Structural Integrity)</strong>。</p>
+<p>具体来说：</p>
+<h3 id="1-为什么-volume-总成交量-越大-强度越高">1. 为什么 Volume (总成交量) 越大，强度越高？</h3>
+<p>Volume 代表了全天真金白银的参与总规模和流动性深度。<br/>
+* <strong>低成交量环境 (Low Volume)</strong>：价格可能因为缺乏流动性（“真空地带”）而轻易被小资金推高或打压。这种行情通常是散户或短线程序化交易驱动的，产生的趋势和支撑/阻力非常脆弱，随时可能被反转。<br/>
+* <strong>高成交量环境 (High Volume)</strong>：当 ES 全天成交量逼近甚至超过 200 万手时，这意味着市场上最庞大的机构资金（Pension Funds, CTAs, 宏观对冲基金）正在大规模换手和建立仓位。在如此庞大的筹码交换后确立的 Day Type（无论是单边趋势还是底/顶部吸收），代表了机构级别的强烈共识。这种高成交量沉淀下来的支撑和阻力极其坚固，对后续几天的行情具有极强的指导意义。</p>
+<h3 id="2-为什么-absolute-delta-绝对净动能-越大-强度越高">2. 为什么 Absolute Delta (绝对净动能) 越大，强度越高？</h3>
+<p>Delta 衡量的是市价单买方和市价单卖方之间<strong>主动出击的失衡程度</strong>（Active Aggression）。全天 Delta 绝对值突破 30,000 手，代表市场存在极端的一边倒市价冲击。这种极端的失衡会极大增加最终 Day Type 结论的确定性：</p>
+<ul>
+<li><strong>在顺势行情中 (Trend Day)</strong>：巨大的正 Delta 伴随大涨，或巨大负 Delta 伴随大跌，说明主动买盘/卖盘是<strong>毫无保留地倾泻</strong>，且没有任何力量能拦住他们。这是最纯粹的主动性单边碾压，趋势强度自然是极高的。</li>
+<li><strong>在背离/吸收行情中 (Passive Buying / Passive Selling)</strong>：这是 Order Flow 最精髓的地方。如果全天 Delta 是巨大的负数（例如 -30,000 手，说明市价卖单在疯狂砸盘），但价格却没有跌甚至大涨（Passive Buying 吸收日），那么 <strong>Delta 的负值越大，说明被多头拦截的“有毒抛盘”就越多</strong>。多头竟然能用冰山限价单把多达 3万手的净砸盘全部生吃下来，这说明底部的机构护盘资金深不可测（深厚的 Liquidity Trap）。这种级别防守出来的支撑位，强度和含金量要远高于只吸收了 3000 手抛压的支撑位。</li>
+</ul>
+<p><strong>总结：</strong><br/>
+无论是顺势碾压还是逆势吸收，<strong>Volume 代表了战役的规模，Delta 代表了进攻方的火力</strong>。在一场超大规模、火力极猛的战役中，最终打出来的市场结构（Day Type）绝不可能是噪音，它必然是主力资金的真实意图所在，因此理应获得最高的强度评分。</p></section></article>
+</main>
+</body>
+</html>
