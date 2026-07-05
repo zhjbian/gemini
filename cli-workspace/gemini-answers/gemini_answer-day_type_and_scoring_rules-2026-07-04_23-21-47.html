@@ -214,7 +214,7 @@
 <span>Saved: 2026-07-04 23:21:47</span>
 <span>Question summary: day_type_and_scoring_rules</span>
 </div>
-</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#day_type_and_scoring_rules">day_type_and_scoring_rules</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#day-type-日终定性-判断规则">Day Type (日终定性) 判断规则</a><ul><li><a href="#1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</a></li><li><a href="#2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</a></li><li><a href="#3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</a></li><li><a href="#4-active-selling-主动卖方推进">4. Active Selling (主动卖方推进)</a></li></ul></li><li><a href="#强度定量评分计算规则-scoring-breakdown">强度定量评分计算规则 (Scoring Breakdown)</a><ul><li><a href="#1-zone-dper-score-40-权重">1. Zone DPER Score (40% 权重)</a></li><li><a href="#2-delta-score-20-权重">2. Delta Score (20% 权重)</a></li><li><a href="#3-volume-score-20-权重">3. Volume Score (20% 权重)</a></li><li><a href="#4-divergence-score-15-权重">4. Divergence Score (15% 权重)</a></li><li><a href="#5-squeeze-score-5-权重">5. Squeeze Score (5% 权重)</a></li><li><a href="#综合等级-strength-grade">综合等级 (Strength Grade)</a></li></ul></li><li><a href="#dper_examples">dper_examples</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#dper-delta-price-efficiency-ratio-实例解析">DPER (Delta-Price Efficiency Ratio) 实例解析</a><ul><li><a href="#实例-1-正常的顺势推进-active-type">实例 1：正常的顺势推进 (Active Type)</a></li><li><a href="#实例-2-底部的被动吸收-passive-buying-的常规防守">实例 2：底部的被动吸收 (Passive Buying 的常规防守)</a></li><li><a href="#实例-3-底部的极端背离-passive-buying-满分场景">实例 3：底部的极端背离 (Passive Buying 满分场景)</a></li></ul></li><li><a href="#delta_and_volume_strength_logic">delta_and_volume_strength_logic</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-为什么-volume-总成交量-越大-强度越高">1. 为什么 Volume (总成交量) 越大，强度越高？</a></li><li><a href="#2-为什么-absolute-delta-绝对净动能-越大-强度越高">2. 为什么 Absolute Delta (绝对净动能) 越大，强度越高？</a></li></ul></li></ul></div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#day_type_and_scoring_rules">day_type_and_scoring_rules</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#day-type-日终定性-判断规则">Day Type (日终定性) 判断规则</a><ul><li><a href="#1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</a></li><li><a href="#2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</a></li><li><a href="#3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</a></li><li><a href="#4-active-selling-主动卖方推进">4. Active Selling (主动卖方推进)</a></li></ul></li><li><a href="#强度定量评分计算规则-scoring-breakdown">强度定量评分计算规则 (Scoring Breakdown)</a><ul><li><a href="#1-zone-dper-score-40-权重">1. Zone DPER Score (40% 权重)</a></li><li><a href="#2-delta-score-10-权重">2. Delta Score (10% 权重)</a></li><li><a href="#3-volume-score-10-权重">3. Volume Score (10% 权重)</a></li><li><a href="#4-30m-interval-absorb-20-权重">4. 30m Interval Absorb (20% 权重)</a></li><li><a href="#5-5m-interval-absorb-20-权重">5. 5m Interval Absorb (20% 权重)</a></li><li><a href="#综合等级-strength-grade">综合等级 (Strength Grade)</a></li></ul></li><li><a href="#dper_examples">dper_examples</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#dper-delta-price-efficiency-ratio-实例解析">DPER (Delta-Price Efficiency Ratio) 实例解析</a><ul><li><a href="#实例-1-正常的顺势推进-active-type">实例 1：正常的顺势推进 (Active Type)</a></li><li><a href="#实例-2-底部的被动吸收-passive-buying-的常规防守">实例 2：底部的被动吸收 (Passive Buying 的常规防守)</a></li><li><a href="#实例-3-底部的极端背离-passive-buying-满分场景">实例 3：底部的极端背离 (Passive Buying 满分场景)</a></li></ul></li><li><a href="#delta_and_volume_strength_logic">delta_and_volume_strength_logic</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-为什么-volume-总成交量-越大-强度越高">1. 为什么 Volume (总成交量) 越大，强度越高？</a></li><li><a href="#2-为什么-absolute-delta-绝对净动能-越大-强度越高">2. 为什么 Absolute Delta (绝对净动能) 越大，强度越高？</a></li></ul></li><li><a href="#passive_buying_rule_proposals">passive_buying_rule_proposals</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#1-机构大单低位吸筹规则-institutional-block-trade-accumulation">1. 机构大单低位吸筹规则 (Institutional Block Trade Accumulation)</a></li><li><a href="#2-尾盘极速挤压-吸收规则-eod-absorption-short-squeeze">2. 尾盘极速挤压/吸收规则 (EOD Absorption / Short Squeeze)</a></li><li><a href="#3-底部深度挂单托底规则-bottom-zone-depth-imbalance-support">3. 底部深度挂单托底规则 (Bottom Zone Depth Imbalance Support)</a></li><li><a href="#4-底部高频冰山挂单规则-persistent-iceberg-signals">4. 底部高频冰山挂单规则 (Persistent Iceberg Signals)</a></li></ul></li></ul></div>
 <section><h2 id="day_type_and_scoring_rules">day_type_and_scoring_rules</h2><section>
 <h3 id="question">Question</h3>
 <p>请详细记录现在day type的判断规则和强度计算规则 用@gem-doc</p>
@@ -225,65 +225,65 @@
 <h3 id="1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</h3>
 <p>判定满足以下<strong>任意一条</strong>即可：<br/>
 - <code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
-<em>(全天大额净卖出，但 RTH 价格抗跌)</em><br/>
+*(全天大额净卖出，但 RTH 价格抗跌)*<br/>
 - <code>pm_delta &lt; -5,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &gt; 10.0</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
-<em>(盘前极强的主动抛压被全部吸收且价格逆势大涨，且 RTH 时段没有出现严重回调)</em><br/>
-- <code>total_delta &lt; 0</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>bull_absorb_count &gt; bear_absorb_count</code><br/>
-<em>(全天净卖出，但价格大涨超过 20 点，且看多吸收信号多于看空)</em><br/>
-- <code>bottom_zone_delta &lt; -10,000</code> 且 <code>bottom_zone_dper &gt; -1.5</code><br/>
-<em>(在价格全天振幅底部的 25% 区间内，遭受超过 1 万手的抛压，但其底部 DPER 大于 -1.5，即每 1000 手净卖单向下推低价格的效率不足 1.5 点，表明被冰山买单有效拦截)</em><br/>
-- <code>top3_bear_30m_delta_sum &lt; -15,000</code> 且 <code>top3_bear_30m_price_change_sum &gt;= -10.0</code><br/>
-<em>(空头倾泄火力最猛的 3 个 30分钟区间内，净卖单超过 1.5万手，但价格几乎不跌，中观吸收)</em><br/>
-- <code>top10_bear_5m_delta_sum &lt; -15,000</code> 且 <code>top10_bear_5m_price_change_sum &gt;= -10.0</code><br/>
-<em>(空头倾泄火力最猛的 10 个 5分钟区间内，净卖单超过 1.5万手，但价格几乎不跌，微观极值吸收)</em></p>
+*(盘前极强的主动抛压被全部吸收且价格逆势大涨，且 RTH 时段没有出现严重回调)*<br/>
+- <code>total_delta &lt; -3,000</code> 且 <code>rth_price_change &gt;= 10.0</code> 且 <code>dper &lt; 0</code><br/>
+*(全天净卖压且日内显著上涨，DPER为负验证了背离)*<br/>
+- <code>bottom_zone_delta &lt; -500</code> 且 <code>bottom_zone_dper &lt; 0</code><br/>
+*(底部25%区间内，遭受卖盘抛压但价格不跌反涨，触发极限微观吸收)*<br/>
+- <code>top3_bear_30m_delta_sum &lt; -5,000</code> 且 <code>top3_bear_30m_price_change_sum &gt;= -10.0</code><br/>
+*(空头倾泄火力最猛的 3 个 30分钟区间内，净卖单超过 5千手，但价格下跌不超过10点，中观吸收)*<br/>
+- <code>top10_bear_5m_delta_sum &lt; -4,000</code> 且 <code>top10_bear_5m_price_change_sum &gt;= -10.0</code><br/>
+*(空头倾泄火力最猛的 10 个 5分钟区间内，净卖单超过 4千手，但价格下跌不超过10点，微观极值吸收)*</p>
 <h3 id="2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</h3>
 <p>判定满足以下<strong>任意一条</strong>即可：<br/>
 - <code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
 - <code>pm_delta &gt; 5,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &lt; -10.0</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
-- <code>total_delta &gt; 0</code> 且 <code>rth_price_change &lt;= -25.0</code> 且 <code>bear_absorb_count &gt; bull_absorb_count</code><br/>
-- <code>top_zone_delta &gt; 10,000</code> 且 <code>top_zone_dper &lt; 1.5</code><br/>
-- <code>top3_bull_30m_delta_sum &gt; 15,000</code> 且 <code>top3_bull_30m_price_change_sum &lt;= 10.0</code><br/>
-<em>(多头倾泄火力最猛的 3 个 30分钟区间内，净买单超过 1.5万手，但价格几乎不涨，中观吸收)</em><br/>
-- <code>top10_bull_5m_delta_sum &gt; 15,000</code> 且 <code>top10_bull_5m_price_change_sum &lt;= 10.0</code><br/>
-<em>(多头倾泄火力最猛的 10 个 5分钟区间内，净买单超过 1.5万手，但价格几乎不涨，微观极值吸收)</em></p>
+- <code>total_delta &gt; 3,000</code> 且 <code>rth_price_change &lt;= -10.0</code> 且 <code>dper &lt; 0</code><br/>
+*(全天净买盘且日内显著下跌，DPER为负验证了背离)*<br/>
+- <code>top_zone_delta &gt; 500</code> 且 <code>top_zone_dper &lt; 0</code><br/>
+*(顶部25%区间内，遭受买盘拉升但价格不涨反跌，触发极限微观派发)*<br/>
+- <code>top3_bull_30m_delta_sum &gt; 5,000</code> 且 <code>top3_bull_30m_price_change_sum &lt;= 10.0</code><br/>
+*(多头倾泄火力最猛的 3 个 30分钟区间内，净买单超过 5千手，但价格上涨不超过10点，中观吸收)*<br/>
+- <code>top10_bull_5m_delta_sum &gt; 4,000</code> 且 <code>top10_bull_5m_price_change_sum &lt;= 10.0</code><br/>
+*(多头倾泄火力最猛的 10 个 5分钟区间内，净买单超过 4千手，但价格上涨不超过10点，微观极值吸收)*</p>
 <h3 id="3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</h3>
 <ul>
 <li><code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>dper &gt;= 1.5</code><br/>
-<em>(大额净买入，价格大幅上涨，且全天价格效率达到至少 1.5 点 / 1000手)</em></li>
+*(大额净买入，价格大幅上涨，且全天价格效率达到至少 1.5 点 / 1000手)*</li>
 </ul>
 <h3 id="4-active-selling-主动卖方推进">4. Active Selling (主动卖方推进)</h3>
 <ul>
 <li><code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &lt;= -20.0</code> 且 <code>dper &gt;= 1.5</code> <br/>
-<em>(大额净卖出，价格大幅下跌，且由于是向下推进，DPER 公式计算出的绝对效率需要大于等于 1.5)</em></li>
+*(大额净卖出，价格大幅下跌，且由于是向下推进，DPER 公式计算出的绝对效率需要大于等于 1.5)*</li>
 </ul>
 <hr/>
 <h2 id="强度定量评分计算规则-scoring-breakdown">强度定量评分计算规则 (Scoring Breakdown)</h2>
 <p>系统基于 5 个核心维度对盘口强弱进行打分，总计 100 分。该评分用于量化当前 Day Type 趋势逻辑的可靠程度。</p>
 <h3 id="1-zone-dper-score-40-权重">1. Zone DPER Score (40% 权重)</h3>
 <p>此项考核当前 Day Type 定性逻辑的专属关键微观区域内（如 Passive Buying 考量底部区间）的价格效率背离。<br/>
-- <strong>Passive Buying</strong>: <code>min(max(-bottom_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code><br/>
-<em>(底部 DPER 越偏负代表买方拦截越强，达到 -2.0 及以下即为满分 40)</em><br/>
-- <strong>Passive Selling</strong>: <code>min(max(-top_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code><br/>
+- <strong>Passive Buying</strong>: 必须满足 <code>bottom_zone_delta &lt; -500</code> 且 <code>bottom_zone_dper &lt; 0</code>，否则为 0。满足时按 <code>min(|bottom_zone_dper| / 2.0, 1.0) * 40.0</code> 计算。<br/>
+- <strong>Passive Selling</strong>: 必须满足 <code>top_zone_delta &gt; 500</code> 且 <code>top_zone_dper &lt; 0</code>，否则为 0。满足时按 <code>min(|top_zone_dper| / 2.0, 1.0) * 40.0</code> 计算。<br/>
 - <strong>Active / Selling</strong>: <code>min(abs(dper) / 2.0, 1.0) * 40.0</code></p>
-<h3 id="2-delta-score-20-权重">2. Delta Score (20% 权重)</h3>
+<h3 id="2-delta-score-10-权重">2. Delta Score (10% 权重)</h3>
 <p>考核全天的净动能体量。<br/>
-- <strong>公式</strong>: <code>min(abs(total_delta) / 30000.0, 1.0) * 20.0</code><br/>
-- <em>(全天绝对净 Delta 达到 30,000 手即满分)</em></p>
-<h3 id="3-volume-score-20-权重">3. Volume Score (20% 权重)</h3>
+- <strong>公式</strong>: <code>min(abs(total_delta) / 30000.0, 1.0) * 10.0</code><br/>
+- <em>(全天绝对净 Delta 达到 30,000 手即满分 10 分)</em></p>
+<h3 id="3-volume-score-10-权重">3. Volume Score (10% 权重)</h3>
 <p>考核全天的市场参与度。<br/>
-- <strong>公式</strong>: <code>min(total_volume / 2000000.0, 1.0) * 20.0</code><br/>
-- <em>(全天总成交量达到 200 万手即满分)</em></p>
-<h3 id="4-divergence-score-15-权重">4. Divergence Score (15% 权重)</h3>
-<p>考核全天整体价格表现与动能的背离程度。<br/>
-- <strong>Passive 类</strong>: 若 RTH 涨跌幅绝对值 <code>&lt; 10.0</code>，则满分 15 分。否则 <code>max(0.0, 15.0 - abs(rth_price_change) / 2.0)</code><br/>
-<em>(Passive 要求价格不应该出现顺势的单边大幅变动，否则背离不成立)</em><br/>
-- <strong>Active 类</strong>: <code>min(abs(rth_price_change) / 40.0, 1.0) * 15.0</code><br/>
-<em>(要求有大级别的顺势价格推进，达到 40 点涨跌幅即满分)</em></p>
-<h3 id="5-squeeze-score-5-权重">5. Squeeze Score (5% 权重)</h3>
-<p>考核尾盘时段 (12:45-13:00 PT) 是否出现机构的止损踩踏爆发（Squeeze）。<br/>
-- <strong>完全爆发</strong>: 若 Passive Buying 且 15分钟 <code>delta &lt; 0</code> 且 <code>price_change &gt;= 15.0</code>（或 Passive Selling 的反向），满分 <code>5.0</code>。<br/>
-- <strong>局部发酵 (基于 CSM)</strong>: 若出现 CSM 与 Day Type 同向的极端情况，得分 <code>min(abs(price_change_15m) / 25.0, 1.0) * 5.0</code>。<br/>
-- <strong>否则</strong>: 0分。</p>
+- <strong>公式</strong>: <code>min(total_volume / 2000000.0, 1.0) * 10.0</code><br/>
+- <em>(全天总成交量达到 200 万手即满分 10 分)</em></p>
+<h3 id="4-30m-interval-absorb-20-权重">4. 30m Interval Absorb (20% 权重)</h3>
+<p>考核中观 30分钟 强抛压/买盘下的价格抗跌/抗涨程度（原 Divergence Score 改建）。<br/>
+- <strong>Passive Buying</strong>: 必须满足 <code>tb30d &lt; -5000 且 tb30p &gt;= -10.0</code>，否则为 0。触发时：<code>10.0 + min((|tb30d| - 5000) / 10000, 1) * 10.0</code><br/>
+- <strong>Passive Selling</strong>: 必须满足 <code>tu30d &gt; 5000 且 tu30p &lt;= 10.0</code>，否则为 0。触发时：<code>10.0 + min((|tu30d| - 5000) / 10000, 1) * 10.0</code><br/>
+- <strong>Active 类</strong>: <code>min(abs(rth_price_change) / 40.0, 1.0) * 20.0</code></p>
+<h3 id="5-5m-interval-absorb-20-权重">5. 5m Interval Absorb (20% 权重)</h3>
+<p>考核微观极值 5分钟 的限价单拦截效果（原 Squeeze Score 改建）。<br/>
+- <strong>Passive Buying</strong>: 必须满足 <code>tb5d &lt; -4000 且 tb5p &gt;= -10.0</code>，否则为 0。触发时：<code>10.0 + min((|tb5d| - 4000) / 11000, 1) * 10.0</code><br/>
+- <strong>Passive Selling</strong>: 必须满足 <code>tu5d &gt; 4000 且 tu5p &lt;= 10.0</code>，否则为 0。触发时：<code>10.0 + min((|tu5d| - 4000) / 11000, 1) * 10.0</code><br/>
+- <strong>Active / Balanced</strong>: 0分。</p>
 <h3 id="综合等级-strength-grade">综合等级 (Strength Grade)</h3>
 <ul>
 <li><strong>High</strong>: Total Score &gt;= 75.0</li>
@@ -337,7 +337,32 @@
 <li><strong>在背离/吸收行情中 (Passive Buying / Passive Selling)</strong>：这是 Order Flow 最精髓的地方。如果全天 Delta 是巨大的负数（例如 -30,000 手，说明市价卖单在疯狂砸盘），但价格却没有跌甚至大涨（Passive Buying 吸收日），那么 <strong>Delta 的负值越大，说明被多头拦截的“有毒抛盘”就越多</strong>。多头竟然能用冰山限价单把多达 3万手的净砸盘全部生吃下来，这说明底部的机构护盘资金深不可测（深厚的 Liquidity Trap）。这种级别防守出来的支撑位，强度和含金量要远高于只吸收了 3000 手抛压的支撑位。</li>
 </ul>
 <p><strong>总结：</strong><br/>
-无论是顺势碾压还是逆势吸收，<strong>Volume 代表了战役的规模，Delta 代表了进攻方的火力</strong>。在一场超大规模、火力极猛的战役中，最终打出来的市场结构（Day Type）绝不可能是噪音，它必然是主力资金的真实意图所在，因此理应获得最高的强度评分。</p></section></article>
+无论是顺势碾压还是逆势吸收，<strong>Volume 代表了战役的规模，Delta 代表了进攻方的火力</strong>。在一场超大规模、火力极猛的战役中，最终打出来的市场结构（Day Type）绝不可能是噪音，它必然是主力资金的真实意图所在，因此理应获得最高的强度评分。</p></section><section><h2 id="passive_buying_rule_proposals">passive_buying_rule_proposals</h2><h3 id="question-4">Question</h3><p>这是现在Passive Buying的规则 结合我的所有的数据源 是否有其他合理的规则可以考虑</p><h3 id="answer-4">Answer</h3><p>基于您的<strong>订单流（Order Flow）</strong>和<strong>拍卖市场理论（Auction Market Theory）</strong>的数据源（包括盘口深度失衡、机构大单、尾盘挤压和微观吸收频次等），我认为可以考虑引入以下几个非常合理且符合机构行为逻辑的 <code>Passive Buying</code> 补充规则：</p>
+<h3 id="1-机构大单低位吸筹规则-institutional-block-trade-accumulation">1. 机构大单低位吸筹规则 (Institutional Block Trade Accumulation)</h3>
+<ul>
+<li><strong>规则条件</strong>：<code>big_trade_score &gt;= 1500</code> 且 <code>price_position_pct &lt;= 45.0%</code></li>
+<li><strong>逻辑解释</strong>：<code>SingleTickBigTrade</code> 记录的是大宗机构单。当机构在 RTH 偏低的价格区间（<code>&lt;= 45%</code>）爆发出极高的大单权重（<code>&gt;= 1500</code>），通常代表机构在低位以限价单（Iceberg / Limit Buy）大量承接抛压，以进行暗中吸筹。即使全天累计 Delta 因为散户恐慌性砸盘而呈现负数，机构大单的主导性也更强，可以直接定性为 <code>Passive Buying</code>。</li>
+</ul>
+<h3 id="2-尾盘极速挤压-吸收规则-eod-absorption-short-squeeze">2. 尾盘极速挤压/吸收规则 (EOD Absorption / Short Squeeze)</h3>
+<ul>
+<li><strong>规则条件</strong>：<code>delta_15m &lt; -4,000</code> 且 <code>price_change_15m &gt;= 12.0</code></li>
+<li><strong>逻辑解释</strong>：在常规交易时段（RTH）的最后 15 分钟里，如果市价单爆发出极大的净卖出量（<code>&lt;-4,000手</code>），但价格不仅未跌，反而暴涨了 <code>12.0 点</code> 以上。这代表了典型的尾盘空头踩踏或极速吸收。主动卖方的市价抛单在收盘瞬间被巨量限价单全部拦截并顺势挤压，这是极强烈的多头信号，适合直接归为被动吸筹日。</li>
+</ul>
+<h3 id="3-底部深度挂单托底规则-bottom-zone-depth-imbalance-support">3. 底部深度挂单托底规则 (Bottom Zone Depth Imbalance Support)</h3>
+<ul>
+<li><strong>规则条件</strong>：<code>bottom_zone_delta &lt; -1,000</code> 且 <code>bottom_zone_dper &lt; 0</code> 且 <code>bottom_zone_avg_depth_imbalance &gt; 0.15</code></li>
+<li><strong>逻辑解释</strong>：除了考虑 DPER 量价背离，我们还可以结合 <strong>L2 挂单数据 (Depth Imbalance)</strong>。当价格处于全天底部 25% 时，即使有卖单砸盘，但只要：<ol>
+<li>底部确实有量价背离（<code>dper &lt; 0</code>）。</li>
+<li>买卖深度挂单比率（<code>depth_imbalance</code>）维持在 <code>&gt; 0.15</code>（明显偏向买方）。<br/>
+这意味着在订单簿的更深处（Deep Book），机构在持续补充限价买单（Bids）以防守边界，从而验证了被动买盘的防御强度。</li>
+</ol>
+</li>
+</ul>
+<h3 id="4-底部高频冰山挂单规则-persistent-iceberg-signals">4. 底部高频冰山挂单规则 (Persistent Iceberg Signals)</h3>
+<ul>
+<li><strong>规则条件</strong>：<code>bottom_zone_delta &lt; -1,000</code> 且 <code>bottom_zone_dper &lt; 0</code> 且 <code>micro_absorption_count &gt;= 8</code></li>
+<li><strong>逻辑解释</strong>：<code>micro_absorption_count</code> 记录了极值吸收频次。如果在量价已经背离的底部区域，高强度吸收信号触发频次非常多（<code>&gt;= 8</code>），说明机构不是单次拦截，而是在该价格区间进行了<strong>持续、高频的冰山单（Iceberg Order）防御</strong>，这使得该底部的支撑效能更加可靠。</li>
+</ul></section></article>
 </main>
 </body>
 </html>
