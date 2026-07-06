@@ -222,8 +222,8 @@
 <h3 id="answer">Answer</h3>
 <h2 id="day-type-日终定性-判断规则">Day Type (日终定性) 判断规则</h2>
 <p>系统在盘尾依据盘前 (PM) 和常规交易时段 (RTH) 的 Delta 累积、价格变动以及吸收信号的统计，将盘面划分为五种基调（Day Type），默认为 <strong>Balanced（均衡震荡）</strong>。</p>
-<h3 id="1-passive-buying-被动买方吸收">1. Passive Buying (被动买方吸收)</h3>
-<p>判定满足以下<strong>任意一条</strong>即可：<br/>
+<h3 id="1-passive-buying-beidongmaifang">1. Passive Buying (被动买方吸收)</h3>
+<p>判定必须满足价格未现强多头推进（<code>rth_price_change &lt; 20.0</code>），且满足以下<strong>任意一条</strong>即可：<br/>
 - <code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
 *(全天大额净卖出，但 RTH 价格抗跌)*<br/>
 - <code>pm_delta &lt; -5,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &gt; 10.0</code> 且 <code>rth_price_change &gt;= -10.0</code><br/>
@@ -236,8 +236,8 @@
 *(空头倾泄火力最猛的 3 个 30分钟区间内，净卖单超过 5千手，但价格下跌不超过10点，中观吸收)*<br/>
 - <code>top10_bear_5m_delta_sum &lt; -4,000</code> 且 <code>top10_bear_5m_price_change_sum &gt;= -10.0</code><br/>
 *(空头倾泄火力最猛的 10 个 5分钟区间内，净卖单超过 4千手，但价格下跌不超过10点，微观极值吸收)*</p>
-<h3 id="2-passive-selling-被动卖方拦截">2. Passive Selling (被动卖方拦截)</h3>
-<p>判定满足以下<strong>任意一条</strong>即可：<br/>
+<h3 id="2-passive-selling-beidongmaifang">2. Passive Selling (被动卖方拦截)</h3>
+<p>判定必须满足价格未现强空头推进（<code>rth_price_change &gt; -20.0</code>），且满足以下<strong>任意一条</strong>即可：<br/>
 - <code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
 - <code>pm_delta &gt; 5,000</code> 且 <code>pac &gt;= 0.9</code> 且 <code>pm_price_change &lt; -10.0</code> 且 <code>rth_price_change &lt;= 10.0</code><br/>
 - <code>total_delta &gt; 3,000</code> 且 <code>rth_price_change &lt;= -10.0</code> 且 <code>dper &lt; 0</code><br/>
@@ -248,16 +248,23 @@
 *(多头倾泄火力最猛的 3 个 30分钟区间内，净买单超过 5千手，但价格上涨不超过10点，中观吸收)*<br/>
 - <code>top10_bull_5m_delta_sum &gt; 4,000</code> 且 <code>top10_bull_5m_price_change_sum &lt;= 10.0</code><br/>
 *(多头倾泄火力最猛的 10 个 5分钟区间内，净买单超过 4千手，但价格上涨不超过10点，微观极值吸收)*</p>
-<h3 id="3-active-buying-主动买方推进">3. Active Buying (主动买方推进)</h3>
-<ul>
-<li><code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>dper &gt;= 1.5</code><br/>
-*(大额净买入，价格大幅上涨，且全天价格效率达到至少 1.5 点 / 1000手)*</li>
-</ul>
-<h3 id="4-active-selling-主动卖方推进">4. Active Selling (主动卖方推进)</h3>
-<ul>
-<li><code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &lt;= -20.0</code> 且 <code>dper &gt;= 1.5</code> <br/>
-*(大额净卖出，价格大幅下跌，且由于是向下推进，DPER 公式计算出的绝对效率需要大于等于 1.5)*</li>
-</ul>
+<h3 id="3-active-buying-zhudongmaifang">3. Active Buying (主动买方推进)</h3>
+<p>满足以下<strong>任意一条</strong>即可：<br/>
+- <code>total_delta &gt; 15,000</code> 且 <code>rth_price_change &gt;= 20.0</code> 且 <code>dper &gt;= 1.5</code><br/>
+*(大额净买入，价格大幅上涨，且全天价格效率达到至少 1.5 点 / 1000手)*<br/>
+- <code>top3_bull_30m_delta_sum &gt; 5,000</code> 且 <code>top3_bull_30m_price_change_sum &gt;= 15.0</code><br/>
+*(多头密集砸盘推升，最强 3 个 30分钟区间价格大涨 >= 15点)*<br/>
+- <code>top10_bull_5m_delta_sum &gt; 4,000</code> 且 <code>top10_bull_5m_price_change_sum &gt;= 10.0</code><br/>
+*(多头高频砸盘推进，最强 10 个 5分钟区间价格上涨 >= 10点)*</p>
+
+<h3 id="4-active-selling-zhudongmaifang">4. Active Selling (主动卖方推进)</h3>
+<p>满足以下<strong>任意一条</strong>即可：<br/>
+- <code>total_delta &lt; -15,000</code> 且 <code>rth_price_change &lt;= -20.0</code> 且 <code>dper &gt;= 1.5</code><br/>
+*(大额净卖出，价格大幅下跌，且由于是向下推进，DPER 公式计算出的绝对效率需要大于等于 1.5)*<br/>
+- <code>top3_bear_30m_delta_sum &lt; -5,000</code> 且 <code>top3_bear_30m_price_change_sum &lt;= -15.0</code><br/>
+*(空头密集砸盘打压，最强 3 个 30分钟区间价格大跌 <= -15点)*<br/>
+- <code>top10_bear_5m_delta_sum &lt; -4,000</code> 且 <code>top10_bear_5m_price_change_sum &lt;= -10.0</code><br/>
+*(空头高频砸盘打压，最强 10 个 5分钟区间价格下跌 <= -10点)*</p>
 <hr/>
 <h2 id="强度定量评分计算规则-scoring-breakdown">强度定量评分计算规则 (Scoring Breakdown)</h2>
 <p>系统基于 5 个核心维度对盘口强弱进行打分，总计 100 分。该评分用于量化当前 Day Type 趋势逻辑的可靠程度。</p>
