@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - us_citizenship_application_family</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-07-05 21:03:54</span>
+<span>Question summary: us_citizenship_application_family</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#us_citizenship_application_family">us_citizenship_application_family</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li></ul></li><li><a href="#核心法律路径判定-关键-女儿的年龄">核心法律路径判定（关键：女儿的年龄）</a></li><li><a href="#夫妻-及已满18岁女儿-n-400-申请资格自测">夫妻（及已满18岁女儿）N-400 申请资格自测</a></li><li><a href="#详细申请步骤">详细申请步骤</a><ul><li><a href="#第一阶段-递交申请-application-filing">第一阶段：递交申请 (Application Filing)</a></li><li><a href="#第二阶段-指模采集-biometrics-appointment">第二阶段：指模采集 (Biometrics Appointment)</a></li><li><a href="#第三阶段-面试与测试-naturalization-interview-test">第三阶段：面试与测试 (Naturalization Interview &amp; Test)</a></li><li><a href="#第四阶段-宣誓仪式-oath-ceremony">第四阶段：宣誓仪式 (Oath Ceremony)</a></li></ul></li><li><a href="#核心准备文档清单">核心准备文档清单</a><ul><li><a href="#1-个人身份类文件">1. 个人身份类文件</a></li><li><a href="#2-税务与财务类文件-证明-continuous-residence-good-moral-character-的核心">2. 税务与财务类文件（证明 Continuous Residence &amp; Good Moral Character 的核心）</a></li><li><a href="#3-婚姻与家庭关系类文件-辅助证明及用于未成年子女自动归化">3. 婚姻与家庭关系类文件（辅助证明及用于未成年子女自动归化）</a></li><li><a href="#4-特殊背景证明类文件-视个人情况提供">4. 特殊背景证明类文件（视个人情况提供）</a></li></ul></li><li><a href="#未成年女儿后续获取身份文件步骤-针对女儿未满18岁">未成年女儿后续获取身份文件步骤（针对女儿未满18岁）</a></li><li><a href="#us_citizenship_timeline">us_citizenship_timeline</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li></ul></li><li><a href="#美国国籍申请-n-400-及后续文件办理时间周期指南">美国国籍申请（N-400）及后续文件办理时间周期指南</a><ul><li><a href="#一-夫妻-成年人-n-400-入籍总周期">一、 夫妻（成年人）N-400 入籍总周期</a><ul><li><a href="#1-详细节点时间线划分">1. 详细节点时间线划分</a></li><li><a href="#2-全美主要城市移民局处理速度参考-热点地区分局">2. 全美主要城市移民局处理速度参考（热点地区分局）</a></li></ul></li><li><a href="#二-未成年女儿身份文件办理周期-宣誓后开始计算">二、 未成年女儿身份文件办理周期（宣誓后开始计算）</a><ul><li><a href="#1-办理美国护照-us-passport-首要且最快途径">1. 办理美国护照 (US Passport) —— 首要且最快途径</a></li><li><a href="#2-办理女儿-n-600-公民纸-certificate-of-citizenship-长期储备文件">2. 办理女儿 N-600 公民纸 (Certificate of Citizenship) —— 长期储备文件</a></li></ul></li><li><a href="#三-影响审批周期的核心变数-避坑指南">三、 影响审批周期的核心变数（避坑指南）</a></li></ul></li></ul></div>
+
+
+<section><h2 id="us_citizenship_application_family">us_citizenship_application_family</h2><section>
+<h3 id="question">Question</h3>
+<p>我、我爱人、我女儿均已持有绿卡满5年，计划一起申请加入美国国籍。请列出详细申请步骤、需要准备的文档清单，以及相关的注意事项（特别关于未成年子女的国籍获取途径）。</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<h1>绿卡持有人满 5 年家庭入籍美国（夫妻与子女）申请全攻略</h1>
+<p>本指南针对您、您的爱人以及您的女儿（均已持有绿卡满 5 年）共同申请加入美国国籍（Naturalization）的场景，为您列出法律路径、详细步骤、文档清单以及关键注意事项。</p>
+<hr/>
+<h2 id="核心法律路径判定-关键-女儿的年龄">核心法律路径判定（关键：女儿的年龄）</h2>
+<p>在开始准备前，必须首要确认<strong>女儿在您和爱人完成宣誓入籍当天的年龄</strong>：</p>
+<ol>
+<li><strong>若女儿未满 18 周岁（推荐路径）</strong>：<ul>
+<li><strong>无需为女儿提交 N-400 入籍申请</strong>。</li>
+<li>根据美国《2000年儿童公民法案》（Child Citizenship Act of 2000，简称 CCA），当父母任何一方成为美国公民时，未满18周岁且居住在美国（处于公民父母法律及实际监护下）的绿卡子女将<strong>自动获得美国公民身份</strong>（Derivative Citizenship）。</li>
+<li><strong>操作建议</strong>：在父母中至少一人宣誓入籍并拿到公民纸（Naturalization Certificate）后，直接前往邮局为女儿申请<strong>美国护照（US Passport）</strong>作为公民身份的首要证明。随后，可选择性提交 <strong>N-600</strong> 申请以获取她本人的<strong>公民纸</strong>（非必须，但建议申请以作为永久官方凭证，N-600 申请费较贵）。</li>
+</ul>
+</li>
+<li><strong>若女儿已满 18 周岁</strong>：<ul>
+<li>她属于成年申请人，<strong>必须与父母一样独立提交 N-400 申请</strong>，并独立参加指模采集、面试、英语及历史测试和宣誓仪式。</li>
+</ul>
+</li>
+</ol>
+<hr/>
+<h2 id="夫妻-及已满18岁女儿-n-400-申请资格自测">夫妻（及已满18岁女儿）N-400 申请资格自测</h2>
+<p>递交 N-400 申请前，每位成年申请人必须满足以下条件：</p>
+<ul>
+<li><strong>绿卡时间</strong>：获得永久居民身份（绿卡）至少满 5 年（可提前 90 天递交申请，即绿卡满 4 年 9 个月零 1 天起可投递）。</li>
+<li><strong>连续居住（Continuous Residence）</strong>：在过去 5 年中，没有单次离开美国超过 6 个月（180天）的记录。如果曾有离开 6-12 个月的经历，需要提供未放弃美国居住意图的强力证明。</li>
+<li><strong>实际居留（Physical Presence）</strong>：在过去 5 年中，实际在美国境内居住的时间累计至少达到 <strong>30 个月（即 913 天）</strong>。</li>
+<li><strong>居住地限制</strong>：在向递交申请的移民局（USCIS）辖区内至少已经连续居住满 3 个月。</li>
+<li><strong>道德品质（Good Moral Character）</strong>：过去 5 年内无重大犯罪记录，依法诚信报税，遵守法律。</li>
+<li><strong>男士特别注意（Selective Service）</strong>：如果是男性申请人且在 <strong>18 至 26 周岁</strong> 期间以绿卡或非移民身份在美国居住，必须提供已进行美国兵役登记（Selective Service）的证明或合理的豁免解释（女性及26岁以后才拿到绿卡入境的男性无需担心此项）。</li>
+</ul>
+<hr/>
+<h2 id="详细申请步骤">详细申请步骤</h2>
+<h3 id="第一阶段-递交申请-application-filing">第一阶段：递交申请 (Application Filing)</h3>
+<ol>
+<li><strong>注册 USCIS 在线账户</strong>：推荐在 <a href="https://www.uscis.gov/">USCIS 官网</a> 注册在线账号，夫妻双方必须使用<strong>各自独立的邮箱和账户</strong>进行申请。在线填写 N-400 可以实时保存、上传电子文档、在线支付申请费并随时追踪案子进度。</li>
+<li><strong>填写并提交 N-400 表格</strong>：详细填写近 5 年的居住地址、工作/学习经历、出境记录（精确到天）、婚姻史、子女信息以及关于道德品质和国家安全的背景问题。</li>
+<li><strong>在线支付费用</strong>：<ul>
+<li>单人 N-400 在线申请费通常为 <strong>$710</strong>（若包含指模费则为 <strong>$760</strong>，具体根据 USCIS 规费政策实时核准）。</li>
+</ul>
+</li>
+</ol>
+<h3 id="第二阶段-指模采集-biometrics-appointment">第二阶段：指模采集 (Biometrics Appointment)</h3>
+<ol>
+<li>提交申请后约 1-4 周，USCIS 会通过系统和信件发送打指模通知（ASC Appointment Notice）。</li>
+<li>在指定时间携带通知书及绿卡前往指定的申请服务中心（Application Support Center）采集指模和拍照。部分申请人可能会收到“指模免除（Biometrics Reuse）”通知，即直接沿用上次绿卡或更新时的指模，无需线下跑一趟。</li>
+</ol>
+<h3 id="第三阶段-面试与测试-naturalization-interview-test">第三阶段：面试与测试 (Naturalization Interview &amp; Test)</h3>
+<ol>
+<li>收到面试通知信后，按时前往当地移民局办公室接受移民官的面对面问询。</li>
+<li><strong>面试内容</strong>：<ul>
+<li><strong>N-400 信息核对</strong>：移民官会逐项核对您在表格中填写的个人信息，并对背景问题进行提问（以评估您的诚实度及口语表达能力）。</li>
+<li><strong>英语测试 (English Test)</strong>：<ul>
+<li><strong>说 (Speaking)</strong>：在核对 N-400 的交流中进行评估。</li>
+<li><strong>读 (Reading)</strong>：随机给出 3 个句子，正确读出其中 1 句即可。</li>
+<li><strong>写 (Writing)</strong>：听写 3 个句子，正确写出其中 1 句即可。</li>
+</ul>
+</li>
+<li><strong>公民历史测试 (Civics Test)</strong>：<ul>
+<li>从官方的 100 道备考题中随机口头提问，答对 6 道题即可通过。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>面试通过后，移民官会发放 N-652 通过通知单。</li>
+</ol>
+<h3 id="第四阶段-宣誓仪式-oath-ceremony">第四阶段：宣誓仪式 (Oath Ceremony)</h3>
+<ol>
+<li>面试通过后数天至数周内，您会收到 N-445 宣誓通知书。</li>
+<li>宣誓当天必须带齐：N-445 通知单、绿卡（宣誓现场会被移民局收回）、中国护照以及绿卡期间办理的美国旅行证件。</li>
+<li>宣誓结束后，现场发放<strong>美国公民纸（Certificate of Citizenship）</strong>。拿到公民纸后，请务必当场仔细核对个人信息（姓名、生日、身高、国家等），确认无误后签字。</li>
+</ol>
+<hr/>
+<h2 id="核心准备文档清单">核心准备文档清单</h2>
+<p>每一位申请 N-400 的人均需提供一套独立的资料。请准备以下文档的<strong>扫描件（线上上传）</strong>，并保留<strong>原件</strong>以备面试时出示给移民官：</p>
+<h3 id="1-个人身份类文件">1. 个人身份类文件</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">序号</th>
+<th style="text-align: left;">文件名称</th>
+<th style="text-align: left;">格式与要求</th>
+<th style="text-align: left;">备注说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1.1</td>
+<td style="text-align: left;"><strong>绿卡正反面</strong></td>
+<td style="text-align: left;">彩色扫描/照片</td>
+<td style="text-align: left;">必须在有效期内</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.2</td>
+<td style="text-align: left;"><strong>当前护照及旧护照</strong></td>
+<td style="text-align: left;">包含个人信息页、所有出入境章页</td>
+<td style="text-align: left;">证明过去 5 年的旅行及居住史</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.3</td>
+<td style="text-align: left;"><strong>驾照或州ID</strong></td>
+<td style="text-align: left;">正反面彩色扫描</td>
+<td style="text-align: left;">证明您在当前移民局辖区居住满 3 个月</td>
+</tr>
+<tr>
+<td style="text-align: left;">1.4</td>
+<td style="text-align: left;"><strong>社会安全卡 (SSN)</strong></td>
+<td style="text-align: left;">仅备用，面试时携带原件</td>
+<td style="text-align: left;">核对身份信息</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-税务与财务类文件-证明-continuous-residence-good-moral-character-的核心">2. 税务与财务类文件（证明 Continuous Residence &amp; Good Moral Character 的核心）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">序号</th>
+<th style="text-align: left;">文件名称</th>
+<th style="text-align: left;">格式与要求</th>
+<th style="text-align: left;">备注说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">2.1</td>
+<td style="text-align: left;"><strong>IRS 报税誊本 (Tax Return Transcripts)</strong></td>
+<td style="text-align: left;">过去 <strong>5 年</strong>的官方税务誊本</td>
+<td style="text-align: left;">必须在 <a href="https://www.irs.gov/individuals/get-transcript">IRS 官网</a> 免费下载，比单纯的 1040 表格具有更高的官方效力</td>
+</tr>
+<tr>
+<td style="text-align: left;">2.2</td>
+<td style="text-align: left;"><strong>如果存在欠税 (Tax Debt)</strong></td>
+<td style="text-align: left;">提供与 IRS 签订的还款协议（Installment Agreement）及近期的扣款/付款记录</td>
+<td style="text-align: left;">证明您在积极履行纳税义务，不影响道德品质判定</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-婚姻与家庭关系类文件-辅助证明及用于未成年子女自动归化">3. 婚姻与家庭关系类文件（辅助证明及用于未成年子女自动归化）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">序号</th>
+<th style="text-align: left;">文件名称</th>
+<th style="text-align: left;">格式与要求</th>
+<th style="text-align: left;">备注说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">3.1</td>
+<td style="text-align: left;"><strong>结婚证</strong></td>
+<td style="text-align: left;">中英文公证书或美国结婚证扫描件</td>
+<td style="text-align: left;">夫妻双方申请时互相佐证</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.2</td>
+<td style="text-align: left;"><strong>离婚证明（若有）</strong></td>
+<td style="text-align: left;">既往所有婚姻的离婚协议书/法院判决公证书</td>
+<td style="text-align: left;">证明当前婚姻的合法性</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.3</td>
+<td style="text-align: left;"><strong>女儿的出生纸</strong></td>
+<td style="text-align: left;">包含父母双方姓名的出生医学证明中英文公证书</td>
+<td style="text-align: left;"><strong>极为重要</strong>：女儿自动获取国籍（Derivative Citizenship）的核心亲子关系证明文件</td>
+</tr>
+<tr>
+<td style="text-align: left;">3.4</td>
+<td style="text-align: left;"><strong>共有财产证明</strong></td>
+<td style="text-align: left;">联名房产证、联名租约、联名银行账户、联名汽车保险等</td>
+<td style="text-align: left;">证明夫妻共同居住且婚姻真实</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-特殊背景证明类文件-视个人情况提供">4. 特殊背景证明类文件（视个人情况提供）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">序号</th>
+<th style="text-align: left;">文件名称</th>
+<th style="text-align: left;">格式与要求</th>
+<th style="text-align: left;">备注说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">4.1</td>
+<td style="text-align: left;"><strong>Selective Service 登记信</strong></td>
+<td style="text-align: left;">兵役登记结果复印件</td>
+<td style="text-align: left;"><strong>仅限</strong> 18-26 岁期间持有绿卡在美生活的男性</td>
+</tr>
+<tr>
+<td style="text-align: left;">4.2</td>
+<td style="text-align: left;"><strong>法院判决/逮捕记录</strong></td>
+<td style="text-align: left;">若在美期间曾有被交通传唤（罚款金额超过 $500）或任何逮捕记录，必须提供法院结案文件（Certified Court Disposition）</td>
+<td style="text-align: left;">建议面试前咨询律师</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="未成年女儿后续获取身份文件步骤-针对女儿未满18岁">未成年女儿后续获取身份文件步骤（针对女儿未满18岁）</h2>
+<p>在您或您的爱人顺利宣誓入籍并取得公民纸后，请立即按照以下步骤解决女儿的身份文件问题：</p>
+<ol>
+<li><strong>步骤一：申请美国护照（首要任务）</strong><ul>
+<li><strong>地点</strong>：就近的邮局（USPS Office）或护照事务中心。</li>
+<li><strong>所需材料</strong>：<ul>
+<li>女儿的绿卡原件；</li>
+<li>女儿的出生纸公证书原件（证明亲子关系）；</li>
+<li>已入籍父母的美国公民纸原件；</li>
+<li>父母的结婚证原件；</li>
+<li>父母双方的身份证件（驾照/护照）；</li>
+<li>DS-11 护照申请表。</li>
+</ul>
+</li>
+<li><strong>结果</strong>：邮局会将上述原件寄往国务院审核，数周后会把护照寄给您，并将所有申请原件退还。</li>
+</ul>
+</li>
+<li><strong>步骤二：申请 N-600 公民纸（长期规划）</strong><ul>
+<li>护照虽然足以证明国籍，但某些联邦机构或长期的安全审核可能需要公民纸。</li>
+<li>您可以在线向移民局提交 N-600 表格，上传与申请护照类似的证明材料。</li>
+<li><strong>注意</strong>：N-600 申请费较高，耗时较长，但公民纸永久有效，可作为最核心的身份底牌。</li>
+</ul>
+</li>
+</ol>
+<p>祝您及家人申请顺利！如有特定步骤疑问，可随时进一步查证。</p>
+</section></section><section><h2 id="us_citizenship_timeline">us_citizenship_timeline</h2><h3 id="question-2">Question</h3><p>美国入籍申请的总流程大概需要多久？每个阶段的平均等待时间是多少？以及宣誓后为子女办理护照和公民纸的周期。</p><h3 id="answer-2">Answer</h3><h2 id="美国国籍申请-n-400-及后续文件办理时间周期指南">美国国籍申请（N-400）及后续文件办理时间周期指南</h2>
+<p>办理美国国籍的总耗时在不同地区和时期会有所波动。以下是基于近期（2026年）各主要城市移民局办公室的平均处理速度，整理出的各阶段等待时间明细。</p>
+<hr/>
+<h3 id="一-夫妻-成年人-n-400-入籍总周期">一、 夫妻（成年人）N-400 入籍总周期</h3>
+<p>目前全美 N-400 入籍申请的平均总周期（从在线提交申请到正式参宣誓仪式并拿到公民纸）通常需要 <strong>6 至 12 个月</strong>。</p>
+<h4 id="1-详细节点时间线划分">1. 详细节点时间线划分</h4>
+<ul>
+<li><strong>第 1 阶段：提交申请与收件确认（Filing &amp; Receipt）</strong><ul>
+<li><strong>周期</strong>：<strong>提交后 1 - 3 天</strong>。</li>
+<li><strong>说明</strong>：在线提交申请后，系统会立即生成收件回执（Receipt Notice, 即 I-797 通告）。</li>
+</ul>
+</li>
+<li><strong>第 2 阶段：采集指模/指模免除通知（Biometrics）</strong><ul>
+<li><strong>周期</strong>：<strong>递交后 1 - 4 周</strong>。</li>
+<li><strong>说明</strong>：移民局会自动评估是否可以直接复用您此前绿卡申请时的指模（指模复用通知通常在 1 周内发出）。如果需要现场采集，通常会在 2 - 3 周后安排在当地申请服务中心（ASC）完成。</li>
+</ul>
+</li>
+<li><strong>第 3 阶段：后台背景调查与面试排队等待（Case Pending）</strong><ul>
+<li><strong>周期</strong>：<strong>打指模后 3 - 6 个月</strong>。</li>
+<li><strong>说明</strong>：这是耗时最长的一段静止期，移民局在此期间对申请人进行背景调查（Background Check），审核税单等资料，并根据当地局（Field Office）的排队积压情况进行面试排期。</li>
+</ul>
+</li>
+<li><strong>第 4 阶段：收到面试通知至实际面试（Interview Appointment）</strong><ul>
+<li><strong>周期</strong>：<strong>收到通知后 4 - 5 周</strong>。</li>
+<li><strong>说明</strong>：当案件排队轮到您时，状态会更新为“Interview Was Scheduled”。您会收到纸质面试信，实际面试日期通常设在发信日的 1 个月后。</li>
+</ul>
+</li>
+<li><strong>第 5 阶段：面试通过至参加入籍宣誓（Oath Ceremony）</strong><ul>
+<li><strong>周期</strong>：<strong>面试通过后当天 至 6 周内</strong>。</li>
+<li><strong>说明</strong>：部分移民局办公室支持“当天宣誓”（Same-Day Oath），通过面试后下午即可直接进行宣誓；如果当天无法安排，通常会在 2 - 4 周内收到宣誓通知书（N-445），并在面试通过后的 45 天内完成宣誓仪式。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-全美主要城市移民局处理速度参考-热点地区分局">2. 全美主要城市移民局处理速度参考（热点地区分局）</h4>
+<p>由于处理速度取决于属地移民局分局（Field Office）的案量，以下为热点城市的大致参考：<br/>
+*   <strong>较快地区（约 5 - 8 个月）</strong>：西雅图 (Seattle)、波士顿 (Boston)、芝加哥 (Chicago)。<br/>
+*   <strong>中等地区（约 8 - 11 个月）</strong>：纽约市 (New York City)、洛杉矶 (Los Angeles)、旧金山 (San Francisco)。<br/>
+*   <strong>较慢地区（约 10 - 14 个月）</strong>：休斯顿 (Houston)、迈阿密 (Miami)。</p>
+<hr/>
+<h3 id="二-未成年女儿身份文件办理周期-宣誓后开始计算">二、 未成年女儿身份文件办理周期（宣誓后开始计算）</h3>
+<p>由于未成年女儿在父母中任何一方入籍后即<strong>自动成为公民</strong>，她无需等待入籍审批，但需要申请国籍文件，周期如下：</p>
+<h4 id="1-办理美国护照-us-passport-首要且最快途径">1. 办理美国护照 (US Passport) —— 首要且最快途径</h4>
+<ul>
+<li><strong>加急处理 (Expedited Service)</strong>：<strong>2 - 3 周</strong>（需额外缴纳加急费 $60 及其快递服务费）。如果家中有紧急国际旅行计划，可预约前往护照局（Passport Agency）进行特急办理，通常 <strong>3 天内</strong> 甚至 <strong>1 天内</strong> 即可当场拿到护照。</li>
+<li><strong>常规处理 (Routine Service)</strong>：<strong>6 - 8 周</strong>。</li>
+<li><em>建议在父母任何一方拿到公民纸的次日，即前往邮局为女儿申请护照，这是成本最低且获取公民身份官方文件速度最快的方式。</em></li>
+</ul>
+<h4 id="2-办理女儿-n-600-公民纸-certificate-of-citizenship-长期储备文件">2. 办理女儿 N-600 公民纸 (Certificate of Citizenship) —— 长期储备文件</h4>
+<ul>
+<li><strong>常规处理时间</strong>：<strong>9 至 15 个月</strong>。</li>
+<li><em>由于 N-600 属于移民局审理项目，速度极其缓慢，但该文件永久有效，且永远不需要像护照一样定期更新。建议在拿到护照之后，再视预算在线递交 N-600 申请。</em></li>
+</ul>
+<hr/>
+<h3 id="三-影响审批周期的核心变数-避坑指南">三、 影响审批周期的核心变数（避坑指南）</h3>
+<p>为避免流程无谓延长，请注意以下几点：<br/>
+1.  <strong>出境历史的精确度</strong>：在 N-400 中填写的出境天数和日期必须与护照上的盖章以及 CBP I-94 官方出入境记录完全对齐。如有不一致，面试时会被移民官反复盘问并要求补充证明，导致案件在面试后进入“等待补件 (RFE)”状态，拖延 2 - 3 个月。<br/>
+2.  <strong>报税欠税情况</strong>：如果过去 5 年内有任何一年漏税或欠税，必须在递交申请前与 IRS 达成协议，并带齐所有付款收据，否则背景调查环节会被长期搁置。<br/>
+3.  <strong>兵役登记信</strong>：如果您爱人（或女儿）属于前文提到的 18-26 岁期间在美生活的男性，必须提前向 Selective Service 获取 Status Information Letter。如果面试现场才被要求补交，整个入籍程序将直接被延后数月。</p></section></article>
+</main>
+</body>
+</html>
