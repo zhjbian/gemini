@@ -47,6 +47,17 @@ When the user asks to analyze whale trades:
   - **Never 100% rely on the raw BidAsk/Side flag to identify buy vs. sell** for negotiated non-AUTO blocks.
   - You must deduce the actual execution side through multi-leg premium offsets, DTE, strike positioning, and next-day OI changes.
 
+- **Stock Block Trade Direction Deduction Rule (个股大宗现货方向研判法则)**:
+  - 对于个股的订单流大单（包括单笔 Lit 交易所大单 `SingleTickBigTrade` 与单笔暗池大单 `SingleTickDarkTrade`），**绝对不能单纯依据成交价（Trade Price）与买卖盘口（Bid-Ask）的关系（如 tick 偏向）来判定其为买入（Buy）或卖出（Sell）**。
+  - **严禁根据成交后的价格波动判定买入和卖出**。因为大量级的个股 order flow 大单成交机制不同，价格随后的波动受多种因素影响，不能用来证明其买卖属性。
+  - **Pivot 枢轴判定法**: 如果个股出现了极其庞大量级的现货大单（例如成交量在 `500,000` 股以上），且**没有发现与之成交时间重合（相差数秒内）的配对期权大单（Paired Options Flow）**，则**默认不能直接做任何方向性的买入/卖出判定**。此时这笔大单的方向性权重归为**中性（Neutral）**，并在报告中明确指出该成交价格（Price Level）构成了市场极其重要的**关键筹码拐点/枢轴（Pivot）**。
+    - **大趋势位置推定例外 (Macro Trend Position Inference)**: 如果该巨量大宗现货大单（Pivot 枢轴点）所成交的价格位置处于**大趋势级别（日K级别或周K级别，Daily or Weekly Timeframe）的显著历史阻力位/顶部，或者历史支撑位/底部**：
+      - 可以根据该价格位置，合理推定其在顶部属于**高位出货卖出（Top Distribution / Selling）**，或在底部属于**低位吸筹买入（Bottom Accumulation / Buying）**。
+      - **要求**: 在进行此种推定判定时，**必须在报告中清晰、明确地注明此方向仅属于根据大趋势级别价格位置（Price Location）所进行的推定，而非基于成交单口性质的直接物理确证**。
+  - **大单对敲组合时间差判定法 (Pairing)**: 如果现货大宗大单与某个期权大单（Options Flow Sweep/Block）的成交时间极度重合（例如只相差数秒），则可以将其绑定配对（Pair）起来联合分析。如果通过期权合约（如 Strike 偏向、DTE、Spread 结构等）能较大概率确定期权的真实意图，可以在一定程度上辅助推断该笔现货对锁大单的底层交易属性。
+
+
+
 - **DTE-Based Duration Rule**:
   - Always evaluate `DTE` (Days to Expiration) as a core parameter of institutional intent:
     - **Ultra-Short Term (DTE <= 7 days)**: 
@@ -55,6 +66,14 @@ When the user asks to analyze whale trades:
 
 - **Single-Leg Premium Threshold Rule**:
   - For options block trades, any single contract leg with a **Premium >= $50M** MUST be isolated and analyzed individually in a dedicated section of the final report (examining its specific pricing, strike leverage, IV, and its exact stock hedging weight).
+
+- **Options Flow Volume & Premium Classification Threshold Rule (期权大单方向性价值过滤阀值)**:
+  - 为了过滤非显著的期权资金流噪声，只有满足以下资金规模条件的期权大单才具有方向性预测价值。如果不满足，则应视其对个股方向性走势无参考价值（归为中性/噪音）：
+    1. **多腿/组合交易 (Multi-Leg Spreads/Rolls)**：多笔共享相同 `SprdId` 的组合交易，其**轧差后的净权利金 (Net Premium) 必须严格大于 $25M**，才能认定为具有方向性预测价值的大单。
+    2. **单腿交易 (Single-Leg Trades)**：如果交易的执行类型 `ExecType` 为 **`AUTO`**，其成交的**单腿权利金 (Premium) 必须严格大于 $8M**，才能认定为具有方向性预测价值的大单。
+
+- **Short-Term Call Close-Out Profit Taking Rule (短期 Call 高位平仓看空法则)**:
+  - 若盘面在日内高位（或波段高位）出现对短期 Call（如 DTE <= 14 天，例如 `.TSLA260717C395`）的**平仓离场行为（Close）**，必须将其视为多头的**获利了结与防守性减仓（Profit-Taking / Defensive Close）**，在多空方向上应定性为 **Bearish (看空/偏空)**。
 
 - **ThinkOrSwim Contract Format Rule**:
   - When analyzing or referencing any single contract leg in the report or metadata, you **MUST** format the contract symbol using the **ThinkOrSwim format** (e.g., `.META261120C5`, `.TSLA281215C800`). The format structure is: `.[TICKER][YY][MM][DD][C/P][STRIKE]` (with no leading zeros for strike unless it is decimal like 5 or 5.5, matching exact broker format).
