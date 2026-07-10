@@ -214,7 +214,7 @@
 <span>Saved: 2026-07-06 18:49:47</span>
 <span>Question summary: tsla_order_flow_rules</span>
 </div>
-</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#tsla_order_flow_rules">tsla_order_flow_rules</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#1-对-singletickbigtrade-与-singletickdarktrade-的理解">1. 对 SingleTickBigTrade 与 SingleTickDarkTrade 的理解</a></li><li><a href="#2-更新-agent-skill-whale-trade-analysis">2. 更新 Agent Skill whale-trade-analysis</a></li><li><a href="#3-重塑并更新数据库中-2026-07-06-tsla-分析报告">3. 重塑并更新数据库中 2026-07-06 TSLA 分析报告</a></li></ul></li><li><a href="#tsla_order_flow_rules_correction">tsla_order_flow_rules_correction</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#1-规则修正说明">1. 规则修正说明</a></li><li><a href="#2-数据库案例更新结果">2. 数据库案例更新结果</a></li></ul></li><li><a href="#tsla_order_flow_rules_pivot_exception">tsla_order_flow_rules_pivot_exception</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-规则追加说明">1. 规则追加说明</a></li><li><a href="#2-数据库案例二次更新结果">2. 数据库案例二次更新结果</a></li></ul></li><li><a href="#spy_qqq_spikes_analysis">spy_qqq_spikes_analysis</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#1-偏价大宗成交与磁铁机制解析-price-spikes-magnetism-mechanism">1. 偏价大宗成交与磁铁机制解析 (Price Spikes &amp; Magnetism Mechanism)</a></li><li><a href="#2-数据库案例建档结果">2. 数据库案例建档结果</a></li></ul></li><li><a href="#tsla_case_study_correction">tsla_case_study_correction</a><ul><li><a href="#question-5">Question</a></li><li><a href="#answer-5">Answer</a></li><li><a href="#1-规则更新细节-rules-refinement-details">1. 规则更新细节 (Rules Refinement Details)</a></li><li><a href="#2-tsla-2026-07-06-案例重置与数据库校准-database-calibration">2. TSLA 2026-07-06 案例重置与数据库校准 (Database Calibration)</a></li></ul></li><li><a href="#es_box_arbitrage_analysis">es_box_arbitrage_analysis</a><ul><li><a href="#question-6">Question</a></li><li><a href="#answer-6">Answer</a></li><li><a href="#1-极深实值-box-套利机制解析-deep-itm-box-spread-mechanism">1. 极深实值 BOX 套利机制解析 (Deep ITM BOX Spread Mechanism)</a></li><li><a href="#2-数据库案例建档结果-2">2. 数据库案例建档结果</a></li></ul></li></ul></div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#tsla_order_flow_rules">tsla_order_flow_rules</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#1-对-singletickbigtrade-与-singletickdarktrade-的理解">1. 对 SingleTickBigTrade 与 SingleTickDarkTrade 的理解</a></li><li><a href="#2-更新-agent-skill-whale-trade-analysis">2. 更新 Agent Skill whale-trade-analysis</a></li><li><a href="#3-重塑并更新数据库中-2026-07-06-tsla-分析报告">3. 重塑并更新数据库中 2026-07-06 TSLA 分析报告</a></li></ul></li><li><a href="#tsla_order_flow_rules_correction">tsla_order_flow_rules_correction</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#1-规则修正说明">1. 规则修正说明</a></li><li><a href="#2-数据库案例更新结果">2. 数据库案例更新结果</a></li></ul></li><li><a href="#tsla_order_flow_rules_pivot_exception">tsla_order_flow_rules_pivot_exception</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#1-规则追加说明">1. 规则追加说明</a></li><li><a href="#2-数据库案例二次更新结果">2. 数据库案例二次更新结果</a></li></ul></li><li><a href="#spy_qqq_spikes_analysis">spy_qqq_spikes_analysis</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#1-偏价大宗成交与磁铁机制解析-price-spikes-magnetism-mechanism">1. 偏价大宗成交与磁铁机制解析 (Price Spikes &amp; Magnetism Mechanism)</a></li><li><a href="#2-数据库案例建档结果">2. 数据库案例建档结果</a></li></ul></li><li><a href="#tsla_case_study_correction">tsla_case_study_correction</a><ul><li><a href="#question-5">Question</a></li><li><a href="#answer-5">Answer</a></li><li><a href="#1-规则更新细节-rules-refinement-details">1. 规则更新细节 (Rules Refinement Details)</a></li><li><a href="#2-tsla-2026-07-06-案例重置与数据库校准-database-calibration">2. TSLA 2026-07-06 案例重置与数据库校准 (Database Calibration)</a></li></ul></li><li><a href="#es_box_arbitrage_analysis">es_box_arbitrage_analysis</a><ul><li><a href="#question-6">Question</a></li><li><a href="#answer-6">Answer</a></li><li><a href="#1-极深实值-box-套利机制解析-deep-itm-box-spread-mechanism">1. 极深实值 BOX 套利机制解析 (Deep ITM BOX Spread Mechanism)</a></li><li><a href="#2-数据库案例建档结果-2">2. 数据库案例建档结果</a></li></ul></li><li><a href="#motivewave_pivots_formulas">motivewave_pivots_formulas</a><ul><li><a href="#question-7">Question</a></li><li><a href="#answer-7">Answer</a></li><li><a href="#基础定义数据">基础定义数据</a></li><li><a href="#1-classic-pivot-经典枢轴">1. Classic Pivot (经典枢轴)</a></li><li><a href="#2-standard-pivot-标准枢轴">2. Standard Pivot (标准枢轴)</a></li><li><a href="#3-woodie-pivot-伍迪枢轴">3. Woodie Pivot (伍迪枢轴)</a></li><li><a href="#4-camarilla-pivot-卡玛里拉枢轴">4. Camarilla Pivot (卡玛里拉枢轴)</a></li><li><a href="#5-fibonacci-pivot-斐波那契枢轴">5. Fibonacci Pivot (斐波那契枢轴)</a></li><li><a href="#6-fib-zone-斐波那契区域-1">6. Fib Zone (斐波那契区域 1)</a></li><li><a href="#7-fib-zone-2-斐波那契区域-2">7. Fib Zone 2 (斐波那契区域 2)</a></li></ul></li></ul></div>
 <section><h2 id="tsla_order_flow_rules">tsla_order_flow_rules</h2><section>
 <h3 id="question">Question</h3>
 <p>Whale Trade 案例分析 - 分析报告:<br/>
@@ -333,7 +333,115 @@ Report title: 综合研判结果与核心依据 (Executive Verdict &amp; Core Re
 *   <strong>Ticker</strong>：<code>ES</code><br/>
 *   <strong>分析类型</strong>：<code>OptionsFlow</code><br/>
 *   <strong>多空方向</strong>：<strong>中性 (Neutral)</strong><br/>
-*   <strong>建档状态</strong>：成功录入 (Inserted)</p></section></article>
+*   <strong>建档状态</strong>：成功录入 (Inserted)</p></section><section><h2 id="motivewave_pivots_formulas">motivewave_pivots_formulas</h2><h3 id="question-7">Question</h3><p>根据 MotiveWave 官方指标源码 PivotPoints.java，解释并列出 Classic、Standard、Woodie、Camarilla、Fibonacci 等不同类型 Pivot Points 的数学计算公式。</p><h3 id="answer-7">Answer</h3><p>根据 MotiveWave 官方指标源码 PivotPoints.java，各类型枢轴线的基础变量和计算公式如下：</p>
+<h3 id="基础定义数据">基础定义数据</h3>
+<ul>
+<li>H = 前一日最高价 (High)</li>
+<li>L = 前一日最低价 (Low)</li>
+<li>C = 前一日收盘价 (Close)</li>
+<li>TO = 前一日开盘价 (Open)</li>
+<li>range = H - L</li>
+</ul>
+<hr/>
+<h3 id="1-classic-pivot-经典枢轴">1. Classic Pivot (经典枢轴)</h3>
+<ul>
+<li>中枢轴 (P) = (H + L + C) / 3</li>
+<li>阻力位 (Resistance):<ul>
+<li>R1 = (P * 2) - L</li>
+<li>R2 = P - S1 + R1</li>
+<li>R3 = 2 * (P - L) + H</li>
+</ul>
+</li>
+<li>支撑位 (Support):<ul>
+<li>S1 = (P * 2) - H</li>
+<li>S2 = P - (R1 - S1)</li>
+<li>S3 = L - (2 * (H - P))</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="2-standard-pivot-标准枢轴">2. Standard Pivot (标准枢轴)</h3>
+<ul>
+<li>中枢轴 (P) = (H + L + C) / 3</li>
+<li>阻力位 (Resistance):<ul>
+<li>R1 = (P * 2) - L</li>
+<li>R2 = P + range</li>
+</ul>
+</li>
+<li>支撑位 (Support):<ul>
+<li>S1 = (P * 2) - H</li>
+<li>S2 = P - range</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="3-woodie-pivot-伍迪枢轴">3. Woodie Pivot (伍迪枢轴)</h3>
+<p>中轴的计算引入了前一日的开盘价，以对近期价格赋予更高权重。<br/>
+*   中枢轴 (P) = (H + L + C + TO) / 4<br/>
+*   阻力位 (Resistance):<br/>
+    *   R1 = (2 * P) - L<br/>
+    *   R2 = P + range<br/>
+    *   R3 = H + 2 * (P - L)<br/>
+    *   R4 = R3 + range<br/>
+*   支撑位 (Support):<br/>
+    *   S1 = (2 * P) - H<br/>
+    *   S2 = P - range<br/>
+    *   S3 = L - 2 * (H - P)<br/>
+    *   S4 = S3 - range</p>
+<hr/>
+<h3 id="4-camarilla-pivot-卡玛里拉枢轴">4. Camarilla Pivot (卡玛里拉枢轴)</h3>
+<p>以昨日收盘价 C 直接作为 Central Pivot 枢轴线，阻力与支撑系数采用 1.1 的固定倍数缩放。<br/>
+*   中枢轴 (P) = C<br/>
+*   阻力位 (Resistance):<br/>
+    *   R1 = C + range * 1.1 / 12<br/>
+    *   R2 = C + range * 1.1 / 6<br/>
+    *   R3 = C + range * 1.1 / 4<br/>
+    *   R4 = C + range * 1.1 / 2<br/>
+*   支撑位 (Support):<br/>
+    *   S1 = C - range * 1.1 / 12<br/>
+    *   S2 = C - range * 1.1 / 6<br/>
+    *   S3 = C - range * 1.1 / 4<br/>
+    *   S4 = C - range * 1.1 / 2</p>
+<hr/>
+<h3 id="5-fibonacci-pivot-斐波那契枢轴">5. Fibonacci Pivot (斐波那契枢轴)</h3>
+<ul>
+<li>中枢轴 (P) = (H + L + C) / 3</li>
+<li>阻力位 (Resistance):<ul>
+<li>R1 = P + 0.382 * range</li>
+<li>R2 = P + 0.618 * range</li>
+<li>R3 = P + 1.000 * range</li>
+<li>R4 = P + 1.618 * range</li>
+</ul>
+</li>
+<li>支撑位 (Support):<ul>
+<li>S1 = P - 0.382 * range</li>
+<li>S2 = P - 0.618 * range</li>
+<li>S3 = P - 1.000 * range</li>
+<li>S4 = P - 1.618 * range</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 id="6-fib-zone-斐波那契区域-1">6. Fib Zone (斐波那契区域 1)</h3>
+<p>主要涵盖 0.5、0.618、1.0 和 1.382 扩展倍数，并在指定的阻力/支撑阶梯中建立背景填充区域（Zone）。<br/>
+*   中枢轴 (P) = (H + L + C) / 3<br/>
+*   阻力位 (Resistance):<br/>
+    *   R1 = P + 0.5 * range, R2 = P + 0.618 * range, R3 = P + range, R4 = P + 1.382 * range<br/>
+*   支撑位 (Support):<br/>
+    *   S1 = P - 0.5 * range, S2 = P - 0.618 * range, S3 = P - range, S4 = P - 1.382 * range<br/>
+*   填充区域 (Zone): [R3, R4]、[R1, R2]、[S1, S2]、[S3, S4]</p>
+<hr/>
+<h3 id="7-fib-zone-2-斐波那契区域-2">7. Fib Zone 2 (斐波那契区域 2)</h3>
+<p>Fib Zone 的进阶版本，将阻力/支撑层级细化到 8 层，包含更多如 0.786、0.886 等谐波交易比率。<br/>
+*   中枢轴 (P) = (H + L + C) / 3<br/>
+*   阻力位 (Resistance):<br/>
+    *   R1 = P + 0.382 * range, R2 = P + 0.618 * range<br/>
+    *   R3 = P + 0.786 * range, R4 = P + 0.886 * range<br/>
+    *   R5 = P + 1.130 * range, R6 = P + 1.270 * range<br/>
+    *   R7 = P + 1.618 * range, R8 = P + 2.618 * range<br/>
+*   支撑位 (Support):<br/>
+    *   与阻力位对称呈负向偏移 (S1 至 S8)<br/>
+*   填充区域 (Zone): [R7, R8]、[R5, R6]、[R4, R3]、[R2, R1]、[S1, S2]、[S3, S4]、[S5, S6]、[S7, S8]</p></section></article>
 </main>
 </body>
 </html>
