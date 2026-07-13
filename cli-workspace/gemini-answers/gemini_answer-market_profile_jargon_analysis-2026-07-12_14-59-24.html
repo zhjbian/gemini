@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - market_profile_jargon_analysis</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-07-12 14:59:24</span>
+<span>Question summary: market_profile_jargon_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#question-2">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#answer-2">Answer</a><ul><li><a href="#1-profile-图表类型判定">1. Profile 图表类型判定</a></li><li><a href="#2-核心术语解析与交易指导意义">2. 核心术语解析与交易指导意义</a><ul><li><a href="#poor-high-弱高点-未完成拍卖高点">Poor High (弱高点 / 未完成拍卖高点)</a></li><li><a href="#tapered-low-渐窄低点-衰竭低点">Tapered Low (渐窄低点 / 衰竭低点)</a></li></ul></li><li><a href="#3-其他类似的拍卖市场理论与市场轮廓核心术语">3. 其他类似的拍卖市场理论与市场轮廓核心术语</a><ul><li><a href="#single-prints-单印字-单印结构">Single Prints (单印字 / 单印结构)</a></li><li><a href="#buying-selling-tail-买方-卖方尾部">Buying / Selling Tail (买方 / 卖方尾部)</a></li><li><a href="#point-of-control-poc-价格控制点-与-migration-poc-迁移">Point of Control (POC / 价格控制点) 与 Migration (POC 迁移)</a></li><li><a href="#poor-low-弱低点">Poor Low (弱低点)</a></li><li><a href="#initial-balance-ib-初始平衡区">Initial Balance (IB / 初始平衡区)</a></li><li><a href="#ledge-筹码搁浅平台">Ledge (筹码搁浅平台)</a></li><li><a href="#hvn-高成交量节点-与-lvn-低成交量节点">HVN (高成交量节点) 与 LVN (低成交量节点)</a></li></ul></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<h1>Section: Market Profile &amp; Auction Market Theory Jargon Analysis</h1>
+<h2 id="question-2">Question</h2>
+<p>Adam 这次的 Weekly 07/13 Study substack 中：<br/>
+1. 他的3周的profile图片是 market profile / TPO 还是 volume profile？<br/>
+2. 他提到了 poor high, tapered low，请解释这些术语以及它们在 trading 中的指导意义。<br/>
+3. 还有其他类似的书语/术语吗？</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h2 id="answer-2">Answer</h2>
+<h3 id="1-profile-图表类型判定">1. Profile 图表类型判定</h3>
+<p>在 Adam Set 的 substack 报告中，其展示的 3周 Profile 图片属于 <strong>Market Profile（市场轮廓 / TPO 轮廓）</strong>。<br/>
+* <strong>判断依据</strong>：图表是用 30 分钟为单位的字母（A, B, C...）或代表时间片段的细分格子堆叠而成，用来度量价格在某一特定价位停留的时间（Time Price Opportunities）。<br/>
+* <strong>与 Volume Profile 的区别</strong>：Volume Profile（成交量分布）度量的是在每个价格上实际交易的合同数量（成交量），而 Market Profile 关注的是时间与价格的关系，以评估拍卖市场的价值区间。</p>
+<h3 id="2-核心术语解析与交易指导意义">2. 核心术语解析与交易指导意义</h3>
+<h4 id="poor-high-弱高点-未完成拍卖高点">Poor High (弱高点 / 未完成拍卖高点)</h4>
+<ul>
+<li><strong>定义</strong>：在拍卖市场理论中，一个健康的、已完成的拍卖（Finished Auction）在高点或低点应该呈现出“超值拒绝”（Excess），即在轮廓极端处留有单印 TPO 的“尾部”（Tail）。而 Poor High 是指高点极为扁平，缺乏这种单印 TPOs 的拒绝信号，通常表现为相邻 of 30 分钟段落（如 A 期和 B 期）在完全相同的价格高点并列截止，在 Profile 上形成一个平齐的“平台”或“悬崖”（Ledge）。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>未完成的拍卖</strong>：这表明市场向上探索时，并未遇到强烈的、压倒性的卖家进行即时拒绝，而仅仅是因为短线买盘动能耗尽而暂时停止。</li>
+<li><strong>磁石效应与结构修复</strong>：在未来的交易日中，Poor High 对应的价格区间具有极强的吸引力。市场有极大概率（历史统计通常高于 80%）会重新回到该区域，突破并“修复”（Repair）此结构。</li>
+<li><strong>战术应用</strong>：在价格接近 Poor High 时，不宜盲目左侧做空；相反，该点位常被作为多头持仓的波段目标出场位，或者等待价格突破该点位完成结构修复后，观察是否有假突破出清（Unwind）的交易机会。</li>
+</ul>
+<h4 id="tapered-low-渐窄低点-衰竭低点">Tapered Low (渐窄低点 / 衰竭低点)</h4>
+<ul>
+<li><strong>定义</strong>：Tapered Low 是 Poor Low 的反义词。它指的是在 Market Profile 底部，轮廓宽度逐渐收窄，最终以极窄的一两条单印（Single Prints）或 buying tail（买盘尾部）结束。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>已完成的拍卖</strong>：结构上的收窄和拒绝，证实了价格向下方探索时，在极短时间内遭遇了强力的被动买家（Passive Buyers）介入，或者主动卖家在此价位完全衰竭。</li>
+<li><strong>确认的结构性底部</strong>：这代表一个成功的价格发现极端。Tapered Low 被视为非常健康的、难以被轻易跌破的强物理支撑带。</li>
+<li><strong>战术应用</strong>：在后续交易中，Tapered Low 的最底端是一个极具参考价值的宏观防守红线。交易者可在价格回调测试该区域时，背靠该低点建立多头仓位，并将止损点紧贴锚定在 Tapered Low 下方，提供极佳的风险收益比（R:R）。</li>
+</ul>
+<h3 id="3-其他类似的拍卖市场理论与市场轮廓核心术语">3. 其他类似的拍卖市场理论与市场轮廓核心术语</h3>
+<h4 id="single-prints-单印字-单印结构">Single Prints (单印字 / 单印结构)</h4>
+<ul>
+<li><strong>定义</strong>：在日内 Market Profile 中，仅由某一个单独的 30 分钟时间段（例如只有 C 期字母）打印出来的价格区间。在图表上表现为极薄的单行字符。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>情绪性单边推进</strong>：代表市场在该价格区间出现极快的单向运动，多为机构资金或情绪盘合力推动，属于“低交易量/低时间停留”区域。</li>
+<li><strong>未来的强支撑与阻力</strong>：当价格未来回调至该 Single Prints 区域时，由于其缺乏筹码换手支撑，通常会快速穿过或在此处遭遇极强的价格拒绝。交易者常将其起点与终点作为日内阻力或支撑。</li>
+</ul>
+<h4 id="buying-selling-tail-买方-卖方尾部">Buying / Selling Tail (买方 / 卖方尾部)</h4>
+<ul>
+<li><strong>定义</strong>：出现在 Profile 极端处（最顶端或最底端）、至少由 2 个及以上单印 TPO 字符组成的垂直序列。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>强力拒绝（Excess）的标志</strong>：Tail 越长，说明在该极端价格水平价格被拒绝得越强烈。这代表真正的长期大资金（Other Timeframe Participants）在起作用。</li>
+<li><strong>防守边界</strong>：它是日内交易最可靠的参考线。未跌破 Buying Tail 底部前，多头优势始终成立。</li>
+</ul>
+<h4 id="point-of-control-poc-价格控制点-与-migration-poc-迁移">Point of Control (POC / 价格控制点) 与 Migration (POC 迁移)</h4>
+<ul>
+<li><strong>定义</strong>：POC 是指在整个交易时段中，价格停留时间最长（拥有最多 TPOs 堆叠）的单一价格水平。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>公平价格（Fair Price）</strong>：代表当天买卖双方最认可的平衡位置。</li>
+<li><strong>POC 迁移（Migration）</strong>：在交易日推进中，如果 POC 随着价格上涨而逐步向上转移，表明买盘在推动价值区上移，属于健康的趋势推进；如果价格上涨但 POC 传递在低位，表明高位未被市场接受，可能是一次假突破或诱多。</li>
+</ul>
+<h4 id="poor-low-弱低点">Poor Low (弱低点)</h4>
+<ul>
+<li><strong>定义</strong>：与 Poor High 对应，指底部的拍卖极不完整，缺乏明显的单印 Buying Tail 拒绝，呈现扁平的平齐底（通常由两个 or 多个 30 分钟段落在相同价格触底）。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>下行目标</strong>：在随后的交易中，该弱低点通常作为空头的首要突破和清算目标。</li>
+</ul>
+<h4 id="initial-balance-ib-初始平衡区">Initial Balance (IB / 初始平衡区)</h4>
+<ul>
+<li><strong>定义</strong>：常规交易时段（RTH）前第一个小时（通常是美东时间 09:30 - 10:30，即 A 期和 B 期合集）的价格波动范围。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>日内结构定调</strong>：IB 的宽窄和突破方向能为日内交易日类型提供线索。若 IB 被快速向一侧大幅突破，表明日内存在单边趋势市的强意愿；若价格全天都在 IB 范围内震荡，则判定为平衡震荡区。</li>
+</ul>
+<h4 id="ledge-筹码搁浅平台">Ledge (筹码搁浅平台)</h4>
+<ul>
+<li><strong>定义</strong>：在 Profile 的 Value Area 内部或边缘，由至少两个或多个 TPOs 字母在完全相同的价格点精准结束而形成的平齐线。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>短线多空拉锯点</strong>：代表日内在此价位有大量的限价单对决，一旦跌破或升表该平台，会引发在此位置积攒的短线止损盘踩踏，价格会出现短暂的脉冲式加速。</li>
+</ul>
+<h4 id="hvn-高成交量节点-与-lvn-低成交量节点">HVN (高成交量节点) 与 LVN (低成交量节点)</h4>
+<ul>
+<li><strong>定义</strong>：主要是 Volume Profile 概念。HVN 是筹码密集堆积的波峰，LVN 是筹码极少分布的波谷。</li>
+<li><strong>交易指导意义</strong>：</li>
+<li><strong>HVN (磁铁)</strong>：代表历史上的公允价值区。价格接近 HVN 时倾向于减速和整固。</li>
+<li><strong>LVN (跳板)</strong>：代表真空区。价格一旦进入 LVN，往往会由于缺乏阻力而非常迅速地快速滑过，直奔下一个 HVN。</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>
