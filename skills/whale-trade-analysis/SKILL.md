@@ -232,12 +232,37 @@ The final report must contain:
 2. **Premium Currency Formatting**: For all premium values (权利金) referenced anywhere in the report (including single legs and aggregated portfolios), **always** use the unit **`M` (Millions USD)** (e.g., `$207.76M`, `$122.08M`). **Never** use Chinese units like **`亿`** (e.g., `$2.0776亿` is strictly prohibited).
 3. **Trade Identification & Parameters**: Time, size, ticker, option strikes, Bid/Ask context, and underlying price. **All contract legs MUST be referenced in ThinkOrSwim format (e.g., `.META261120C5`)**.
 4. **Detailed Deep Order Flow Analysis**: For any index futures or stock order flow analysis, you must include a comprehensive section matching the exact 7-part structure defined above (with Sections 2 through 6 included ONLY if the ticker is ES).
-5. **No Duplicate Block Trades Table**: **NEVER** duplicate the raw block trades table inside the report body. The table of single-tick institutional block trades must ONLY be passed to the database via the `--order-flow-file` argument of the save script, so that it is rendered independently under the "大宗大单交易明细 (Order Flow Big Trades)" section on the page, avoiding duplication.
+- **No Duplicate Block Trades Table**: **NEVER** duplicate the raw block trades table inside the report body. The table of single-tick institutional block trades must ONLY be passed to the database via the `--order-flow-file` argument of the save script, so that it is rendered independently under the "大宗大单交易明细 (Order Flow Big Trades)" section on the page, avoiding duplication.
 6. **Institutional Strategy Deductions**: Detail the strategy (e.g. Call Buy, Put Buy, Covered Call, Stock Replacement, Conversions/Reversals, or Delta-Hedged Arbitrage).
 7. **Overall Directional Assessment**: Clear verdict (**Bullish**, **Bearish**, or **Neutral**).
 8. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
 9. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual option contract leg with **Premium >= $50M**.
 10. **Three-Scenario Evaluation (三向评估分析)**: For joint `OptionsFlow + OrderFlow` cases, the report must include a section explicitly presenting the detailed analysis, evidence, and confidence score calculations (Bullish, Bearish, and Neutral) for each of the three hypotheses. The final joint verdict must correspond to the scenario with the highest score.
+
+- **OrderFlow + Adam Analysis Rules**:
+  If the analysis request contains quotes or references to Adam Set's X posts, follow these rules:
+  1. **Case Type Classification**: The case study type (`--type`) must be set to `OrderFlow + Adam`.
+  2. **Thematic Title Summarization**: For each analysis report inside `analyses`, summarize a specific thematic title instead of using generic titles like "综合研判结果 (Joint Verdict)". The title must be formatted as: `### <thematic_title_cn> (<thematic_title_en>)` (e.g. `### 机构被动派发与散户接盘分析 (Passive Distribution & Exit Liquidity Analysis)` or `### 夜盘下跌机制分析 (Globex Night Session Breakdown)`).
+  3. **Prepend Raw Posts**: Prepend the raw text of the quoted Adam Set X posts at the very beginning of the analysis content block, formatted exactly as follows:
+     ```
+     ### <thematic_title>
+
+     > **Adam Set X Post (<timestamp_short> PT)**: "<post_content>"
+     ```
+     If there are multiple posts in the same analysis block, write each post as a separate paragraph/blockquote block separated by a blank line with an empty blockquote (`>\n`).
+  4. **SPX Gamma Analysis Exclusion**: Do NOT perform SPX Gamma analysis unless the user explicitly requests it. Focus primarily on ES/Stock order flow data (CVD, absorption, limit sellers, trapped buyers, passive distribution, DPER efficiency, etc.).
+  5. **Time Window Defaults**: Unless explicitly instructed otherwise, if the user references Adam Set's posts, the ES order flow analysis must default to covering the day's progression starting from Pre-Market (PM) up to the exact timestamp of the referenced post. If the user references multiple Adam Set posts in a single analysis request, the generated single analysis report (which forms a single item/block in the `analyses` list of `detail`) must analyze the order flow separately for each post's timestamp (from Pre-Market up to that specific post's time) within this single report.
+
+- **Global ES Order Flow Analysis Rules**:
+  For all ES index futures order flow analysis, you MUST:
+  1. **Multi-Timeframe Analysis**: Analyze the order flow dynamics across multiple time granularities:
+     - **5-min micro intervals** (tracking high-resolution Delta and price alignment, micro absorption traps, exhaustion cycles).
+     - **30-min intervals** (documenting RTH progression and price-delta setup judgments).
+     - **Pre-Market (PM) and Regular Trading Hours (RTH) cumulative metrics** (volume, cumulative Delta).
+     - **Daily timeframe past trends** (defaulting to the past 5 trading days' structural trend and location).
+  2. **Volume Profile Level Integration**: Integrate price level context based on the day's ES Volume Profile, specifically locating key levels such as VPOC (Volume Point of Control), LVN (Low Volume Node), HVN (High Volume Node), and value area boundaries.
+  3. **Smashelito Daily Plan Integration**: Integrate key pivot levels, upside levels, and downside levels from Smashelito's Daily Plan for the target day.
+  4. **Leverage Dedicated Analysis Utilities**: Always refer to and leverage the analytics logic and quantitative metrics computed in [ai_tape_analyst.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/ai_tape_analyst.py) (e.g. PAC, CSM, DPER, micro absorption count, etc.).
 
 ---
 

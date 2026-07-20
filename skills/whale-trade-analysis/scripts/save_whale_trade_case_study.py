@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser(description="Save or update a Whale Trade case study record in the database.")
     parser.add_argument("--date", required=True, help="Date of the case (YYYY-MM-DD)")
     parser.add_argument("--ticker", required=True, help="Ticker (e.g. TSLA)")
-    parser.add_argument("--type", required=True, choices=["OrderFlow", "OptionsFlow", "OptionsFlowOrderFlow", "Spike", "OrderFlow+Adam"], help="Case type")
+    parser.add_argument("--type", required=True, choices=["OrderFlow", "OptionsFlow", "OptionsFlowOrderFlow", "Spike", "OrderFlow+Adam", "OrderFlow + Adam"], help="Case type")
     parser.add_argument("--direction", required=True, choices=["Bullish", "Bearish", "Neutral"], help="Direction assessment")
     parser.add_argument("--summary", required=True, help="One-line summary description in Chinese")
     parser.add_argument("--detail-file", required=True, help="Path to file containing full markdown details")
