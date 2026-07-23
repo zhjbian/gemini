@@ -238,6 +238,13 @@ The final report must contain:
 8. **Historical & Contextual Analysis**: Support the analysis with references to previous similar setups.
 9. **High-Premium Single Leg Analysis**: A dedicated analysis section for any individual option contract leg with **Premium >= $50M**.
 10. **Three-Scenario Evaluation (三向评估分析)**: For joint `OptionsFlow + OrderFlow` cases, the report must include a section explicitly presenting the detailed analysis, evidence, and confidence score calculations (Bullish, Bearish, and Neutral) for each of the three hypotheses. The final joint verdict must correspond to the scenario with the highest score.
+11. **OptionsFlow + OrderFlow 交易关联度判别法则 (1-Minute Timestamp Correlation Rule)**:
+    对于 `OptionsFlow + OrderFlow` 类型的分析，**只有期权大单与现货/暗池 Order Flow 大单的成交时间差距在一分钟之内 (<= 1 min) 时**，才能将其判定为同一交易者的关联对冲/组合跨市场交易（如现货对冲期权，或期现组合策略）。如果两者的成交时间差超过一分钟，**必须且只能将其判定为不同市场参与者（Different Market Players）的独立大单，必须分开独立分析**，绝不能强行将其归结为同一机构的跨市场做市商/对冲行为。
+12. **个股 Order Flow 意图判定引擎 (Equities Contextual Intention Engine Rule)**:
+    对于个股（非 ES / NQ 指数期货）的 Order Flow 大宗交易（Lit / Dark Pool Big Trades），**绝对不能单独依赖数据源的 Side 标签 (Buy / Sell) 来判断买卖方向**（因为 TRF / 暗池成交标记存在极高误标记与中性对锁特征）。系统必须严格调用个股意图判定引擎（Contextual Intention Engine）：
+    - **20 日高低点区间判断 (20-Day High/Low Range)**：
+      - 成交价格处于过去 20 个交易日高低点区间的 **Top 30%** (分位数 >= 70%)：属于高位派发 (Distribution)，**强制覆写为主动卖出 / 看空 (Sell / Bearish)**。
+      - 成交价格处于过去 20 个交易日高低点区间的 **Bottom 30%** (分位数 <= 30%)：属于低位吸筹 (Accumulation)，**强制覆写为主动买入 / 看多 (Buy / Bullish)**。
 
 - **OrderFlow + Adam Analysis Rules**:
   If the analysis request contains quotes or references to Adam Set's X posts, follow these rules:

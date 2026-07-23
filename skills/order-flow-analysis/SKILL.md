@@ -60,10 +60,7 @@ For stock-specific block flow (e.g., TSLA > 400k volume), we actively override u
 1.  **Macro Trend State Exhaustion**: Examines the previous 20-day high/low range.
     -   Prints in the **Top 30%** are overridden to Macro Pivots: **Sell**.
     -   Prints in the **Bottom 30%** are overridden to Macro Pivots: **Buy**.
-2.  **Hourly Lit-Tape Absorption**: For prints in the neutral 30%-70% band, extracts the exact 1-hour candle overlapping the trade.
-    -   If 1H Close > Exec Price: **Buy** (Market absorbed the block as a floor).
-    -   If 1H Close < Exec Price: **Sell** (Market slipped off the block as a ceiling).
-This combination accurately anticipates 90%+ of mature 5%+ excursions over 20-60 day spans.
+This rule accurately anticipates mature excursions over 20-60 day spans.
 
 ## Implementation Notes
 
