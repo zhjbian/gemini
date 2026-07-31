@@ -42,21 +42,34 @@ When the user asks to analyze whale trades:
   - **Never analyze these legs in isolation**. You must aggregate all legs with the same `SprdId` to compute the combined net Delta and strategy.
   - Cross-reference this aggregated option package with lit-tape stock block trades. If a stock trade's volume matches the net Delta of the option package, classify it as a **Tied-to-Stock** transaction.
   
-- **Non-AUTO Execution Type Rule**:
-  - If the `ExecType` is **not `AUTO`** (e.g., `FLR` floor, `CROSS` block, or other negotiated blocks), the reported `BidAsk` side or `Side` tag is highly prone to clearing channel anomalies or counterparty matching artifacts.
-  - **Never 100% rely on the raw BidAsk/Side flag to identify buy vs. sell** for negotiated non-AUTO blocks.
-  - You must deduce the actual execution side through multi-leg premium offsets, DTE, strike positioning, and next-day OI changes.
+- **Non-AUTO / Non-AUCT Execution Type Rule (非 AUTO/AUCT 执行类型绝不直信盘口法则)**:
+  - 如果期权大单的执行类型 `ExecType` **不是 `AUTO` 且不是 `AUCT`**（例如 `FLR`, `CROSS`, `MULTI_CROSS`, `M2M_FLR`, `SPLIT` 等场内协商/大宗对敲交易），**绝对不能简单根据成交价在 Bid/Ask 盘口的位置（Price vs BidAsk / Side 标签）来判定买入还是卖出**。
+  - 因为非 AUTO/AUCT 的大宗对敲单在交易所撮合落地时，成交价贴近 Bid 或 Ask 仅为盘面对敲清算痕迹，容易产生误导。必须结合多腿权利金抵消、DTE 周期、行权价位置、做市商双向对冲推导以及次日 OI 变动进行综合判定。
 
 - **Stock Block Trade Direction Deduction Rule (个股大宗现货方向研判法则)**:
-  - 对于个股的订单流大单（包括单笔 Lit 交易所大单 `SingleTickBigTrade` 与单笔暗池大单 `SingleTickDarkTrade`），**绝对不能单纯依据成交价（Trade Price）与买卖盘口（Bid-Ask）的关系（如 tick 偏向）来判定其为买入（Buy）或卖出（Sell）**。
+  - **Dark Pool Non-Directionality & Level Crossing Rule (暗池大宗交割不得做买卖判定法则)**:
+    - 暗池大单 (`SingleTickDarkTrade`) 盘面上打印的 `Side` (如 Sell/Buy) 属于非公开交易所双向对扣协议的清算记账标识，**绝对不能据此认定机构是在砸盘抛售 (Sell) 还是主动买入 (Buy)**！
+    - 盘后连续在同一精准价格（如 ORCL $119.96）成交的天量暗池大单（如 536 万股），物理本质是机构间的**暗池场外交割与筹码过户 (Dark Pool Off-Exchange Block Crossing)**。
+    - 此类暗池天量成交仅确立了市场极度关键的**暗池筹码枢轴点 (Dark Pool Block Pivot Level)**。其方向性权重**必须严格强制定性为中性 (Neutral)**，绝对不能死板判定为“天量出货压制”！
   - **严禁根据成交后的价格波动判定买入和卖出**。因为大量级的个股 order flow 大单成交机制不同，价格随后的波动受多种因素影响，不能用来证明其买卖属性。
-  - **Pivot 枢轴判定法**: 如果个股出现了极其庞大量级的现货大单（例如成交量在 `500,000` 股以上），且**没有发现与之成交时间重合（相差数秒内）的配对期权大单（Paired Options Flow）**，则**默认不能直接做任何方向性的买入/卖出判定**。此时这笔大单的方向性权重归为**中性（Neutral）**，并在报告中明确指出该成交价格（Price Level）构成了市场极其重要的**关键筹码拐点/枢轴（Pivot）**。
+  - **Pivot 枢轴与超大市值 Order Flow 规模法则 (Mega-Cap Order Flow Pivot Rule)**: 
+    - 对于 META, NVDA, AAPL, MSFT, TSLA 等万亿美元级别的超大市值个股，若出现的现货大宗大单（如 250,000 ~ 500,000 股级）**没有在 1 分钟内发现与期权大单秒级对锁**，其规模相较于万亿总市值仅为日常流动性对敲与机构盘中再平衡。
+    - **单凭此等规模的独立 Order Flow 绝对不足以判定全局趋势方向**，其方向性权重**必须强制归为中性 (Neutral)**！
+    - 报告中须明确标注：此等大单成交价格（如 $594.72, $593.39）构成了市场重要的**关键筹码枢轴 (Pivot Levels)**，而非方向性驱动信号。
     - **大趋势位置推定例外 (Macro Trend Position Inference)**: 如果该巨量大宗现货大单（Pivot 枢轴点）所成交的价格位置处于**大趋势级别（日K级别或周K级别，Daily or Weekly Timeframe）的显著历史阻力位/顶部，或者历史支撑位/底部**：
       - 可以根据该价格位置，合理推定其在顶部属于**高位出货卖出（Top Distribution / Selling）**，或在底部属于**低位吸筹买入（Bottom Accumulation / Buying）**。
       - **要求**: 在进行此种推定判定时，**必须在报告中清晰、明确地注明此方向仅属于根据大趋势级别价格位置（Price Location）所进行的推定，而非基于成交单口性质的直接物理确证**。
   - **大单对敲组合时间差判定法 (Pairing)**: 如果现货大宗大单与某个期权大单（Options Flow Sweep/Block）的成交时间极度重合（例如只相差数秒），则可以将其绑定配对（Pair）起来联合分析。如果通过期权合约（如 Strike 偏向、DTE、Spread 结构等）能较大概率确定期权的真实意图，可以在一定程度上辅助推断该笔现货对锁大单的底层交易属性。
 
 
+
+- **Near-Term Dominance Rule for Trading Decisions (近期优先/近期多空决定综合判定法则)**:
+  - 在分析包含跨期/斜向组合（Diagonal / Calendar Spreads, 近期腿与远期腿方向相反）的期权与现货大单时，**近期（Near-Term, DTE <= 60 天）的多空方向对综合判定（Final Verdict）具有最高决定权**。
+  - **核心 rationale（交易决策导向）**：交易员需要根据近期多空方向来决定当前的开仓/平仓与风控决策。即使远期布局看多，但若近期通过卖出 Call 封死涨幅上限、或伴随着近期卖现货/买 Put 压制，当前盘面在近期维度上即属于**看空/受限压制 (Bearish / Capped)**。
+  - **综合判定规则**：在此类“近期看空/受限、远期看多”的组合中，案例的综合判定方向 (`direction`) **必须定性为看空 (Bearish)**。报告中须清晰标注：
+    - **近期方向 (Near-Term)**: 看空 (Bearish)
+    - **远期方向 (Far-Term)**: 看多 (Bullish)
+    - **综合判定 (Final Verdict)**: **看空 (Bearish - 近期优先)**
 
 - **DTE-Based Duration Rule**:
   - Always evaluate `DTE` (Days to Expiration) as a core parameter of institutional intent:
@@ -102,8 +115,10 @@ When the user asks to analyze whale trades:
   - Re-synthesize and update the final directional verdict, strategy description, and report text, rather than writing a disconnected partial update or simply appending incomplete notes.
 
 - **Two-Phase Open Interest (OI) Inference (两阶段持仓量研判规则)**:
-  - **Phase 1 (Intraday/Static OI Comparison)**: When only the option transaction day's static OI (yesterday's cleared stock) is available, analyze the quantitative relationship between transaction Volume (V) and yesterday's OI to infer whether each leg leans toward opening (Open) or closing (Close).
-  - **Phase 2 (Next-Day/Cleared OI Verification)**: Once the next-day cleared OI change is provided or available, verify and cross-reference the actual OI increase/decrease against the leg volume to firmly declare whether the leg was **Open** (OI surge matching volume) or **Close** (OI reduction matching volume).
+  - **Phase 1 (Intraday/Static OI Comparison / 盘中静态 OI 对比初步研判法则)**: 当还没有次日清算持仓 (Next-Day Cleared OI) 的数据时（如大单发生成交的当日盘中），**必须严格根据大单成交量 (Volume/Qty) 与成交前静态持仓量 (Static OI) 的数值定量关系做初步开平仓判断**：
+    - **平仓/移仓判定 (Close/Roll)**：如果大单成交量与静态 OI 的数值极其贴近（例如成交量与静态 OI 处于同一数量级，或成交量达到静态 OI 的 70%~95%），则判定该笔大单有极高的概率属于**平仓离场 (Close)** 或移仓调整。
+    - **新开仓判定 (Open)**：如果大单成交量明显超越静态 OI（例如成交量 > 静态 OI，或达到静态 OI 的 150%~300%+），则判定该笔大单**100% 为全新开仓 (New Open Positions)**。
+  - **Phase 2 (Next-Day/Cleared OI Verification / 次日清算 OI 最终确证法则)**: 一旦次日清算持仓数据发布，必须以实际清算持仓的净变动（`Cleared OI - Prev Static OI`）与大单成交量比对，进行最终定性确证。
   - **Proactive Next-Day Query Rule (次日主动查询规则)**: 
     - 如果调用此分析技能的时间处于**大单成交后的第一个交易日早上 06:30 之后**（此时清算持仓已在交易所公布并导入系统，需考虑周末及节假日顺延），分析人员**必须主动编写并运行临时查询脚本**，通过 `QDOI.oi_by_date` 接口或直接查询本地 `open_interest`/`daily_oi_change` 表，获取每个合约的**第一个交易日清算后实际持仓量 (Next-Day Cleared OI)**。
     - 将第一个交易日实际持仓量的净变化（即 `第一个交易日清算OI - 成交前一日静态OI`）与该大单的成交量 (Qty) 进行比对。
@@ -147,12 +162,12 @@ When the user asks to analyze whale trades:
 - **OI清算对决与多空判定终极法则 (Ultimate Rule of OI Clearing and Directional Verdict)**:
   在分析包含次日持仓量（OI）清算变动的情况时，必须遵循以下核心决策与推导原则：
   1. **清算数据（OI Change）具有最高表决权**：对于极深实值期权（Deep In-the-Money, DITM，包括 DITM Call 和 DITM Put）的大单或扫货行为，若次日清算后发现其持仓量（OI）出现大幅萎缩、没有对应增长甚至完全归零，说明该合约已被提前行权（Early Exercise）或平仓对锁（Delta Neutralization）。系统**通常必须强制**将该笔资金流的方向权重归零，并最终判定为**中性（Neutral）**。
-  2. **🚨 【TSLA极深实值期权与空头获利了结例外法则】 🚨**：
-     * **特别例外**：针对个股 **TSLA**，由于机构频繁使用极深实值期权（Delta 接近 1.0）进行高确定性的方向性押注，其平仓行为具有极强的方向指示性。
-     * **空头获利了结（看多反转信号）**：若 TSLA 处于持续下跌趋势中，且次日清算数据证实盘中密集的大额 DITM Puts（及实值 Puts 扫盘）发生了**大规模平仓离场（OI 骤降）**，这表明主力空头已达成阶段性盈利目标并进行**获利了结（Bearish Profit-Taking / Short Covering）**。
-     * **方向判定**：由于空头大宗退场直接移除了盘面上的负 Delta 砸盘压力与下行推力，这在技术上构成了强烈的**看多/反弹/见底（Bullish / Bottom Reversal）**信号。在此情形下，系统**必须**判定该案例的多空方向为**看多 (Bullish)**，绝对不能死板地将其归为“中性 (Neutral)”。
+  2. **空头离场不等于多头进场法则 (Short Covering vs. Active Long Accumulation Rule)**：
+     - **Put 持仓归零/大幅萎缩 (Put OI Zeroing/Reduction)**：仅仅代表原有空头平仓离场或获利了结（Short Covering / Profit Taking），在物理上**仅代表“下行砸盘推力的解除”，绝对不能等同于“主动多头资金进场 (Active Long Buying)”**。
+     - **判定规则**：若次日清算数据证实大额 Put 发生了平仓归零（OI 骤降），但在期权端和现货端**没有观察到明确的主动多头 Call 建仓 (+Call OI) 或低位现货大宗吸筹 (Buy Block)**，系统**严禁**盲目将其判定为看多 (Bullish)，**必须严格判定为中性 (Neutral)**（表示空头退场但缺乏主动上行动能）。
+     - **看多 (Bullish) 触发条件**：只有在 Put 平仓离场的同时，伴随着明确的**主动多头 Call 扫盘建仓 (+Call OI) 或现货大宗吸筹买单**，才能定性为看多 (Bullish)。
   3. **区分“点位”与“动能”**：技术图表的价格位置（Price Location，例如日线图底部/阻力位）仅用于评估“在发生实质方向性交易的前提下，其胜率与盈亏比表现如何”；而期权成交量 and 订单流数据则用于评估“是否存在具有方向性的主动性资金动能（Momentum）”。当资金动能本身被清算证实为中性时，无论技术图表的位置多么完美，也**绝对不能**给出发动方向性行情的判定结论（Bullish/Bearish）。
-  4. **双向对称性与通用性设计**：此清算判定法则在多空方向上完全对称适用。无论是在日K底部出现的 DITM Call 大宗扫盘（不可盲目因底部形态判定为看多，若 OI 归零则代表中性对锁或股息套利），还是在日K阻力高位出现的 DITM Put 大宗扫盘（不可盲目判定为看空，若 OI 归零则代表中性保护性锁仓、转换套利或清算轧差），除了 TSLA 等高 Beta 活跃股的方向性平仓例外，只要次日 OI 归零，均必须判定为**中性（Neutral）**。
+  4. **双向对称性与通用性设计**：此清算判定法则在多空方向上完全对称适用。无论是在日K底部出现的 DITM Call 大宗扫盘（不可盲目因底部形态判定为看多，若 OI 归零则代表中性对锁或股息套利），还是在日K阻力高位出现的 DITM Put 大宗扫盘（不可盲目判定为看空，若 OI 归零则代表中性保护性锁仓、转换套利或清算轧差），只要次日 OI 归零且缺乏主动对向资金建仓，均必须判定为**中性（Neutral）**。
 
 
 ### 1. Markdown Data Columns and Interpretation
