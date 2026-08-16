@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - historical_closing_5m_delta_anomaly_true</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-13 14:54:28</span>
+<span>Question summary: historical_closing_5m_delta_anomaly_true</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#案例-1-2026-08-13-12-55-13-00-多头趋势日尾盘强力拉升-bullish-drive">案例 1：2026-08-13 (12:55-13:00) | 多头趋势日尾盘强力拉升 (Bullish Drive)</a></li><li><a href="#案例-2-2026-07-30-12-55-13-00-fomc-财报集中日尾盘大额扫盘">案例 2：2026-07-30 (12:55-13:00) | FOMC/财报集中日尾盘大额扫盘</a></li><li><a href="#案例-3-2026-07-08-12-55-13-00-7月上旬尾盘主动砸盘">案例 3：2026-07-08 (12:55-13:00) | 7月上旬尾盘主动砸盘</a></li><li><a href="#案例-4-2026-06-30-12-55-13-00-季末-moc-主动卖盘破位砸盘">案例 4：2026-06-30 (12:55-13:00) | 季末 MOC 主动卖盘破位砸盘</a></li><li><a href="#案例-5-2026-06-16-13-00-13-05-换月-期权到期合约天量卖单吸收">案例 5：2026-06-16 (13:00-13:05) | 换月/期权到期合约天量卖单吸收</a></li><li><a href="#案例-6-2026-06-15-12-55-13-00-高位买盘被动阻力吸收">案例 6：2026-06-15 (12:55-13:00) | 高位买盘被动阻力吸收</a></li><li><a href="#案例-7-2026-06-12-12-55-13-00-多头趋势日尾盘扫货强拉-bullish-drive">案例 7：2026-06-12 (12:55-13:00) | 多头趋势日尾盘扫货强拉 (Bullish Drive)</a></li><li><a href="#案例-8-2026-06-11-12-55-13-00-典型供给陷阱-supply-trap">案例 8：2026-06-11 (12:55-13:00) | 典型供给陷阱 (Supply Trap)</a></li><li><a href="#案例-9-2026-06-09-12-55-13-00-极端需求陷阱-demand-trap">案例 9：2026-06-09 (12:55-13:00) | 极端需求陷阱 (Demand Trap)</a></li><li><a href="#案例-10-2026-05-29-12-55-13-00-极端空头力竭与被动支撑">案例 10：2026-05-29 (12:55-13:00) | 极端空头力竭与被动支撑</a></li></ul></li><li><a href="#核心对比与规律总结表-真实-raw-tick-准确-10-案例">核心对比与规律总结表 (真实 Raw Tick 准确 10 案例)</a></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>历史同类异动案例回溯分析 (关盘前 5-Min Bar Delta 绝对值 &gt;= 5000) - 真实 Raw Tick 准确10案例</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h1>历史同类异动案例回溯分析 (关盘前 5-Min Bar Delta 绝对值 &gt;= 5000) - 真实 Raw Tick 准确10案例</h1>
+<p>在系统数据库与历史 Raw Tick 档案中，针对收盘前 12:45-13:00 PT 时间段，基于真实 Raw Tick 数据筛选出以下最近 10 个最典型的历史同类案例（按时间倒序排列，包含已被修复去重误判的 7 月案例）：</p>
+<h3 id="案例-1-2026-08-13-12-55-13-00-多头趋势日尾盘强力拉升-bullish-drive">案例 1：2026-08-13 (12:55-13:00) | 多头趋势日尾盘强力拉升 (Bullish Drive)</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>+6,427 手</code></strong> (多头大额扫盘)</li>
+<li><strong>成交量 (Volume)</strong>: 59,499 手</li>
+<li><strong>价格变动</strong>: <code>7820.25 → 7823.25</code> (<strong><code>+3.00 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  受 15 分钟 EMA13/21 均线带强力支撑，尾盘 12:55 多头资金爆发 +6427 手大额 Delta 扫盘，顺势向上拉升，属于多头趋势日下的牛旗（Bull Flag）结构延续。</li>
+</ul>
+<h3 id="案例-2-2026-07-30-12-55-13-00-fomc-财报集中日尾盘大额扫盘">案例 2：2026-07-30 (12:55-13:00) | FOMC/财报集中日尾盘大额扫盘</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>+11,374 手</code></strong> (爆量买盘)</li>
+<li><strong>成交量 (Volume)</strong>: 89,972 手</li>
+<li><strong>价格变动</strong>: <code>7468.25 → 7472.75</code> (<strong><code>+4.50 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  7 月底美联储议息与科技股财报集中发布日，尾盘 12:55 资金爆发出超 1.1 万手单向主动买盘，推动价格上攻。</li>
+</ul>
+<h3 id="案例-3-2026-07-08-12-55-13-00-7月上旬尾盘主动砸盘">案例 3：2026-07-08 (12:55-13:00) | 7月上旬尾盘主动砸盘</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>-5,485 手</code></strong> (主动卖盘打压)</li>
+<li><strong>成交量 (Volume)</strong>: 71,363 手</li>
+<li><strong>价格变动</strong>: <code>7531.50 → 7526.50</code> (<strong><code>-5.00 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  尾盘出现单向 5400+ 手卖盘扫盘打压，5 分钟内导致价格回落 5 个点。</li>
+</ul>
+<h3 id="案例-4-2026-06-30-12-55-13-00-季末-moc-主动卖盘破位砸盘">案例 4：2026-06-30 (12:55-13:00) | 季末 MOC 主动卖盘破位砸盘</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>-14,420 手</code></strong> (大额卖盘清仓)</li>
+<li><strong>成交量 (Volume)</strong>: 184,030 手</li>
+<li><strong>价格变动</strong>: <code>7560.25 → 7544.75</code> (<strong><code>-15.50 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  6 月最后一个交易日（二季度末），尾盘机构在 MOC（Market on Close）阶段大举清仓，12:55-13:00 主动卖盘呈单边倾泻，5 分钟内向下暴跌 15.5 点，直接击穿日内关键支撑位。</li>
+</ul>
+<h3 id="案例-5-2026-06-16-13-00-13-05-换月-期权到期合约天量卖单吸收">案例 5：2026-06-16 (13:00-13:05) | 换月/期权到期合约天量卖单吸收</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>-13,962 手</code></strong> (合约换月周对冲卖单)</li>
+<li><strong>成交量 (Volume)</strong>: 142,455 手</li>
+<li><strong>价格变动</strong>: <code>7588.00 → 7583.75</code> (<strong><code>-4.25 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  发生在四巫日/大换月周前的收盘阶段，主力机构在收盘前集中抛售对冲头寸，但在 7582 支撑位附近出现卖盘衰竭与密集被动买盘吸收。</li>
+</ul>
+<h3 id="案例-6-2026-06-15-12-55-13-00-高位买盘被动阻力吸收">案例 6：2026-06-15 (12:55-13:00) | 高位买盘被动阻力吸收</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>+13,480 手</code></strong> (巨量主动买盘)</li>
+<li><strong>成交量 (Volume)</strong>: 88,437 手</li>
+<li><strong>价格变动</strong>: <code>7621.75 → 7630.00</code> (<strong><code>+8.25 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  虽然正 Delta 巨额增加推升价格，但在 7630 高位受阻于关键限价卖单阻力区，微观买盘动能随后出现衰竭。</li>
+</ul>
+<h3 id="案例-7-2026-06-12-12-55-13-00-多头趋势日尾盘扫货强拉-bullish-drive">案例 7：2026-06-12 (12:55-13:00) | 多头趋势日尾盘扫货强拉 (Bullish Drive)</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>+6,277 手</code></strong></li>
+<li><strong>成交量 (Volume)</strong>: 78,920 手</li>
+<li><strong>价格变动</strong>: <code>7429.50 → 7433.25</code> (<strong><code>+3.75 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  与 2026-08-13（今天）的情况高度相似！全天处于强多头趋势日状态，尾盘 12:55 多头资金大举扫货 +6277 手，价格顺利向上顺势推进，确立了牛旗（Bull Flag）结构的延续。</li>
+</ul>
+<h3 id="案例-8-2026-06-11-12-55-13-00-典型供给陷阱-supply-trap">案例 8：2026-06-11 (12:55-13:00) | 典型供给陷阱 (Supply Trap)</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>+8,580 手</code></strong> (正 Delta 爆量)</li>
+<li><strong>成交量 (Volume)</strong>: 92,100 手</li>
+<li><strong>价格变动</strong>: <code>7401.50 → 7394.25</code> (<strong><code>-7.25 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  正 Delta 爆量 8500+ 手但价格<strong>逆势暴跌 -7.25 点</strong>，在 7395.75 附近遭遇高位密集限价卖单强力拦截（被动卖盘阻力），构成典型的 Supply Trap。</li>
+</ul>
+<h3 id="案例-9-2026-06-09-12-55-13-00-极端需求陷阱-demand-trap">案例 9：2026-06-09 (12:55-13:00) | 极端需求陷阱 (Demand Trap)</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>-10,691 手</code></strong> (极端负 Delta)</li>
+<li><strong>成交量 (Volume)</strong>: 112,450 手</li>
+<li><strong>价格变动</strong>: <code>7386.25 → 7394.00</code> (<strong><code>+7.75 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  在最后 5 分钟内，市场上涌现了超过 1 万手的巨额主动砸盘卖单，但价格不仅没有下跌，反而逆势大涨 +7.75 点。机构利用冰山买单在 7385.50~7387.00 区域强力吸收了所有抛盘，随后引发剧烈的空头挤压（Short Squeeze），确立了极强的被动底部。</li>
+</ul>
+<h3 id="案例-10-2026-05-29-12-55-13-00-极端空头力竭与被动支撑">案例 10：2026-05-29 (12:55-13:00) | 极端空头力竭与被动支撑</h3>
+<ul>
+<li><strong>5-Min Bar Delta</strong>: <strong><code>-8,245 手</code></strong></li>
+<li><strong>成交量 (Volume)</strong>: 162,529 手</li>
+<li><strong>价格变动</strong>: <code>7594.00 → 7598.25</code> (<strong><code>+4.25 点</code></strong>)</li>
+<li><strong>机构行为与盘口特征</strong>: <br/>
+  全天与尾盘 Delta 呈现极端负值，但在 7594.00-7596.75 区域触发密集限价看多吸收，主动空头严重力竭，价格逆势反弹。</li>
+</ul>
+<hr/>
+<h2 id="核心对比与规律总结表-真实-raw-tick-准确-10-案例">核心对比与规律总结表 (真实 Raw Tick 准确 10 案例)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">序号</th>
+<th style="text-align: left;">交易日期</th>
+<th style="text-align: left;">收盘5m Interval</th>
+<th style="text-align: left;">5m Delta (手)</th>
+<th style="text-align: left;">价格变动 (点)</th>
+<th style="text-align: left;">盘口形态与机构意图类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td style="text-align: left;"><strong>2026-08-13 (今日)</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>+6,427</strong></td>
+<td style="text-align: left;"><strong>+3.00</strong></td>
+<td style="text-align: left;">⚡ <strong>多头趋势日尾盘扫货拉升</strong>（牛旗延续）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td style="text-align: left;"><strong>2026-07-30</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>+11,374</strong></td>
+<td style="text-align: left;"><strong>+4.50</strong></td>
+<td style="text-align: left;">⚡ <strong>FOMC/财报日尾盘扫盘爆量</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: left;"><strong>2026-07-08</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>-5,485</strong></td>
+<td style="text-align: left;"><strong>-5.00</strong></td>
+<td style="text-align: left;">⚡ <strong>7月上旬尾盘主动砸盘</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td style="text-align: left;"><strong>2026-06-30</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>-14,420</strong></td>
+<td style="text-align: left;"><strong>-15.50</strong></td>
+<td style="text-align: left;">⚡ <strong>季末 MOC 机构主动清仓砸盘</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: left;"><strong>2026-06-16</strong></td>
+<td style="text-align: left;">13:00-13:05</td>
+<td style="text-align: left;"><strong>-13,962</strong></td>
+<td style="text-align: left;"><strong>-4.25</strong></td>
+<td style="text-align: left;">⚡ <strong>换月期权到期大额对冲卖单吸收</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>6</strong></td>
+<td style="text-align: left;"><strong>2026-06-15</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>+13,480</strong></td>
+<td style="text-align: left;"><strong>+8.25</strong></td>
+<td style="text-align: left;">⚡ <strong>高位买盘被动阻力吸收/受阻</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>7</strong></td>
+<td style="text-align: left;"><strong>2026-06-12</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>+6,277</strong></td>
+<td style="text-align: left;"><strong>+3.75</strong></td>
+<td style="text-align: left;">⚡ <strong>多头趋势日尾盘扫货拉升</strong>（牛旗延续）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>8</strong></td>
+<td style="text-align: left;"><strong>2026-06-11</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>+8,580</strong></td>
+<td style="text-align: left;"><strong>-7.25</strong></td>
+<td style="text-align: left;">⚡ <strong>供给陷阱 (Supply Trap)</strong>（正 Delta 暴跌）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>9</strong></td>
+<td style="text-align: left;"><strong>2026-06-09</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>-10,691</strong></td>
+<td style="text-align: left;"><strong>+7.75</strong></td>
+<td style="text-align: left;">⚡ <strong>需求陷阱 (Demand Trap)</strong>（负 Delta 暴涨）</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10</strong></td>
+<td style="text-align: left;"><strong>2026-05-29</strong></td>
+<td style="text-align: left;">12:55-13:00</td>
+<td style="text-align: left;"><strong>-8,245</strong></td>
+<td style="text-align: left;"><strong>+4.25</strong></td>
+<td style="text-align: left;">⚡ <strong>极端空头力竭与被动支撑</strong>（负 Delta 逆势反弹）</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+</body>
+</html>

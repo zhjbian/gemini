@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - london_edinburgh_family_trip_itinerary_aug2026</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-07-31 17:42:38</span>
+<span>Question summary: london_edinburgh_family_trip_itinerary_aug2026</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#伦敦与爱丁堡家庭游详细行程与避坑指南-london-edinburgh-family-travel-plan">伦敦与爱丁堡家庭游详细行程与避坑指南 (London &amp; Edinburgh Family Travel Plan)</a><ul><li><a href="#一-行程总览与关键预订信息-trip-overview-booking-details">一、 行程总览与关键预订信息 (Trip Overview &amp; Booking Details)</a></li><li><a href="#二-逐日详细行程安排-daily-itinerary">二、 逐日详细行程安排 (Daily Itinerary)</a><ul><li><a href="#day-1-8月2日-周日-西雅图启程-seattle-to-london">Day 1: 8月2日 (周日) — 西雅图启程 (Seattle to London)</a></li><li><a href="#day-2-8月3日-周一-抵达伦敦与泰晤士河畔初体验">Day 2: 8月3日 (周一) — 抵达伦敦与泰晤士河畔初体验</a></li><li><a href="#day-3-8月4日-周二-剑桥大学一日游-cambridge-day-trip">Day 3: 8月4日 (周二) — 剑桥大学一日游 (Cambridge Day Trip)</a></li><li><a href="#day-4-8月5日-周三-白金汉宫换岗仪式与大本钟-西敏寺">Day 4: 8月5日 (周三) — 白金汉宫换岗仪式与大本钟/西敏寺</a></li><li><a href="#day-5-8月6日-周四-大英博物馆与西区人文风情">Day 5: 8月6日 (周四) — 大英博物馆与西区人文风情</a></li><li><a href="#day-6-8月7日-周五-哈利波特片场魔法之旅-harry-potter-studio-tour">Day 6: 8月7日 (周五) — 哈利波特片场魔法之旅 (Harry Potter Studio Tour)</a></li><li><a href="#day-7-8月8日-周六-伦敦塔历史深度游与博罗美食集市">Day 7: 8月8日 (周六) — 伦敦塔历史深度游与博罗美食集市</a></li><li><a href="#day-8-8月9日-周日-皇家公园与英伦购物休闲">Day 8: 8月9日 (周日) — 皇家公园与英伦购物休闲</a></li><li><a href="#day-9-8月10日-周一-沿海景观火车前往爱丁堡与卡尔顿山">Day 9: 8月10日 (周一) — 沿海景观火车前往爱丁堡与卡尔顿山</a></li><li><a href="#day-10-8月11日-周二-爱丁堡城堡与中世纪古城深度游">Day 10: 8月11日 (周二) — 爱丁堡城堡与中世纪古城深度游</a></li><li><a href="#day-11-8月12日-周三-告别苏格兰-返程西雅图-edi-ams-sea">Day 11: 8月12日 (周三) — 告别苏格兰，返程西雅图 (EDI -&gt; AMS -&gt; SEA)</a></li></ul></li><li><a href="#三-关键项目注意事项-tips-与避坑指南-tips-pitfalls">三、 关键项目注意事项、Tips 与避坑指南 (Tips &amp; Pitfalls)</a><ul><li><a href="#1-白金汉宫换岗仪式-8月5日">1. 白金汉宫换岗仪式 (8月5日)</a></li><li><a href="#2-哈利波特影城-8月7日">2. 哈利波特影城 (8月7日)</a></li><li><a href="#3-剑桥大学一日游-8月4日">3. 剑桥大学一日游 (8月4日)</a></li><li><a href="#4-大英博物馆-8月6日">4. 大英博物馆 (8月6日)</a></li><li><a href="#5-爱丁堡-8-月艺术节特别提示-8月10日-8月12日">5. 爱丁堡 8 月艺术节特别提示 (8月10日 – 8月12日)</a></li><li><a href="#6-火车与市内交通-tips">6. 火车与市内交通 Tips</a></li></ul></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>我一家人去 Aug 2 - 12 去London 和爱丁堡 旅游 图片有部分信息 另外 我们计划<br/>
+Aug 4 暂未计划<br/>
+Aug 5 上午 观看白金汉宫换岗意识 下午 西敏寺大教堂 大ben钟 <br/>
+Aug 6 上午 大英博物馆 下午 未计划<br/>
+Aug 7 上午 Harry Potter Warner Bros. Studio Tour London<br/>
+Aug 8 - 9 暂未计划<br/>
+Aug 10 坐火车去爱丁堡<br/>
+Aug 11 在爱丁堡观光<br/>
+Aug 12 坐飞机会seattle</p>
+<p>Aug 4 暂未计划<br/>
+Aug 8 - 9 暂未计划<br/>
+有一天我回去剑桥大学观光</p>
+<p>请根据以上信息指定详细的旅行计划 以及每个项目需要注意的地方 tips pitfalls</p>
+<p>用@gem-doc生成报告</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h2 id="伦敦与爱丁堡家庭游详细行程与避坑指南-london-edinburgh-family-travel-plan">伦敦与爱丁堡家庭游详细行程与避坑指南 (London &amp; Edinburgh Family Travel Plan)</h2>
+<h3 id="一-行程总览与关键预订信息-trip-overview-booking-details">一、 行程总览与关键预订信息 (Trip Overview &amp; Booking Details)</h3>
+<ul>
+<li><strong>出行成员 (4位旅客)</strong>: RONG XIAN, Zhijie Bian, Tingyu Bian, Nathan Bian</li>
+<li><strong>出行时间</strong>: 2026年8月2日 – 8月12日（共 11 天 10 晚）</li>
+<li><strong>往返机票 (Delta Air Lines - 确认号 <code>HWF9EJ</code>)</strong>:</li>
+<li><strong>去程 (DL 20)</strong>: 8月2日 09:55 PM (SEA)<br/>
+→ 8月3日 03:35 PM (LHR) 直飞（空客 A330-900neo，飞行时间 9h 40m）</li>
+<li><strong>回程 (DL 9586 / DL 145)</strong>: 8月12日 11:10 AM (EDI)<br/>
+→ 13:40 PM (AMS 中转 1h 30m)<br/>
+→ 16:27 PM (SEA)（阿姆斯特丹中转，总时长 13h 17m）</li>
+<li><strong>伦敦住宿 (8月3日 – 8月10日, 7晚)</strong>:</li>
+<li><strong>酒店</strong>: Tower Suites by Blue Orchid (确认号 <code>2474409110</code>)</li>
+<li><strong>地址</strong>: 100 Minories, London EC3N 1JY, GB（毗邻伦敦塔 Tower of London 与 Tower Hill 地铁站）</li>
+<li><strong>房型</strong>: Executive Suite (1 King &amp; 1 Double Sofa bed)</li>
+<li><strong>爱丁堡住宿 (8月10日 – 8月12日, 2晚)</strong>:</li>
+<li><strong>酒店</strong>: Holiday Inn Edinburgh by IHG (确认号 <code>2474434176</code>)</li>
+<li><strong>地址</strong>: 132 Corstorphine Road, Edinburgh EH12 6UA, GB（毗邻爱丁堡动物园，直达市中心与机场）</li>
+<li><strong>房型</strong>: Standard Room (2 Double Beds)</li>
+<li><strong>跨城火车 (8月10日 LNER 火车)</strong>:</li>
+<li><strong>车次</strong>: 09:30 AM (London Kings Cross)<br/>
+→ 13:38 PM (Edinburgh Waverley)</li>
+<li><strong>座位</strong>: Coach J, Seats 71, 74, 73, 72</li>
+</ul>
+<p><img alt="机票预订信息" src="images/trip_info_1.png"/><br/>
+<img alt="伦敦酒店预订信息" src="images/trip_info_2.png"/><br/>
+<img alt="爱丁堡酒店预订信息" src="images/trip_info_3.png"/><br/>
+<img alt="火车票预订信息" src="images/trip_info_4.png"/></p>
+<hr/>
+<h3 id="二-逐日详细行程安排-daily-itinerary">二、 逐日详细行程安排 (Daily Itinerary)</h3>
+<h4 id="day-1-8月2日-周日-西雅图启程-seattle-to-london">Day 1: 8月2日 (周日) — 西雅图启程 (Seattle to London)</h4>
+<ul>
+<li><strong>21:55</strong>: 从西雅图塔科马国际机场 (SEA) 乘坐达美航空 DL 20 航班直飞伦敦希思罗机场 (LHR)。夜航休息，准备开启英伦之旅。</li>
+</ul>
+<h4 id="day-2-8月3日-周一-抵达伦敦与泰晤士河畔初体验">Day 2: 8月3日 (周一) — 抵达伦敦与泰晤士河畔初体验</h4>
+<ul>
+<li><strong>15:35</strong>: 顺利抵达伦敦希思罗机场 (LHR) Terminal 3/4，办理入境与提取行李。</li>
+<li><strong>16:30 – 17:30</strong>: 乘车前往伦敦市中心酒店。</li>
+<li><em>交通推荐</em>: 可乘坐 <strong>Elizabeth Line (伊丽莎白线紫线)</strong> 从希思罗直达 Liverpool Street 站，再打车 3 分钟或步行 8 分钟即达酒店；4 人携带行李亦可直接使用 Uber XL。</li>
+<li><strong>17:30</strong>: 入住 <strong>Tower Suites by Blue Orchid</strong> (100 Minories)，办理 Check-in 并在行政套房整理休息。</li>
+<li><strong>18:30 – 20:30</strong>: 晚间漫步。酒店距离 <strong>Tower Bridge (伦敦塔桥)</strong> 与 <strong>St Katharine Docks (圣凯瑟琳码头)</strong> 仅 3 分钟步行路程。漫步泰晤士河畔，欣赏塔桥夜景，并在码头附近的英式餐厅享用晚餐。</li>
+</ul>
+<h4 id="day-3-8月4日-周二-剑桥大学一日游-cambridge-day-trip">Day 3: 8月4日 (周二) — 剑桥大学一日游 (Cambridge Day Trip)</h4>
+<ul>
+<li><strong>08:30 – 09:30</strong>: 从酒店乘坐地铁 Circle Line 至 <strong>London King's Cross (国王十字车站)</strong>，乘坐 LNER / Great Northern 火车直达剑桥 (Cambridge) 车站（车程约 50 分钟）。</li>
+<li><strong>10:00 – 12:30</strong>: 游览剑桥核心学院区：</li>
+<li><strong>King's College (国王学院)</strong>：参观著名的国王学院礼拜堂 (King's College Chapel)，欣赏哥特式建筑与徐志摩《再别康桥》诗碑。</li>
+<li><strong>River Cam Punting (康河撑船泛舟)</strong>：体验 45 分钟经典康河划船之旅，穿过徐志摩笔下的康河、叹息桥与数学桥。</li>
+<li><strong>12:30 – 14:00</strong>: 剑桥小镇午餐，推荐前往著名的 <strong>The Eagle Pub (二战飞行员与 DNA 发现地鹰酒吧)</strong> 或 <strong>Fitzbillies</strong> 尝著名的肉桂卷 (Cinnamon Buns)。</li>
+<li><strong>14:00 – 16:30</strong>: 参观 <strong>Trinity College (三一学院)</strong>（牛顿苹果树所在地）与 <strong>St John's College (圣约翰学院)</strong>。</li>
+<li><strong>17:00 – 18:00</strong>: 乘火车返回伦敦国王十字车站。顺道在国王十字车站打卡 <strong>Platform 9¾ (九又四分之三站台)</strong>。</li>
+</ul>
+<h4 id="day-4-8月5日-周三-白金汉宫换岗仪式与大本钟-西敏寺">Day 4: 8月5日 (周三) — 白金汉宫换岗仪式与大本钟/西敏寺</h4>
+<ul>
+<li><strong>09:30 – 11:30</strong>: <strong>Buckingham Palace Changing of the Guard (白金汉宫换岗仪式)</strong>。</li>
+<li><em>预留时间</em>: 换岗仪式于 11:00 正式开始。建议 09:45 – 10:00 前到达 Victoria Memorial (维多利亚女王纪念碑) 阶梯上方占据最佳视野。</li>
+<li><strong>12:00 – 13:30</strong>: 穿过 <strong>St James's Park (圣詹姆斯公园)</strong> 欣赏绿意与天鹅，在 Westminster 附近享用午餐。</li>
+<li><strong>13:30 – 15:30</strong>: 参观 <strong>Westminster Abbey (西敏寺大教堂/威斯敏斯特教堂)</strong>。感受千年来英国皇家加冕与名人安葬地（牛顿、达尔文、霍金之墓）。</li>
+<li><strong>15:30 – 17:30</strong>: 游览 <strong>Big Ben (大本钟)</strong>、<strong>Houses of Parliament (英国国会大厦)</strong> 与 <strong>Westminster Bridge (威斯敏斯特桥)</strong>。</li>
+<li><strong>18:00 – 19:30</strong>: 可选择乘坐 <strong>London Eye (伦敦眼摩天轮)</strong>，俯瞰伦敦日落全景。</li>
+</ul>
+<h4 id="day-5-8月6日-周四-大英博物馆与西区人文风情">Day 5: 8月6日 (周四) — 大英博物馆与西区人文风情</h4>
+<ul>
+<li><strong>09:30 – 13:00</strong>: 参观 <strong>British Museum (大英博物馆)</strong>。重点打卡罗塞塔石碑 (Rosetta Stone)、帕特农神庙雕塑、埃及木乃伊馆以及中国馆。</li>
+<li><strong>13:00 – 15:00</strong>: 前往 <strong>Covent Garden (柯文特花园)</strong> 享用午餐，游览街头艺人表演，并打卡彩虹小巷 <strong>Neal's Yard</strong>。</li>
+<li><strong>15:00 – 18:00</strong>: 漫步至 <strong>Trafalgar Square (特拉法加广场)</strong>，参观免费开放的 <strong>National Gallery (国家美术馆)</strong>，欣赏梵高《向日葵》、达芬奇与莫奈名画。</li>
+<li><strong>19:00</strong>: 晚上可在西区 (West End) 观看一场经典音乐剧（如《歌剧魅影》或《狮子王》）。</li>
+</ul>
+<h4 id="day-6-8月7日-周五-哈利波特片场魔法之旅-harry-potter-studio-tour">Day 6: 8月7日 (周五) — 哈利波特片场魔法之旅 (Harry Potter Studio Tour)</h4>
+<ul>
+<li><strong>08:30 – 09:15</strong>: 从 <strong>London Euston</strong> 车站乘坐快车 (West Midlands Trains，仅需 20 分钟) 到达 <strong>Watford Junction</strong> 车站，随后转乘免费接驳巴士到达片场。</li>
+<li><strong>09:45 – 14:00</strong>: <strong>Warner Bros. Studio Tour London (哈利波特影城)</strong> 沉浸式参观！探索大礼堂、九又四分之三站台、霍格沃茨特快列车、禁忌森林、古灵阁银行与对角巷，品尝黄油啤酒 (Butterbeer)。</li>
+<li><strong>15:00 – 18:00</strong>: 返回伦敦市中心，参观 <strong>St Paul's Cathedral (圣保罗大教堂)</strong>，随后步行穿越 <strong>Millennium Bridge (千禧桥)</strong> 直达 Tate Modern (泰特现代艺术馆)。</li>
+</ul>
+<h4 id="day-7-8月8日-周六-伦敦塔历史深度游与博罗美食集市">Day 7: 8月8日 (周六) — 伦敦塔历史深度游与博罗美食集市</h4>
+<ul>
+<li><strong>09:00 – 12:00</strong>: 参观 <strong>Tower of London (伦敦塔)</strong>（就在酒店门前，步行 2 分钟！）。观看英国皇室皇冠珠宝 (Crown Jewels) 与白塔 (White Tower)。</li>
+<li><strong>12:30 – 14:30</strong>: 穿过 Tower Bridge 漫步至 <strong>Borough Market (博罗市场)</strong>，体验伦敦最著名的美食集市，品尝生蚝、西班牙海鲜饭与烤肉甜点。</li>
+<li><strong>15:00 – 18:00</strong>: 从 London Bridge Pier 乘坐 <strong>Uber Boat by Thames Clippers (泰晤士河水上巴士)</strong> 前往 <strong>Greenwich (格林威治)</strong>，参观本初子午线 (Prime Meridian) 与皇家天文台。</li>
+</ul>
+<h4 id="day-8-8月9日-周日-皇家公园与英伦购物休闲">Day 8: 8月9日 (周日) — 皇家公园与英伦购物休闲</h4>
+<ul>
+<li><strong>09:30 – 12:30</strong>: 游览 <strong>Hyde Park (海德公园)</strong>、<strong>Kensington Gardens (肯辛顿花园)</strong>，参观 <strong>Natural History Museum (自然历史博物馆)</strong>（恐龙化石与蓝鲸骨架）。</li>
+<li><strong>13:00 – 17:00</strong>: 购物体验：前往 <strong>Regent Street (摄政街)</strong>、<strong>Oxford Street (牛津街)</strong> 与 <strong>Harrods (哈洛德百货)</strong> 采购英伦伴手礼。</li>
+<li><strong>18:30</strong>: 泰晤士河景观餐厅享用伦敦告别晚宴。</li>
+</ul>
+<h4 id="day-9-8月10日-周一-沿海景观火车前往爱丁堡与卡尔顿山">Day 9: 8月10日 (周一) — 沿海景观火车前往爱丁堡与卡尔顿山</h4>
+<ul>
+<li><strong>08:15</strong>: 酒店办理退房，前往 London King's Cross 车站。</li>
+<li><strong>09:30 – 13:38</strong>: 乘坐 <strong>LNER 火车</strong> 前往爱丁堡（车厢 Coach J, 座位 71-74）。</li>
+<li><em>沿途亮点</em>: 火车在进入苏格兰境内后（过 Newcastle 与 Berwick-upon-Tweed），右侧窗外即为浩瀚震撼的北海海岸线风景！</li>
+<li><strong>13:38</strong>: 抵达 <strong>Edinburgh Waverley</strong> 车站。</li>
+<li><strong>14:30</strong>: 前往入住 <strong>Holiday Inn Edinburgh</strong> (132 Corstorphine Rd)，办理 Check-in。</li>
+<li><strong>15:30 – 18:30</strong>: 前往 <strong>Royal Mile (皇家麦尔大道)</strong> 漫步。此时正值 <strong>8月爱丁堡国际艺术节 (Edinburgh Fringe Festival)</strong>，街头充斥着来自全球的表演艺术家，气氛极其热烈。</li>
+<li><strong>19:00 – 20:30</strong>: 登上 <strong>Calton Hill (卡尔顿山)</strong>，俯瞰爱丁堡古城与日落全景。</li>
+</ul>
+<h4 id="day-10-8月11日-周二-爱丁堡城堡与中世纪古城深度游">Day 10: 8月11日 (周二) — 爱丁堡城堡与中世纪古城深度游</h4>
+<ul>
+<li><strong>09:00 – 11:30</strong>: 参观 <strong>Edinburgh Castle (爱丁堡城堡)</strong>。屹立于死火山岩之上的古堡，参观命运之石 (Stone of Destiny)、苏格兰皇冠与城堡炮台。</li>
+<li><strong>11:30 – 13:00</strong>: 漫步 <strong>Victoria Street (维多利亚街)</strong>（色彩缤纷的弯曲街道，《哈利波特》斜角巷灵感来源）与 <strong>Grassmarket (草料市场)</strong> 午餐。</li>
+<li><strong>13:30 – 16:00</strong>: 参观 <strong>St Giles' Cathedral (圣吉尔斯大教堂)</strong> 与 <strong>Palace of Holyroodhouse (霍利鲁德宫)</strong>（英国国王在苏格兰的官方行宫）。</li>
+<li><strong>16:00 – 18:00</strong>: 可选择攀登 <strong>Arthur's Seat (亚瑟王座)</strong> 远眺壮丽海岸线，或在 <strong>Princes Street Gardens (王子街花园)</strong> 惬意散步休息。</li>
+</ul>
+<h4 id="day-11-8月12日-周三-告别苏格兰-返程西雅图-edi-ams-sea">Day 11: 8月12日 (周三) — 告别苏格兰，返程西雅图 (EDI -&gt; AMS -&gt; SEA)</h4>
+<ul>
+<li><strong>08:15</strong>: 酒店退房，乘坐打车 (Uber/Taxi) 或乘坐 100 路 Airlink 巴士直达 <strong>Edinburgh Airport (EDI)</strong>（距离 Corstorphine Rd 酒店仅 15-20 分钟车程）。</li>
+<li><strong>09:00</strong>: 抵达 EDI 机场，办理行李托运与安检。</li>
+<li><strong>11:10</strong>: 乘坐达美 DL 9586 (KLM 执飞) 起飞前往阿姆斯特丹 (AMS)。</li>
+<li><strong>13:40</strong>: 抵达 AMS 机场（中转停留 1 小时 30 分钟）。</li>
+<li><strong>14:40</strong>: 乘坐达美 DL 145 航班起飞直飞西雅图 (SEA)。</li>
+<li><strong>16:27</strong>: 顺利降落西雅图 (SEA) 国际机场，结束愉快充实的英伦家庭之旅！</li>
+</ul>
+<hr/>
+<h3 id="三-关键项目注意事项-tips-与避坑指南-tips-pitfalls">三、 关键项目注意事项、Tips 与避坑指南 (Tips &amp; Pitfalls)</h3>
+<h4 id="1-白金汉宫换岗仪式-8月5日">1. 白金汉宫换岗仪式 (8月5日)</h4>
+<ul>
+<li><strong>换岗时间</strong>: 换岗仪式于上午 11:00 正式开始，但警卫队伍从 10:30 起即在 Wellington Barracks 整理集合。</li>
+<li><strong>避坑提示 (Pitfall)</strong>: 白金汉宫正门黑铁栅栏前极其拥挤，身高受限且只能看背影。最佳观测点为 <strong>Victoria Memorial (维多利亚女王纪念碑)</strong> 的高阶梯上，视野开阔且可拍摄队伍入场全景。</li>
+<li><strong>天气取消</strong>: 若遇大雨天气，换岗仪式会自动取消。请在前一天或当天清晨在官方网站 (<code>householddivision.org.uk</code>) 确认是否照常举行。</li>
+</ul>
+<h4 id="2-哈利波特影城-8月7日">2. 哈利波特影城 (8月7日)</h4>
+<ul>
+<li><strong>门票预订</strong>: 现场绝无售票！必须提前数月在官网预约精确的 Entry Time Slot。</li>
+<li><strong>交通避坑 (Pitfall)</strong>: 从 London Euston 到 Watford Junction 时，务必乘坐 <strong>West Midlands Trains 的直达快车 (仅 20 分钟)</strong>，千万不要误乘坐每站都停的 Overground 慢车 (需 50 分钟)。</li>
+<li><strong>支付方式</strong>: 出 Watford Junction 车站后有免费的 Harry Potter 双层巴士接驳（刷门票或直接上车）。</li>
+</ul>
+<h4 id="3-剑桥大学一日游-8月4日">3. 剑桥大学一日游 (8月4日)</h4>
+<ul>
+<li><strong>康河划船避坑 (Punting Pitfall)</strong>: 剑桥火车站和康河边有大量无牌照的野导游拉客推销高价划船票。建议提前在 <strong>Scudamore's</strong> 官网预约正规 guided punt，或直接在 Dock 现场向持有学生证的正规学生购买。</li>
+<li><strong>学院门票</strong>: 国王学院礼拜堂 (King's College Chapel) 需单独购票，建议提前在线预约，避免现场排长队。</li>
+</ul>
+<h4 id="4-大英博物馆-8月6日">4. 大英博物馆 (8月6日)</h4>
+<ul>
+<li><strong>快速通道预订</strong>: 虽为免费开放，但必须提前在官网预约 <strong>Timed Entry Ticket</strong>。未预约者现场排队可能长达 1-2 小时。</li>
+<li><strong>游览路线</strong>: 馆藏浩瀚，家庭游建议聚焦四大核心区域：罗塞塔石碑（4展厅）、帕特农神庙（18展厅）、埃及木乃伊（61-64展厅）以及中国馆（33展厅）。</li>
+</ul>
+<h4 id="5-爱丁堡-8-月艺术节特别提示-8月10日-8月12日">5. 爱丁堡 8 月艺术节特别提示 (8月10日 – 8月12日)</h4>
+<ul>
+<li><strong>拥挤提示 (Fringe Festival)</strong>: 8月是全球闻名的<strong>爱丁堡国际艺术节 (Edinburgh Fringe Festival)</strong>，Royal Mile (皇家麦尔大道) 全天人满患，街头表演丰富。出行请留足步行时间。</li>
+<li><strong>城堡预订</strong>: 爱丁堡城堡门票极为紧俏，必须提前在线预约门票。</li>
+</ul>
+<h4 id="6-火车与市内交通-tips">6. 火车与市内交通 Tips</h4>
+<ul>
+<li><strong>LNER 火车观景 (8月10日)</strong>: 已预订 Coach J 71-74 座位，位于车厢右侧。过 Newcastle 后的右侧海岸线极美，请准备好相机。</li>
+<li><strong>伦敦无接触支付 (Contactless Pay)</strong>: 伦敦公共交通（地铁 Underground、公交车 Bus、伊丽莎白线、DLR、水上巴士）全线支持 Apple Pay 或 Contactless 信用卡，随刷随走，每日自动按最高上限封顶 (Capped Fare)，无需为全家人购买实体 Oyster 卡。</li>
+<li><strong>爱丁堡酒店交通 Advantage</strong>: 您预订的 Holiday Inn Edinburgh 位于 Corstorphine Rd，出门即是公交站，乘 100 路 Airlink 巴士 15 分钟直达爱丁堡 Waverley 市中心，反方向 15 分钟直达 EDI 机场，极其便捷！</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

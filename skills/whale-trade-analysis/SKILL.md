@@ -60,6 +60,9 @@ When the user asks to analyze whale trades:
       - 可以根据该价格位置，合理推定其在顶部属于**高位出货卖出（Top Distribution / Selling）**，或在底部属于**低位吸筹买入（Bottom Accumulation / Buying）**。
       - **要求**: 在进行此种推定判定时，**必须在报告中清晰、明确地注明此方向仅属于根据大趋势级别价格位置（Price Location）所进行的推定，而非基于成交单口性质的直接物理确证**。
   - **大单对敲组合时间差判定法 (Pairing)**: 如果现货大宗大单与某个期权大单（Options Flow Sweep/Block）的成交时间极度重合（例如只相差数秒），则可以将其绑定配对（Pair）起来联合分析。如果通过期权合约（如 Strike 偏向、DTE、Spread 结构等）能较大概率确定期权的真实意图，可以在一定程度上辅助推断该笔现货对锁大单的底层交易属性。
+  - **Small-Volume Unpaired Order Flow Exclusion Rule (小于百万手无期权关联 Order Flow 忽略法则)**:
+    - 对于个股 Order Flow 大单，如果其单笔成交量 **`Volume < 1,000,000` 股**，**并且在同一分钟内 (<= 1 min) 没有与之相对应的期权大单做秒级/分级对锁联系分析**，系统**必须直接忽略该笔 Order Flow 大单**（将其视为常规流动性对敲或无方向参考价值的盘中噪声），**绝对不得将其纳入多空方向的判定依据与综合研判中**。
+    - 只有满足 `Volume >= 1,000,000` 股，或者在同一分钟内存在与期权大单明确秒级对锁关联的 Order Flow 大单，才允许参与方向性判定。
 
 
 
@@ -260,6 +263,8 @@ The final report must contain:
     - **20 日高低点区间判断 (20-Day High/Low Range)**：
       - 成交价格处于过去 20 个交易日高低点区间的 **Top 30%** (分位数 >= 70%)：属于高位派发 (Distribution)，**强制覆写为主动卖出 / 看空 (Sell / Bearish)**。
       - 成交价格处于过去 20 个交易日高低点区间的 **Bottom 30%** (分位数 <= 30%)：属于低位吸筹 (Accumulation)，**强制覆写为主动买入 / 看多 (Buy / Bullish)**。
+13. **Small-Volume Unpaired Order Flow Exclusion Rule (小于百万手无期权关联 Order Flow 忽略法则)**:
+    对于个股 Order Flow 大单，如果单笔成交量 **`Volume < 1,000,000` 股**，且在同一分钟内 (<= 1 min) **没有与之相对应的期权大单做秒级/分级对锁联系分析**，系统必须**直接忽略该笔 Order Flow 大单**，不得将其作为多空方向判定的依据。只有成交量 >= 1,000,000 股，或在同一分钟内有期权大单对锁关联的 Order Flow 大单才参与方向性判定。
 
 - **OrderFlow + Adam Analysis Rules**:
   If the analysis request contains quotes or references to Adam Set's X posts, follow these rules:
