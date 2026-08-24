@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - tsla_options_flow_oi_premium_ranked</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-23 18:26:47</span>
+<span>Question summary: tsla_options_flow_oi_premium_ranked</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#tsla_options_flow_oi_premium_ranked">tsla_options_flow_oi_premium_ranked</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#tsla-机构大单-call-合约持仓价值统计-截止-2026-08-21-收盘">TSLA 机构大单 Call 合约持仓价值统计（截止 2026-08-21 收盘）</a></li><li><a href="#核心观察与持仓分布特征">核心观察与持仓分布特征</a><ul><li><a href="#超长期-leaps-2028年-持仓极重">超长期 LEAPS（2028年）持仓极重</a></li><li><a href="#2027年1月深度主力行权价集中于-300-与-350">2027年1月深度主力行权价集中于 $300 与 $350</a></li><li><a href="#中期关键防线-2026年11月">中期关键防线（2026年11月）</a></li></ul></li></ul></li><li><a href="#tsla_calls_oi_growth_top30_premium">tsla_calls_oi_growth_top30_premium</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#tsla-机构主力建仓-call-合约-top-30-oi-暴增-当前持仓价值榜">TSLA 机构主力建仓 Call 合约 Top 30（OI 暴增 + 当前持仓价值榜）</a></li><li><a href="#核心观察与重要发现">核心观察与重要发现</a><ul><li><a href="#头号天量合约-tsla270115c400-总价值-1-09-亿美元">头号天量合约：.TSLA270115C400（总价值 $1.09 亿美元）</a></li><li><a href="#异动倍数最大合约-tsla261120c350-暴增-929">异动倍数最大合约：.TSLA261120C350（暴增 +929%）</a></li><li><a href="#9月中短期行权梯队-2026-09-18-到期-密集吸筹">9月中短期行权梯队（2026-09-18 到期）密集吸筹</a></li><li><a href="#建议加入重点监控列表的潜在顶级合约">建议加入重点监控列表的潜在顶级合约</a></li></ul></li></ul></li><li><a href="#tsla_350c_target_stock_price_for">tsla_350c_target_stock_price_for</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#目标期权价格测算原理">目标期权价格测算原理</a><ul><li><a href="#tsla261120c350-2026-11-20-到期-行权价-350">.TSLA261120C350（2026-11-20 到期，行权价 $350）</a></li><li><a href="#tsla270115c350-2027-01-15-到期-行权价-350">.TSLA270115C350（2027-01-15 到期，行权价 $350）</a></li></ul></li><li><a href="#对应-tsla-标的股价估算-当前股价基准-spot-363-65">对应 TSLA 标的股价估算（当前股价基准 Spot: $363.65）</a></li><li><a href="#交易与反弹定点分析启示">交易与反弹定点分析启示</a><ul><li><a href="#第一道获利了结警戒线-tsla-股价到达-395-400">第一道获利了结警戒线：TSLA 股价到达 $395 ~ $400</a></li><li><a href="#第二道中长期绝对反转阻力区-tsla-股价到达-405-415">第二道中长期绝对反转阻力区：TSLA 股价到达 $405 ~ $415</a></li></ul></li></ul></li><li><a href="#tsla_leaps_400c_institutional_holding_logic">tsla_leaps_400c_institutional_holding_logic</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#为什么过去半年股价涨到高点-如-450-时机构坚决不卖">为什么过去半年股价涨到高点（如 $450+）时机构坚决不卖？</a><ul><li><a href="#正股替代策略-stock-replacement-strategy-而非短期波段交易">正股替代策略（Stock Replacement Strategy），而非短期波段交易</a></li><li><a href="#超长-dte-赋予的-零时间损耗特权-near-zero-theta-decay">超长 DTE 赋予的“零时间损耗特权（Near-Zero Theta Decay）”</a></li><li><a href="#机构博弈的是-500-600-的长周期估值重塑-而非-50-的波段">机构博弈的是 $500~$600+ 的长周期估值重塑，而非 $50 的波段</a></li></ul></li><li><a href="#过去-6-个月-oi-持续递增的机构运作全流程">过去 6 个月 OI 持续递增的机构运作全流程</a></li><li><a href="#总结-对我们交易跟踪的核心启示">总结：对我们交易跟踪的核心启示</a><ul><li><a href="#这两大合约是-tsla-本轮牛市行情的-定海神针">这两大合约是 TSLA 本轮牛市行情的“定海神针”</a></li><li><a href="#未来何时才是真正的-危险减仓信号">未来何时才是真正的“危险减仓信号”</a></li></ul></li></ul></li><li><a href="#tsla_calls_pure_top30_premium_watchlist">tsla_calls_pure_top30_premium_watchlist</a><ul><li><a href="#question-5">Question</a></li><li><a href="#answer-5">Answer</a></li><li><a href="#tsla-全市场-call-期权持仓价值总榜-top-30-含-watchlist-跟踪标识">TSLA 全市场 Call 期权持仓价值总榜 Top 30（含 Watchlist 跟踪标识）</a></li><li><a href="#watchlist-中其他紧随其后的重点监控合约-第-31-62-名">Watchlist 中其他紧随其后的重点监控合约（第 31 ~ 62 名）</a></li></ul></li><li><a href="#tsla_leaps_high_position_roll_and">tsla_leaps_high_position_roll_and</a><ul><li><a href="#question-6">Question</a></li><li><a href="#answer-6">Answer</a></li><li><a href="#合约-1-tsla281215c340-建仓日-2026-02-09-tsla-当时股价-420-94">合约 1：.TSLA281215C340（建仓日：2026-02-09，TSLA 当时股价：$420.94）</a><ul><li><a href="#表-1-期权大单与多腿组合明细-option-flow">表 1：期权大单与多腿组合明细 (Option Flow)</a></li><li><a href="#表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade">表 2：前后 30 分钟内的 Order Flow 大单 (http://127.0.0.1:5005/of_big_trade)</a></li></ul></li><li><a href="#合约-2-tsla281215c300-建仓日-2026-02-13-tsla-当时股价-414-416">合约 2：.TSLA281215C300（建仓日：2026-02-13，TSLA 当时股价：$414 ~ $416）</a><ul><li><a href="#表-1-期权大单与多腿组合明细-option-flow-2">表 1：期权大单与多腿组合明细 (Option Flow)</a></li><li><a href="#表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade-2">表 2：前后 30 分钟内的 Order Flow 大单 (http://127.0.0.1:5005/of_big_trade)</a></li></ul></li><li><a href="#合约-3-tsla281215c600-建仓日-2026-03-02-tsla-当时股价-398-26">合约 3：.TSLA281215C600（建仓日：2026-03-02，TSLA 当时股价：$398.26）</a><ul><li><a href="#表-1-期权大单与多腿组合明细-option-flow-3">表 1：期权大单与多腿组合明细 (Option Flow)</a></li><li><a href="#表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade-3">表 2：前后 30 分钟内的 Order Flow 大单 (http://127.0.0.1:5005/of_big_trade)</a></li></ul></li><li><a href="#合约-4-tsla281215c800-建仓日-2026-05-27-处于阶段顶点-439-55">合约 4：.TSLA281215C800（建仓日：2026-05-27，处于阶段顶点 $439.55）</a><ul><li><a href="#表-1-期权大单与多腿组合明细-option-flow-4">表 1：期权大单与多腿组合明细 (Option Flow)</a></li><li><a href="#表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade-4">表 2：前后 30 分钟内的 Order Flow 大单 (http://127.0.0.1:5005/of_big_trade)</a></li></ul></li><li><a href="#4-从建仓日起对-tsla-后面股价的预测">（4）从建仓日起对 TSLA 后面股价的预测</a><ul><li><a href="#1-短期战术性避险-正股套现">1. 短期战术性避险（正股套现）</a></li><li><a href="#2-2028-年终极目标价极高-远期目标瞄准-600-800">2. 2028 年终极目标价极高（远期目标瞄准 $600 ~ $800+）</a></li><li><a href="#3-长线持仓定力">3. 长线持仓定力</a></li></ul></li></ul></li></ul></div>
+<section><h2 id="tsla_options_flow_oi_premium_ranked">tsla_options_flow_oi_premium_ranked</h2><section>
+<h3 id="question">Question</h3>
+<h1>Options Flow 机构大单：2026-07-24~2026-08-18 TSLA</h1>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Ticker</th>
+<th>Time</th>
+<th>Expiration</th>
+<th>Strike</th>
+<th>C/P</th>
+<th>Qty</th>
+<th>Premium</th>
+<th>Price</th>
+<th>BidAsk</th>
+<th>Side</th>
+<th>Sentiment</th>
+<th>SentiType</th>
+<th>Spot</th>
+<th>DTE</th>
+<th>Contract</th>
+<th>ExecType</th>
+<th>ConsType</th>
+<th>Action</th>
+<th>SprdId</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-18</td>
+<td>TSLA</td>
+<td>09:33:36</td>
+<td>Sep 4, 2026</td>
+<td>240.00</td>
+<td>C</td>
+<td>545</td>
+<td>5.44</td>
+<td>99.85</td>
+<td>$97.05 x $99.85</td>
+<td>A</td>
+<td>Bullish</td>
+<td>Strong</td>
+<td>337.35</td>
+<td>17</td>
+<td>.TSLA260904C240</td>
+<td>M2M_FLR</td>
+<td>BLOCK</td>
+<td>Open</td>
+<td>b9331ce4</td>
+</tr>
+<tr>
+<td>2026-08-06</td>
+<td>TSLA</td>
+<td>07:09:35</td>
+<td>Dec 18, 2026</td>
+<td>260.00</td>
+<td>C</td>
+<td>600</td>
+<td>4.50</td>
+<td>75.00</td>
+<td>$74.60 x $75.20</td>
+<td>A</td>
+<td>Bullish</td>
+<td>Strong</td>
+<td>320.07</td>
+<td>134</td>
+<td>.TSLA261218C260</td>
+<td>TIED_MULTI_FLR_COB</td>
+<td>BLOCK</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2026-08-05</td>
+<td>TSLA</td>
+<td>12:59:44</td>
+<td>Jan 15, 2027</td>
+<td>300.00</td>
+<td>C</td>
+<td>1000</td>
+<td>5.91</td>
+<td>59.12</td>
+<td>$58.95 x $59.30</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>327.62</td>
+<td>163</td>
+<td>.TSLA270115C300</td>
+<td>MULTI_AUTO_COB</td>
+<td>SPLIT</td>
+<td></td>
+<td>fc2ad8dc</td>
+</tr>
+<tr>
+<td>2026-08-05</td>
+<td>TSLA</td>
+<td>12:59:44</td>
+<td>Jan 15, 2027</td>
+<td>270.00</td>
+<td>C</td>
+<td>1000</td>
+<td>7.81</td>
+<td>78.14</td>
+<td>$77.95 x $78.35</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>327.62</td>
+<td>163</td>
+<td>.TSLA270115C270</td>
+<td>MULTI_AUTO_COB</td>
+<td>SPLIT</td>
+<td></td>
+<td>fc2ad8dc</td>
+</tr>
+<tr>
+<td>2026-08-04</td>
+<td>TSLA</td>
+<td>12:59:44</td>
+<td>Jan 15, 2027</td>
+<td>300.00</td>
+<td>C</td>
+<td>1000</td>
+<td>5.91</td>
+<td>59.12</td>
+<td>$58.95 x $59.30</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>327.62</td>
+<td>164</td>
+<td>.TSLA270115C300</td>
+<td>MULTI_AUTO_COB</td>
+<td>SPLIT</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2026-08-04</td>
+<td>TSLA</td>
+<td>12:59:44</td>
+<td>Jan 15, 2027</td>
+<td>270.00</td>
+<td>C</td>
+<td>1000</td>
+<td>7.81</td>
+<td>78.14</td>
+<td>$77.95 x $78.35</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>327.62</td>
+<td>164</td>
+<td>.TSLA270115C270</td>
+<td>MULTI_AUTO_COB</td>
+<td>SPLIT</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>TSLA</td>
+<td>08:50:42</td>
+<td>Jan 21, 2028</td>
+<td>330.00</td>
+<td>C</td>
+<td>560</td>
+<td>4.72</td>
+<td>84.23</td>
+<td>$83.90 x $84.50</td>
+<td>A</td>
+<td>Bullish</td>
+<td>N.Strong</td>
+<td>323.08</td>
+<td>536</td>
+<td>.TSLA280121C330</td>
+<td>MULTI_AUTO_COB</td>
+<td>BLOCK</td>
+<td></td>
+<td>0eda2713</td>
+</tr>
+<tr>
+<td>2026-08-03</td>
+<td>TSLA</td>
+<td>08:50:42</td>
+<td>Jan 21, 2028</td>
+<td>300.00</td>
+<td>C</td>
+<td>560</td>
+<td>5.43</td>
+<td>96.93</td>
+<td>$96.60 x $97.50</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>323.08</td>
+<td>536</td>
+<td>.TSLA280121C300</td>
+<td>MULTI_AUTO_COB</td>
+<td>BLOCK</td>
+<td></td>
+<td>0eda2713</td>
+</tr>
+<tr>
+<td>2026-07-31</td>
+<td>TSLA</td>
+<td>09:54:00</td>
+<td>Dec 15, 2028</td>
+<td>400.00</td>
+<td>C</td>
+<td>2500</td>
+<td>20.10</td>
+<td>80.39</td>
+<td>$80.05 x $80.75</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>310.03</td>
+<td>868</td>
+<td>.TSLA281215C400</td>
+<td>MULTI_CROSS</td>
+<td>BLOCK</td>
+<td></td>
+<td>930e288e</td>
+</tr>
+<tr>
+<td>2026-07-31</td>
+<td>TSLA</td>
+<td>07:19:05</td>
+<td>Jan 15, 2027</td>
+<td>300.00</td>
+<td>C</td>
+<td>1000</td>
+<td>4.42</td>
+<td>44.17</td>
+<td>$44.05 x $44.30</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>304.69</td>
+<td>168</td>
+<td>.TSLA270115C300</td>
+<td>MULTI_AUTO_COB</td>
+<td>SWEEP</td>
+<td></td>
+<td>bfd58c5c</td>
+</tr>
+<tr>
+<td>2026-07-31</td>
+<td>TSLA</td>
+<td>07:19:05</td>
+<td>Jan 15, 2027</td>
+<td>270.00</td>
+<td>C</td>
+<td>1000</td>
+<td>6.07</td>
+<td>60.72</td>
+<td>$60.50 x $61.00</td>
+<td>B</td>
+<td>Bearish</td>
+<td>N.Weak</td>
+<td>304.69</td>
+<td>168</td>
+<td>.TSLA270115C270</td>
+<td>MULTI_AUTO_COB</td>
+<td>SWEEP</td>
+<td></td>
+<td>bfd58c5c</td>
+</tr>
+<tr>
+<td>2026-07-29</td>
+<td>TSLA</td>
+<td>08:55:13</td>
+<td>Jan 21, 2028</td>
+<td>330.00</td>
+<td>C</td>
+<td>569</td>
+<td>3.99</td>
+<td>70.13</td>
+<td>$69.75 x $70.50</td>
+<td>A</td>
+<td>Bullish</td>
+<td>N.Strong</td>
+<td>301.10</td>
+<td>541</td>
+<td>.TSLA280121C330</td>
+<td>MULTI_AUTO_COB</td>
+<td>SPLIT</td>
+<td></td>
+<td>4a3f7e6b</td>
+</tr>
+<tr>
+<td>2026-07-29</td>
+<td>TSLA</td>
+<td>08:55:13</td>
+<td>Jan 21, 2028</td>
+<td>300.00</td>
+<td>C</td>
+<td>569</td>
+<td>4.64</td>
+<td>81.63</td>
+<td>$81.25 x $82.00</td>
+<td>A</td>
+<td>Bullish</td>
+<td>N.Strong</td>
+<td>301.10</td>
+<td>541</td>
+<td>.TSLA280121C300</td>
+<td>MULTI_AUTO_COB</td>
+<td>SPLIT</td>
+<td></td>
+<td>4a3f7e6b</td>
+</tr>
+<tr>
+<td>2026-07-28</td>
+<td>TSLA</td>
+<td>07:37:57</td>
+<td>Dec 15, 2028</td>
+<td>450.00</td>
+<td>C</td>
+<td>666</td>
+<td>4.32</td>
+<td>64.90</td>
+<td>$64.90 x $65.20</td>
+<td>B</td>
+<td>Bearish</td>
+<td>Weak</td>
+<td>302.11</td>
+<td>871</td>
+<td>.TSLA281215C450</td>
+<td>AUTO</td>
+<td>SPLIT</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2026-07-27</td>
+<td>TSLA</td>
+<td>07:04:34</td>
+<td>Sep 18, 2026</td>
+<td>420.00</td>
+<td>C</td>
+<td>12700</td>
+<td>2.50</td>
+<td>1.97</td>
+<td>$1.92 x $1.97</td>
+<td>A</td>
+<td>Bullish</td>
+<td>Strong</td>
+<td>308.94</td>
+<td>53</td>
+<td>.TSLA260918C420</td>
+<td>MULTI_CROSS</td>
+<td>BLOCK</td>
+<td></td>
+<td>7b15a2c3</td>
+</tr>
+<tr>
+<td>2026-07-27</td>
+<td>TSLA</td>
+<td>07:04:34</td>
+<td>Nov 20, 2026</td>
+<td>350.00</td>
+<td>C</td>
+<td>12700</td>
+<td>26.12</td>
+<td>20.57</td>
+<td>$20.55 x $20.85</td>
+<td>B</td>
+<td>Bearish</td>
+<td>Weak</td>
+<td>308.94</td>
+<td>116</td>
+<td>.TSLA261120C350</td>
+<td>MULTI_CROSS</td>
+<td>BLOCK</td>
+<td>Open</td>
+<td>7b15a2c3</td>
+</tr>
+<tr>
+<td>2026-07-24</td>
+<td>TSLA</td>
+<td>08:20:13</td>
+<td>Jan 15, 2027</td>
+<td>350.00</td>
+<td>C</td>
+<td>2425</td>
+<td>6.82</td>
+<td>28.14</td>
+<td>$27.80 x $28.15</td>
+<td>A</td>
+<td>Bullish</td>
+<td>Strong</td>
+<td>308.94</td>
+<td>175</td>
+<td>.TSLA270115C350</td>
+<td>MULTI_CROSS</td>
+<td>BLOCK</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>计算出以上每个期权合约截止2026-08-21的OI和price 计算出premium 按premium从大到小排序显示结果</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>基于 ThinkorSwim 官方期权链数据（截止 <strong>2026-08-21 收盘</strong>），计算出上述所有 TSLA Call 期权合约的最新 <strong>未平仓合约量（Open Interest, OI）</strong>、<strong>期权价格（Mark Price / Bid x Ask）</strong> 以及 <strong>总持仓名义价值（Total Premium = OI * Mark Price * 100）</strong>。</p>
+<p>按 <strong>总持仓 Premium 从大到小排序</strong> 的结果如下：</p>
+<hr/>
+<h3 id="tsla-机构大单-call-合约持仓价值统计-截止-2026-08-21-收盘">TSLA 机构大单 Call 合约持仓价值统计（截止 2026-08-21 收盘）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">排名</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">到期日 (Exp)</th>
+<th style="text-align: center;">行权价</th>
+<th style="text-align: center;">DTE</th>
+<th style="text-align: center;">截止 08/21 OI (张)</th>
+<th style="text-align: center;">08/21 Mark 价格</th>
+<th style="text-align: center;">买卖盘 (Bid x Ask)</th>
+<th style="text-align: center;">8/21 成交量</th>
+<th style="text-align: center;">总持仓 Premium (美元)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C400</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$400.00</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;"><strong>8,364</strong></td>
+<td style="text-align: center;"><strong>$110.43</strong></td>
+<td style="text-align: center;">$109.65 x $111.20</td>
+<td style="text-align: center;">307</td>
+<td style="text-align: center;"><strong>$92.36 M</strong> ($92,363,652)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C300</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$300.00</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;"><strong>11,194</strong></td>
+<td style="text-align: center;"><strong>$81.70</strong></td>
+<td style="text-align: center;">$81.15 x $82.25</td>
+<td style="text-align: center;">177</td>
+<td style="text-align: center;"><strong>$91.45 M</strong> ($91,454,980)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C450</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$450.00</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;"><strong>7,397</strong></td>
+<td style="text-align: center;"><strong>$95.78</strong></td>
+<td style="text-align: center;">$95.40 x $96.15</td>
+<td style="text-align: center;">60</td>
+<td style="text-align: center;"><strong>$70.85 M</strong> ($70,848,466)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td style="text-align: left;"><code>.TSLA261120C350</code></td>
+<td style="text-align: center;">2026-11-20</td>
+<td style="text-align: center;">$350.00</td>
+<td style="text-align: center;">91</td>
+<td style="text-align: center;"><strong>16,272</strong></td>
+<td style="text-align: center;"><strong>$41.20</strong></td>
+<td style="text-align: center;">$40.70 x $41.70</td>
+<td style="text-align: center;">779</td>
+<td style="text-align: center;"><strong>$67.04 M</strong> ($67,040,640)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C350</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$350.00</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;"><strong>12,330</strong></td>
+<td style="text-align: center;"><strong>$50.68</strong></td>
+<td style="text-align: center;">$50.25 x $51.10</td>
+<td style="text-align: center;">1,743</td>
+<td style="text-align: center;"><strong>$62.49 M</strong> ($62,488,440)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>6</strong></td>
+<td style="text-align: left;"><code>.TSLA280121C300</code></td>
+<td style="text-align: center;">2028-01-21</td>
+<td style="text-align: center;">$300.00</td>
+<td style="text-align: center;">518</td>
+<td style="text-align: center;"><strong>4,711</strong></td>
+<td style="text-align: center;"><strong>$123.45</strong></td>
+<td style="text-align: center;">$122.55 x $124.35</td>
+<td style="text-align: center;">48</td>
+<td style="text-align: center;"><strong>$58.16 M</strong> ($58,157,295)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>7</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C270</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$270.00</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;"><strong>2,943</strong></td>
+<td style="text-align: center;"><strong>$105.03</strong></td>
+<td style="text-align: center;">$104.40 x $105.65</td>
+<td style="text-align: center;">20</td>
+<td style="text-align: center;"><strong>$30.91 M</strong> ($30,910,329)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>8</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C260</code></td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$260.00</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;"><strong>2,784</strong></td>
+<td style="text-align: center;"><strong>$110.95</strong></td>
+<td style="text-align: center;">$110.25 x $111.65</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;"><strong>$30.89 M</strong> ($30,888,480)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>9</strong></td>
+<td style="text-align: left;"><code>.TSLA280121C330</code></td>
+<td style="text-align: center;">2028-01-21</td>
+<td style="text-align: center;">$330.00</td>
+<td style="text-align: center;">518</td>
+<td style="text-align: center;"><strong>1,459</strong></td>
+<td style="text-align: center;"><strong>$108.13</strong></td>
+<td style="text-align: center;">$107.45 x $108.80</td>
+<td style="text-align: center;">31</td>
+<td style="text-align: center;"><strong>$15.78 M</strong> ($15,776,167)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10</strong></td>
+<td style="text-align: left;"><code>.TSLA260904C240</code></td>
+<td style="text-align: center;">2026-09-04</td>
+<td style="text-align: center;">$240.00</td>
+<td style="text-align: center;">14</td>
+<td style="text-align: center;"><strong>550</strong></td>
+<td style="text-align: center;"><strong>$123.28</strong></td>
+<td style="text-align: center;">$121.15 x $125.40</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;"><strong>$6.78 M</strong> ($6,780,400)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>11</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C420</code></td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$420.00</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;"><strong>14,966</strong></td>
+<td style="text-align: center;"><strong>$2.67</strong></td>
+<td style="text-align: center;">$2.63 x $2.70</td>
+<td style="text-align: center;">2,845</td>
+<td style="text-align: center;"><strong>$4.00 M</strong> ($3,995,922)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="核心观察与持仓分布特征">核心观察与持仓分布特征</h3>
+<h4 id="超长期-leaps-2028年-持仓极重">超长期 LEAPS（2028年）持仓极重</h4>
+<ul>
+<li><strong>2028-12-15 400C 与 450C</strong> 两个超远期合约合计总持仓金额高达 <strong>$1.63 亿美元</strong>（$92.36M + $70.85M），表明机构对 TSLA 长期具有极其庞大的多头头寸沉淀。</li>
+</ul>
+<h4 id="2027年1月深度主力行权价集中于-300-与-350">2027年1月深度主力行权价集中于 $300 与 $350</h4>
+<ul>
+<li><strong>2027-01-15 300C</strong> 单一合约持仓价值达 <strong>$91.45M</strong>（OI 为 11,194 张），是 2027 年期权链中价值最高的多头堡垒。</li>
+<li><strong>2027-01-15 350C</strong> 持仓达 <strong>$62.49M</strong>（OI 为 12,330 张，8/21 当日仍有 1,743 张高活跃成交）。</li>
+</ul>
+<h4 id="中期关键防线-2026年11月">中期关键防线（2026年11月）</h4>
+<ul>
+<li><strong>2026-11-20 350C</strong> 目前未平仓达 <strong>16,272 张</strong>，总价值 <strong>$67.04M</strong>，是年底前最重要的中短期大单焦点。</li>
+</ul>
+</section></section><section><h2 id="tsla_calls_oi_growth_top30_premium">tsla_calls_oi_growth_top30_premium</h2><h3 id="question-2">Question</h3><p>我过去的经验是 TSLA 如果出现$100M左右及以上的大单 一般会是中长期的趋势的信号 比如</p>
+<p>Whale Trade 案例分析：DB Table 'WhaleTradeCaseStudy', Ticker: TSLA, Trade Date: 2026-07-23, Time Range: N/A,  Big Order Type: OptionsFlow<br/>
+虽然并没有抓到最低点 321后最低跌到了297 （2026-07-29） 但之后就反转了 2026-08-21 上涨到了366 </p>
+<p>我track<br/>
+.TSLA281215C400<br/>
+.TSLA281215C450<br/>
+.TSLA261120C350<br/>
+.TSLA270115C350</p>
+<p>就是为了 发现这些大单什么大额卖出 可以作为这次反弹的定点 </p>
+<p>现在我需要做另一件事，请扫描现在TSLA option chain 找到premium最大的call的期权合约，过滤出在2026-07-23到2026-08-14期间OI有大的增长（按OI百分比算） 按premium大小排序，找到前30个</p><h3 id="answer-2">Answer</h3><p>基于 ThinkorSwim 官方全量期权链数据，对比 <strong>2026-07-23 底部启动期</strong> 到 <strong>2026-08-14 反弹确认期</strong> 的持仓变化，筛选出<strong>未平仓量（OI）出现显著增长（增幅 &gt;= 25% 且净增 &gt;= 300 张）</strong>的活跃主力 Call 合约，并按 <strong>截止 2026-08-21 的总持仓名义价值（Total Premium）从大到小排序</strong>，前 30 个核心合约如下：</p>
+<hr/>
+<h3 id="tsla-机构主力建仓-call-合约-top-30-oi-暴增-当前持仓价值榜">TSLA 机构主力建仓 Call 合约 Top 30（OI 暴增 + 当前持仓价值榜）</h3>
+<blockquote>
+<ul>
+<li><strong>统计周期</strong>：建仓对比期 <code>2026-07-23</code> ~ <code>2026-08-14</code>，最新价格与 OI 截止 <code>2026-08-21</code> 收盘。  </li>
+<li><strong>持仓价值（Premium）</strong> = <code>08/21 OI × 08/21 Mark Price × 100</code>。</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">排名</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">到期日 (Exp)</th>
+<th style="text-align: center;">行权价</th>
+<th style="text-align: center;">DTE</th>
+<th style="text-align: center;">07/23 OI</th>
+<th style="text-align: center;">08/14 OI</th>
+<th style="text-align: center;"><strong>OI 净增 (张)</strong></th>
+<th style="text-align: center;"><strong>OI 增幅 (%)</strong></th>
+<th style="text-align: center;">08/21 OI</th>
+<th style="text-align: center;">08/21 价格</th>
+<th style="text-align: center;">当前总价值 (Premium)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C400</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$400</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">24,918</td>
+<td style="text-align: center;">36,051</td>
+<td style="text-align: center;"><strong>+11,133</strong></td>
+<td style="text-align: center;"><strong>+44.7%</strong></td>
+<td style="text-align: center;">36,628</td>
+<td style="text-align: center;">$29.75</td>
+<td style="text-align: center;"><strong>$108.97 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C400</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$400</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">6,013</td>
+<td style="text-align: center;">8,363</td>
+<td style="text-align: center;"><strong>+2,350</strong></td>
+<td style="text-align: center;"><strong>+39.1%</strong></td>
+<td style="text-align: center;">8,364</td>
+<td style="text-align: center;">$110.43</td>
+<td style="text-align: center;"><strong>$92.36 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: left;"><code>.TSLA261120C350</code></td>
+<td style="text-align: center;">2026-11-20</td>
+<td style="text-align: center;">$350</td>
+<td style="text-align: center;">91</td>
+<td style="text-align: center;">1,561</td>
+<td style="text-align: center;">16,064</td>
+<td style="text-align: center;"><strong>+14,503</strong></td>
+<td style="text-align: center;"><strong>+929.1%</strong></td>
+<td style="text-align: center;">16,272</td>
+<td style="text-align: center;">$41.20</td>
+<td style="text-align: center;"><strong>$67.04 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C350</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$350</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">6,863</td>
+<td style="text-align: center;">12,074</td>
+<td style="text-align: center;"><strong>+5,211</strong></td>
+<td style="text-align: center;"><strong>+75.9%</strong></td>
+<td style="text-align: center;">12,330</td>
+<td style="text-align: center;">$50.68</td>
+<td style="text-align: center;"><strong>$62.49 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C100</code></td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$100</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;">1,179</td>
+<td style="text-align: center;">1,613</td>
+<td style="text-align: center;"><strong>+434</strong></td>
+<td style="text-align: center;"><strong>+36.8%</strong></td>
+<td style="text-align: center;">1,613</td>
+<td style="text-align: center;">$264.45</td>
+<td style="text-align: center;"><strong>$42.66 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>6</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C100</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$100</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">445</td>
+<td style="text-align: center;">1,259</td>
+<td style="text-align: center;"><strong>+814</strong></td>
+<td style="text-align: center;"><strong>+182.9%</strong></td>
+<td style="text-align: center;">1,259</td>
+<td style="text-align: center;">$278.30</td>
+<td style="text-align: center;"><strong>$35.04 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>7</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C400</code></td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$400</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;">9,606</td>
+<td style="text-align: center;">13,834</td>
+<td style="text-align: center;"><strong>+4,228</strong></td>
+<td style="text-align: center;"><strong>+44.0%</strong></td>
+<td style="text-align: center;">13,167</td>
+<td style="text-align: center;">$25.30</td>
+<td style="text-align: center;"><strong>$33.31 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>8</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C260</code></td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$260</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;">2,017</td>
+<td style="text-align: center;">2,798</td>
+<td style="text-align: center;"><strong>+781</strong></td>
+<td style="text-align: center;"><strong>+38.7%</strong></td>
+<td style="text-align: center;">2,784</td>
+<td style="text-align: center;">$110.95</td>
+<td style="text-align: center;"><strong>$30.89 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>9</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C500</code></td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$500</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">7,622</td>
+<td style="text-align: center;">10,272</td>
+<td style="text-align: center;"><strong>+2,650</strong></td>
+<td style="text-align: center;"><strong>+34.8%</strong></td>
+<td style="text-align: center;">10,488</td>
+<td style="text-align: center;">$28.88</td>
+<td style="text-align: center;"><strong>$30.29 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10</strong></td>
+<td style="text-align: left;"><code>.TSLA280121C350</code></td>
+<td style="text-align: center;">2028-01-21</td>
+<td style="text-align: center;">$350</td>
+<td style="text-align: center;">518</td>
+<td style="text-align: center;">1,954</td>
+<td style="text-align: center;">2,689</td>
+<td style="text-align: center;"><strong>+735</strong></td>
+<td style="text-align: center;"><strong>+37.6%</strong></td>
+<td style="text-align: center;">2,921</td>
+<td style="text-align: center;">$99.13</td>
+<td style="text-align: center;"><strong>$28.96 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>11</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C310</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$310</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">2,951</td>
+<td style="text-align: center;">3,780</td>
+<td style="text-align: center;"><strong>+829</strong></td>
+<td style="text-align: center;"><strong>+28.1%</strong></td>
+<td style="text-align: center;">3,782</td>
+<td style="text-align: center;">$74.53</td>
+<td style="text-align: center;"><strong>$28.19 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>12</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C250</code></td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$250</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">1,529</td>
+<td style="text-align: center;">1,933</td>
+<td style="text-align: center;"><strong>+404</strong></td>
+<td style="text-align: center;"><strong>+26.4%</strong></td>
+<td style="text-align: center;">1,809</td>
+<td style="text-align: center;">$135.63</td>
+<td style="text-align: center;"><strong>$24.54 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>13</strong></td>
+<td style="text-align: left;"><code>.TSLA270319C350</code></td>
+<td style="text-align: center;">2027-03-19</td>
+<td style="text-align: center;">$350</td>
+<td style="text-align: center;">210</td>
+<td style="text-align: center;">886</td>
+<td style="text-align: center;">3,761</td>
+<td style="text-align: center;"><strong>+2,875</strong></td>
+<td style="text-align: center;"><strong>+324.5%</strong></td>
+<td style="text-align: center;">3,803</td>
+<td style="text-align: center;">$61.30</td>
+<td style="text-align: center;"><strong>$23.31 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>14</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C330</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$330</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">2,325</td>
+<td style="text-align: center;">3,260</td>
+<td style="text-align: center;"><strong>+935</strong></td>
+<td style="text-align: center;"><strong>+40.2%</strong></td>
+<td style="text-align: center;">3,441</td>
+<td style="text-align: center;">$61.78</td>
+<td style="text-align: center;"><strong>$21.26 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>15</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C325</code></td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$325</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">105</td>
+<td style="text-align: center;">4,913</td>
+<td style="text-align: center;"><strong>+4,808</strong></td>
+<td style="text-align: center;"><strong>+4579.0%</strong></td>
+<td style="text-align: center;">4,866</td>
+<td style="text-align: center;">$42.40</td>
+<td style="text-align: center;"><strong>$20.63 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>16</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C320</code></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$320</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">2,257</td>
+<td style="text-align: center;">2,974</td>
+<td style="text-align: center;"><strong>+717</strong></td>
+<td style="text-align: center;"><strong>+31.8%</strong></td>
+<td style="text-align: center;">2,987</td>
+<td style="text-align: center;">$68.03</td>
+<td style="text-align: center;"><strong>$20.32 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>17</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C330</code></td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$330</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">1,014</td>
+<td style="text-align: center;">5,231</td>
+<td style="text-align: center;"><strong>+4,217</strong></td>
+<td style="text-align: center;"><strong>+415.9%</strong></td>
+<td style="text-align: center;">5,145</td>
+<td style="text-align: center;">$38.22</td>
+<td style="text-align: center;"><strong>$19.66 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>18</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C900</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$900</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">2,942</td>
+<td style="text-align: center;">5,671</td>
+<td style="text-align: center;"><strong>+2,729</strong></td>
+<td style="text-align: center;"><strong>+92.8%</strong></td>
+<td style="text-align: center;">5,749</td>
+<td style="text-align: center;">$33.78</td>
+<td style="text-align: center;"><strong>$19.42 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>19</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C320</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$320</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">365</td>
+<td style="text-align: center;">1,284</td>
+<td style="text-align: center;"><strong>+919</strong></td>
+<td style="text-align: center;"><strong>+251.8%</strong></td>
+<td style="text-align: center;">1,307</td>
+<td style="text-align: center;">$140.45</td>
+<td style="text-align: center;"><strong>$18.36 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>20</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C310</code></td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$310</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">447</td>
+<td style="text-align: center;">3,270</td>
+<td style="text-align: center;"><strong>+2,823</strong></td>
+<td style="text-align: center;"><strong>+631.5%</strong></td>
+<td style="text-align: center;">3,270</td>
+<td style="text-align: center;">$55.58</td>
+<td style="text-align: center;"><strong>$18.17 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>21</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C320</code></td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$320</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">1,384</td>
+<td style="text-align: center;">1,956</td>
+<td style="text-align: center;"><strong>+572</strong></td>
+<td style="text-align: center;"><strong>+41.3%</strong></td>
+<td style="text-align: center;">1,995</td>
+<td style="text-align: center;">$89.65</td>
+<td style="text-align: center;"><strong>$17.89 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>22</strong></td>
+<td style="text-align: left;"><code>.TSLA280121C510</code></td>
+<td style="text-align: center;">2028-01-21</td>
+<td style="text-align: center;">$510</td>
+<td style="text-align: center;">518</td>
+<td style="text-align: center;">2,427</td>
+<td style="text-align: center;">3,423</td>
+<td style="text-align: center;"><strong>+996</strong></td>
+<td style="text-align: center;"><strong>+41.0%</strong></td>
+<td style="text-align: center;">3,422</td>
+<td style="text-align: center;">$50.68</td>
+<td style="text-align: center;"><strong>$17.34 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>23</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C250</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$250</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">530</td>
+<td style="text-align: center;">908</td>
+<td style="text-align: center;"><strong>+378</strong></td>
+<td style="text-align: center;"><strong>+71.3%</strong></td>
+<td style="text-align: center;">988</td>
+<td style="text-align: center;">$174.85</td>
+<td style="text-align: center;"><strong>$17.28 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>24</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C300</code></td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$300</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">1,294</td>
+<td style="text-align: center;">2,722</td>
+<td style="text-align: center;"><strong>+1,428</strong></td>
+<td style="text-align: center;"><strong>+110.4%</strong></td>
+<td style="text-align: center;">2,638</td>
+<td style="text-align: center;">$65.00</td>
+<td style="text-align: center;"><strong>$17.15 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>25</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C430</code></td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$430</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">1,862</td>
+<td style="text-align: center;">3,717</td>
+<td style="text-align: center;"><strong>+1,855</strong></td>
+<td style="text-align: center;"><strong>+99.6%</strong></td>
+<td style="text-align: center;">3,710</td>
+<td style="text-align: center;">$44.55</td>
+<td style="text-align: center;"><strong>$16.53 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>26</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C650</code></td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$650</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">4,259</td>
+<td style="text-align: center;">5,894</td>
+<td style="text-align: center;"><strong>+1,635</strong></td>
+<td style="text-align: center;"><strong>+38.4%</strong></td>
+<td style="text-align: center;">5,897</td>
+<td style="text-align: center;">$27.35</td>
+<td style="text-align: center;"><strong>$16.13 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>27</strong></td>
+<td style="text-align: left;"><code>.TSLA280121C330</code></td>
+<td style="text-align: center;">2028-01-21</td>
+<td style="text-align: center;">$330</td>
+<td style="text-align: center;">518</td>
+<td style="text-align: center;">703</td>
+<td style="text-align: center;">1,464</td>
+<td style="text-align: center;"><strong>+761</strong></td>
+<td style="text-align: center;"><strong>+108.3%</strong></td>
+<td style="text-align: center;">1,459</td>
+<td style="text-align: center;">$108.13</td>
+<td style="text-align: center;"><strong>$15.78 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>28</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C600</code></td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$600</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">7,707</td>
+<td style="text-align: center;">9,688</td>
+<td style="text-align: center;"><strong>+1,981</strong></td>
+<td style="text-align: center;"><strong>+25.7%</strong></td>
+<td style="text-align: center;">9,621</td>
+<td style="text-align: center;">$16.38</td>
+<td style="text-align: center;"><strong>$15.76 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>29</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C320</code></td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$320</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">1,098</td>
+<td style="text-align: center;">3,538</td>
+<td style="text-align: center;"><strong>+2,440</strong></td>
+<td style="text-align: center;"><strong>+222.2%</strong></td>
+<td style="text-align: center;">3,357</td>
+<td style="text-align: center;">$46.73</td>
+<td style="text-align: center;"><strong>$15.69 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>30</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C310</code></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$310</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">311</td>
+<td style="text-align: center;">1,033</td>
+<td style="text-align: center;"><strong>+722</strong></td>
+<td style="text-align: center;"><strong>+232.2%</strong></td>
+<td style="text-align: center;">1,056</td>
+<td style="text-align: center;">$144.98</td>
+<td style="text-align: center;"><strong>$15.31 M</strong></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="核心观察与重要发现">核心观察与重要发现</h3>
+<h4 id="头号天量合约-tsla270115c400-总价值-1-09-亿美元">头号天量合约：<code>.TSLA270115C400</code>（总价值 $1.09 亿美元）</h4>
+<ul>
+<li>该合约在 7/23~8/14 期间净增 <strong>11,133 张（+44.7%）</strong>，目前未平仓高达 <strong>36,628 张</strong>，持仓价值突破 <strong>$1.08 亿</strong>，是全市场规模最大的超级堡垒。</li>
+</ul>
+<h4 id="异动倍数最大合约-tsla261120c350-暴增-929">异动倍数最大合约：<code>.TSLA261120C350</code>（暴增 +929%）</h4>
+<ul>
+<li>OI 从 7/23 的 1,561 张直接飙升至 16,064 张（净增 1.45 万张），目前持仓价值 <strong>$67.04M</strong>，是您当前正在 track 的核心合约之一。</li>
+</ul>
+<h4 id="9月中短期行权梯队-2026-09-18-到期-密集吸筹">9月中短期行权梯队（2026-09-18 到期）密集吸筹</h4>
+<ul>
+<li><code>310C</code>、<code>320C</code>、<code>325C</code>、<code>330C</code> 在该期间均出现 <strong>200% ~ 4500%</strong> 的暴增式建仓，单合约价值均在 <strong>$15M ~ $20M</strong> 左右，可作为 9 月四巫日前观察机构平仓获利了结的短线反转信号。</li>
+</ul>
+<h4 id="建议加入重点监控列表的潜在顶级合约">建议加入重点监控列表的潜在顶级合约</h4>
+<ul>
+<li>除了您当前 track 的 4 个合约外，<strong><code>.TSLA270115C400</code></strong>（$108.97M）、<strong><code>.TSLA261218C400</code></strong>（$33.31M）以及 <strong><code>.TSLA270617C500</code></strong>（$30.29M）同样是持仓极其巨大的核心多头标的。</li>
+</ul></section><section><h2 id="tsla_350c_target_stock_price_for">tsla_350c_target_stock_price_for</h2><h3 id="question-3">Question</h3><p>这两个是特征做好的两个 都在上个底部附近有大量OI增加 且premium已经够大 &gt;$60M 请估算TSLA股价涨到多少时 这两个premium会涨到$100M</p>
+<p><img alt=".TSLA261120C350 180D 4h Chart" src="images/tsla_261120c350_chart.png"/></p>
+<p><img alt=".TSLA270115C350 180D 4h Chart" src="images/tsla_270115c350_chart.png"/></p><h3 id="answer-3">Answer</h3><p>基于标准期权定价模型（Black-Scholes 模型，结合 8/21 收盘隐含波动率 IV ≈ 44.8%、当前 Delta/Gamma 与时间价值衰减），对这两大主力合约持仓价值达到 <strong>$100M（1 亿美元）</strong> 时的目标期权价与 TSLA 标的股价进行精确估算：</p>
+<hr/>
+<h3 id="目标期权价格测算原理">目标期权价格测算原理</h3>
+<p>公式：<code>Total Premium = OI × Option Price × 100</code><br/>
+达到 $100M 目标时所需的目标期权价格为：<code>Target Option Price = 100,000,000 / (OI × 100)</code></p>
+<h4 id="tsla261120c350-2026-11-20-到期-行权价-350">.TSLA261120C350（2026-11-20 到期，行权价 $350）</h4>
+<ul>
+<li><strong>当前持仓 OI</strong>：<code>16,272 张</code></li>
+<li><strong>当前期权价</strong>：<code>$41.20</code>（当前总 Premium: <strong>$67.04M</strong>）</li>
+<li><strong>达到 100M 所需期权价</strong>：<code>100,000,000 / (16,272 × 100)</code> = <strong><code>61.46</code></strong>（期权需上涨 <code>+$20.26</code> / <code>+49.2%</code>）</li>
+</ul>
+<h4 id="tsla270115c350-2027-01-15-到期-行权价-350">.TSLA270115C350（2027-01-15 到期，行权价 $350）</h4>
+<ul>
+<li><strong>当前持仓 OI</strong>：<code>12,330 张</code></li>
+<li><strong>当前期权价</strong>：<code>$50.68</code>（当前总 Premium: <strong>$62.49M</strong>）</li>
+<li><strong>达到 100M 所需期权价</strong>：<code>100,000,000 / (12,330 × 100)</code> = <strong><code>81.10</code></strong>（期权需上涨 <code>+$30.42</code> / <code>+60.0%</code>）</li>
+</ul>
+<hr/>
+<h3 id="对应-tsla-标的股价估算-当前股价基准-spot-363-65">对应 TSLA 标的股价估算（当前股价基准 Spot: $363.65）</h3>
+<p>由于期权存在时间价值衰减（Theta），不同时间节点到达目标价所需的 TSLA 股价如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">时间窗口 (Scenario)</th>
+<th style="text-align: center;">剩余到期时间</th>
+<th style="text-align: center;">合约 1 (<code>261120C350</code>) 达到 $100M 所需股价</th>
+<th style="text-align: center;">合约 2 (<code>270115C350</code>) 达到 $100M 所需股价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>8月下旬（即时冲高）</strong></td>
+<td style="text-align: center;">91天 / 147天</td>
+<td style="text-align: center;"><strong>$392.87</strong> (+8.0% / +$29.2)</td>
+<td style="text-align: center;"><strong>$406.82</strong> (+11.9% / +$43.2)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>9月上旬（2周后）</strong></td>
+<td style="text-align: center;">77天 / 133天</td>
+<td style="text-align: center;"><strong>$396.28</strong> (+9.0% / +$32.6)</td>
+<td style="text-align: center;"><strong>$409.53</strong> (+12.6% / +$45.9)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>9月下旬（1个月后）</strong></td>
+<td style="text-align: center;">61天 / 117天</td>
+<td style="text-align: center;"><strong>$400.21</strong> (+10.1% / +$36.6)</td>
+<td style="text-align: center;"><strong>$412.66</strong> (+13.5% / +$49.0)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>10月下旬（2个月后）</strong></td>
+<td style="text-align: center;">31天 / 87天</td>
+<td style="text-align: center;"><strong>$407.29</strong> (+12.0% / +$43.6)</td>
+<td style="text-align: center;"><strong>$418.54</strong> (+15.1% / +$54.9)</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="交易与反弹定点分析启示">交易与反弹定点分析启示</h3>
+<h4 id="第一道获利了结警戒线-tsla-股价到达-395-400">第一道获利了结警戒线：TSLA 股价到达 $395 ~ $400</h4>
+<ul>
+<li>中短期主力合约 <strong><code>261120C350</code></strong> 会在股价冲上 <strong>$395 ~ $400</strong> 时率先触及 <strong>$100M 价值大关</strong>。届时需要高度关注该合约是否出现大额卖出（Sell to Close / Block 卖单），这往往预示着短期冲高行情的首轮获利了结。</li>
+</ul>
+<h4 id="第二道中长期绝对反转阻力区-tsla-股价到达-405-415">第二道中长期绝对反转阻力区：TSLA 股价到达 $405 ~ $415</h4>
+<ul>
+<li>远期主力合约 <strong><code>270115C350</code></strong> 将在股价达到 <strong>$405 ~ $415</strong> 时突破 <strong>$100M 价值大关</strong>。</li>
+<li>届时这两大 $350 行权价主力合约的<strong>合计持仓名义价值将高达 $2.0 亿美元</strong>，<strong>$400 ~ $415 区域将是本轮 TSLA 中长期反弹最关键的顶部观察与多头平仓敏感带</strong>。</li>
+</ul></section><section><h2 id="tsla_leaps_400c_institutional_holding_logic">tsla_leaps_400c_institutional_holding_logic</h2><h3 id="question-4">Question</h3><p>这两个过去6个月OI在持续增加 无论TSLA股价怎样上下波动 请分析大的机构的持仓逻辑 为什么TSLA在过去半年中的高点时 机构不卖出</p>
+<p><img alt=".TSLA270115C400 180D 4h Chart" src="images/tsla_270115c400_chart.png"/></p>
+<p><img alt=".TSLA281215C400 180D 4h Chart" src="images/tsla_281215c400_chart.png"/></p><h3 id="answer-4">Answer</h3><p>从 MotiveWave 图表中可以清晰看到，这两大超远期合约（<strong><code>.TSLA270115C400</code></strong> 与 <strong><code>.TSLA281215C400</code></strong>）的未平仓合约量（OI）呈现出非常罕见的<strong>“单边阶梯式递增（Monotonic Stair-step Increase）”</strong>特征：<br/>
+* <strong>无论股价在 $450+ 阶段高点还是跌至 $297 底部，OI 始终只增不减</strong>；<br/>
+* 尤其在 7 月底股价探底 $297（期权跌至极低点 $12.7 / $73.3）时，OI 更是出现了<strong>垂直拔高式暴增加仓</strong>。</p>
+<p>这种盘面特征清晰地揭示了华尔街顶级对冲基金和大型机构的<strong>核心底层建仓与持仓逻辑</strong>：</p>
+<hr/>
+<h3 id="为什么过去半年股价涨到高点-如-450-时机构坚决不卖">为什么过去半年股价涨到高点（如 $450+）时机构坚决不卖？</h3>
+<h4 id="正股替代策略-stock-replacement-strategy-而非短期波段交易">正股替代策略（Stock Replacement Strategy），而非短期波段交易</h4>
+<ul>
+<li><strong>资金杠杆效率极高</strong>：以 2028 年 400C 为例，持有 8,364 张合约相当于控制了 <strong>83.64 万股 TSLA（现货市值超 3 亿美元）</strong>，但仅占用了约 9000 万美元的期权权利金，释放了 70% 以上的流动性。</li>
+<li><strong>百亿级体量的换手成本极高</strong>：对于大型长期基金而言，建仓此类数万张的大单需要数周甚至数月的时间在暗池和跨市场撮合。如果因为短线涨到 $450 就平仓，不仅面临巨大的冲击成本（Market Impact）与税负/滑点，还会冒<strong>彻底踏空 TSLA 长期超级主升浪</strong>的巨大风险。</li>
+</ul>
+<h4 id="超长-dte-赋予的-零时间损耗特权-near-zero-theta-decay">超长 DTE 赋予的“零时间损耗特权（Near-Zero Theta Decay）”</h4>
+<ul>
+<li>2027 年与 2028 年到期的期权 DTE 长达 <strong>150 天 ~ 850 天</strong>。</li>
+<li>在这种超远期维度下，<strong>每日的时间价值衰减（Theta）极其微小（几乎可以忽略不计）</strong>。机构持有这些合约几乎没有被迫平仓的时间压力，完全具备“穿越中短期几十美元剧烈震荡”的容忍度。</li>
+</ul>
+<h4 id="机构博弈的是-500-600-的长周期估值重塑-而非-50-的波段">机构博弈的是 $500~$600+ 的长周期估值重塑，而非 $50 的波段</h4>
+<ul>
+<li>机构买入 2027/2028 年 $400 行权价的看涨期权，其战略目标是对标特斯拉长期宏观催化剂（如 <strong>Robotaxi 规模化商用、FSD V13/V14 全球落地、Optimus 量产与储能 Megapack 盈利爆发</strong>）。</li>
+<li>在机构的战略估值模型中，<strong>$300 ~ $450 之间的来回拉锯只是大底部的“箱体筑底区”</strong>。他们的预期止盈目标是 TSLA 突破 $500 甚至创历史新高时带来的数倍乃至十倍的爆发性回报（Multi-bagger Alpha）。</li>
+</ul>
+<hr/>
+<h3 id="过去-6-个月-oi-持续递增的机构运作全流程">过去 6 个月 OI 持续递增的机构运作全流程</h3>
+<pre><code class="language-text">【第一阶段：3月~5月震荡期】—— 平滑定投式吸筹
+   - 机构在 $350~$400 之间匀速小幅加仓，OI 稳定从 1,000 张爬升至 6,000 张。
+
+【第二阶段：5月~6月冲高期 ($450+)】—— 锁仓不动，构建长多短空
+   - 机构底仓完全锁定（OI 走平不减）；
+   - 同时可能在上方卖出短期虚值 Call（如月度 $480C/$500C）收取权利金（对角价差策略 / Diagonal Spread），进一步降低底仓成本。
+
+【第三阶段：7月下旬探底 $297】—— 巨鲸逆向加倍扫货（极限抄底）
+   - 当期权价格跌至历史极值（.270115C400 跌至 $12.7），机构利用散户恐慌盘踩踏，直接以 Block 大单一口气买入 1.2 万+ 张，OI 瞬间从 2.4 万飙升至 3.66 万张。
+   - 这一动作构成了 7/23~7/29 TSLA 绝对大底的奠基石。
+</code></pre>
+<hr/>
+<h3 id="总结-对我们交易跟踪的核心启示">总结：对我们交易跟踪的核心启示</h3>
+<h4 id="这两大合约是-tsla-本轮牛市行情的-定海神针">这两大合约是 TSLA 本轮牛市行情的“定海神针”</h4>
+<ul>
+<li>只要 <code>.TSLA270115C400</code>（36,628 张）和 <code>.TSLA281215C400</code>（8,364 张）的 <strong>OI 没有出现断崖式平仓暴跌</strong>，就证明华尔街主力巨鲸的长期多头仓位依然牢牢锁定在场内，TSLA 的中长期向上大趋势逻辑完全没有破坏。</li>
+</ul>
+<h4 id="未来何时才是真正的-危险减仓信号">未来何时才是真正的“危险减仓信号”</h4>
+<ul>
+<li>当 TSLA 股价未来真正突破 <strong>$400 ~ $450</strong> 且接近上述目标价值区间（如单合约持仓价值突破 <strong>$1.5 亿 ~ $2 亿美元</strong>）时，若我们监测到 <strong>OI 出现单日几千张甚至上万张的大额缩水</strong>，伴随成交量暴增但价格滞涨，那才是机构真正开始规模化“收割兑现、大举离场”的绝对见顶信号！</li>
+</ul></section><section><h2 id="tsla_calls_pure_top30_premium_watchlist">tsla_calls_pure_top30_premium_watchlist</h2><h3 id="question-5">Question</h3><p>对比 2026-07-23 底部启动期 到 2026-08-14 反弹确认期 的持仓变化，筛选出未平仓量（OI）出现显著增长（增幅 &gt;= 25% 且净增 &gt;= 300 张）的活跃主力 Call</p>
+<p>刚才的期权扫描有上面的限定条件 现在请列出premium最高的call期权合约前30名，对于出现在如图列表中的 请标识出</p>
+<p><img alt="Thinkorswim Watchlists: BB_Trade_Oth &amp; CheckVolume" src="images/tsla_tos_watchlists.png"/></p><h3 id="answer-5">Answer</h3><p>基于 ThinkorSwim 官方全量期权链数据（截止 <strong>2026-08-21 收盘</strong>），在<strong>不设任何 OI 增幅过滤条件</strong>的前提下，对当前所有未到期的 TSLA Call 期权合约按 <strong>总持仓名义价值（Total Premium）从大到小纯粹排序</strong>。</p>
+<p>同时根据您提供的两张 Thinkorswim 监控列表（<strong><code>BB_Trade_Oth</code></strong> 和 <strong><code>CheckVolume</code></strong>），在表格中进行了高亮与来源标识：<br/>
+* 🎯 <strong><code>BB_Trade_Oth</code></strong>：您的重点交易跟踪列表<br/>
+* 🔍 <strong><code>CheckVolume</code></strong>：天量成交量与未平仓监控列表</p>
+<hr/>
+<h3 id="tsla-全市场-call-期权持仓价值总榜-top-30-含-watchlist-跟踪标识">TSLA 全市场 Call 期权持仓价值总榜 Top 30（含 Watchlist 跟踪标识）</h3>
+<blockquote>
+<ul>
+<li><strong>持仓价值（Premium）</strong> = <code>08/21 OI × 08/21 Mark Price × 100</code>。  </li>
+<li><strong>OI 变化对比期</strong>：<code>2026-07-23</code>（底部启动） ~ <code>2026-08-14</code>（反弹确认）。</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">排名</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">监控列表标识 (Watchlist)</th>
+<th style="text-align: center;">到期日 (Exp)</th>
+<th style="text-align: center;">行权价</th>
+<th style="text-align: center;">DTE</th>
+<th style="text-align: center;">07/23 OI</th>
+<th style="text-align: center;">08/14 OI</th>
+<th style="text-align: center;"><strong>07/23~08/14 OI 变化</strong></th>
+<th style="text-align: center;"><strong>OI 增幅 (%)</strong></th>
+<th style="text-align: center;">08/21 OI</th>
+<th style="text-align: center;">08/21 价格</th>
+<th style="text-align: center;">当前总价值 (Premium)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">39,410</td>
+<td style="text-align: center;">39,518</td>
+<td style="text-align: center;"><strong>+108</strong></td>
+<td style="text-align: center;"><strong>+0.3%</strong></td>
+<td style="text-align: center;">39,519</td>
+<td style="text-align: center;">$359.17</td>
+<td style="text-align: center;"><strong>$1,419.40 M</strong> ($14.19亿)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">31,416</td>
+<td style="text-align: center;">31,419</td>
+<td style="text-align: center;"><strong>+3</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">31,278</td>
+<td style="text-align: center;">$357.98</td>
+<td style="text-align: center;"><strong>$1,119.69 M</strong> ($11.20亿)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;">10,741</td>
+<td style="text-align: center;">10,845</td>
+<td style="text-align: center;"><strong>+104</strong></td>
+<td style="text-align: center;"><strong>+1.0%</strong></td>
+<td style="text-align: center;">10,901</td>
+<td style="text-align: center;">$357.92</td>
+<td style="text-align: center;"><strong>$390.17 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">6,156</td>
+<td style="text-align: center;">6,156</td>
+<td style="text-align: center;"><strong>+0</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">6,156</td>
+<td style="text-align: center;">$358.68</td>
+<td style="text-align: center;"><strong>$220.80 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: left;"><code>.TSLA280121C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-01-21</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">518</td>
+<td style="text-align: center;">5,767</td>
+<td style="text-align: center;">5,790</td>
+<td style="text-align: center;"><strong>+23</strong></td>
+<td style="text-align: center;"><strong>+0.4%</strong></td>
+<td style="text-align: center;">5,791</td>
+<td style="text-align: center;">$359.08</td>
+<td style="text-align: center;"><strong>$207.94 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>6</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">4,840</td>
+<td style="text-align: center;">5,088</td>
+<td style="text-align: center;"><strong>+248</strong></td>
+<td style="text-align: center;"><strong>+5.1%</strong></td>
+<td style="text-align: center;">5,228</td>
+<td style="text-align: center;">$359.73</td>
+<td style="text-align: center;"><strong>$188.07 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>7</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C30</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$30</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">4,782</td>
+<td style="text-align: center;">4,782</td>
+<td style="text-align: center;"><strong>+0</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">4,782</td>
+<td style="text-align: center;">$335.85</td>
+<td style="text-align: center;"><strong>$160.60 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>8</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C105</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$105</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;">4,921</td>
+<td style="text-align: center;">4,921</td>
+<td style="text-align: center;"><strong>+0</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">4,921</td>
+<td style="text-align: center;">$259.27</td>
+<td style="text-align: center;"><strong>$127.59 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>9</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C10</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$10</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">3,585</td>
+<td style="text-align: center;">3,577</td>
+<td style="text-align: center;"><strong>-8</strong></td>
+<td style="text-align: center;"><strong>-0.2%</strong></td>
+<td style="text-align: center;">3,576</td>
+<td style="text-align: center;">$353.28</td>
+<td style="text-align: center;"><strong>$126.33 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C340</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$340</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">9,005</td>
+<td style="text-align: center;">9,405</td>
+<td style="text-align: center;"><strong>+400</strong></td>
+<td style="text-align: center;"><strong>+4.4%</strong></td>
+<td style="text-align: center;">9,421</td>
+<td style="text-align: center;">$132.07</td>
+<td style="text-align: center;"><strong>$124.42 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>11</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C10</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$10</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">3,302</td>
+<td style="text-align: center;">3,302</td>
+<td style="text-align: center;"><strong>+0</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">3,302</td>
+<td style="text-align: center;">$354.18</td>
+<td style="text-align: center;"><strong>$116.95 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>12</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C400</code></td>
+<td style="text-align: center;"><strong>🔍 CheckVolume</strong></td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$400</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">24,918</td>
+<td style="text-align: center;">36,051</td>
+<td style="text-align: center;"><strong>+11,133</strong></td>
+<td style="text-align: center;"><strong>+44.7%</strong> 🚀</td>
+<td style="text-align: center;">36,628</td>
+<td style="text-align: center;">$29.75</td>
+<td style="text-align: center;"><strong>$108.97 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>13</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C400</code></td>
+<td style="text-align: center;"><strong>🎯 BB_Trade_Oth</strong></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$400</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">6,013</td>
+<td style="text-align: center;">8,363</td>
+<td style="text-align: center;"><strong>+2,350</strong></td>
+<td style="text-align: center;"><strong>+39.1%</strong> 🚀</td>
+<td style="text-align: center;">8,364</td>
+<td style="text-align: center;">$110.43</td>
+<td style="text-align: center;"><strong>$92.36 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>14</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C300</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$300</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">10,116</td>
+<td style="text-align: center;">11,236</td>
+<td style="text-align: center;"><strong>+1,120</strong></td>
+<td style="text-align: center;"><strong>+11.1%</strong></td>
+<td style="text-align: center;">11,194</td>
+<td style="text-align: center;">$81.70</td>
+<td style="text-align: center;"><strong>$91.45 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>15</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C300</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$300</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">4,925</td>
+<td style="text-align: center;">6,110</td>
+<td style="text-align: center;"><strong>+1,185</strong></td>
+<td style="text-align: center;"><strong>+24.1%</strong></td>
+<td style="text-align: center;">6,094</td>
+<td style="text-align: center;">$149.27</td>
+<td style="text-align: center;"><strong>$90.97 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>16</strong></td>
+<td style="text-align: left;"><code>.TSLA280616C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-06-16</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">665</td>
+<td style="text-align: center;">2,524</td>
+<td style="text-align: center;">2,520</td>
+<td style="text-align: center;"><strong>-4</strong></td>
+<td style="text-align: center;"><strong>-0.2%</strong></td>
+<td style="text-align: center;">2,520</td>
+<td style="text-align: center;">$359.65</td>
+<td style="text-align: center;"><strong>$90.63 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>17</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C300</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-06-17</td>
+<td style="text-align: center;">$300</td>
+<td style="text-align: center;">300</td>
+<td style="text-align: center;">7,407</td>
+<td style="text-align: center;">8,027</td>
+<td style="text-align: center;"><strong>+620</strong></td>
+<td style="text-align: center;"><strong>+8.4%</strong></td>
+<td style="text-align: center;">8,007</td>
+<td style="text-align: center;">$101.20</td>
+<td style="text-align: center;"><strong>$81.03 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>18</strong></td>
+<td style="text-align: left;"><code>.TSLA260918C5</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2026-09-18</td>
+<td style="text-align: center;">$5</td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">2,099</td>
+<td style="text-align: center;">2,117</td>
+<td style="text-align: center;"><strong>+18</strong></td>
+<td style="text-align: center;"><strong>+0.9%</strong></td>
+<td style="text-align: center;">2,252</td>
+<td style="text-align: center;">$357.73</td>
+<td style="text-align: center;"><strong>$80.56 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>19</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C800</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$800</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">19,551</td>
+<td style="text-align: center;">19,577</td>
+<td style="text-align: center;"><strong>+26</strong></td>
+<td style="text-align: center;"><strong>+0.1%</strong></td>
+<td style="text-align: center;">19,534</td>
+<td style="text-align: center;">$41.08</td>
+<td style="text-align: center;"><strong>$80.25 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>20</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C60</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$60</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">2,567</td>
+<td style="text-align: center;">2,568</td>
+<td style="text-align: center;"><strong>+1</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">2,568</td>
+<td style="text-align: center;">$308.05</td>
+<td style="text-align: center;"><strong>$79.11 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>21</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C50</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$50</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">2,408</td>
+<td style="text-align: center;">2,405</td>
+<td style="text-align: center;"><strong>-3</strong></td>
+<td style="text-align: center;"><strong>-0.1%</strong></td>
+<td style="text-align: center;">2,405</td>
+<td style="text-align: center;">$317.23</td>
+<td style="text-align: center;"><strong>$76.29 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>22</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C600</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$600</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">12,640</td>
+<td style="text-align: center;">12,531</td>
+<td style="text-align: center;"><strong>-109</strong></td>
+<td style="text-align: center;"><strong>-0.9%</strong></td>
+<td style="text-align: center;">11,890</td>
+<td style="text-align: center;">$63.95</td>
+<td style="text-align: center;"><strong>$76.04 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>23</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C175</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$175</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">3,592</td>
+<td style="text-align: center;">3,595</td>
+<td style="text-align: center;"><strong>+3</strong></td>
+<td style="text-align: center;"><strong>+0.1%</strong></td>
+<td style="text-align: center;">3,593</td>
+<td style="text-align: center;">$206.00</td>
+<td style="text-align: center;"><strong>$74.02 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>24</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C25</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$25</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">2,088</td>
+<td style="text-align: center;">2,088</td>
+<td style="text-align: center;"><strong>+0</strong></td>
+<td style="text-align: center;"><strong>+0.0%</strong></td>
+<td style="text-align: center;">2,088</td>
+<td style="text-align: center;">$340.40</td>
+<td style="text-align: center;"><strong>$71.08 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>25</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C450</code></td>
+<td style="text-align: center;"><strong>🎯 BB_Trade_Oth</strong></td>
+<td style="text-align: center;">2028-12-15</td>
+<td style="text-align: center;">$450</td>
+<td style="text-align: center;">847</td>
+<td style="text-align: center;">6,005</td>
+<td style="text-align: center;">7,425</td>
+<td style="text-align: center;"><strong>+1,420</strong></td>
+<td style="text-align: center;"><strong>+23.6%</strong></td>
+<td style="text-align: center;">7,397</td>
+<td style="text-align: center;">$95.78</td>
+<td style="text-align: center;"><strong>$70.85 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>26</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C300</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$300</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">5,519</td>
+<td style="text-align: center;">5,582</td>
+<td style="text-align: center;"><strong>+63</strong></td>
+<td style="text-align: center;"><strong>+1.1%</strong></td>
+<td style="text-align: center;">5,647</td>
+<td style="text-align: center;">$120.15</td>
+<td style="text-align: center;"><strong>$67.85 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>27</strong></td>
+<td style="text-align: left;"><code>.TSLA261218C200</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2026-12-18</td>
+<td style="text-align: center;">$200</td>
+<td style="text-align: center;">119</td>
+<td style="text-align: center;">4,113</td>
+<td style="text-align: center;">4,049</td>
+<td style="text-align: center;"><strong>-64</strong></td>
+<td style="text-align: center;"><strong>-1.6%</strong></td>
+<td style="text-align: center;">4,044</td>
+<td style="text-align: center;">$166.88</td>
+<td style="text-align: center;"><strong>$67.49 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>28</strong></td>
+<td style="text-align: left;"><code>.TSLA261120C350</code></td>
+<td style="text-align: center;"><strong>🎯 BB_Trade_Oth</strong></td>
+<td style="text-align: center;">2026-11-20</td>
+<td style="text-align: center;">$350</td>
+<td style="text-align: center;">91</td>
+<td style="text-align: center;">1,561</td>
+<td style="text-align: center;">16,064</td>
+<td style="text-align: center;"><strong>+14,503</strong></td>
+<td style="text-align: center;"><strong>+929.1%</strong> 🚀</td>
+<td style="text-align: center;">16,272</td>
+<td style="text-align: center;">$41.20</td>
+<td style="text-align: center;"><strong>$67.04 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>29</strong></td>
+<td style="text-align: left;"><code>.TSLA270115C200</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-01-15</td>
+<td style="text-align: center;">$200</td>
+<td style="text-align: center;">147</td>
+<td style="text-align: center;">3,894</td>
+<td style="text-align: center;">3,933</td>
+<td style="text-align: center;"><strong>+39</strong></td>
+<td style="text-align: center;"><strong>+1.0%</strong></td>
+<td style="text-align: center;">3,931</td>
+<td style="text-align: center;">$168.15</td>
+<td style="text-align: center;"><strong>$66.10 M</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>30</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C250</code></td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;">2027-12-17</td>
+<td style="text-align: center;">$250</td>
+<td style="text-align: center;">483</td>
+<td style="text-align: center;">4,353</td>
+<td style="text-align: center;">4,371</td>
+<td style="text-align: center;"><strong>+18</strong></td>
+<td style="text-align: center;"><strong>+0.4%</strong></td>
+<td style="text-align: center;">4,374</td>
+<td style="text-align: center;">$150.45</td>
+<td style="text-align: center;"><strong>$65.81 M</strong></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="watchlist-中其他紧随其后的重点监控合约-第-31-62-名">Watchlist 中其他紧随其后的重点监控合约（第 31 ~ 62 名）</h3>
+<p>在您的监控列表中，还有部分高价值/高活跃合约紧随前 30 名之后，其最新持仓数据如下：</p>
+<ul>
+<li><strong>第 31 位</strong>：<code>🎯 BB_Trade_Oth</code> <strong><code>.TSLA270115C350</code></strong>（当前价值 <strong>$62.49M</strong>，OI: 12,330 张，07/23~08/14 净增 <strong>+5,211 张 / +75.9%</strong>）</li>
+<li><strong>第 33 位</strong>：<code>🎯 BB_Trade_Oth / 🔍 CheckVolume</code> <strong><code>.TSLA270115C330</code></strong>（当前价值 <strong>$21.26M</strong>，OI: 3,441 张，净增 <strong>+935 张 / +40.2%</strong>）</li>
+<li><strong>第 34 位</strong>：<code>🔍 CheckVolume</code> <strong><code>.TSLA261218C100</code></strong>（当前价值 <strong>$42.66M</strong>，OI: 1,613 张，净增 <strong>+434 张 / +36.8%</strong>）</li>
+<li><strong>第 40 位</strong>：<code>🔍 CheckVolume</code> <strong><code>.TSLA281215C100</code></strong>（当前价值 <strong>$35.04M</strong>，OI: 1,259 张，净增 <strong>+814 张 / +182.9%</strong>）</li>
+<li><strong>第 43 位</strong>：<code>🔍 CheckVolume</code> <strong><code>.TSLA261218C400</code></strong>（当前价值 <strong>$33.31M</strong>，OI: 13,167 张，净增 <strong>+4,228 张 / +44.0%</strong>）</li>
+<li><strong>第 48 位</strong>：<code>🔍 CheckVolume</code> <strong><code>.TSLA270617C500</code></strong>（当前价值 <strong>$30.29M</strong>，OI: 10,488 张，净增 <strong>+2,650 张 / +34.8%</strong>）</li>
+<li><strong>第 52 位</strong>：<code>🔍 CheckVolume</code> <strong><code>.TSLA270115C310</code></strong>（当前价值 <strong>$28.19M</strong>，OI: 3,782 张，净增 <strong>+829 张 / +28.1%</strong>）</li>
+<li><strong>第 62 位</strong>：<code>🔍 CheckVolume</code> <strong><code>.TSLA270319C350</code></strong>（当前价值 <strong>$23.31M</strong>，OI: 3,803 张，净增 <strong>+2,875 张 / +324.5%</strong>）</li>
+</ul></section><section><h2 id="tsla_leaps_high_position_roll_and">tsla_leaps_high_position_roll_and</h2><h3 id="question-6">Question</h3><p>这4个是另一个特点 都在过去半年TSLA高位时建仓并一直持有 请查询我的DB数据或 其他数据源 在建仓日<br/>
+（1）这些期权是不是多腿组合中的一个腿<br/>
+（2）是否roll up roll down roll out组合中的一个腿<br/>
+（3）是否有对应的大的order flow 大单<br/>
+（4）从建仓日起  对TSLA后面股价的预测</p>
+<p><img alt=".TSLA281215C300 180D 4h Chart" src="images/tsla_281215c300_chart.png"/></p>
+<p><img alt=".TSLA281215C340 180D 4h Chart" src="images/tsla_281215c340_chart.png"/></p>
+<p><img alt=".TSLA281215C800 180D 4h Chart" src="images/tsla_281215c800_chart.png"/></p>
+<p><img alt=".TSLA281215C600 180D 4h Chart" src="images/tsla_281215c600_chart.png"/></p><h3 id="answer-6">Answer</h3><p>通过查询系统数据库（<code>option_flow</code> 历史大单与 <code>order_flow_big_trade</code> 现货大单），对这 4 只在过去半年高位建仓并长线锁仓的 2028 年 LEAPS 合约进行了建仓日流水与前后 30 分钟窗口内的联动复盘：</p>
+<hr/>
+<h3 id="合约-1-tsla281215c340-建仓日-2026-02-09-tsla-当时股价-420-94">合约 1：<code>.TSLA281215C340</code>（建仓日：<code>2026-02-09</code>，TSLA 当时股价：$420.94）</h3>
+<ul>
+<li><strong>期权交易时间段</strong>：<code>09:03:55 ~ 09:20:12</code></li>
+<li><strong>Order Flow 监控窗口（前后 30 分钟）</strong>：<code>08:33:55 ~ 09:50:12</code></li>
+<li><strong>组合与展期定性</strong>：<strong>多腿跨期组合</strong>，极其经典的 <strong>【Roll Out &amp; Roll Up（远期向上展期）】</strong>（卖出已盈利的 <code>2027-06 $270C</code>，换为远期 <code>2028-12 $340C</code>）。</li>
+</ul>
+<h4 id="表-1-期权大单与多腿组合明细-option-flow">表 1：期权大单与多腿组合明细 (Option Flow)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Time)</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">数量 (Qty)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额 (Premium)</th>
+<th style="text-align: center;">订单类型</th>
+<th style="text-align: center;">动作 (Action)</th>
+<th style="text-align: center;">配对编号 (SprdId)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>09:03:55</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C270</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;">543 张</td>
+<td style="text-align: center;">$189.63</td>
+<td style="text-align: center;"><strong>$10.30 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>f7274398</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>09:03:55</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C340</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">543 张</td>
+<td style="text-align: center;">$190.33</td>
+<td style="text-align: center;"><strong>$10.34 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>f7274398</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>09:04:52</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C270</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">280 张</td>
+<td style="text-align: center;">$189.08</td>
+<td style="text-align: center;"><strong>$5.29 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>1b7de19f</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>09:04:52</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C340</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">280 张</td>
+<td style="text-align: center;">$189.78</td>
+<td style="text-align: center;"><strong>$5.31 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>1b7de19f</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>09:20:12</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C270</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;">4,828 张</td>
+<td style="text-align: center;">$189.75</td>
+<td style="text-align: center;"><strong>$91.61 M</strong></td>
+<td style="text-align: center;">M2M_FLR_BLOCK</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>7cfa37a7</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>09:20:12</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C340</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;"><strong>4,828 张</strong></td>
+<td style="text-align: center;">$190.45</td>
+<td style="text-align: center;"><strong>$91.95 M</strong></td>
+<td style="text-align: center;">M2M_FLR_BLOCK</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>7cfa37a7</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade">表 2：前后 30 分钟内的 Order Flow 大单 (<code>http://127.0.0.1:5005/of_big_trade</code>)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Trade Time)</th>
+<th style="text-align: center;">报告时间 (Report)</th>
+<th style="text-align: center;">交易类型 (Type)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">真实方向</th>
+<th style="text-align: center;">成交量 (Volume)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额</th>
+<th style="text-align: center;">Tied Options 标记</th>
+<th style="text-align: center;">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>09:19:16</strong></td>
+<td style="text-align: center;">09:20:00</td>
+<td style="text-align: center;">SingleTickDarkTrade</td>
+<td style="text-align: center;">Buy</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><strong>350,000 股</strong></td>
+<td style="text-align: center;">$438.59</td>
+<td style="text-align: center;"><strong>$153.5 M</strong></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">Realtime</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>📌 <strong>Tied 研判特征</strong>：<code>09:19:16</code> 的 35 万股暗盘与 <code>09:20:12</code> 的 4,828 张（$91.95M）期权大单<strong>仅相隔 56 秒</strong>，呈现极强的时间伴生性。早盘 <code>07:02:37</code> 另有 100 万股（$4.1 亿）明确标记为 <code>tied_options=1</code> 的正股对冲大单。</p>
+</blockquote>
+<hr/>
+<h3 id="合约-2-tsla281215c300-建仓日-2026-02-13-tsla-当时股价-414-416">合约 2：<code>.TSLA281215C300</code>（建仓日：<code>2026-02-13</code>，TSLA 当时股价：$414 ~ $416）</h3>
+<ul>
+<li><strong>期权交易时间段</strong>：<code>07:36:16 ~ 07:43:27</code></li>
+<li><strong>Order Flow 监控窗口（前后 30 分钟）</strong>：<code>07:06:16 ~ 08:13:27</code></li>
+<li><strong>组合与展期定性</strong>：<strong>多腿跨期组合</strong>，标准的 <strong>【Roll Out &amp; Roll Up】</strong>（平仓 <code>2027-06 $230C/$240C</code>，开仓 <code>2028-12 $300C</code>）。</li>
+</ul>
+<h4 id="表-1-期权大单与多腿组合明细-option-flow-2">表 1：期权大单与多腿组合明细 (Option Flow)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Time)</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">数量 (Qty)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额 (Premium)</th>
+<th style="text-align: center;">订单类型</th>
+<th style="text-align: center;">动作 (Action)</th>
+<th style="text-align: center;">配对编号 (SprdId)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>07:36:16</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C240</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">300 张</td>
+<td style="text-align: center;">$207.73</td>
+<td style="text-align: center;"><strong>$6.23 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>c49dcefe</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:36:16</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C300</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;">300 张</td>
+<td style="text-align: center;">$206.03</td>
+<td style="text-align: center;"><strong>$6.18 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>c49dcefe</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:38:28</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C240</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">1,359 张</td>
+<td style="text-align: center;">$206.49</td>
+<td style="text-align: center;"><strong>$28.06 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>8430129d</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:38:28</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C300</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;"><strong>1,359 张</strong></td>
+<td style="text-align: center;">$204.79</td>
+<td style="text-align: center;"><strong>$27.83 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>8430129d</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:43:02</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C230</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">250 张</td>
+<td style="text-align: center;">$212.77</td>
+<td style="text-align: center;"><strong>$5.32 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>c6ce9a5e</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:43:02</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C300</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;">250 张</td>
+<td style="text-align: center;">$203.67</td>
+<td style="text-align: center;"><strong>$5.09 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>c6ce9a5e</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:43:27</strong></td>
+<td style="text-align: left;"><code>.TSLA270617C230</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">866 张</td>
+<td style="text-align: center;">$213.17</td>
+<td style="text-align: center;"><strong>$18.46 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>3824f3a2</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:43:27</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C300</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;"><strong>866 张</strong></td>
+<td style="text-align: center;">$204.07</td>
+<td style="text-align: center;"><strong>$17.67 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>3824f3a2</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade-2">表 2：前后 30 分钟内的 Order Flow 大单 (<code>http://127.0.0.1:5005/of_big_trade</code>)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Trade Time)</th>
+<th style="text-align: center;">报告时间 (Report)</th>
+<th style="text-align: center;">交易类型 (Type)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">真实方向</th>
+<th style="text-align: center;">成交量 (Volume)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额</th>
+<th style="text-align: center;">Tied Options 标记</th>
+<th style="text-align: center;">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>08:03:49</strong></td>
+<td style="text-align: center;">08:04:00</td>
+<td style="text-align: center;">SingleTickBigTrade</td>
+<td style="text-align: center;">Buy</td>
+<td style="text-align: center;">Sell</td>
+<td style="text-align: center;"><strong>1,000,000 股</strong></td>
+<td style="text-align: center;">$416.00</td>
+<td style="text-align: center;"><strong>$416.0 M</strong></td>
+<td style="text-align: center;"><strong>1 (是)</strong></td>
+<td style="text-align: center;">Realtime</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>📌 <strong>Tied 研判特征</strong>：在 <code>07:36 ~ 07:43</code> 完成合计 2,775 张（$56.77M）展期扫盘后约 20 分钟（<code>08:03:49</code>），正股端立即打入 <strong>100 万股（$4.16 亿美元）且标记为 <code>tied_options=1</code> 的对冲大单</strong>。</p>
+</blockquote>
+<hr/>
+<h3 id="合约-3-tsla281215c600-建仓日-2026-03-02-tsla-当时股价-398-26">合约 3：<code>.TSLA281215C600</code>（建仓日：<code>2026-03-02</code>，TSLA 当时股价：$398.26）</h3>
+<ul>
+<li><strong>期权交易时间段</strong>：<code>07:27:43 ~ 07:30:15</code></li>
+<li><strong>Order Flow 监控窗口（前后 30 分钟）</strong>：<code>06:57:43 ~ 08:00:15</code></li>
+<li><strong>组合与展期定性</strong>：<strong>多腿跨期组合</strong>，跨年向上展期 <strong>【Roll Out &amp; Roll Up】</strong>（平仓 <code>2027-12 $480C</code>，开仓 <code>2028-12 $600C</code>）。</li>
+</ul>
+<h4 id="表-1-期权大单与多腿组合明细-option-flow-3">表 1：期权大单与多腿组合明细 (Option Flow)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Time)</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">数量 (Qty)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额 (Premium)</th>
+<th style="text-align: center;">订单类型</th>
+<th style="text-align: center;">动作 (Action)</th>
+<th style="text-align: center;">配对编号 (SprdId)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>07:27:43</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C480</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">5,000 张</td>
+<td style="text-align: center;">$90.21</td>
+<td style="text-align: center;"><strong>$45.11 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>5c6abe62</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:27:43</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C600</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;"><strong>5,000 张</strong></td>
+<td style="text-align: center;">$92.21</td>
+<td style="text-align: center;"><strong>$46.11 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>5c6abe62</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:30:15</strong></td>
+<td style="text-align: left;"><code>.TSLA271217C480</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">408 张</td>
+<td style="text-align: center;">$90.61</td>
+<td style="text-align: center;"><strong>$3.70 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>1ae3dfd1</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07:30:15</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C600</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">408 张</td>
+<td style="text-align: center;">$92.61</td>
+<td style="text-align: center;"><strong>$3.78 M</strong></td>
+<td style="text-align: center;">MULTI_AUTO_COB_SWEEP</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>1ae3dfd1</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade-3">表 2：前后 30 分钟内的 Order Flow 大单 (<code>http://127.0.0.1:5005/of_big_trade</code>)</h4>
+<p><em>（注：在期权成交前后 30 分钟窗口内，系统未记录到达到单笔超额阈值的正股大单，当天主要的大额暗盘集中在午盘 13:01 出现。）</em></p>
+<hr/>
+<h3 id="合约-4-tsla281215c800-建仓日-2026-05-27-处于阶段顶点-439-55">合约 4：<code>.TSLA281215C800</code>（建仓日：<code>2026-05-27</code>，处于阶段顶点 $439.55）</h3>
+<ul>
+<li><strong>期权交易时间段</strong>：<code>12:53:19</code></li>
+<li><strong>Order Flow 监控窗口（前后 30 分钟）</strong>：<code>12:23:19 ~ 13:23:19</code></li>
+<li><strong>组合与展期定性</strong>：<strong>多腿比率跨期组合</strong>，不对称超长远期杠杆替代展期（卖出 <code>2026-11 $700C</code>，买入 <code>2028-12 $800C</code>）。</li>
+</ul>
+<h4 id="表-1-期权大单与多腿组合明细-option-flow-4">表 1：期权大单与多腿组合明细 (Option Flow)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Time)</th>
+<th style="text-align: left;">期权合约 (Contract)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">数量 (Qty)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额 (Premium)</th>
+<th style="text-align: center;">订单类型</th>
+<th style="text-align: center;">动作 (Action)</th>
+<th style="text-align: center;">配对编号 (SprdId)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>12:53:19</strong></td>
+<td style="text-align: left;"><code>.TSLA261120C700</code></td>
+<td style="text-align: center;">B (Bearish)</td>
+<td style="text-align: center;">10,000 张</td>
+<td style="text-align: center;">$12.35</td>
+<td style="text-align: center;"><strong>$12.35 M</strong></td>
+<td style="text-align: center;">MULTI_CROSS_BLOCK</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><code>29e02956</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>12:53:19</strong></td>
+<td style="text-align: left;"><code>.TSLA281215C800</code></td>
+<td style="text-align: center;">A (Bullish)</td>
+<td style="text-align: center;"><strong>15,000 张</strong></td>
+<td style="text-align: center;">$76.29</td>
+<td style="text-align: center;"><strong>$114.45 M</strong></td>
+<td style="text-align: center;">MULTI_CROSS_SPLIT</td>
+<td style="text-align: center;">Open</td>
+<td style="text-align: center;"><code>29e02956</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="表-2-前后-30-分钟内的-order-flow-大单-http-127-0-0-1-5005-of_big_trade-4">表 2：前后 30 分钟内的 Order Flow 大单 (<code>http://127.0.0.1:5005/of_big_trade</code>)</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">交易时间 (Trade Time)</th>
+<th style="text-align: center;">报告时间 (Report)</th>
+<th style="text-align: center;">交易类型 (Type)</th>
+<th style="text-align: center;">方向 (Side)</th>
+<th style="text-align: center;">真实方向</th>
+<th style="text-align: center;">成交量 (Volume)</th>
+<th style="text-align: center;">成交价</th>
+<th style="text-align: center;">成交金额</th>
+<th style="text-align: center;">Tied Options 标记</th>
+<th style="text-align: center;">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>12:53:20</strong></td>
+<td style="text-align: center;">12:54:00</td>
+<td style="text-align: center;">SingleTickBigTrade</td>
+<td style="text-align: center;">Sell</td>
+<td style="text-align: center;">--</td>
+<td style="text-align: center;"><strong>490,000 股</strong></td>
+<td style="text-align: center;">$438.15</td>
+<td style="text-align: center;"><strong>-$214.7 M</strong></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">Realtime</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>📌 <strong>Tied 研判特征</strong>：<strong>期权交易时间（<code>12:53:19</code>）与正股 49 万股抛售大单（<code>12:53:20</code>）仅相差 1 秒</strong>！这是教科书级别的<strong>跨资产 Tied Trade</strong>——现货端抛售 49 万股正股套现 2.147 亿美元，同时在期权端以 1.1445 亿美元买入 1.5 万张 2028 $800C，实现现货现金回流 + 远期杠杆拉满。</p>
+</blockquote>
+<hr/>
+<h3 id="4-从建仓日起对-tsla-后面股价的预测">（4）从建仓日起对 TSLA 后面股价的预测</h3>
+<h4 id="1-短期战术性避险-正股套现">1. 短期战术性避险（正股套现）</h4>
+<ul>
+<li>机构在 $410 ~ $440 价格区间，通过 <code>tied_options</code> 巨额正股大单（100 万股、49 万股）在现货端回收了数亿美元现金利润，成功对冲并规避了 2026 年中可能发生的深度回调风险。</li>
+</ul>
+<h4 id="2-2028-年终极目标价极高-远期目标瞄准-600-800">2. 2028 年终极目标价极高（远期目标瞄准 <code>$600 ~ $800+</code>）</h4>
+<ul>
+<li>机构单笔砸入 $1.14 亿美元在 2028 年 $800C、展期持有 5,000 张 $600C，表明其估值模型预测特斯拉在 2028 年底的合理内在价值将在 <strong>$600 ~ $800 美元以上</strong>。</li>
+</ul>
+<h4 id="3-长线持仓定力">3. 长线持仓定力</h4>
+<ul>
+<li>即使 TSLA 在 7 月底回调至 $297，由于 2028 年期权 DTE 超过 800 天且是以“零成本利润复利”方式持有，机构全程未平仓，构成 TSLA 随后强劲反弹的核心长线底盘。</li>
+</ul></section></article>
+</main>
+</body>
+</html>

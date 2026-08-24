@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - itin_to_ssn_irs_notification_process</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-22 12:39:05</span>
+<span>Question summary: itin_to_ssn_irs_notification_process</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#办理合并的具体流程-3-个步骤">办理合并的具体流程（3 个步骤）</a><ul><li><a href="#准备说明信与证明材料">准备说明信与证明材料</a></li><li><a href="#邮寄至-irs-专门处理-itin-的处理中心">邮寄至 IRS 专门处理 ITIN 的处理中心</a></li><li><a href="#后续报税与机构信息更新">后续报税与机构信息更新</a></li></ul></li><li><a href="#邮寄给-irs-的说明信模板-可直接修改打印">邮寄给 IRS 的说明信模板（可直接修改打印）</a></li><li><a href="#irs-收到后的后续">IRS 收到后的后续</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>我女儿以前一直用ITIN报税 我刚给她申请了SSN 我需要和IRS告知吗 什么流程</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<p><strong>是的，必须通知 IRS。</strong></p>
+<p>根据美国国税局（IRS）官方规定，一旦获得 <strong>SSN（社会安全号）</strong>，<strong>绝不能再继续使用旧的 ITIN</strong>。您需要通知 IRS 将她过去在 ITIN 下的所有报税、退税与收入历史记录<strong>正式合并（Combine / Merge Records）</strong>到新的 SSN 名下，并注销旧的 ITIN。</p>
+<hr/>
+<h3 id="办理合并的具体流程-3-个步骤">办理合并的具体流程（3 个步骤）</h3>
+<h4 id="准备说明信与证明材料">准备说明信与证明材料</h4>
+<p>写一封简短的书面请求信（Letter），并附上相关复印件。需要准备的材料包括：<br/>
+1. <strong>书面说明信</strong>（注明女儿姓名、旧 ITIN、新 SSN，请求合并记录，文末附有完整英文模板）。<br/>
+2. <strong>新 SSN 卡复印件</strong>（Social Security Card Copy）。<br/>
+3. <strong>旧 ITIN 确认信复印件（CP 565 Notice）</strong>（如果找不到了，附上之前包含 ITIN 的税表首页复印件亦可）。</p>
+<h4 id="邮寄至-irs-专门处理-itin-的处理中心">邮寄至 IRS 专门处理 ITIN 的处理中心</h4>
+<p>将信件和复印件挂号邮寄（Certified Mail with Tracking）至：</p>
+<blockquote>
+<p><strong>Internal Revenue Service</strong><br/>
+<strong>Austin, TX 73301-0057</strong></p>
+</blockquote>
+<p><em>(注：您也可以预约家附近的 </em><em>IRS Taxpayer Assistance Center (TAC)</em><em> 现场递交办理。)</em></p>
+<h4 id="后续报税与机构信息更新">后续报税与机构信息更新</h4>
+<ul>
+<li><strong>今后报税</strong>：从今往后所有联邦与州税申报（Form 1040），<strong>必须 100% 使用新的 SSN</strong>，旧 ITIN 自动作废。</li>
+<li><strong>第三方更新</strong>：向学校、银行（如 Chase）以及本次的裁判协会（NSO）统一提供新的 SSN，确保 1099/W-2 与报税系统统一。</li>
+</ul>
+<hr/>
+<h3 id="邮寄给-irs-的说明信模板-可直接修改打印">邮寄给 IRS 的说明信模板（可直接修改打印）</h3>
+<pre><code class="language-text">[Date: 日期, e.g., August 22, 2026]
+
+Internal Revenue Service
+Austin, TX 73301-0057
+
+Subject: Request to Combine Tax Records from ITIN to New SSN and Revoke ITIN
+
+Dear IRS Representative,
+
+I am writing to notify you that my daughter, Tingyu Bian, has recently been issued a Social Security Number (SSN). Previously, she was assigned and filed taxes under an Individual Taxpayer Identification Number (ITIN).
+
+Please revoke the old ITIN and combine/merge all her previous tax accounts, filings, and earnings records under her new Social Security Number.
+
+Taxpayer Information:
+- Full Legal Name: Tingyu Bian
+- Date of Birth: [女儿出生日期, e.g., MM/DD/YYYY]
+- Former ITIN: [旧的 ITIN 号码, 9XX-XX-XXXX]
+- New SSN: 870-86-8058
+- Current Mailing Address: 3931 258th Way SE, Sammamish, WA 98029
+
+Enclosures:
+1. Copy of the new Social Security Card
+2. Copy of the former ITIN assignment notice (CP 565) / Previous Tax Return
+
+Thank you for your assistance.
+
+Sincerely,
+
+_____________________________
+Tingyu Bian (or signed by Zhijie Bian, Parent/Guardian)
+Phone: [您的电话]
+</code></pre>
+<hr/>
+<h3 id="irs-收到后的后续">IRS 收到后的后续</h3>
+<p>IRS 在收到并处理信件后（通常需要数周至两个月），会在系统中完成数据合并，并将旧 ITIN 标记为注销。在此期间，新生成的税务表格（如这次裁判工作的 1099 表格）使用新 SSN 完全不受影响。</p>
+</section>
+</article>
+</main>
+</body>
+</html>

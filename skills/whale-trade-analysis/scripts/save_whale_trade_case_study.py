@@ -175,6 +175,79 @@ def main():
             if args.verify != "Pending":
                 existing.actual_result = args.verify
 
+            # Compute spot if not provided
+            def parse_val(val_str):
+                if not val_str: return 0.0
+                val_str = str(val_str).replace('$', '').replace(',', '').strip()
+                mult = 1.0
+                if val_str.endswith(('M', 'm')): mult, val_str = 1e6, val_str[:-1].strip()
+                elif val_str.endswith(('K', 'k')): mult, val_str = 1e3, val_str[:-1].strip()
+                elif val_str.endswith(('B', 'b')): mult, val_str = 1e9, val_str[:-1].strip()
+                try: return abs(float(val_str)) * mult
+                except ValueError: return 0.0
+
+            def parse_table(md_text):
+                if not md_text: return []
+                lines = [l.strip() for l in md_text.split('\n') if l.strip().startswith('|')]
+                if len(lines) < 3: return []
+                headers = [c.strip() for c in lines[0].split('|')[1:-1]]
+                rows = []
+                for line in lines[2:]:
+                    cols = [c.strip() for c in line.split('|')[1:-1]]
+                    if len(cols) == len(headers):
+                        rows.append(dict(zip(headers, cols)))
+                return rows
+
+            def extract_spot(of_text, ord_text, target_ticker):
+                target_ticker = (target_ticker or '').strip().upper()
+                # 1. Options Flow
+                of_rows = parse_table(of_text)
+                valid_of = []
+                for r in of_rows:
+                    row_ticker = (r.get('Ticker') or '').strip().upper()
+                    if row_ticker and target_ticker and row_ticker != target_ticker: continue
+                    spot_val = r.get('Spot') or r.get('SpotPrice') or r.get('Spot Price')
+                    prem_val = r.get('Premium') or r.get('Prem') or r.get('Net Premium')
+                    if spot_val:
+                        try:
+                            s_num = float(spot_val.replace('$', '').replace(',', '').strip())
+                            p_num = parse_val(prem_val) if prem_val else 0.0
+                            if p_num == 0.0 and 'Qty' in r and 'Price' in r:
+                                p_num = parse_val(r['Qty']) * parse_val(r['Price']) * 100
+                            valid_of.append((p_num, s_num))
+                        except Exception: pass
+                if valid_of:
+                    valid_of.sort(key=lambda x: x[0], reverse=True)
+                    return round(valid_of[0][1], 2)
+                # 2. Order Flow
+                ord_rows = parse_table(ord_text)
+                valid_ord = []
+                for r in ord_rows:
+                    row_ticker = (r.get('Ticker') or '').strip().upper()
+                    if row_ticker and target_ticker and row_ticker != target_ticker: continue
+                    spot_val = r.get('Spot') or r.get('SpotPrice') or r.get('Price') or r.get('Spot Price') or r.get('TgtPrice')
+                    prem_val = r.get('Premium') or r.get('Prem') or r.get('Net Premium')
+                    if spot_val:
+                        try:
+                            s_num = float(spot_val.replace('$', '').replace(',', '').strip())
+                            p_num = parse_val(prem_val) if prem_val else 0.0
+                            if p_num == 0.0 and 'Volume' in r:
+                                p_num = parse_val(r['Volume']) * s_num
+                            valid_ord.append((p_num, s_num))
+                        except Exception: pass
+                if valid_ord:
+                    valid_ord.sort(key=lambda x: x[0], reverse=True)
+                    return round(valid_ord[0][1], 2)
+                return None
+
+            computed_spot = extract_spot(
+                current_detail.get("inputs", {}).get("options_flow_md", ""),
+                current_detail.get("inputs", {}).get("order_flow_md", ""),
+                args.ticker
+            )
+            if computed_spot is not None:
+                existing.spot = computed_spot
+
             db.session.commit()
             print("Successfully updated case study record in database.")
         else:
@@ -200,6 +273,74 @@ def main():
                 with open(args.order_flow_file, "r", encoding="utf-8") as f:
                     new_detail["inputs"]["order_flow_md"] = f.read().strip()
 
+            def parse_val(val_str):
+                if not val_str: return 0.0
+                val_str = str(val_str).replace('$', '').replace(',', '').strip()
+                mult = 1.0
+                if val_str.endswith(('M', 'm')): mult, val_str = 1e6, val_str[:-1].strip()
+                elif val_str.endswith(('K', 'k')): mult, val_str = 1e3, val_str[:-1].strip()
+                elif val_str.endswith(('B', 'b')): mult, val_str = 1e9, val_str[:-1].strip()
+                try: return abs(float(val_str)) * mult
+                except ValueError: return 0.0
+
+            def parse_table(md_text):
+                if not md_text: return []
+                lines = [l.strip() for l in md_text.split('\n') if l.strip().startswith('|')]
+                if len(lines) < 3: return []
+                headers = [c.strip() for c in lines[0].split('|')[1:-1]]
+                rows = []
+                for line in lines[2:]:
+                    cols = [c.strip() for c in line.split('|')[1:-1]]
+                    if len(cols) == len(headers):
+                        rows.append(dict(zip(headers, cols)))
+                return rows
+
+            def extract_spot(of_text, ord_text, target_ticker):
+                target_ticker = (target_ticker or '').strip().upper()
+                of_rows = parse_table(of_text)
+                valid_of = []
+                for r in of_rows:
+                    row_ticker = (r.get('Ticker') or '').strip().upper()
+                    if row_ticker and target_ticker and row_ticker != target_ticker: continue
+                    spot_val = r.get('Spot') or r.get('SpotPrice') or r.get('Spot Price')
+                    prem_val = r.get('Premium') or r.get('Prem') or r.get('Net Premium')
+                    if spot_val:
+                        try:
+                            s_num = float(spot_val.replace('$', '').replace(',', '').strip())
+                            p_num = parse_val(prem_val) if prem_val else 0.0
+                            if p_num == 0.0 and 'Qty' in r and 'Price' in r:
+                                p_num = parse_val(r['Qty']) * parse_val(r['Price']) * 100
+                            valid_of.append((p_num, s_num))
+                        except Exception: pass
+                if valid_of:
+                    valid_of.sort(key=lambda x: x[0], reverse=True)
+                    return round(valid_of[0][1], 2)
+                ord_rows = parse_table(ord_text)
+                valid_ord = []
+                for r in ord_rows:
+                    row_ticker = (r.get('Ticker') or '').strip().upper()
+                    if row_ticker and target_ticker and row_ticker != target_ticker: continue
+                    spot_val = r.get('Spot') or r.get('SpotPrice') or r.get('Price') or r.get('Spot Price') or r.get('TgtPrice')
+                    prem_val = r.get('Premium') or r.get('Prem') or r.get('Net Premium')
+                    if spot_val:
+                        try:
+                            s_num = float(spot_val.replace('$', '').replace(',', '').strip())
+                            p_num = parse_val(prem_val) if prem_val else 0.0
+                            if p_num == 0.0 and 'Volume' in r:
+                                p_num = parse_val(r['Volume']) * s_num
+                            valid_ord.append((p_num, s_num))
+                        except Exception: pass
+                if valid_ord:
+                    valid_ord.sort(key=lambda x: x[0], reverse=True)
+                    return round(valid_ord[0][1], 2)
+                return None
+
+            computed_spot = extract_spot(
+                new_detail["inputs"].get("options_flow_md", ""),
+                new_detail["inputs"].get("order_flow_md", ""),
+                args.ticker
+            )
+
             study = WhaleTradeCaseStudy(
                 case_date=case_date_val,
                 ticker=args.ticker,
@@ -208,12 +349,13 @@ def main():
                 summary=args.summary,
                 detail=new_detail,
                 actual_result=args.verify,
+                spot=computed_spot,
                 ai_model=args.ai_model
             )
 
             db.session.add(study)
             db.session.commit()
-            print("Successfully inserted new case study record in database.")
+            print(f"Successfully inserted new case study record in database with spot: {computed_spot}.")
 
 if __name__ == "__main__":
     main()

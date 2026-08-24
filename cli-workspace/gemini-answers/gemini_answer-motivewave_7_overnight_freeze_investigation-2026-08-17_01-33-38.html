@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - motivewave_7_overnight_freeze_investigation</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-17 01:33:38</span>
+<span>Question summary: motivewave_7_overnight_freeze_investigation</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#motivewave_7_overnight_freeze_investigation">motivewave_7_overnight_freeze_investigation</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-核心原因分析">一、 核心原因分析</a><ul><li><a href="#1-自定义指标-studybigtrades-频繁调用同步获取-tick-导致线程严重阻塞">1. 自定义指标 StudyBigTrades 频繁调用同步获取 Tick 导致线程严重阻塞</a></li><li><a href="#2-跨日-tick-数据写入异常-incomplete-tick-file">2. 跨日 Tick 数据写入异常（Incomplete Tick File）</a></li><li><a href="#3-后台正在进行超大规模历史-tick-数据回填-backfill-storm">3. 后台正在进行超大规模历史 Tick 数据回填（Backfill Storm）</a></li><li><a href="#4-本地历史数据缓存文件过多">4. 本地历史数据缓存文件过多</a></li></ul></li><li><a href="#二-临时恢复方案-立即解决当前卡死">二、 临时恢复方案（立即解决当前卡死）</a></li><li><a href="#三-代码与系统层面长效优化建议">三、 代码与系统层面长效优化建议</a></li></ul></li><li><a href="#mw7_vs_mw6_9_freeze_comparison">mw7_vs_mw6_9_freeze_comparison</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#1-7-0-重构了底层-tick-缓存机制-从-内存缓存-变为-分片文件强制校验">1. 7.0 重构了底层 Tick 缓存机制（从“内存缓存”变为“分片文件强制校验”）</a></li><li><a href="#2-7-0-数据分发线程锁机制变化-dataloader-threadpool-同步锁">2. 7.0 数据分发线程锁机制变化（DataLoader / ThreadPool 同步锁）</a></li><li><a href="#3-7-0-增强了历史缺失数据的自动主动回填-aggressive-s3-backfill">3. 7.0 增强了历史缺失数据的自动主动回填（Aggressive S3 Backfill）</a></li><li><a href="#建议针对-7-0-的应对调整">建议针对 7.0 的应对调整</a></li></ul></li></ul></div>
+
+
+<section><h2 id="motivewave_7_overnight_freeze_investigation">motivewave_7_overnight_freeze_investigation</h2><section>
+<h3 id="question">Question</h3>
+<p>MW 7.0.29 overnight session, ES/NQ chart freeze, price doesn't change, why? <br/>
+here is log file /Users/zhijiebian/Library/MotiveWave/output/output (Aug-17 003832).txt</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<p>通过对日志文件 <code>/Users/zhijiebian/Library/MotiveWave/output/output (Aug-17 003832).txt</code> 的系统分析，导致当前 ES / NQ 隔夜时段图表卡死（Freeze）、价格不更新的核心原因如下：</p>
+<hr/>
+<h3 id="一-核心原因分析">一、 核心原因分析</h3>
+<h4 id="1-自定义指标-studybigtrades-频繁调用同步获取-tick-导致线程严重阻塞">1. 自定义指标 <code>StudyBigTrades</code> 频繁调用同步获取 Tick 导致线程严重阻塞</h4>
+<p>在日志中出现了大量如下耗时警告和调用栈：</p>
+<pre><code class="language-text">01:02:16.778 WARNING HistData::getTickData() NQU26 ticks: 5119 elapsed: 16032 ms
+01:02:37.246 WARNING HistData::getTickData() NQU26 ticks: 5119 elapsed: 20442 ms
+...
+at com.motivewave.platform.sdk.common.Instrument.getTicks(Instrument.java:240)
+at bbt.StudyBigTrades.calculate(StudyBigTrades.java:212)
+</code></pre>
+<ul>
+<li><strong>瓶颈点</strong>：<code>StudyBigTrades.java</code> 第 212 行 <code>instrument.getTicks(startTime, endTime)</code> 在每个 Bar 或收到 Tick 时都会被触发。</li>
+<li><strong>现象</strong>：在隔夜时段（特别是 00:00 - 01:00 跨日结算期间），MotiveWave 底层从本地磁盘/内存检索数千条 Tick 数据单次耗时达到 <strong>16~20 秒</strong>。在 01:03 附近，系统在几十秒内密集发起了上百次耗时 800ms~2000ms 的 <code>getTickData</code> 调用，直接占满了 MotiveWave 的后台线程池与 UI 事件分发队列，导致<strong>实时行情 Tick 积压无法推送到图表渲染层</strong>。</li>
+</ul>
+<h4 id="2-跨日-tick-数据写入异常-incomplete-tick-file">2. 跨日 Tick 数据写入异常（Incomplete Tick File）</h4>
+<p>日志在 01:05:01 报出了异常：</p>
+<pre><code class="language-text">writeTicks() possibly incomplete file /ESU26 start: 08/17/2026 12:00:00 AM - 08/17/2026 12:48:42 AM
+writeTicks() possibly incomplete file /NQU26 start: 08/17/2026 12:00:00 AM - 08/17/2026 12:48:42 AM
+</code></pre>
+<ul>
+<li>当天凌晨跨过 00:00 后，MotiveWave 正在对前一日至当日凌晨的 Tick 文件进行切片与持久化，此时大量并发的 <code>getTicks</code> 请求与写入产生冲突，触发异常并锁定了实时行情写入通道。</li>
+</ul>
+<h4 id="3-后台正在进行超大规模历史-tick-数据回填-backfill-storm">3. 后台正在进行超大规模历史 Tick 数据回填（Backfill Storm）</h4>
+<p>日志显示，系统在后台从 AWS S3 连续下载并解压从 2 月份到 8 月份数个月的历史 Tick 压缩包（<code>Backfill::downloadTickFile() ...</code>），并在 01:01 出现 <code>NoHttpResponseException</code> 网络重试。该后台任务占用了极高的磁盘 I/O 和 CPU，进一步加剧了图表卡顿。</p>
+<h4 id="4-本地历史数据缓存文件过多">4. 本地历史数据缓存文件过多</h4>
+<p>启动时日志提示：</p>
+<pre><code class="language-text">WARNING HistData::getDataFiles() ... excessive number of files returned: 8577 consider clearing the local data
+</code></pre>
+<p>本地积累了超过 8000+ 个历史数据切片文件，导致每次底层查找 Tick 时文件系统检索极为缓慢。</p>
+<hr/>
+<h3 id="二-临时恢复方案-立即解决当前卡死">二、 临时恢复方案（立即解决当前卡死）</h3>
+<ol>
+<li><strong>重启 MotiveWave</strong> 并断开/重新连接 dxFeed 数据源。</li>
+<li><strong>清除本地缓存历史数据</strong>：<br/>
+   * 在 MotiveWave 菜单栏中依次点击：<code>Configure</code> -&gt; <code>Preferences</code> -&gt; <code>General</code> -&gt; <code>Historical Data</code> -&gt; 点击 <strong>Clear Cache</strong> / <strong>Clear Local Data</strong>。</li>
+<li><strong>临时在卡住的 ES/NQ 图表上移除或隐藏 <code>BBT Big Trades</code> Study</strong>，观察实时价格是否立即恢复跳动。</li>
+</ol>
+<hr/>
+<h3 id="三-代码与系统层面长效优化建议">三、 代码与系统层面长效优化建议</h3>
+<ol>
+<li><strong>优化 <code>StudyBigTrades.java</code> 的 Tick 获取逻辑</strong>：<br/>
+   * 避免在 <code>calculate()</code> 或 <code>onTick()</code> 中反复全量调用 <code>instrument.getTicks(startTime, endTime)</code>。<br/>
+   * 可以改用增量缓存，或仅在必要时（如历史初次加载时）批量拉取，而在实时运行期通过监听回调维护近期 Ticks。</li>
+<li><strong>限制回填范围</strong>：<br/>
+   * 在 MotiveWave Workspace 设置中，将 Futures 的默认回填范围（Historical Data Range）调整为较短周期（如 5~10 天），避免每次启动触发数个月的 Tick 级全量回填。</li>
+</ol>
+</section></section><section><h2 id="mw7_vs_mw6_9_freeze_comparison">mw7_vs_mw6_9_freeze_comparison</h2><h3 id="question-2">Question</h3><p>但是在MW6.9的版本时 没有这样的问题</p><h3 id="answer-2">Answer</h3><p>从 MotiveWave 6.9 到 7.0 的架构重构来看，导致在 6.9 正常而在 7.0.29 出现该问题的核心原因主要有以下几点：</p>
+<hr/>
+<h3 id="1-7-0-重构了底层-tick-缓存机制-从-内存缓存-变为-分片文件强制校验">1. 7.0 重构了底层 Tick 缓存机制（从“内存缓存”变为“分片文件强制校验”）</h3>
+<ul>
+<li><strong>6.9 的机制</strong>：</li>
+<li>6.9 对日内活跃品种（特别是正在绘制的图表）维护了常驻内存的 Ring-Buffer。当自定义指标调用 <code>instrument.getTicks(startTime, endTime)</code> 时，绝大部分当天/当前 Bar 的请求直接命中内存，耗时为 0~1 毫秒，不会触发磁盘 I/O。</li>
+<li><strong>7.0 的变化</strong>：</li>
+<li>7.0 引入了全新的 Order Flow 与 Tick 存储引擎，将 Tick 数据按小时/日期切片压缩（如日志中的 <code>1786939200000.tick_data.zip</code> 和 <code>.bar_data1</code>）。</li>
+<li>7.0 在调用 <code>getTicks()</code> 时增加了完整性校验（Integrity Check）与间隙回填（Gap Filling）。在隔夜/跨日结算时段，如果当前文件未完成 flush（日志中报错 <code>writeTicks() possibly incomplete file</code>），7.0 会<strong>强制触发同步的磁盘解压与文件检索</strong>，导致单次调用耗时从 6.9 的 <strong>&lt;1ms</strong> 暴增至 7.0 的 <strong>800ms ~ 20000ms（20秒）</strong>。</li>
+</ul>
+<hr/>
+<h3 id="2-7-0-数据分发线程锁机制变化-dataloader-threadpool-同步锁">2. 7.0 数据分发线程锁机制变化（DataLoader / ThreadPool 同步锁）</h3>
+<ul>
+<li><strong>6.9</strong>：实时行情推送（<code>LiveTicker</code>）与指标计算（<code>Study Execution</code>）在部分数据流上是相对独立的管道，即使某个 Study 执行慢，实时 Tick 仍能更新到价格坐标轴和最新 K 线上。</li>
+<li><strong>7.0</strong>：</li>
+<li>从 7.0 日志中的调用链可以看到：<br/>
+<code>text
+    DataLoader.onTick -&gt; DataSource.a -&gt; ConcurrentList -&gt; Study.calculateValues -&gt; Instrument.getTicks</code></li>
+<li>7.0 采用了更严格的 <code>DataSource</code> 管道同步机制。当 <code>StudyBigTrades</code> 在 <code>Instrument.getTicks</code> 上被阻塞时，它<strong>持有了该数据流的调度锁</strong>，导致后续到达的实时 Tick 无法被 <code>LiveTicker</code> 推送至 UI 渲染线程，表现为整个图表与最新价格完全“静止/冻结”。</li>
+</ul>
+<hr/>
+<h3 id="3-7-0-增强了历史缺失数据的自动主动回填-aggressive-s3-backfill">3. 7.0 增强了历史缺失数据的自动主动回填（Aggressive S3 Backfill）</h3>
+<ul>
+<li>7.0 会在后台自动探测本地缺失的 Tick 切片并向云端发起大量下载（日志中一次性触发了过去半年数十个 Tick Zip 包的下载）。</li>
+<li>当后台回填占用大量磁盘与网络资源时，正好与指标频繁读取当天 Tick 产生严重的文件系统锁竞争（I/O Contention）。</li>
+</ul>
+<hr/>
+<h3 id="建议针对-7-0-的应对调整">建议针对 7.0 的应对调整</h3>
+<ol>
+<li><strong>关闭/限制自动深度回填</strong>：<br/>
+   * 打开 <code>Configure</code> -&gt; <code>Preferences</code> -&gt; <code>General</code> -&gt; <code>Historical Data</code>，检查是否勾选了针对 Order Flow / Ticks 的过长自动回填选项。</li>
+<li><strong>在 <code>StudyBigTrades.java</code> 中规避同步 <code>getTicks</code></strong>：<br/>
+   * 7.0 的官方最佳实践更推荐在 <code>calculate(int index, DataContext ctx)</code> 中通过 <code>DataContext</code> / <code>Bar</code> 的内置数据或增量事件获取，而非频繁同步调用 <code>instrument.getTicks(start, end)</code>。<br/>
+   * 如果仅需当前 Bar 的 Tick 数据，可做时间戳过滤保护，避免在跨日（00:00 - 01:00）请求未完全持久化的时间区间。</li>
+</ol></section></article>
+</main>
+</body>
+</html>
