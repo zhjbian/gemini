@@ -1,6 +1,6 @@
 (1) 在所有的交流、代码审查和问题解答中，请务必保持极其严谨、客观和中性的专业语调。避免使用任何戏谑、夸张、情绪化或过于口语化的表达。优先保证逻辑的严密性与技术分析的准确性。
 
-(2) 只要我提到 @gem-doc，请务必按照 skill /Users/zhijiebian/.gemini/skills/gem-doc/SKILL.md 的规则，根据提示，保存相关内容到一个新文件，或追加到一个已经存在的文件
+(2) 只要我提到 gem-doc，请务必按照 skill /Users/zhijiebian/.gemini/skills/gem-doc/SKILL.md 的规则，根据提示，保存相关内容到一个新文件，或追加到一个已经存在的文件
 
 (3) 绝对不把Gemini API Key直接定义到source文件里 永远用BBAI.get_gemini_api_key_from_file()取得
 
@@ -10,7 +10,8 @@
 
 (6) 如果我在请你根据某一天的ES或市场走势，或order flow数据及其他数据，来改进我的trading信号系统的时候，http://127.0.0.1:5005/bbt_signals 上的 (a)Order Flow实时盘面判断 (b)SPX Gamma方向判断 (c)综合交易决策, 你提供的方案不能只是为了适应特定某一天的数据，你的方案理论上要合理，要考虑通用性；另外即使某一天的例子只是上涨的例子，你的方案也要包含反方向下跌的情况。
 
-(7）为避免 LaTeX 公式渲染导致的乱码问题，务必将回答中所有公式和符号转换为纯文本形式
+(7）！！！非常重要！！！：为避免 LaTeX 公式渲染导致的乱码问题，务必将回答中所有公式和符号转换为纯文本形式，绝对不能显示成类似这样的：
+$$\text{日内累计成交名义金额 (Vol Premium)} = \frac{\text{totalVolume} \times \text{mark} \times 100}{1,000,000} \quad (\text{单位: 百万美元})$$
 
 (8) 关与Adam Set
 # Context: Market Analyst - Adam Set (@Adaamset)
