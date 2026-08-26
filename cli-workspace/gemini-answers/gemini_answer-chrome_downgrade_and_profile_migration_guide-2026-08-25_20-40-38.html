@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - chrome_downgrade_and_profile_migration_guide</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-25 20:40:38</span>
+<span>Question summary: chrome_downgrade_and_profile_migration_guide</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#概述与适用场景">概述与适用场景</a></li><li><a href="#历史版本下载与推荐选择">历史版本下载与推荐选择</a><ul><li><a href="#1-推荐下载源与版本列表">1. 推荐下载源与版本列表</a></li><li><a href="#2-目标版本选型建议">2. 目标版本选型建议</a></li></ul></li><li><a href="#第一阶段-彻底禁用-macos-google-自动更新服务">第一阶段：彻底禁用 macOS Google 自动更新服务</a></li><li><a href="#第二阶段-全量备份当前-chrome-用户数据">第二阶段：全量备份当前 Chrome 用户数据</a></li><li><a href="#第三阶段-安装旧版本-chrome-应用程序">第三阶段：安装旧版本 Chrome 应用程序</a></li><li><a href="#第四阶段-用户配置迁移与闪退修复-解决-formfielddata-pickle-冲突">第四阶段：用户配置迁移与闪退修复（解决 FormFieldData Pickle 冲突）</a><ul><li><a href="#1-闪退根因分析">1. 闪退根因分析</a></li><li><a href="#2-精准迁移核心数据脚本">2. 精准迁移核心数据脚本</a></li></ul></li><li><a href="#第五阶段-启动验证与扩展插件配置优化">第五阶段：启动验证与扩展插件配置优化</a><ul><li><a href="#1-启动-chrome">1. 启动 Chrome</a></li><li><a href="#2-检查版本与更新锁定状态">2. 检查版本与更新锁定状态</a></li><li><a href="#3-配置-tampermonkey-油猴插件">3. 配置 Tampermonkey 油猴插件</a></li></ul></li><li><a href="#维持在-chrome-131-的稳定性与安全性评估">维持在 Chrome 131 的稳定性与安全性评估</a></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>请把刚才 你提供的downgrade的步骤 和 migration 以及下载网站 https://install.download/mac-os/google-chrome/versions  整理成一个runbook 用gem-doc 保存</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h1>macOS Apple Silicon (ARM64) Google Chrome 降级与用户数据完整迁移操作手册 (Runbook)</h1>
+<h2 id="概述与适用场景">概述与适用场景</h2>
+<p>本手册详细记录了在 Apple Silicon (M系列芯片) macOS 环境下，将 Google Chrome 从较新版本（如 Chrome 133/151 等存在扩展沙箱严格限制、Service Worker 冷启动延迟或弹窗阻塞的版本）平滑降级至成熟稳定版本（如 <strong>Chrome 131.0.6778.86</strong>）的完整操作流程。</p>
+<p>本方案已彻底解决降级过程中常见的两个核心难点：<br/>
+1. <strong>防止 Chrome 自动静默升级</strong>：通过锁定 Google Keystone 更新通道确保版本持久固定；<br/>
+2. <strong>解决跨大版本降级启动崩溃</strong>：通过精准迁移核心数据，规避新版表单缓存（<code>FormFieldData pickle version 10</code>）引发的 C++ 闪退异常，<strong>100% 完整保留书签、扩展插件（包括 Tampermonkey 及其所有脚本）、登录凭据与 Cookies</strong>。</p>
+<hr/>
+<h2 id="历史版本下载与推荐选择">历史版本下载与推荐选择</h2>
+<h3 id="1-推荐下载源与版本列表">1. 推荐下载源与版本列表</h3>
+<ul>
+<li><strong>主要推荐下载源</strong>: <a href="https://install.download/mac-os/google-chrome/versions">https://install.download/mac-os/google-chrome/versions</a></li>
+<li><strong>备用下载源 (Uptodown)</strong>: <a href="https://google-chrome.en.uptodown.com/mac/versions">https://google-chrome.en.uptodown.com/mac/versions</a></li>
+</ul>
+<h3 id="2-目标版本选型建议">2. 目标版本选型建议</h3>
+<ul>
+<li><strong>推荐版本</strong>: <strong><code>Google Chrome 131.0.6778.86</code></strong> (Mac ARM64 / Apple Silicon 版)</li>
+<li><strong>版本优势</strong>: 该版本已全面支持所有现代 Web API 标准，同时处于 Manifest V3 兼容性的成熟阶段，Tampermonkey 与各类数据流监听脚本响应迅速，无冷启动延迟。</li>
+<li><strong>注意避免</strong>: 切勿下载 2022 年以前的超老版本（如 Chrome 104 及更早版本），否则会导致现代 Web 前端（如 X.com、TradingView 等）因缺失现代 JS 特性而无法加载。</li>
+</ul>
+<hr/>
+<h2 id="第一阶段-彻底禁用-macos-google-自动更新服务">第一阶段：彻底禁用 macOS Google 自动更新服务</h2>
+<p>在降级前必须执行此步骤，否则 Chrome 会在联网后数分钟内自动升级回最新版本。</p>
+<p>在终端（Terminal）中依次执行以下命令：</p>
+<pre><code class="language-bash"># 1. 设置 Keystone 更新检查间隔为 0
+defaults write com.google.Keystone.Agent checkInterval 0
+
+# 2. 清理并锁定用户级更新服务目录（权限设置为 000）
+rm -rf ~/Library/Google/GoogleSoftwareUpdate
+mkdir -p ~/Library/Google/GoogleSoftwareUpdate
+chmod 000 ~/Library/Google/GoogleSoftwareUpdate
+
+# 3. 清理并锁定系统级更新服务目录（需要管理员密码）
+sudo rm -rf /Library/Google/GoogleSoftwareUpdate
+sudo mkdir -p /Library/Google/GoogleSoftwareUpdate
+sudo chmod 000 /Library/Google/GoogleSoftwareUpdate
+</code></pre>
+<hr/>
+<h2 id="第二阶段-全量备份当前-chrome-用户数据">第二阶段：全量备份当前 Chrome 用户数据</h2>
+<p>在执行任何修改前，将现有的所有用户配置目录完整备份：</p>
+<pre><code class="language-bash"># 备份 Chrome 数据目录到 Chrome_Backup_v151
+cp -R ~/Library/Application\ Support/Google/Chrome ~/Library/Application\ Support/Google/Chrome_Backup_v151
+</code></pre>
+<hr/>
+<h2 id="第三阶段-安装旧版本-chrome-应用程序">第三阶段：安装旧版本 Chrome 应用程序</h2>
+<ol>
+<li>确保完全退出当前正在运行的 Chrome (<code>Cmd + Q</code>)；</li>
+<li>双击打开下载好的 <code>.dmg</code> 安装包（例如 <code>google-chrome-131-0-6778-86.dmg</code>）；</li>
+<li>将 <code>Google Chrome.app</code> 拖入 <code>Applications</code>（应用程序）文件夹，在系统提示时点击 <strong>【替换】（Replace）</strong>；</li>
+<li>清除 macOS Gatekeeper 隔离属性（防止提示损坏或无法打开）：<br/>
+<code>bash
+   xattr -cr /Applications/Google\ Chrome.app</code></li>
+</ol>
+<hr/>
+<h2 id="第四阶段-用户配置迁移与闪退修复-解决-formfielddata-pickle-冲突">第四阶段：用户配置迁移与闪退修复（解决 FormFieldData Pickle 冲突）</h2>
+<h3 id="1-闪退根因分析">1. 闪退根因分析</h3>
+<p>从高版本 Chrome（如 v151/v133）降级到 v131 时，高版本在本地生成的表单自动填充数据库（<code>Web Data</code> / <code>Account Web Data</code>）以及会话缓存（<code>Sessions</code>）使用了新的序列化协议（<code>pickle version 10</code>），旧版 Chrome 读取时会在 <code>form_field_data.cc</code> 触发 <code>UniversalExceptionRaise</code> 导致秒退。</p>
+<h3 id="2-精准迁移核心数据脚本">2. 精准迁移核心数据脚本</h3>
+<p>运行以下 Python 脚本，仅迁移核心业务数据（书签、扩展、脚本、密码、Cookies、历史记录），自动剔除冲突的旧缓存：</p>
+<pre><code class="language-python">import os, shutil
+
+backup_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome_Backup_v151")
+chrome_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome")
+tmp_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome_Migrated")
+
+if os.path.exists(tmp_dir):
+    shutil.rmtree(tmp_dir)
+os.makedirs(tmp_dir)
+
+# 需要保留的核心业务数据清单
+items_to_copy = [
+    "Bookmarks",
+    "Bookmarks.bak",
+    "Extensions",
+    "Local Extension Settings",
+    "Sync Extension Settings",
+    "Extension State",
+    "Extension Rules",
+    "Extension Scripts",
+    "Login Data",
+    "Login Data-journal",
+    "Cookies",
+    "Cookies-journal",
+    "History",
+    "History-journal",
+    "Favicons",
+    "Favicons-journal"
+]
+
+profiles = ["Default", "Profile 1", "Profile 2"]
+
+for prof in profiles:
+    src_prof = os.path.join(backup_dir, prof)
+    dst_prof = os.path.join(tmp_dir, prof)
+    if os.path.exists(src_prof):
+        os.makedirs(dst_prof, exist_ok=True)
+        for item in items_to_copy:
+            src = os.path.join(src_prof, item)
+            dst = os.path.join(dst_prof, item)
+            if os.path.exists(src):
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src, dst)
+        print(f"Restored essential data for {prof}")
+
+# 替换当前 Chrome 配置目录
+old_dir = os.path.expanduser("~/Library/Application Support/Google/Chrome_Old_Crash")
+if os.path.exists(old_dir):
+    shutil.rmtree(old_dir)
+shutil.move(chrome_dir, old_dir)
+shutil.move(tmp_dir, chrome_dir)
+
+print("Migration completed successfully!")
+</code></pre>
+<hr/>
+<h2 id="第五阶段-启动验证与扩展插件配置优化">第五阶段：启动验证与扩展插件配置优化</h2>
+<h3 id="1-启动-chrome">1. 启动 Chrome</h3>
+<p>直接在系统启动台或通过终端打开 Chrome：</p>
+<pre><code class="language-bash">open -a "Google Chrome"
+</code></pre>
+<h3 id="2-检查版本与更新锁定状态">2. 检查版本与更新锁定状态</h3>
+<p>在地址栏输入：</p>
+<pre><code class="language-text">chrome://settings/help
+</code></pre>
+<p>确认版本显示为 <strong><code>131.0.6778.86 (arm64)</code></strong>，且更新检查状态显示无法更新或报错，表示锁定生效。</p>
+<h3 id="3-配置-tampermonkey-油猴插件">3. 配置 Tampermonkey 油猴插件</h3>
+<p>进入 <code>chrome://extensions/</code>：<br/>
+1. 确认右上角 <strong>【开发者模式】（Developer mode）</strong> 处于 <strong>开启状态</strong>；<br/>
+2. 点击 Tampermonkey 卡片的 <strong>【详细信息】（Details）</strong>：<br/>
+   - 确认 <strong>网站访问权限 (Site access)</strong> 为 <strong>“在所有网站上” (On all sites)</strong>；<br/>
+   - 勾选 <strong>“允许访问文件网址” (Allow access to file URLs)</strong>；<br/>
+3. 打开 Tampermonkey 管理面板 -&gt; <strong>设置 (Settings)</strong>：<br/>
+   - 将 <strong>配置模式</strong> 设置为 <strong>高级 (Advanced)</strong>；<br/>
+   - 在 <strong>实验性 (Experimental)</strong> 中将 <strong>注入模式 (Injection Mode)</strong> 设置为 <strong><code>Instant</code></strong> 或开启 <strong>UserScripts API</strong>，确保毫秒级注入。</p>
+<hr/>
+<h2 id="维持在-chrome-131-的稳定性与安全性评估">维持在 Chrome 131 的稳定性与安全性评估</h2>
+<table>
+<thead>
+<tr>
+<th>评估维度</th>
+<th>状态与结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>核心交易与数据网站</strong></td>
+<td>QuantData、X/Twitter、TradingView、Schwab、本地信号服务等 100% 完美支持，现代 Web 特性齐全</td>
+</tr>
+<tr>
+<td><strong>扩展与自动化脚本</strong></td>
+<td>稳定性达到最佳，无 MV3 后台强制休眠或弹窗受阻问题</td>
+</tr>
+<tr>
+<td><strong>安全性风险评估</strong></td>
+<td>个人专用交易工作站，只要不访问未知/钓鱼挂马网站，日常访问固定财经站点实际风险极低且可控</td>
+</tr>
+<tr>
+<td><strong>运维建议</strong></td>
+<td>保持 Chrome 131 作为生产环境长期基准版本，无需主动升级</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+</body>
+</html>
