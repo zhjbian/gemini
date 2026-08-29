@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>交易系统核心规则定义综合全集手册 (Trading System Comprehensive Rules Manual)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --accent: #f59e0b;
+      --bg: #f8fafc;
+      --sidebar-bg: #ffffff;
+      --panel-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-focus: #38bdf8;
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-sub: #64748b;
+      --bull: #10b981;
+      --bull-bg: #ecfdf5;
+      --bull-border: #a7f3d0;
+      --bear: #ef4444;
+      --bear-bg: #fef2f2;
+      --bear-border: #fecaca;
+      --trap: #f59e0b;
+      --trap-bg: #fffbeb;
+      --trap-border: #fde68a;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.68;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: 360px;
+      min-width: 360px;
+      height: 100vh;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+      z-index: 20;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-title i {
+      color: var(--primary);
+    }
+
+    .brand-subtitle {
+      font-size: 0.80rem;
+      color: var(--text-sub);
+      font-weight: 500;
+      margin-top: 4px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .search-box input:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 11px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px 40px;
+    }
+
+    .nav-group {
+      margin-bottom: 20px;
+    }
+
+    .nav-group-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #f8fafc;
+      margin-bottom: 6px;
+    }
+    .nav-group-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .nav-list {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 2px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      line-height: 1.35;
+      transition: all 0.15s ease;
+    }
+    .nav-link:hover {
+      background: #f0f9ff;
+      color: var(--primary-dark);
+    }
+    .nav-link.active {
+      background: #e0f2fe;
+      color: #0369a1;
+      font-weight: 600;
+    }
+
+    .nav-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #e2e8f0;
+      color: #475569;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .nav-link.active .nav-num {
+      background: #0284c7;
+      color: #ffffff;
+    }
+
+    /* Main View */
+    .main-view {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Sticky Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-primary {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+    .badge-success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .topbar-links {
+      display: flex;
+      gap: 8px;
+    }
+    .topbar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .topbar-btn:hover {
+      background: #f1f5f9;
+      color: var(--primary);
+      border-color: #cbd5e1;
+    }
+
+    /* Reading Container */
+    .content-area {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 36px 48px 80px;
+    }
+
+    /* Hero Banner */
+    .hero-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      padding: 36px 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-header::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0;
+      width: 320px; height: 100%;
+      background: radial-gradient(circle, rgba(2, 132, 199, 0.25) 0%, rgba(2, 132, 199, 0) 70%);
+      pointer-events: none;
+    }
+    .hero-header h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
+    .hero-header p {
+      font-size: 1.02rem;
+      color: #94a3b8;
+      max-width: 900px;
+      line-height: 1.6;
+    }
+
+    /* Part Heading Banner */
+    .part-heading {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 54px;
+      margin-bottom: 24px;
+      padding: 14px 20px;
+      background: #ffffff;
+      border-left: 6px solid var(--primary);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Chapter Cards */
+    .rule-card {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px 36px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+      transition: box-shadow 0.2s ease;
+    }
+    .rule-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    }
+
+    .chapter-heading {
+      font-size: 1.30rem;
+      font-weight: 700;
+      color: #0369a1;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f1f5f9;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Rule Sub-Headings (H4) */
+    .rule-heading {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-top: 26px;
+      margin-bottom: 12px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: #f8fafc;
+      border-left: 4px solid #94a3b8;
+      color: #1e293b;
+    }
+    .rule-bull {
+      background: var(--bull-bg);
+      border-left-color: var(--bull);
+      color: #065f46;
+    }
+    .rule-bear {
+      background: var(--bear-bg);
+      border-left-color: var(--bear);
+      color: #991b1b;
+    }
+    .rule-trap {
+      background: var(--trap-bg);
+      border-left-color: var(--trap);
+      color: #92400e;
+    }
+    .rule-calc {
+      background: #f0f9ff;
+      border-left-color: #0284c7;
+      color: #075985;
+    }
+
+    /* Sub-rule Section (H5) */
+    .subrule-heading {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #334155;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      padding: 4px 8px;
+      background: #f1f5f9;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* Deep Nested Lists & Indentations */
+    p {
+      margin-bottom: 12px;
+      color: #334155;
+    }
+    
+    /* Level 1 List */
+    ul, ol {
+      margin-top: 8px;
+      margin-bottom: 18px;
+      padding-left: 28px;
+    }
+    li {
+      margin-bottom: 8px;
+      color: #1e293b;
+      line-height: 1.65;
+    }
+    
+    /* Level 2 Nested List: Distinct indentation and background hint */
+    li > ul, li > ol {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      padding-left: 24px;
+      border-left: 3px solid #cbd5e1;
+      background: rgba(248, 250, 252, 0.6);
+      border-radius: 0 6px 6px 0;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+    li > ul > li {
+      font-size: 0.94rem;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    
+    /* Level 3 Nested List */
+    li > ul > li > ul {
+      margin-top: 6px;
+      margin-bottom: 8px;
+      padding-left: 20px;
+      border-left: 2px dashed #94a3b8;
+      background: #ffffff;
+    }
+    li > ul > li > ul > li {
+      font-size: 0.89rem;
+      color: #475569;
+    }
+
+    strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    /* Formulas and Code */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      background: #f8fafc;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+    .code-formula {
+      background: #ecfdf5 !important;
+      color: #065f46 !important;
+      border: 1px solid #a7f3d0 !important;
+      font-weight: 600;
+      padding: 2px 8px !important;
+      border-radius: 6px !important;
+    }
+
+    pre {
+      background: #f8fafc;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+      padding: 16px 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 16px 0;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.90rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #f8fafc;
+      color: #1e293b;
+      font-weight: 700;
+      border-right: 1px solid var(--border);
+    }
+    td {
+      border-right: 1px solid var(--border);
+    }
+    tr:nth-child(even) {
+      background: #fcfdfe;
+    }
+    tr:hover {
+      background: #f0f9ff;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 30px 0;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        display: none;
+      }
+      .content-area {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="brand-title"><i class="fas fa-layer-group"></i> 交易系统核心规则手册</div>
+    <div class="brand-subtitle">BBTrading Rules & Quant Manual</div>
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="ruleSearch" placeholder="快速检索规则、阈值或公式..." oninput="filterNav(this.value)">
+    </div>
+  </div>
+  <div class="sidebar-scroll">
+    <div class="nav-group">
+      <div class="nav-group-title"><a href="#part-1">第一部分: Order Flow 订单流分析规则 (Order Flow Analysis Rules)</a></div>
+      <ul class="nav-list">
+        <li class="nav-item" data-title="日内定性 (day type) 判定规则">
+          <a href="#chapter-1" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">1</span>
+            <span class="nav-text">日内定性 (Day Type) 判定规则</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="日内强度定量评分计算规则 (scoring breakdown, 100分制)">
+          <a href="#chapter-2" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">2</span>
+            <span class="nav-text">日内强度定量评分计算规则 (Scoring Breakdown, 100分制)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="订单流实时信号哨兵规则引擎 (order flow sentinel rule engine: 5-min ticks & dom)">
+          <a href="#chapter-3" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">3</span>
+            <span class="nav-text">订单流实时信号哨兵规则引擎 (Order Flow Sentinel Rule Engine: 5-Min Ticks & DOM)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="实时信号置信度等级判定规则 (signal strength: high vs normal)">
+          <a href="#chapter-4" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">4</span>
+            <span class="nav-text">实时信号置信度等级判定规则 (Signal Strength: High vs Normal)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="adam set 核心 dom 盘口深度与微观结构规则 (level 0-200)">
+          <a href="#chapter-5" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">5</span>
+            <span class="nav-text">Adam Set 核心 DOM 盘口深度与微观结构规则 (Level 0-200)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="dom 4 个子模块的 bullish / bearish 判定规则与 ui 设计">
+          <a href="#chapter-6" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">6</span>
+            <span class="nav-text">DOM 4 个子模块的 Bullish / Bearish 判定规则与 UI 设计</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="ticks 与 dom 数据的分工、基础权重占比与最终研判裁决逻辑">
+          <a href="#chapter-7" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">7</span>
+            <span class="nav-text">Ticks 与 DOM 数据的分工、基础权重占比与最终研判裁决逻辑</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="趋势日均线带防护罩规则 (trend day shield)">
+          <a href="#chapter-8" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">8</span>
+            <span class="nav-text">趋势日均线带防护罩规则 (Trend Day Shield)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="smashelito 关键点位与支撑阻力强度判定">
+          <a href="#chapter-9" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">9</span>
+            <span class="nav-text">Smashelito 关键点位与支撑阻力强度判定</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title"><a href="#part-2">第二部分: SPX 0DTE Gamma 规则 (SPX 0DTE Gamma Rules)</a></div>
+      <ul class="nav-list">
+        <li class="nav-item" data-title="做市商对冲机制与两大市场状态 (market regimes)">
+          <a href="#chapter-10" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">10</span>
+            <span class="nav-text">做市商对冲机制与两大市场状态 (Market Regimes)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="核心关键 gamma 水位体系">
+          <a href="#chapter-11" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">11</span>
+            <span class="nav-text">核心关键 Gamma 水位体系</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="0dte 盘中动态演变与时效特征">
+          <a href="#chapter-12" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">12</span>
+            <span class="nav-text">0DTE 盘中动态演变与时效特征</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title"><a href="#part-3">第三部分: 其他系统规则 (Other System Rules)</a></div>
+      <ul class="nav-list">
+        <li class="nav-item" data-title="异常价格毛刺与数据清洗规则 (price spike & noise cleanup)">
+          <a href="#chapter-13" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">13</span>
+            <span class="nav-text">异常价格毛刺与数据清洗规则 (Price Spike & Noise Cleanup)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="个股多资产交叉流规则 (cross-asset flow rules - tsla & meta)">
+          <a href="#chapter-14" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">14</span>
+            <span class="nav-text">个股多资产交叉流规则 (Cross-Asset Flow Rules - TSLA & META)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="信号发布与微观数据时差认知规则 (post timing delay recognition)">
+          <a href="#chapter-15" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">15</span>
+            <span class="nav-text">信号发布与微观数据时差认知规则 (Post Timing Delay Recognition)</span>
+          </a>
+        </li>
+        <li class="nav-item" data-title="大模型分析防幻觉与保真强制约束 (anti-hallucination constraints)">
+          <a href="#chapter-16" class="nav-link" onclick="setActiveNav(this)">
+            <span class="nav-num">16</span>
+            <span class="nav-text">大模型分析防幻觉与保真强制约束 (Anti-Hallucination Constraints)</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+  <main class="main-view">
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="badge badge-primary"><i class="fas fa-shield-halved"></i> 生产运行级手册</span>
+        <span class="badge badge-success"><i class="fas fa-check-circle"></i> 100% 纯文本公式 (无乱码)</span>
+        <span class="badge badge-primary"><i class="fas fa-bolt"></i> 双引擎: Ticks + DOM</span>
+      </div>
+      <div class="topbar-links">
+        <a href="#part-1" class="topbar-btn"><i class="fas fa-chart-line"></i> 第一部分: Order Flow</a>
+        <a href="#part-2" class="topbar-btn"><i class="fas fa-atom"></i> 第二部分: SPX Gamma</a>
+        <a href="#part-3" class="topbar-btn"><i class="fas fa-sliders"></i> 第三部分: 其他规则</a>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <div class="hero-header">
+        <h1>交易系统核心规则定义综合全集手册</h1>
+        <p>BBTrading 交易平台（包括 <code>ai_tape_analyst.py</code>、<code>order_flow_sentinel.py</code> 与 <code>bbt_signals</code> Web 终端）所有底层量化规则、微观结构定性、SPX 0DTE Gamma 动态对冲及大模型保真约束的完整技术规范。</p>
+      </div>
+
+      <div class="content-wrapper"><p>本手册系统性整合了量化交易分析平台（包括 <code>ai_tape_analyst.py</code>、<code>order_flow_sentinel.py</code>、<code>bbt_signals</code> 网页端及衍生量化计算模块）中定义的所有核心规则。内容涵盖底层数据清洗、微观盘口定性、量化指标评分、大模型研判约束、SPX 0DTE Gamma 做市商对冲模型以及跨资产流动性验证标准。</p><hr/><h2 class="part-heading" id="part-1">第一部分：Order Flow 订单流分析规则 (Order Flow Analysis Rules)</h2><article class="rule-card" id="card-chapter-1"><h3 class="chapter-heading" id="chapter-1">日内定性 (Day Type) 判定规则</h3><p>系统依据盘前 (PM) 及常规交易时段 (RTH) 的累计 Delta、价格变动效率、关键价位吸收特征，将盘面划分为五种核心定性基调（Day Type），默认为 <strong>Balanced（均衡震荡）</strong>。</p><h4 class="rule-heading rule-bull">1. Passive Buying (被动买方吸收)</h4><p>判定满足以下<strong>任意一条</strong>即可定性为 Passive Buying：</p><ul>
+<li><strong>全天逆势吸收</strong>:<ul>
+<li>条件: <code class="code-formula">total_delta &lt; -15000</code> 且 <code class="code-formula">rth_price_change &gt;= -5.0</code></li>
+<li>机制: 全天出现超万手大额主动净卖出，但 RTH 价格极为抗跌，甚至收盘跌幅不足 5 点，表明主动砸盘筹码被大额被动限价买单全部吸收。</li>
+</ul>
+</li>
+<li><strong>盘前极端抛压吸收</strong>:<ul>
+<li>条件: <code>pm_delta &lt; -500000</code> 且 <code class="code-formula">pac &gt;= 0.9</code> 且 <code>pm_price_change &gt; 10.0</code> 且 <code class="code-formula">rth_price_change &gt;= -10.0</code></li>
+<li>机制: 盘前极端抛压被完全消化并逆势大涨，RTH 开盘后未出现破坏性回调。</li>
+</ul>
+</li>
+<li><strong>量价大级别逆势反转</strong>:<ul>
+<li>条件: <code class="code-formula">total_delta &lt; 0</code> 且 <code class="code-formula">rth_price_change &gt;= 20.0</code> 且 <code>bull_absorb_count &gt; bear_absorb_count</code></li>
+<li>机制: 全天净 Delta 为负，但价格逆势暴涨超过 20 点，且看多吸收信号数量显著多于看空吸收。</li>
+</ul>
+</li>
+<li><strong>底部极值区域被动托盘</strong>:<ul>
+<li>条件: <code>bottom_zone_delta &lt; -10000</code> 且 <code class="code-formula">bottom_zone_dper &gt; -1.5</code></li>
+<li>机制: 在全天价格振幅最低的 25% 极值区域（Bottom 25% Zone）内，承受超过 1 万手主动抛盘，但该区域的 DPER (价格推进效率) 大于 -1.5（即每 1000 手净卖单打压价格不足 1.5 点），确认为主力被动筑底。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading rule-bear">2. Passive Selling (被动卖方拦截)</h4><p>判定满足以下<strong>任意一条</strong>即可定性为 Passive Selling（为防止将单边暴跌趋势误判为高位拦截，硬性限制 <code>rth_price_change &gt; -20.0</code>）：</p><ul>
+<li><strong>全天逆势滞涨</strong>:<ul>
+<li>条件: <code class="code-formula">total_delta &gt; 15000</code> 且 <code class="code-formula">rth_price_change &lt;= 5.0</code></li>
+<li>机制: 全天出现超万手大额主动净买入，但 RTH 价格严重受阻无法上涨，表明主动买盘撞上冰山卖单墙。</li>
+</ul>
+</li>
+<li><strong>盘前极端买盘拦截</strong>:<ul>
+<li>条件: <code>pm_delta &gt; 500000</code> 且 <code class="code-formula">pac &gt;= 0.9</code> 且 <code>pm_price_change &lt; -10.0</code> 且 <code class="code-formula">rth_price_change &lt;= 10.0</code></li>
+</ul>
+</li>
+<li><strong>量价大级别冲高回落</strong>:<ul>
+<li>条件: <code class="code-formula">total_delta &gt; 0</code> 且 <code class="code-formula">rth_price_change &lt;= -25.0</code> 且 <code>bear_absorb_count &gt; bull_absorb_count</code></li>
+</ul>
+</li>
+<li><strong>顶部极值区域被动拦截</strong>:<ul>
+<li>条件: <code>top_zone_delta &gt; 10000</code> 且 <code class="code-formula">top_zone_dper &lt; 1.5</code></li>
+<li>机制: 在全天价格振幅最高的 25% 极值区域（Top 25% Zone）内，消耗超过 1 万手买盘，但每 1000 手买盘推升价格不足 1.5 点，确认为主力高位派发。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading rule-bull">3. Active Buying (主动多头推进)</h4><p>满足以下条件定性为 Active Buying：</p><ul>
+<li><strong>触发条件</strong>: <code class="code-formula">total_delta &gt; 15000</code> 且 <code class="code-formula">rth_price_change &gt;= 20.0</code> 且 <code class="code-formula">dper &gt;= 1.5</code></li>
+<li><strong>机制说明</strong>: 主动买盘大额放量，价格单边大幅拉升，且全天价格推进效率 DPER 达到至少 1.5 点 / 1000手 Delta。</li>
+</ul><h4 class="rule-heading rule-bear">4. Active Selling (主动空头推进)</h4><p>满足以下条件定性为 Active Selling：</p><ul>
+<li><strong>触发条件</strong>: <code class="code-formula">total_delta &lt; -15000</code> 且 <code class="code-formula">rth_price_change &lt;= -20.0</code> 且 <code class="code-formula">dper &gt;= 1.5</code></li>
+<li><strong>机制说明</strong>: 主动卖盘大额放量砸盘，价格单边大幅下挫，且打压效率绝对值达到至少 1.5 点 / 1000手 Delta。</li>
+</ul><h4 class="rule-heading rule-bull">5. Balanced (多空均衡震荡)</h4><ul>
+<li><strong>判定基准</strong>: 未满足上述四类极端特征时，归类为 Balanced 状态。</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-2"><h3 class="chapter-heading" id="chapter-2">日内强度定量评分计算规则 (Scoring Breakdown, 100分制)</h3><p>系统通过 5 个微观与宏观维度对当前订单流定性的确定性进行量化打分（满分 100 分）：
+<code class="code-formula">总分 = Zone DPER Score + Delta Score + Volume Score + 30-Min Score + 5-Min Score</code></p><h4 class="rule-heading rule-calc">(1) Zone DPER Score (关键区域价格推进效率, 40% 权重, 满分 40 分)</h4><ul>
+<li><strong>Passive Buying</strong>:<ul>
+<li>公式: <code class="code-formula">min(max(-bottom_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code></li>
+<li>说明: 底部区域 DPER 越偏负，说明打压每 1000 手的价格下挫越小，吸收越强；当负值达到 -2.0 时即获满分 40 分。</li>
+</ul>
+</li>
+<li><strong>Passive Selling</strong>:<ul>
+<li>公式: <code class="code-formula">min(max(-top_zone_dper, 0.0) / 2.0, 1.0) * 40.0</code></li>
+</ul>
+</li>
+<li><strong>Active Buying / Active Selling</strong>:<ul>
+<li>公式: <code class="code-formula">min(abs(dper) / 2.0, 1.0) * 40.0</code></li>
+</ul>
+</li>
+</ul><h4 class="rule-heading rule-calc">(2) Delta Score (全天累积 Delta 绝对强度, 10% 权重, 满分 10 分)</h4><ul>
+<li><strong>计算公式</strong>: <code class="code-formula">min(abs(total_delta) / 30000.0, 1.0) * 10.0</code></li>
+<li><strong>说明</strong>: 当全天累计 Delta 绝对值达到 30,000 手时获得满分 10 分。</li>
+</ul><h4 class="rule-heading rule-calc">(3) Volume Score (总成交量基础, 10% 权重, 满分 10 分)</h4><ul>
+<li><strong>计算公式</strong>: <code class="code-formula">min(total_volume / 2000000.0, 1.0) * 10.0</code></li>
+<li><strong>说明</strong>: 全天总成交量达到 2,000,000 手（200万手）基准时获得满分 10 分。</li>
+</ul><h4 class="rule-heading rule-calc">(4) 30-Min Divergence / Push Score (30分钟背离与推进, 20% 权重, 满分 20 分)</h4><ul>
+<li><strong>Passive Buying (30分钟背离)</strong>:<ul>
+<li>触发: <code>tb30d &lt; -5000</code> 且 <code class="code-formula">tb30p &gt;= -10.0</code></li>
+<li>公式: <code class="code-formula">10.0 + min((abs(tb30d) - 5000.0) / 10000.0, 1.0) * 10.0</code></li>
+<li>说明: 基础分 10 分，根据超出 5000 手的抛压程度线性递增至最高 20 分。</li>
+</ul>
+</li>
+<li><strong>Passive Selling (30分钟背离)</strong>:<ul>
+<li>触发: <code>tu30d &gt; 5000</code> 且 <code class="code-formula">tu30p &lt;= 10.0</code></li>
+<li>公式: <code class="code-formula">10.0 + min((abs(tu30d) - 5000.0) / 10000.0, 1.0) * 10.0</code></li>
+</ul>
+</li>
+<li><strong>Active Buying / Selling (30分钟顺势推进)</strong>:<ul>
+<li>公式: <code class="code-formula">min(abs(rth_price_change) / 40.0, 1.0) * 20.0</code></li>
+</ul>
+</li>
+</ul><h4 class="rule-heading rule-calc">(5) 5-Min Squeeze / Acceleration Score (5分钟微观极值与挤压, 20% 权重, 满分 20 分)</h4><ul>
+<li><strong>Passive Buying (5分钟微观挤压)</strong>:<ul>
+<li>触发: <code>tb5d &lt; -4000</code> 且 <code class="code-formula">tb5p &gt;= -10.0</code></li>
+<li>公式: <code class="code-formula">10.0 + min((abs(tb5d) - 4000.0) / 11000.0, 1.0) * 10.0</code></li>
+</ul>
+</li>
+<li><strong>Passive Selling (5分钟微观挤压)</strong>:<ul>
+<li>触发: <code>tu5d &gt; 4000</code> 且 <code class="code-formula">tu5p &lt;= 10.0</code></li>
+<li>公式: <code class="code-formula">10.0 + min((abs(tu5d) - 4000.0) / 11000.0, 1.0) * 10.0</code></li>
+</ul>
+</li>
+<li><strong>Active Buying / Selling</strong>:<ul>
+<li>触发: 5 分钟放量推进 <code>tu5d &gt; 4000</code> 且 <code class="code-formula">tu5p &gt;= 10.0</code>，赋分最高 20 分。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">(6) 等级划分区间 (Grade Boundaries)</h4><ul>
+<li><strong>High (高确定性)</strong>: 总分 &gt;= 75 分</li>
+<li><strong>Medium (中度可靠)</strong>: 45 分 &lt;= 总分 &lt; 75 分</li>
+<li><strong>Low (弱信号/噪音)</strong>: 总分 &lt; 45 分</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-3"><h3 class="chapter-heading" id="chapter-3">订单流实时信号哨兵规则引擎 (Order Flow Sentinel Rule Engine: 5-Min Ticks &amp; DOM)</h3><p>本模块对应量化系统核心常驻哨兵进程 <code>order_flow_sentinel.py</code>，在常规交易时段（RTH 06:30 - 13:00 西雅图时间）每 5 分钟快速轮询一次。系统采用<strong>双引擎并行毫秒级定量扫描架构</strong>，分别对“已成交成交流 (Ticks Flow)”与“未成交挂单深度微观势能 (DOM Flow)”进行实时特征提炼与联合裁决；当且仅当命中极端异动条件时，事件驱动唤醒大模型 AI 进行全盘深度研判。</p><h4 class="rule-heading">1. 5分钟 Tick 成交流规则引擎 (Ticks Flow Engine)</h4><h5 class="subrule-heading">(1) 基础微观评估与全局预设 (Base Pre-conditions)</h5><ul>
+<li><strong>多头预设 (<code>pre_bullish</code>)</strong>:<ul>
+<li>规则: RTH 累计 Delta 占总成交量比例 <code class="code-formula">Delta%Vol &lt;= 1.5%</code></li>
+<li>逻辑: 确认空头已释放充分，处于低位筑底反转区。</li>
+</ul>
+</li>
+<li><strong>空头预设 (<code>pre_bearish</code>)</strong>:<ul>
+<li>规则: RTH 累计 Delta 占总成交量比例 <code class="code-formula">Delta%Vol &gt;= 1.5%</code></li>
+<li>逻辑: 确认多头已推高至高位，处于顶部翻转区。</li>
+</ul>
+</li>
+</ul><h5 class="subrule-heading">(2) 微观触发因子 (Conditions A / B / C / D)</h5><ul>
+<li><strong>条件 A (15分钟放量动能)</strong>:<ul>
+<li>多头: 最近 15 分钟 Delta &gt;= 8000 手，或单根 5 分钟 Delta &gt;= 6000 手。</li>
+<li>空头: 最近 15 分钟 Delta &lt;= -8000 手，或单根 5 分钟 Delta &lt;= -6000 手。</li>
+</ul>
+</li>
+<li><strong>条件 B (高效推进与单根极端吞没)</strong>:<ul>
+<li>多头: 单根 5 分钟价格上涨 &gt;= 10.0 点伴随正 Delta。</li>
+<li>空头: 单根 5 分钟价格下跌 &lt;= -10.0 点伴随负 Delta。</li>
+</ul>
+</li>
+<li><strong>条件 C (CVD 累计背离回撤/回升)</strong>:<ul>
+<li>多头: 累计 Delta 从日内低谷回升 &gt;= 10000 手，或 30 分钟净 Delta &gt; 5000 手。</li>
+<li>空头: 累计 Delta 从日内高峰回撤 &gt;= 10000 手，或 30 分钟净 Delta &lt; -5000 手。</li>
+</ul>
+</li>
+<li><strong>条件 D (持续价量共振)</strong>:<ul>
+<li>多头: 最近 30 分钟价格上涨 &gt;= 15 点且净 Delta &gt; 0。</li>
+<li>空头: 最近 30 分钟价格下跌 &lt;= -15 点且净 Delta &lt; 0。</li>
+</ul>
+</li>
+</ul><h5 class="subrule-heading">(3) 三大 Tick 优化规则引擎 (Optimized Rules)</h5><ul>
+<li><strong>方案一：2 小时大单净量安全网 (Big Trade Net Filter)</strong>:<ul>
+<li>统计过去 2 小时机构大单（&gt;= 100 手）累计净量：</li>
+<li>若 2 小时大单净买量 &gt;= 3000 手：<strong>硬性屏蔽所有看空信号 (<code>blocked_bear_by_block_buy</code>)</strong>。</li>
+<li>若 2 小时大单净卖量 &lt;= -3000 手：<strong>硬性屏蔽所有看多信号 (<code>blocked_bull_by_block_sell</code>)</strong>。</li>
+</ul>
+</li>
+<li>
+<p><strong>方案二：被动吸筹/分发背离强制激活 (Passive Absorption / Distribution)</strong>:</p>
+<ul>
+<li><strong>被动多头吸筹 (<code>passive_bull_absorption</code>)</strong>:<ul>
+<li>条件: 过去 30 分钟 <code>net_delta_30m &lt; -4000</code>，但价格跌幅收窄 <code class="code-formula">price_change_30m &gt;= -5.0</code>，且处于低位 <code class="code-formula">price_position_pct &lt;= 30.0%</code>。</li>
+<li>裁决: <strong>强制激活看多判定</strong>。</li>
+</ul>
+</li>
+<li><strong>被动空头分发 (<code>passive_bear_distribution</code>)</strong>:<ul>
+<li>条件: 过去 30 分钟 <code>net_delta_30m &gt; 4000</code>，但价格涨幅受阻 <code class="code-formula">price_change_30m &lt;= 5.0</code>，且处于高位 <code class="code-formula">price_position_pct &gt;= 70.0%</code>。</li>
+<li>裁决: <strong>强制激活看空判定</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>方案三：时间衰减加权大单评分与相对位置覆写</strong>:</p>
+<ul>
+<li><strong>低位机构吸筹强行触发 (<code>inst_bull_accumulation</code>)</strong>:<ul>
+<li>条件: 近 2 小时大单净量 &gt;= 3000 手或得分 &gt;= 1500，且处于低位 <code class="code-formula">price_position_pct &lt;= 45.0%</code>。</li>
+<li>裁决: <strong>强制触发看多 HIGH 信号</strong>。</li>
+</ul>
+</li>
+<li><strong>高位机构出货强行触发 (<code>inst_bear_distribution</code>)</strong>:<ul>
+<li>条件: 近 2 小时大单净量 &lt;= -3000 手或得分 &lt;= -1500，且处于高位 <code class="code-formula">price_position_pct &gt;= 55.0%</code>。</li>
+<li>裁决: <strong>强制触发看空 HIGH 信号</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">2. 5分钟 DOM 盘口深度规则引擎 (DOM 500ms Time-Series Engine)</h4><h5 class="subrule-heading">(1) 500ms 离散网格与微观动量建模</h5><ul>
+<li><strong>600 步长离散网格</strong>: 在 5 分钟（300 秒）窗口内，划分 600 个 500ms 均匀时间戳，采用前向填充（Forward-Fill）追踪全景 0-199 档挂单深度。</li>
+<li><strong>5 分钟微观动量 (<code class="code-formula">imb_momentum</code>)</strong>:<ul>
+<li>公式: <code class="code-formula">imb_momentum = late_w_imb (后半段 2.5m 均值) - early_w_imb (前半段 2.5m 均值)</code></li>
+<li>判定: 若动量显著偏正（&gt; +0.04），表明买单防线持续增厚抢筹；若动量显著偏负（&lt; -0.04），表明买盘撤单溃退，卖压加速堆积。</li>
+</ul>
+</li>
+<li><strong>500ms 阶跃差分 (Spoofing / Stacking)</strong>:<ul>
+<li>相邻 500ms 步长之间近端挂单净减 &lt; -50 计为撤单；净增 &gt; 50 计为堆单。</li>
+</ul>
+</li>
+<li><strong>持续真空秒数统计 (<code>vacuum_sec</code>)</strong>:<ul>
+<li>累计单档挂单不足 10 手的步长总数并转换为秒数，要求实质断层持续 &gt;= 1.5 秒以规避瞬态扰动。</li>
+</ul>
+</li>
+</ul><h5 class="subrule-heading">(2) 核心微观结构规则判定</h5><ul>
+<li>
+<p><strong>流动性真空逼空与破位规则 (Vacuum Squeeze &amp; Breakdown)</strong>:</p>
+<ul>
+<li><strong>多头逼空触发 (<code>dom_bull_vacuum_squeeze</code>)</strong>:<ul>
+<li>条件: 最近 5 分钟检测到卖方真空持续 <code class="code-formula">vacuum_ask_sec &gt;= 1.5s</code> 且近端失衡或动量看多（<code class="code-formula">imb_near &gt; 0.05</code> 或 <code class="code-formula">imb_momentum &gt; 0.04</code>）且买方堆单加固 <code class="code-formula">stack_bid &gt;= stack_ask</code>。</li>
+<li>裁决: 判定卖方防线出现实质性断层，<strong>强制激活 Bullish HIGH 信号</strong>。</li>
+</ul>
+</li>
+<li><strong>空头雪崩触发 (<code>dom_bear_vacuum_breakdown</code>)</strong>:<ul>
+<li>条件: 最近 5 分钟检测到买方真空持续 <code class="code-formula">vacuum_bid_sec &gt;= 1.5s</code> 且近端失衡或动量看空（<code class="code-formula">imb_near &lt; -0.05</code> 或 <code class="code-formula">imb_momentum &lt; -0.04</code>）且卖方堆单压制 <code class="code-formula">stack_ask &gt;= stack_bid</code>。</li>
+<li>裁决: 判定买方托单断层溃败，<strong>强制激活 Bearish HIGH 信号</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>微观冰山密集吸收与最高覆写规则 (Micro Iceberg Burst)</strong>:</p>
+<ul>
+<li><strong>底部强冰山吸筹 (<code>dom_bull_iceberg_burst</code>)</strong>:<ul>
+<li>条件: 最近 5 分钟多头冰山单 <code class="code-formula">iceberg_bull &gt;= 2</code> 次（大额市价卖单砸盘但价格不跌），且处于相对中低位 <code class="code-formula">price_position_pct &lt;= 45.0%</code>。</li>
+<li>裁决: <strong>DOM 被动吸收享有最高覆写权 (Override)，强制激活 Bullish HIGH 信号</strong>。</li>
+</ul>
+</li>
+<li><strong>高位强冰山派发 (<code>dom_bear_iceberg_burst</code>)</strong>:<ul>
+<li>条件: 最近 5 分钟空头冰山单 <code class="code-formula">iceberg_bear &gt;= 2</code> 次（大额市价买单推升但价格不涨），且处于相对中高位 <code class="code-formula">price_position_pct &gt;= 55.0%</code>。</li>
+<li>裁决: 判定为主力高位冰山挂单拦截，<strong>强制激活 Bearish HIGH 信号</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>虚假撤单诱多/诱空陷阱过滤规则 (Spoofing Trap Filter)</strong>:</p>
+<ul>
+<li><strong>诱多假托单陷阱 (<code>spoof_bull_trap</code>)</strong>:<ul>
+<li>条件: 买方撤单占比 &gt;= 70% 且 <code class="code-formula">spoof_bid &gt; 2 * spoof_ask</code>（总撤单 &gt;= 10 次）。</li>
+<li>裁决: <strong>硬性封杀一切看多信号 (<code>block_bull_by_spoof = True</code>)</strong>。</li>
+</ul>
+</li>
+<li><strong>诱空假压单陷阱 (<code>spoof_bear_trap</code>)</strong>:<ul>
+<li>条件: 卖方撤单占比 &gt;= 70% 且 <code class="code-formula">spoof_ask &gt; 2 * spoof_bid</code>（总撤单 &gt;= 10 次）。</li>
+<li>裁决: <strong>硬性封杀一切看空信号 (<code>block_bear_by_spoof = True</code>)</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">3. 双引擎联合裁决与 AI 协同触发时序 (Dual-Engine Execution Flow)</h4><ol>
+<li>
+<p><strong>毫秒级本地评估</strong>: 常规 5 分钟轮询由本地 Python 纯规则在 2-3 秒内完成 56,000+ Ticks 与 600 个 500ms DOM 网格步长的提取与规则评估，零网络阻塞；</p>
+</li>
+<li>
+<p><strong>信号汇总与陷阱安全防护</strong>:</p>
+<ul>
+<li>若 Tick 引擎触发 HIGH 信号，或 DOM 引擎触发 HIGH 信号，汇总激活对应多空方向；</li>
+<li>若命中 DOM 诱多/诱空撤单陷阱，执行最高级别安全拦截，强制覆写取消触发；</li>
+</ul>
+</li>
+<li>
+<p><strong>冷却校验 (Cooldown)</strong>: 同一方向在 30 分钟内仅允许触发一次，防止短线连续脉冲引发重复报警；</p>
+</li>
+<li>
+<p><strong>事件驱动唤醒 AI 深度研判</strong>: 通过校验后，后台异步唤醒 <code>run_ai_tape_analyst(date_str, target_time, --sentinel)</code>，由 Gemini 大模型对 5 分钟全景深度与明细展开宏微观综合语义研判，并在 Web 仪表盘和邮件中发布最新结论。</p>
+</li>
+</ol><hr/></article><article class="rule-card" id="card-chapter-4"><h3 class="chapter-heading" id="chapter-4">实时信号置信度等级判定规则 (Signal Strength: High vs Normal)</h3><h4 class="rule-heading rule-bear">1. Bearish (看空) 判定为 High 强度的完整规则</h4><p>必须满足：</p><ol>
+<li>
+<p><strong>全局预筛选</strong>: <code class="code-formula">Delta%Vol &gt;= 1.5%</code></p>
+</li>
+<li>
+<p><strong>且满足以下微观条件之一</strong>:</p>
+<ul>
+<li><strong>放量主动砸盘 (条件 A)</strong>: 最近 15 分钟 Delta &lt;= -8000 手，或任意单根 5 分钟 Delta &lt;= -6000 手。</li>
+<li><strong>高效下挫与被动吸收 (条件 B)</strong>: 单根 5 分钟价格下跌 &lt;= -10.0 点且伴随负 Delta，或分析结论中检出“买盘被吸收”、“Supply Trap”或“买盘竭尽”。</li>
+<li><strong>累积背离回撤 (条件 C)</strong>: RTH 累计 Delta 从当日最高点回撤 &gt;= 10000 手，或最近 30 分钟累计 Delta &lt;= -5000 手。</li>
+<li><strong>持续下行斜率 (条件 D)</strong>: 最近 30 分钟价格下跌 &lt;= -15.0 点且最近 30 分钟 Delta 为负值。</li>
+</ul>
+</li>
+</ol><h4 class="rule-heading rule-bull">2. Bullish (看多) 判定为 High 强度的完整规则</h4><p>必须满足：</p><ol>
+<li>
+<p><strong>全局预筛选</strong>: <code class="code-formula">Delta%Vol &lt;= 1.5%</code></p>
+</li>
+<li>
+<p><strong>且满足以下微观条件之一</strong>:</p>
+<ul>
+<li><strong>放量主动拉升 (条件 A)</strong>: 最近 15 分钟 Delta &gt;= 8000 手，或任意单根 5 分钟 Delta &gt;= 6000 手。</li>
+<li><strong>高效拉升与被动吸收 (条件 B)</strong>: 单根 5 分钟价格上涨 &gt;= 10.0 点且伴随正 Delta，或分析结论中检出“卖盘被吸收”、“Demand Trap”或“卖盘竭尽”。</li>
+<li><strong>累积底背离反弹 (条件 C)</strong>: RTH 累计 Delta 从当日最低点反弹上升 &gt;= 10000 手，或最近 30 分钟累计 Delta &gt;= 5000 手。</li>
+<li><strong>持续上行斜率 (条件 D)</strong>: 最近 30 分钟价格上涨 &gt;= 15.0 点且最近 30 分钟 Delta 为正值。</li>
+</ul>
+</li>
+</ol><hr/></article><article class="rule-card" id="card-chapter-5"><h3 class="chapter-heading" id="chapter-5">Adam Set 核心 DOM 盘口深度与微观结构规则 (Level 0-200)</h3><p>基于 MotiveWave 原生深度行情，从 4 个核心维度拆解订单簿的势能与未来流动性：</p><h4 class="rule-heading rule-bull">1. 多梯队挂单失衡 (Multi-Tier DOM Imbalance)</h4><ul>
+<li><strong>多层级划分</strong>:<ul>
+<li>近端失衡 (<code class="code-formula">imb_near</code>, Top 5 档): 权重 50%，反映市价单即将碰撞的瞬时阻力。</li>
+<li>中端失衡 (<code class="code-formula">imb_mid</code>, Level 6-20 档): 权重 30%，代表 5 点日内作战区间的缓冲厚度。</li>
+<li>深层失衡 (<code class="code-formula">imb_deep</code>, Level 21-200 档): 权重 20%，代表 50 点宏观大局的挂单池意图。</li>
+</ul>
+</li>
+<li>
+<p><strong>加权失衡度公式</strong>:
+    <code class="code-formula">加权失衡 = (imb_near * 0.5) + (imb_mid * 0.3) + (imb_deep * 0.2)</code></p>
+</li>
+<li>
+<p><strong>多空判定</strong>:</p>
+<ul>
+<li><code>加权失衡 &gt; 0.001</code>: <strong>看多 (Bullish)</strong>，买盘挂单厚重托盘。</li>
+<li><code>加权失衡 &lt; -0.001</code>: <strong>看空 (Bearish)</strong>，上方压单沉重阻力。</li>
+<li>否则为中性。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">2. 撤单异动 (Spoofing / Pulling 虚假流动性)</h4><ul>
+<li><strong>原理</strong>: 主力在某一侧密集挂出大单制造流动性假象，在市价单临近成交前瞬间撤回。</li>
+<li><strong>判定规则</strong>:<ul>
+<li><strong>卖单撤单偏高 (<code>spoof_ask &gt; spoof_bid</code>)</strong>: 判定为 <strong>看多 (Bullish)</strong>。上方阻力大多是虚单/纸老虎，空方在虚张声势，真实买力极易突破。</li>
+<li><strong>买单撤单偏高 (<code>spoof_bid &gt; spoof_ask</code>)</strong>: 判定为 <strong>看空 (Bearish)</strong>。下方托单频频撤退，虚假支撑诱多，实质买盘空虚。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">3. 挂单堆叠与防线加固 (Stacking Defense)</h4><ul>
+<li><strong>原理</strong>: 主力真实加仓防守，在买单或卖单密集堆出数百手坚固防线。</li>
+<li><strong>判定规则</strong>:<ul>
+<li><strong>买盘堆叠加厚 (<code>stack_bid &gt; stack_ask</code>)</strong>: 判定为 <strong>看多 (Bullish)</strong>。主力构筑底部防御阵地。</li>
+<li><strong>卖盘堆叠加厚 (<code>stack_ask &gt; stack_bid</code>)</strong>: 判定为 <strong>看空 (Bearish)</strong>。主力在阻力位集结压单封死反弹。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading rule-bear">4. 冰山单被动吸收与流动性真空 (Iceberg Absorption &amp; Liquidity Vacuum)</h4><ul>
+<li><strong>冰山吸收判定</strong>:<ul>
+<li><strong>看涨冰山吸收 (<code>iceberg_absorption_bull</code>)</strong>: 单根 Bar 价格不跌，但激进市价卖单涌入（Delta 呈现大幅负值且成交量极大），表明大额限价买单在被动吃单。判定为 <strong>看多 (Bullish)</strong>。</li>
+<li><strong>看跌冰山拦截 (<code>iceberg_absorption_bear</code>)</strong>: 单根 Bar 价格不涨，但激进市价买单涌入（Delta 呈现大幅正值且成交量极大），表明大额限价卖单在被动拦截。判定为 <strong>看空 (Bearish)</strong>。</li>
+</ul>
+</li>
+<li><strong>流动性真空判定</strong>:<ul>
+<li><strong>卖方真空 (<code>vacuum_ask</code>)</strong>: 上方卖单极其稀薄，单档挂单 &lt; 10 手。极易发生市价单向上横扫引发的逼空暴涨（Squeeze Up）。</li>
+<li><strong>买方真空 (<code>vacuum_bid</code>)</strong>: 下方买单极其稀薄，单档挂单 &lt; 10 手。极易发生市价抛单引发的击穿暴跌（Breakdown）。</li>
+</ul>
+</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-6"><h3 class="chapter-heading" id="chapter-6">DOM 4 个子模块的 Bullish / Bearish 判定规则与 UI 设计</h3><p>在系统前端卡片及微观研判中，DOM 拆分为 4 个独立的子模块，各自具备独立的多空状态徽章与能量对比条：</p><h4 class="rule-heading">1. 梯队挂单失衡 (Imbalance)</h4><ul>
+<li><strong>Bullish (看多)</strong>: 近端失衡 <code class="code-formula">imb_near &gt; 0.001</code> 或综合加权失衡 <code>weighted_imbalance &gt; 0.001</code>（买盘深度显著压过卖盘）。</li>
+<li><strong>Bearish (看空)</strong>: 近端失衡 <code class="code-formula">imb_near &lt; -0.001</code> 或综合加权失衡 <code>weighted_imbalance &lt; -0.001</code>（卖盘深度显著压过买盘）。</li>
+<li><strong>UI 能量对比条</strong>: 绿色代表 <code>Bid Depth</code> 占比，红色代表 <code>Ask Depth</code> 占比，直观呈现挂单厚度比例。</li>
+</ul><h4 class="rule-heading">2. 撤单闪烁 (Spoofing)</h4><ul>
+<li><strong>Bullish (看多)</strong>: <code>spoof_ask &gt; spoof_bid</code>（卖单撤单频次高，上方虚单诱空，实为做多良机）。</li>
+<li><strong>Bearish (看空)</strong>: <code>spoof_bid &gt; spoof_ask</code>（买单撤单频次高，下方虚托诱多，实为做空陷阱）。</li>
+<li><strong>UI 能量对比条</strong>: 绿色代表 Ask 侧撤单次数，红色代表 Bid 侧撤单次数，清晰揭示哪一方在虚张声势。</li>
+</ul><h4 class="rule-heading">3. 挂单加固 (Stacking)</h4><ul>
+<li><strong>Bullish (看多)</strong>: <code>stack_bid &gt; stack_ask</code>（买方新增堆单频次与增量占优，防线加固）。</li>
+<li><strong>Bearish (看空)</strong>: <code>stack_ask &gt; stack_bid</code>（卖方新增堆单频次与增量占优，阻力加固）。</li>
+<li><strong>UI 能量对比条</strong>: 绿色代表 Bid 侧堆单加固频次，红色代表 Ask 侧堆单加固频次。</li>
+</ul><h4 class="rule-heading rule-bear">4. 冰山与真空 (Iceberg &amp; Vacuum)</h4><ul>
+<li><strong>Bullish (看多)</strong>:<ul>
+<li>检出多头冰山吸收单 (<code>iceberg_bull &gt; 0</code>)；或检出卖单流动性真空 (<code>vacuum_ask &gt; 0</code>) 且买方堆单占优。</li>
+</ul>
+</li>
+<li><strong>Bearish (看空)</strong>:<ul>
+<li>检出空头冰山拦截单 (<code>iceberg_bear &gt; 0</code>)；或检出买单流动性真空 (<code>vacuum_bid &gt; 0</code>) 且卖方堆单占优。</li>
+</ul>
+</li>
+<li><strong>UI 能量对比条</strong>: 绿色代表 Bull 吸收与 Ask 真空总强度，红色代表 Bear 拦截与 Bid 真空总强度。</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-7"><h3 class="chapter-heading" id="chapter-7">Ticks 与 DOM 数据的分工、基础权重占比与最终研判裁决逻辑</h3><p>系统在综合最终裁决（Final Verdict）中将已成交 Ticks 与未成交 DOM 深度严格融合：</p><h4 class="rule-heading">1. 职责分工与基础权重占比</h4><ul>
+<li><strong>Ticks 数据 (已发生的事实 - 动能与执行)</strong>:<ul>
+<li><strong>基础权重</strong>: <strong>60%</strong></li>
+<li><strong>角色</strong>: 验证真实交割、市价激进推进、大单成交方向以及累计 Delta 背离。</li>
+</ul>
+</li>
+<li><strong>DOM 数据 (未发生的意图 - 阻力与势能)</strong>:<ul>
+<li><strong>基础权重</strong>: <strong>40%</strong></li>
+<li><strong>角色</strong>: 评估当前阻力与支撑的坚固度、虚假诱多诱空流动性、滑移真空度以及未来潜在爆发路径。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">2. 在最终研判中的权重裁决逻辑</h4><ul>
+<li><strong>一致共振 (Ticks 与 DOM 方向同向)</strong>:<ul>
+<li>判定置信度升至最高级别（High Conviction），顺应共振方向输出最强交易偏向。</li>
+</ul>
+</li>
+<li><strong>冲突分歧时的裁决规则</strong>:<ul>
+<li><strong>DOM 冰山单吸收覆写</strong>:<ul>
+<li>若 Ticks 显示连续负 Delta 砸盘，但 DOM 出现密集看涨冰山单吸收且价格不破关键位，<strong>DOM 享有最高覆写权 (Override)</strong>，判定为主力被动吸筹，防止追空被套。</li>
+</ul>
+</li>
+<li><strong>DOM 虚假撤单拆穿假突破</strong>:<ul>
+<li>若 Ticks 显示放量突破拉升，但 DOM 显示上方并无真实卖单而是买方在频繁撤单诱多（Spoofing Trap），系统<strong>硬性降低做多置信度并发出诱多陷阱警告</strong>。</li>
+</ul>
+</li>
+<li><strong>DOM 真空加速驱动</strong>:<ul>
+<li>若 Ticks 动能一般，但 DOM 检出上方连续 5-10 点流动性真空，判定微小买盘即可引发逼空暴拉，上调多头评级。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-8"><h3 class="chapter-heading" id="chapter-8">趋势日均线带防护罩规则 (Trend Day Shield)</h3><p>防止在强趋势日（Trend Day）频繁逆势摸顶抄底的系统级强制防护体系：</p><h4 class="rule-heading">1. 15分钟 EMA 带配置</h4><ul>
+<li><strong>短期快线</strong>: EMA 13</li>
+<li><strong>中期慢线</strong>: EMA 21</li>
+<li><strong>通道判别</strong>:<ul>
+<li>多头通道: <code>EMA 13 &gt; EMA 21</code> 且价格运行于通道上方或受到 EMA 支撑。</li>
+<li>空头通道: <code>EMA 13 &lt; EMA 21</code> 且价格运行于通道下方或受到 EMA 压制。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading rule-trap">2. 防护触发与信号硬性封杀规则</h4><ul>
+<li><strong>多头趋势日防护罩生效 (<code>is_bullish_trend_day = True</code>)</strong>:<ul>
+<li>条件: 价格处于 15m EMA 带上方且 EMA 呈多头排列，且未跌破日内 Smashlevel。</li>
+<li>裁决: <strong>全面封杀一切短线看空信号 (<code>is_likely_bearish = False</code>)</strong>。即使出现微观假见顶或局部背离，亦绝不允许逆势做空。</li>
+</ul>
+</li>
+<li><strong>空头趋势日防护罩生效 (<code>is_bearish_trend_day = True</code>)</strong>:<ul>
+<li>条件: 价格处于 15m EMA 带下方且 EMA 呈空头排列，且未站上日内 Smashlevel。</li>
+<li>裁决: <strong>全面封杀一切短线看多信号 (<code>is_likely_bullish = False</code>)</strong>。即使出现局部超卖反弹，亦绝不允许逆势抄底。</li>
+</ul>
+</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-9"><h3 class="chapter-heading" id="chapter-9">Smashelito 关键点位与支撑阻力强度判定</h3><p>基于 Smashelito 日内交易计划点位，对价格所在微观空间与突破/阻力有效性进行量化定位：</p><h4 class="rule-heading">1. 关键水位定义</h4><ul>
+<li><strong>Smashlevel</strong>: 日内最关键的多空分水岭 Pivot。站稳在 Smashlevel 上方偏多，跌破偏空。</li>
+<li><strong>Bullish Target (Trigger above)</strong>: 多头向上进攻与加速触发点。</li>
+<li><strong>Bearish Target (Trigger below)</strong>: 空头向下击穿与加速触发点。</li>
+<li><strong>Resistance Levels (R1, R2, R3)</strong>: 预设上方阻力台阶。</li>
+<li><strong>Support Levels (S1, S2, S3)</strong>: 预设下方支撑台阶。</li>
+</ul><h4 class="rule-heading">2. 点位交互与权重增益规则</h4><ul>
+<li>当价格逼近 Smashlevel 或目标点位且伴随 DOM 挂单堆叠防守时，相应支撑/阻力有效性置信度提升 20%。</li>
+<li>当价格击穿点位且出现 DOM 流动性真空时，判定为真实突破（Breakout），顺势动能增强。</li>
+</ul><hr/></article><h2 class="part-heading" id="part-2">第二部分：SPX 0DTE Gamma 规则 (SPX 0DTE Gamma Rules)</h2><p>本部分从期权做市商（Option Dealers / Market Makers）维持 Delta 动态中性对冲的底层微观机制出发，量化分析 SPX 0DTE Gamma 暴露对大盘走势的约束与引导。</p><article class="rule-card" id="card-chapter-10"><h3 class="chapter-heading" id="chapter-10">做市商对冲机制与两大市场状态 (Market Regimes)</h3><h4 class="rule-heading">1. 正 Gamma 状态 (Net Long Gamma Regime - 绿色区域)</h4><ul>
+<li><strong>做市商行为</strong>: “低买高卖（逆势对冲）”。<ul>
+<li>标的上涨时，做市商的 Delta 增加，必须卖出指数期货以维持中性；</li>
+<li>标的下跌时，做市商的 Delta 减少，必须买入指数期货以维持中性。</li>
+</ul>
+</li>
+<li><strong>价格行为特征</strong>:<ul>
+<li><strong>波动率收敛与压制</strong>: 做市商的反向对冲单平抑了任何单边价格冲击。</li>
+<li><strong>Pinning 锚定效应</strong>: 标的价格在逼近最大正 Gamma 墙（Call Wall）时移动减速，触及后被牢牢“钉”在附近，难以击穿。</li>
+</ul>
+</li>
+</ul><h4 class="rule-heading">2. 负 Gamma 状态 (Net Negative Gamma Regime - 红色区域)</h4><ul>
+<li><strong>做市商行为</strong>: “追涨杀跌（顺势对冲）”。<ul>
+<li>标的下跌时，做市商的 Delta 亏损扩大，必须追加抛售指数期货以维持中性；</li>
+<li>标的上涨时，做市商必须追加买入指数期货。</li>
+</ul>
+</li>
+<li><strong>价格行为特征</strong>:<ul>
+<li><strong>波动率爆炸与滑移</strong>: 做市商形成恶性“抛售-下挫-再抛售”负反馈循环。</li>
+<li><strong>磁吸与击穿加速</strong>: 标的价格在靠近大负 Gamma 墙（Put Wall）时，受到顺势抛压的强烈推引（表现为高速磁吸）；一旦触及或击穿，该点位无法提供支撑，反而直接引发爆仓挤压或加速赶底。</li>
+</ul>
+</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-11"><h3 class="chapter-heading" id="chapter-11">核心关键 Gamma 水位体系</h3><h4 class="rule-heading">1. 核心关键水位清单</h4><ul>
+<li><strong>Absolute Gamma Strike</strong>: 市场整体绝对 Gamma 暴露最大的单一执行价，具有全天最强的价格锚定（Pinning）吸引力。</li>
+<li><strong>Call Wall</strong>: 整个 0DTE 链上看涨期权 Gamma 聚集峰值行权价，在正 Gamma 环境下构成日内天然顶部天花板。</li>
+<li><strong>Put Wall</strong>: 整个 0DTE 链上看跌期权 Gamma 聚集峰值行权价，在负 Gamma 环境下构成日内强磁吸与向下引力阱。</li>
+<li><strong>Gamma Flip</strong>: 市场整体净 Gamma 符号由正转负的分水岭行权价。此点位为大盘由收敛震荡转为单边暴走的分界点。</li>
+</ul><h4 class="rule-heading">2. 目标水位距离量化与追涨杀跌防范</h4><ul>
+<li><strong>距 Call Wall &lt;= 10 点</strong>:<ul>
+<li>若市场处于正 Gamma 状态，属于高风险逆向区，<strong>禁止追多</strong>，警惕冲高回落被做市商对冲单砸盘。</li>
+</ul>
+</li>
+<li><strong>距 Put Wall &lt;= 10 点</strong>:<ul>
+<li>若市场处于负 Gamma 状态，属于磁吸赶底区，警惕向下加速破位；若处于正 Gamma 状态，则为强力支撑锚定区。</li>
+</ul>
+</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-12"><h3 class="chapter-heading" id="chapter-12">0DTE 盘中动态演变与时效特征</h3><h4 class="rule-heading">1. 早盘阶段 (06:30 - 08:30 西雅图时间)</h4><ul>
+<li>隔夜仓位消化与做市商初始持仓对冲，Gamma 水位变动频繁，需等待 08:00 之后的稳态水准确立。</li>
+</ul><h4 class="rule-heading">2. 盘中阶段 (08:30 - 11:30)</h4><ul>
+<li>机构交易主力时段，Call Wall 与 Put Wall 结构最稳定，点位指示效果最强。</li>
+</ul><h4 class="rule-heading">3. 尾盘归零爆发期 (11:30 - 13:00)</h4><ul>
+<li>随着到期时间趋近于零，ATM（平价）期权的 Gamma 呈现几何级数爆炸，微小的标的波动即可引发做市商巨额期货调仓，极易引发尾盘 Gamma Squeeze。</li>
+</ul><hr/></article><h2 class="part-heading" id="part-3">第三部分：其他系统规则 (Other System Rules)</h2><article class="rule-card" id="card-chapter-13"><h3 class="chapter-heading" id="chapter-13">异常价格毛刺与数据清洗规则 (Price Spike &amp; Noise Cleanup)</h3><p>底层数据采集在遇到盘后撮合、网络抖动或清算结算时可能产生单笔异常毛刺：</p><h4 class="rule-heading">1. 价格跳跃阈值过滤</h4><ul>
+<li>在 1 秒内价格突变绝对值超过 30 点且下一秒立即完全回归原位者，判定为脏数据毛刺（Spike），自动剔除不参与 VWAP、均线与区间振幅计算。</li>
+</ul><h4 class="rule-heading">2. 零成交量与格式异常清洗</h4><ul>
+<li>成交量 <code class="code-formula">&lt;= 0</code> 或买卖档位倒挂（Bid &gt;= Ask）之快照行，在入库与送入模型前自动清洗过滤。</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-14"><h3 class="chapter-heading" id="chapter-14">个股多资产交叉流规则 (Cross-Asset Flow Rules - TSLA &amp; META)</h3><p>在大盘研判中，高流动性权重龙头股的资金流向作为先行指标验证大盘真伪：</p><h4 class="rule-heading">1. TSLA 异常大单先导性</h4><ul>
+<li>当 TSLA 出现单笔名义金额超 500 万美元的激进市价买单或大额 Call Sweep 时，通常领先 ES 产生 1-3 分钟的多头拉升传导。</li>
+</ul><h4 class="rule-heading">2. 龙头股与大盘背离拦截</h4><ul>
+<li>若 ES 突破拉升但 TSLA 与 META 核心科技股遭遇暗池持续大额卖单压制，大盘突破置信度降级，防范虚假诱多。</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-15"><h3 class="chapter-heading" id="chapter-15">信号发布与微观数据时差认知规则 (Post Timing Delay Recognition)</h3><p>分析推特/社媒顶级交易员（如 Adam Set、Smashelito）的公开信号时：</p><h4 class="rule-heading">1. 信号发布时差模型</h4><ul>
+<li>社媒发帖时间戳并非该交易员观察到盘口异动的物理发生时间；</li>
+<li>正常存在 1-5 分钟的“观察识别 -&gt; 进场建仓 -&gt; 编辑文字 -&gt; 平台发布”固有延迟；</li>
+<li>追溯研判时必须倒推 1-5 分钟的微观 Ticks 与 DOM 深度，以捕捉其真实的交易意图。</li>
+</ul><hr/></article><article class="rule-card" id="card-chapter-16"><h3 class="chapter-heading" id="chapter-16">大模型分析防幻觉与保真强制约束 (Anti-Hallucination Constraints)</h3><p>在 <code>ai_tape_analyst.py</code> 驱动 Gemini 大模型输出研判时，必须严格执行以下系统级指令：</p><h4 class="rule-heading">1. 100% 数据事实保真</h4><ul>
+<li>绝对禁止捏造不存在的成交量、Delta 或 Gamma 点位；所有引用的点位与数值必须能在传入的 Section 提示词中精准匹配。</li>
+</ul><h4 class="rule-heading rule-calc">2. 纯文本公式与符号呈现 (No LaTeX)</h4><ul>
+<li>为杜绝前端渲染乱码，严禁使用任何 LaTeX 语法（禁止 <code>$$</code> 或 <code>$</code> 符号包裹）；所有计算公式、对比关系必须以纯文本与标准运算符直接书写。</li>
+</ul><h4 class="rule-heading">3. 严谨客观专业语调</h4><ul>
+<li>保持极其严谨、中立的机构量化研判口吻，严禁使用任何夸张、戏谑或情绪化表达。</li>
+</ul></article></div>
+    </div>
+  </main>
+
+  <script>
+    function filterNav(q) {
+      q = (q || '').trim().toLowerCase();
+      const items = document.querySelectorAll('.nav-item');
+      items.forEach(el => {
+        const title = el.getAttribute('data-title') || '';
+        if (!q || title.includes(q)) {
+          el.style.display = 'block';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    function setActiveNav(link) {
+      document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+      link.classList.add('active');
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          const navLink = document.querySelector(`.nav-link[href="#${id}"]`);
+          if (navLink) {
+            document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+            navLink.classList.add('active');
+          }
+        }
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+
+    document.querySelectorAll('.chapter-heading, .part-heading').forEach(el => {
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

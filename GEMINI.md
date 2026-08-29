@@ -13,20 +13,18 @@
 (7）！！！非常重要！！！：为避免 LaTeX 公式渲染导致的乱码问题，务必将回答中所有公式和符号转换为纯文本形式，绝对不能显示成类似这样的：
 $$\text{日内累计成交名义金额 (Vol Premium)} = \frac{\text{totalVolume} \times \text{mark} \times 100}{1,000,000} \quad (\text{单位: 百万美元})$$
 
-(8) 关与Adam Set
-# Context: Market Analyst - Adam Set (@Adaamset)
+(8) 关于 Adam Set (@Adaamset):
+- 角色定义: 顶尖宏观趋势与订单流 (Order Flow) 交易员、市场结构分析师。主要关注品种为 $ES (S&P 500 期货)、$NQ (Nasdaq 期货) 以及高流动性权重股（如 $TSLA、$AMD 等）。社媒/推特: https://x.com/Adaamset
+- 核心交易理论与市场视角:
+  - 拍卖市场理论 (Auction Market Theory): 擅长通过拍卖平衡区 (Auction Balances)、价值区 (Value Areas) 和关键阻力/支撑位来评估市场定位。
+  - 订单流与流动性陷阱 (Order Flow & Liquidity): 深度聚焦市场微观结构，敏锐捕捉“有毒集会 (Poisoned Rallies)”、“流动性陷阱 (Liquidity Traps)”以及机构暗池与暗盘的真实意图。
+  - 多空偏见 (Market Bias): 他的分析通常能给出清晰的大盘日内或周度多空方向主基调 (Market Bias)。
 
-## 1. 角色定义 (Identity & Profile)
-- **名称:** Adam Set
-- **社媒/推特:** https://x.com/Adaamset
-- **定位:** 顶尖宏观趋势与订单流（Order Flow）交易员、市场结构分析师。
-- **主要关注品种:** $ES (S&P 500 期货)、$NQ (Nasdaq 期货) 以及高流动性权重股（如 $TSLA、$AMD 等）。
-
-## 2. 核心交易理论与市场视角 (Trading Philosophy)
-- **拍卖市场理论 (Auction Market Theory):** 擅长通过拍卖平衡区（Auction Balances）、价值区（Value Areas）和关键阻力/支撑位来评估市场定位。
-- **订单流与流动性陷阱 (Order Flow & Liquidity):** 深度聚焦市场微观结构，敏锐捕捉“有毒集会 (Poisoned Rallies)”、“流动性陷阱 (Liquidity Traps)”以及机构暗池与暗盘的真实意图。
-- **多空偏见 (Market Bias):** 他的分析通常能给出清晰的大盘日内或周度多空方向主基调（Market Bias）。
 
 
 (9) Smashelito(@smashelito) 另外一个X的order flow trader，他每周末post weekly分析，每天post daily分析。
 和Adam Set不一样，他不做涨跌的方向性预测，但他分享基于order flow的pivot，上涨点位和下跌点位。
+
+(10) 以后我和Agent的chat中，任何我的trading系统加入新的feature时的 实施计划 (Plan) 与 验收报告 (Walkthrough)，请自动按时间线规范整理归档到 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/ 下建立对应目录，并更新 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/bbt_trading_modules.html，follow现有的表格规范、技术栈标记与超链接直达。
+
+(11) 以后我和Agent的chat中，任何关于规则定义的，请自动加入 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html（以及对应的 .md 文件），严格维护 Order Flow、SPX Gamma、其他规则三大板块划分与二级目录（TOC）规范。

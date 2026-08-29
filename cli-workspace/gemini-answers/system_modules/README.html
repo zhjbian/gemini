@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>BBTrading System Modules Index</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 1000px; margin: 40px auto; padding: 0 20px; color: #1e293b; }
+    h1 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    h2, h3 { color: #0369a1; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+    a { color: #0284c7; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul { padding-left: 24px; }
+    li { margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+<h1>交易系统核心技术模块实施计划与交付总结全集 (Trading System Key Modules Archive)</h1>
+<p>本目录对量化交易平台各个核心子系统在研发与迭代过程中的 <strong>技术实施计划 (<code>implementation_plan.md</code>)</strong> 与 <strong>验收总结报告 (<code>walkthrough.md</code>)</strong> 按照时间发生先后（Chronological Order）进行了系统化整理与标准化归档。</p>
+<hr />
+<h2>核心模块演进总览 (Chronological Modules Catalog)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">序号</th>
+<th style="text-align: center;">发生日期</th>
+<th style="text-align: left;">核心模块名称</th>
+<th style="text-align: left;">职责定位与核心逻辑</th>
+<th style="text-align: center;">实施计划 (Plan)</th>
+<th style="text-align: center;">验收报告 (Walkthrough)</th>
+<th style="text-align: left;">涉及技术栈</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>01</strong></td>
+<td style="text-align: center;"><code>2026-06-06</code></td>
+<td style="text-align: left;"><strong>SPX 0DTE Gamma 架构与目标水位距离量化</strong></td>
+<td style="text-align: left;">分析做市商动态对冲机制与两大市场状态（正/负 Gamma）；量化计算现货距 Call Wall / Put Wall 距离并提供追涨杀跌防范。</td>
+<td style="text-align: center;"><em>(包含在后续交付)</em></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/01_2026-06-06_SPX_Gamma_and_Target_Distance/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Python<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>02</strong></td>
+<td style="text-align: center;"><code>2026-06-06</code></td>
+<td style="text-align: left;"><strong>订单流大单方向独立 Rule-based 决策引擎</strong></td>
+<td style="text-align: left;">建立 ES/NQ 机构大单方向独立研判引擎，基于时间衰减加权得分与大额成交量分布，提供不依赖期权的独立订单流视角。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><em>(包含在后续交付)</em></td>
+<td style="text-align: left;">Python<br>Rule Engine</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>03</strong></td>
+<td style="text-align: center;"><code>2026-06-07</code></td>
+<td style="text-align: left;"><strong>综合交易决策重构与追涨杀跌防范</strong></td>
+<td style="text-align: left;">重构 3 输入综合决策引擎（SPX Gamma + 大单流向 + 盘面状态）；建立 27 种情况映射矩阵与 7 大定性决策；引入日内振幅与时段追高追空防护。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Python<br>Rule Engine<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>04</strong></td>
+<td style="text-align: center;"><code>2026-06-07</code></td>
+<td style="text-align: left;"><strong>多源实时数据流健康监控 (Data Stream Monitor)</strong></td>
+<td style="text-align: left;">实时监控 SPX Gamma (ws_client.py) 与订单流 Java Exporter 的心跳状态、延迟及文件大小，前端可视化警示。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/04_2026-06-07_Data_Stream_Status_Monitoring/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><em>(包含在后续交付)</em></td>
+<td style="text-align: left;">Python<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>05</strong></td>
+<td style="text-align: center;"><code>2026-06-10</code></td>
+<td style="text-align: left;"><strong>订单流实时信号强度判定集成</strong></td>
+<td style="text-align: left;">在实时信号中加入 Low / Medium / High 量化等级判定，融合 Delta%Vol 预筛选与微观 4 项突破/吸收验证条件。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/05_2026-06-10_OrderFlow_Signal_Strength_Integration/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><em>(包含在后续交付)</em></td>
+<td style="text-align: left;">Python<br>MySQL<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>06</strong></td>
+<td style="text-align: center;"><code>2026-06-13</code></td>
+<td style="text-align: left;"><strong>机构大单案例库分析模块 (Whale Trade)</strong></td>
+<td style="text-align: left;">建立期权/订单流大单案例分析技能；支持图文解析、策略归类与数据库存取；并在前端仪表盘实现案例管理与真实行情复盘。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Python (Agent Skill)<br>MySQL<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>07</strong></td>
+<td style="text-align: center;"><code>2026-06-14</code></td>
+<td style="text-align: left;"><strong>ES 日内关键 Pivot 识别与计算模块</strong></td>
+<td style="text-align: left;">结合前日结清价、隔夜高低点、大单聚集与价值区（VAH/VAL），自动化量化计算 ES 日内多空分水岭 Pivot 与阻力支撑点位。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Python<br>Algorithm<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>08</strong></td>
+<td style="text-align: center;"><code>2026-06-16</code></td>
+<td style="text-align: left;"><strong>期货季度移仓周交易方向修正算法</strong></td>
+<td style="text-align: left;">针对移仓周前后月合约差价导致的 BID/ASK 判定失真，引入 Lee-Ready (Tick Test) 算法对交易方向进行动态纠偏。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Java<br>Python</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>09</strong></td>
+<td style="text-align: center;"><code>2026-06-18</code></td>
+<td style="text-align: left;"><strong>订单流导出引擎与实时 Tick 逻辑修复</strong></td>
+<td style="text-align: left;">修复 MotiveWave Java 端 StudyOrderFlowDataExporter 实时 Tick 导出中的去重、时间戳对齐与盘口买卖方向错位问题。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Java (MotiveWave SDK)<br>Ant Deploy</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10</strong></td>
+<td style="text-align: center;"><code>2026-08-29</code></td>
+<td style="text-align: left;"><strong>DOM 200 档全景深度与 Adam Set 四大特征落地</strong></td>
+<td style="text-align: left;">采集上下 50 点原生 200 档盘口；流式 GZIP 压缩；Python 识别多梯队失衡、堆撤单、冰山与真空；大模型 Prompt Section 9 注入与 Web 卡片自适应渲染。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Java (MotiveWave)<br>Python<br>GZIP<br>MySQL<br>Web UI</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>11</strong></td>
+<td style="text-align: center;"><code>2026-08-29</code></td>
+<td style="text-align: left;"><strong>5分钟 DOM 哨兵规则引擎 (Sentinel Rule-Based Engine)</strong></td>
+<td style="text-align: left;">在 order_flow_sentinel.py 中建立纯规则毫秒级 DOM 扫描引擎，实现真空滑移逼空/破位预警、冰山密集吸收覆写与撤单诱多陷阱过滤，异常驱动唤醒大模型深度研判。</td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/implementation_plan.md">查看 Plan</a></td>
+<td style="text-align: center;"><a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/walkthrough.md">查看 Walkthrough</a></td>
+<td style="text-align: left;">Python<br>Rule Engine<br>Sentinel<br>GZIP</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>核心模块详细技术结构说明</h2>
+<h3>01. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/01_2026-06-06_SPX_Gamma_and_Target_Distance">SPX 0DTE Gamma 架构与目标水位距离量化</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-06</code></li>
+<li><strong>归档目录</strong>: <code>01_2026-06-06_SPX_Gamma_and_Target_Distance</code></li>
+<li><strong>系统职责</strong>: 分析做市商动态对冲机制与两大市场状态（正/负 Gamma）；量化计算现货距 Call Wall / Put Wall 距离并提供追涨杀跌防范。</li>
+<li><strong>技术栈</strong>: Python / Web UI</li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/01_2026-06-06_SPX_Gamma_and_Target_Distance/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>02. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine">订单流大单方向独立 Rule-based 决策引擎</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-06</code></li>
+<li><strong>归档目录</strong>: <code>02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine</code></li>
+<li><strong>系统职责</strong>: 建立 ES/NQ 机构大单方向独立研判引擎，基于时间衰减加权得分与大额成交量分布，提供不依赖期权的独立订单流视角。</li>
+<li><strong>技术栈</strong>: Python / Rule Engine</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine/implementation_plan.md">implementation_plan.md</a></li>
+</ul>
+<h3>03. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign">综合交易决策重构与追涨杀跌防范</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-07</code></li>
+<li><strong>归档目录</strong>: <code>03_2026-06-07_Comprehensive_Trading_Decision_Redesign</code></li>
+<li><strong>系统职责</strong>: 重构 3 输入综合决策引擎（SPX Gamma + 大单流向 + 盘面状态）；建立 27 种情况映射矩阵与 7 大定性决策；引入日内振幅与时段追高追空防护。</li>
+<li><strong>技术栈</strong>: Python / Rule Engine / Web UI</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>04. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/04_2026-06-07_Data_Stream_Status_Monitoring">多源实时数据流健康监控 (Data Stream Monitor)</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-07</code></li>
+<li><strong>归档目录</strong>: <code>04_2026-06-07_Data_Stream_Status_Monitoring</code></li>
+<li><strong>系统职责</strong>: 实时监控 SPX Gamma (ws_client.py) 与订单流 Java Exporter 的心跳状态、延迟及文件大小，前端可视化警示。</li>
+<li><strong>技术栈</strong>: Python / Web UI</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/04_2026-06-07_Data_Stream_Status_Monitoring/implementation_plan.md">implementation_plan.md</a></li>
+</ul>
+<h3>05. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/05_2026-06-10_OrderFlow_Signal_Strength_Integration">订单流实时信号强度判定集成</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-10</code></li>
+<li><strong>归档目录</strong>: <code>05_2026-06-10_OrderFlow_Signal_Strength_Integration</code></li>
+<li><strong>系统职责</strong>: 在实时信号中加入 Low / Medium / High 量化等级判定，融合 Delta%Vol 预筛选与微观 4 项突破/吸收验证条件。</li>
+<li><strong>技术栈</strong>: Python / MySQL / Web UI</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/05_2026-06-10_OrderFlow_Signal_Strength_Integration/implementation_plan.md">implementation_plan.md</a></li>
+</ul>
+<h3>06. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module">机构大单案例库分析模块 (Whale Trade)</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-13</code></li>
+<li><strong>归档目录</strong>: <code>06_2026-06-13_Whale_Trade_Case_Study_Module</code></li>
+<li><strong>系统职责</strong>: 建立期权/订单流大单案例分析技能；支持图文解析、策略归类与数据库存取；并在前端仪表盘实现案例管理与真实行情复盘。</li>
+<li><strong>技术栈</strong>: Python (Agent Skill) / MySQL / Web UI</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>07. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification">ES 日内关键 Pivot 识别与计算模块</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-14</code></li>
+<li><strong>归档目录</strong>: <code>07_2026-06-14_ES_Daily_Pivot_Point_Identification</code></li>
+<li><strong>系统职责</strong>: 结合前日结清价、隔夜高低点、大单聚集与价值区（VAH/VAL），自动化量化计算 ES 日内多空分水岭 Pivot 与阻力支撑点位。</li>
+<li><strong>技术栈</strong>: Python / Algorithm / Web UI</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>08. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction">期货季度移仓周交易方向修正算法</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-16</code></li>
+<li><strong>归档目录</strong>: <code>08_2026-06-16_Futures_Rollover_Side_Correction</code></li>
+<li><strong>系统职责</strong>: 针对移仓周前后月合约差价导致的 BID/ASK 判定失真，引入 Lee-Ready (Tick Test) 算法对交易方向进行动态纠偏。</li>
+<li><strong>技术栈</strong>: Java / Python</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>09. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes">订单流导出引擎与实时 Tick 逻辑修复</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-06-18</code></li>
+<li><strong>归档目录</strong>: <code>09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes</code></li>
+<li><strong>系统职责</strong>: 修复 MotiveWave Java 端 StudyOrderFlowDataExporter 实时 Tick 导出中的去重、时间戳对齐与盘口买卖方向错位问题。</li>
+<li><strong>技术栈</strong>: Java (MotiveWave SDK) / Ant Deploy</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>10. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set">DOM 200 档全景深度与 Adam Set 四大特征落地</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+<li><strong>归档目录</strong>: <code>10_2026-08-29_DOM_200_Level_and_Adam_Set</code></li>
+<li><strong>系统职责</strong>: 采集上下 50 点原生 200 档盘口；流式 GZIP 压缩；Python 识别多梯队失衡、堆撤单、冰山与真空；大模型 Prompt Section 9 注入与 Web 卡片自适应渲染。</li>
+<li><strong>技术栈</strong>: Java (MotiveWave) / Python / GZIP / MySQL / Web UI</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>11. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine">5分钟 DOM 哨兵规则引擎 (Sentinel Rule-Based Engine)</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+<li><strong>归档目录</strong>: <code>11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine</code></li>
+<li><strong>系统职责</strong>: 在 order_flow_sentinel.py 中建立纯规则毫秒级 DOM 扫描引擎，实现真空滑移逼空/破位预警、冰山密集吸收覆写与撤单诱多陷阱过滤，异常驱动唤醒大模型深度研判。</li>
+<li><strong>技术栈</strong>: Python / Rule Engine / Sentinel / GZIP</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/walkthrough.md">walkthrough.md</a></li>
+</ul>
+<h3>12. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine">Option Seller 日内自动化交易系统 (SPY 0DTE Spread Engine)</a></h3>
+<ul>
+<li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+<li><strong>归档目录</strong>: <code>12_2026-08-29_Option_Seller_Intraday_Engine</code></li>
+<li><strong>系统职责</strong>: 基于 OSMTrade 工业化闭环理念，融合 5分钟哨兵双引擎、Gamma 水位与趋势日防护罩，构建 SPY 0DTE 两腿垂直价差选型、TOS/Schwab 下单与持仓动态生命周期管理（止盈65%、止损2.2x、12:30强平），并提供独立 Web 控制台。</li>
+<li><strong>技术栈</strong>: Python / Option Seller / Schwab API / SPY 0DTE / Web UI / MySQL</li>
+<li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/implementation_plan.md">implementation_plan.md</a></li>
+<li><strong>验收总结</strong>: 待验收 (In Progress)</li>
+</ul>
+</body>
+</html>
