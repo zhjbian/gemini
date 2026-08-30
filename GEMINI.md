@@ -27,4 +27,4 @@ $$\text{日内累计成交名义金额 (Vol Premium)} = \frac{\text{totalVolume}
 
 (10) 以后我和Agent的chat中，任何我的trading系统加入新的feature时的 实施计划 (Plan) 与 验收报告 (Walkthrough)，请自动按时间线规范整理归档到 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/ 下建立对应目录，并更新 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/bbt_trading_modules.html，follow现有的表格规范、技术栈标记与超链接直达。
 
-(11) 以后我和Agent的chat中，任何关于规则定义的，请自动加入 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html（以及对应的 .md 文件），严格维护 Order Flow、SPX Gamma、其他规则三大板块划分与二级目录（TOC）规范。
+(11) 以后我和Agent的chat中，任何关于规则定义的，请自动加入 /Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html（以及对应的 .md 文件），严格维护 Order Flow、SPX Gamma、其他规则三大板块划分与二级目录（TOC）规范。注意：只有当规则是用来提供趋势判断的决策或交易的决策时（即决策性规则）才需要记入文档；UI展示规范、字段定义、格式表示法等工程实现方式不需要记入。

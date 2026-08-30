@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 950" width="100%" height="950" style="background:#f8fafc; border-radius:12px; font-family:-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, sans-serif;">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ef4444"/>
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- 1. ROOT ENTRY NODE -->
+  <g transform="translate(340, 20)" filter="url(#shadow)">
+    <rect width="280" height="46" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+    <text x="140" y="28" fill="#ffffff" font-size="14" font-weight="700" text-anchor="middle">开仓信号触发 (Entry Signal Qualified)</text>
+  </g>
+
+  <!-- Line down from root -->
+  <path d="M 480 66 L 480 95" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Mode Bifurcation Decision Node -->
+  <g transform="translate(350, 95)" filter="url(#shadow)">
+    <rect width="260" height="42" rx="8" fill="#ffffff" stroke="#6366f1" stroke-width="2"/>
+    <text x="130" y="26" fill="#4338ca" font-size="13" font-weight="700" text-anchor="middle">执行模式判定 (Mode Bifurcation)</text>
+  </g>
+
+  <!-- Fork lines -->
+  <path d="M 350 116 L 190 116 L 190 160" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 610 116 L 750 116 L 750 160" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Left: Dry-Run Mode Card -->
+  <g transform="translate(45, 160)" filter="url(#shadow)">
+    <rect width="290" height="150" rx="10" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.5"/>
+    <rect x="0" y="0" width="290" height="34" rx="10" fill="#fef3c7"/>
+    <text x="145" y="23" fill="#b45309" font-size="13" font-weight="700" text-anchor="middle">分支 1: Dry-Run 模拟盘模式</text>
+    <text x="16" y="58" fill="#78350f" font-size="12" font-weight="600">• 生成本地模拟单号: DRY-*</text>
+    <text x="16" y="80" fill="#78350f" font-size="12">• 100% 本地运算，绝不调用真实券商接口</text>
+    <text x="16" y="102" fill="#78350f" font-size="12">• 记录初始开仓权利金 Net Credit</text>
+    <text x="16" y="124" fill="#78350f" font-size="12">• 零 API 损耗、零账户资金污染</text>
+  </g>
+
+  <!-- Right: Live Trading Mode Card -->
+  <g transform="translate(565, 160)" filter="url(#shadow)">
+    <rect width="365" height="150" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect x="0" y="0" width="365" height="34" rx="10" fill="#dbeafe"/>
+    <text x="182" y="23" fill="#1d4ed8" font-size="13" font-weight="700" text-anchor="middle">分支 2: Live-Trading 实盘模式</text>
+    <text x="16" y="58" fill="#1e3a8a" font-size="12" font-weight="600">① 向 Schwab 发送垂直价差指令并获取成交单号</text>
+    <text x="16" y="80" fill="#1e3a8a" font-size="12" font-weight="600">② 立即向券商预埋 2 笔限价平仓买单 (Limit TP):</text>
+    <text x="30" y="102" fill="#1e40af" font-size="11.5">• Tranche 1: 挂单价 tp1_price (权利金衰减 40%)</text>
+    <text x="30" y="122" fill="#1e40af" font-size="11.5">• Tranche 2: 挂单价 tp2_price (权利金衰减 75%)</text>
+    <text x="16" y="140" fill="#047857" font-size="11.5" font-weight="600">★ 订单直接进驻交易所 Order Book 排队，防御本地断网</text>
+  </g>
+
+  <!-- Convergence lines to Guardian Daemon -->
+  <path d="M 190 310 L 190 345 L 480 345 L 480 370" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M 750 310 L 750 345 L 480 345 L 480 370" stroke="#64748b" stroke-width="2" fill="none"/>
+
+  <!-- Guardian Loop Node -->
+  <g transform="translate(290, 370)" filter="url(#shadow)">
+    <rect width="380" height="46" rx="8" fill="#7c3aed" stroke="#6d28d9" stroke-width="1.5"/>
+    <text x="190" y="28" fill="#ffffff" font-size="13.5" font-weight="700" text-anchor="middle">后台生命周期风控守护线程 (10s Polling Loop)</text>
+  </g>
+
+  <path d="M 480 416 L 480 445" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Order Status Check Decision -->
+  <g transform="translate(300, 445)" filter="url(#shadow)">
+    <rect width="360" height="42" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="180" y="26" fill="#5b21b6" font-size="13" font-weight="700" text-anchor="middle">每 10 秒轮询首要检验: 实盘预埋止盈单状态</text>
+  </g>
+
+  <!-- Split: Filled vs Working/Dry-Run -->
+  <path d="M 300 466 L 190 466 L 190 515" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-green)"/>
+  <path d="M 660 466 L 750 466 L 750 515" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- Left: FILLED by Broker Flow -->
+  <g transform="translate(45, 515)" filter="url(#shadow)">
+    <rect width="290" height="155" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+    <rect x="0" y="0" width="290" height="34" rx="10" fill="#d1fae5"/>
+    <text x="145" y="23" fill="#047857" font-size="13" font-weight="700" text-anchor="middle">券商挂单 status == "FILLED"</text>
+    <text x="16" y="58" fill="#065f46" font-size="12" font-weight="600">✓ 交易所毫秒级自动撮合成交</text>
+    <text x="16" y="80" fill="#065f46" font-size="12">• 免除轮询延时，捕捉最佳流动性瞬间</text>
+    <text x="16" y="102" fill="#065f46" font-size="12">• 本地标记 CLOSED_TAKE_PROFIT 结案</text>
+    <text x="16" y="124" fill="#b91c1c" font-size="12" font-weight="700">★ 锁定 is_broker_filled = True</text>
+    <text x="16" y="144" fill="#b91c1c" font-size="12" font-weight="600">★ 严禁重复向券商发送平仓指令</text>
+  </g>
+
+  <!-- Right: Working / Dry-Run -> Calculate Mark -->
+  <g transform="translate(565, 515)" filter="url(#shadow)">
+    <rect width="365" height="155" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.5"/>
+    <rect x="0" y="0" width="365" height="34" rx="10" fill="#e2e8f0"/>
+    <text x="182" y="23" fill="#334155" font-size="13" font-weight="700" text-anchor="middle">状态为 WORKING 或处于 Dry-Run 模式</text>
+    <text x="16" y="58" fill="#1e293b" font-size="12" font-weight="600">• 抓取实时盘口期权链计算当前买回成本 Mark</text>
+    <text x="24" y="80" fill="#475569" font-size="11.5">current_close_cost = (Natural_Close + Mid_Close) / 2</text>
+    <text x="16" y="105" fill="#1e293b" font-size="12" font-weight="600">• 触发本地三重生命周期退出规则逐级仲裁:</text>
+    <text x="24" y="125" fill="#0369a1" font-size="11.5">① 阶梯止盈线: cost &lt;= tp1_price (40%) / tp2_price (75%)</text>
+    <text x="24" y="145" fill="#b91c1c" font-size="11.5">② 硬止损线: cost &gt;= 2.20 * net_credit | ③ 时间: 12:30 PST</text>
+  </g>
+
+  <!-- Lower Flow: 3 Exit Scenarios from local evaluation -->
+  <path d="M 750 670 L 750 705" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Bottom Container: 3 Local Exit Branches -->
+  <g transform="translate(45, 705)">
+    <!-- Branch A: Take Profit local fallback -->
+    <g transform="translate(0, 0)" filter="url(#shadow)">
+      <rect width="250" height="195" rx="10" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+      <rect x="0" y="0" width="250" height="32" rx="10" fill="#dcfce7"/>
+      <text x="125" y="21" fill="#15803d" font-size="12.5" font-weight="700" text-anchor="middle">规则 A: 触及止盈线 (40% / 75%)</text>
+      <text x="14" y="55" fill="#166534" font-size="11.5" font-weight="600">• Dry-Run 模式:</text>
+      <text x="22" y="75" fill="#14532d" font-size="11">直接本地记账盈利平仓</text>
+      <text x="14" y="102" fill="#166534" font-size="11.5" font-weight="600">• Live 模式 (兜底保护):</text>
+      <text x="22" y="122" fill="#14532d" font-size="11">预埋限价单已在交易所排队</text>
+      <text x="22" y="142" fill="#14532d" font-size="11">等待交易所撮合成交</text>
+      <text x="22" y="162" fill="#047857" font-size="11" font-weight="600">免除主动市价吃单滑点损耗</text>
+      <text x="125" y="184" fill="#15803d" font-size="11" font-weight="700" text-anchor="middle">✓ 达成预期利润收割</text>
+    </g>
+
+    <!-- Branch B: Stop Loss (Hard Stop) -->
+    <g transform="translate(265, 0)" filter="url(#shadow)">
+      <rect width="320" height="195" rx="10" fill="#fef2f2" stroke="#ef4444" stroke-width="1.5"/>
+      <rect x="0" y="0" width="320" height="32" rx="10" fill="#fee2e2"/>
+      <text x="160" y="21" fill="#b91c1c" font-size="12.5" font-weight="700" text-anchor="middle">规则 B: 触及 2.20x 硬止损线</text>
+      <text x="14" y="53" fill="#991b1b" font-size="11.5" font-weight="700">【原子时序: 先撤单后平仓】</text>
+      <text x="14" y="75" fill="#b91c1c" font-size="11.5" font-weight="600">① 撤销券商挂单 (cancel_order):</text>
+      <text x="22" y="95" fill="#7f1d1d" font-size="11">向 Schwab 发送撤单请求释放持仓锁定</text>
+      <text x="14" y="118" fill="#b91c1c" font-size="11.5" font-weight="600">② 立即提交平仓单 (close_vertical_spread):</text>
+      <text x="22" y="138" fill="#7f1d1d" font-size="11">市价/盘口对价迅速斩仓出场</text>
+      <text x="14" y="160" fill="#b91c1c" font-size="11.5" font-weight="600">③ 持久化记账:</text>
+      <text x="22" y="180" fill="#7f1d1d" font-size="11">记录 CLOSED_STOP_LOSS，移出监控</text>
+    </g>
+
+    <!-- Branch C: Time Stop (12:30 PST) -->
+    <g transform="translate(600, 0)" filter="url(#shadow)">
+      <rect width="285" height="195" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+      <rect x="0" y="0" width="285" height="32" rx="10" fill="#ffedd5"/>
+      <text x="142" y="21" fill="#c2410c" font-size="12.5" font-weight="700" text-anchor="middle">规则 C: 12:30 PST 强制时间全清</text>
+      <text x="14" y="53" fill="#9a3412" font-size="11.5" font-weight="700">【原子时序: 先撤单后平仓】</text>
+      <text x="14" y="75" fill="#c2410c" font-size="11.5" font-weight="600">① 撤销券商在途止盈挂单</text>
+      <text x="22" y="95" fill="#7c2d12" font-size="11">解除被预埋单占用的期权腿头寸</text>
+      <text x="14" y="118" fill="#c2410c" font-size="11.5" font-weight="600">② 立即执行强制市价全清</text>
+      <text x="22" y="138" fill="#7c2d12" font-size="11">彻底清空持仓，严守“绝不过夜”铁律</text>
+      <text x="14" y="160" fill="#c2410c" font-size="11.5" font-weight="600">③ 持久化记账:</text>
+      <text x="22" y="180" fill="#7c2d12" font-size="11">记录 CLOSED_TIME_STOP，消除尾盘风险</text>
+    </g>
+  </g>
+</svg>

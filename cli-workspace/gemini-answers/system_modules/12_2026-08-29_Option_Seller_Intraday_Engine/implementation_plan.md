@@ -1,6 +1,6 @@
 # Option Seller 日内期权卖方自动交易系统实施计划 (SPY 0DTE Vertical Credit Spread Engine)
 
-本方案基于 **OSMTrade (OSM.AI)** 的工业化期权卖方四步闭环体系（`DISCOVER` -> `STRUCTURE` -> `MANAGE` -> `REVIEW`），融合当前量化体系已有的 **Order Flow 5分钟哨兵双引擎、SPX/SPY Gamma 做市商对冲水位、趋势日防护罩**，并在 **TOS / Schwab API (`schwab-py`)** 上构建从信号触发、行权价仲裁、两腿定义风险组合下单、持仓动态风控管理到独立 Web 监控控制台的完整自动化实盘系统。
+本方案基于 **BBT.AI (BBT.AI)** 的工业化期权卖方四步闭环体系（`DISCOVER` -> `STRUCTURE` -> `MANAGE` -> `REVIEW`），融合当前量化体系已有的 **Order Flow 5分钟哨兵双引擎、SPX/SPY Gamma 做市商对冲水位、趋势日防护罩**，并在 **TOS / Schwab API (`schwab-py`)** 上构建从信号触发、行权价仲裁、两腿定义风险组合下单、持仓动态风控管理到独立 Web 监控控制台的完整自动化实盘系统。
 
 ---
 
@@ -62,38 +62,38 @@
 
 ## 实施工程分解与修改文件清单
 
-### Component 1: 底层执行与期权链计算 (`PyTools/tos_api/`)
-- #### [MODIFY] [bb_tos.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/tos_api/bb_tos.py)
-  - 扩展 Schwab API 订单组装接口：增加 `place_vertical_credit_spread(symbol, exp_date, short_strike, long_strike, spread_type, quantity, limit_credit)` 与 `close_vertical_spread(...)`。
-  - 增加 SPY 0DTE 链的高效单次拉取与 Greeks 缓存机制。
-- #### [NEW] [option_seller_engine.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/tos_api/option_seller_engine.py)
+### Component 1: Option Seller 核心策略与状态机 (`PyTools/option_seller/`)
+- #### [NEW] [option_seller_engine.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/option_seller/option_seller_engine.py)
   - 实现 `OptionSellerEngine` 核心类：
     - `find_optimal_spread(direction, current_price, target_delta=0.12, width=1.0)`
     - `evaluate_entry_conditions(sentinel_signal, gamma_regime, trend_shield)`
     - `execute_order(spread_candidate, dry_run=True)`
-
-### Component 2: 持仓守护监控与状态机 (`PyTools/tos_api/`)
-- #### [NEW] [option_seller_manager.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/tos_api/option_seller_manager.py)
+- #### [NEW] [option_seller_manager.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/option_seller/option_seller_manager.py)
   - 独立后台风控线程：
     - 每 15 秒轮询活跃持仓的最新买卖报价与 Mark；
     - 执行止盈（65%）、止损（2.2x 权利金）、时间止损（12:30 PST）；
     - 支持安全模式开关（Dry-run 纸面模拟 vs Live 实盘模式）；
     - 提供手动紧急平仓接口 `emergency_close_all()`。
 
+### Component 2: 底层执行与期权链计算 (`PyTools/tos_api/`)
+- #### [MODIFY] [bb_tos.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/tos_api/bb_tos.py)
+  - 扩展 Schwab API 订单组装接口：增加 `place_vertical_credit_spread(symbol, exp_date, short_strike, long_strike, spread_type, quantity, limit_credit)` 与 `close_vertical_spread(...)`。
+  - 增加 SPY 0DTE 链的高效单次拉取与 Greeks 缓存机制。
+
 ### Component 3: 数据库持久化 (`PyTools/db_query.py` & DB Script)
 - #### [MODIFY] [db_query.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/db_query.py)
   - 增加 `option_seller_trade_add`、`option_seller_trade_close`、`option_seller_trades_today_query` 等查询与写入函数。
 
-### Component 4: 独立 Web 监控控制台 (`bbt_signal_web/`)
-- #### [NEW] [bbt_option_seller.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_signal_web/signal_app/bbt_option_seller.py)
+### Component 4: 独立 Web 监控控制台 (`bbt_data_web/`)
+- #### [NEW] [bbt_option_seller.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/data_app/bbt_option_seller.py)
   - 注册 Flask Blueprint `bp_option_seller`，提供：
     - 页面路由：`/bbt_option_seller`
     - 数据接口：`/api/option_seller/status`（实时持仓、Greeks、安全垫、当日交易记录、引擎状态）
-    - 操作接口：`/api/option_seller/toggle_engine`、`/api/option_seller/emergency_close`
-- #### [NEW] [bbt_option_seller.html](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_signal_web/templates/bbt_option_seller.html)
+    - 操作接口：`/api/option_seller/toggle_engine`、`/api/option_seller/panic_close`、`/api/option_seller/close_position`、`/api/option_seller/scan_now`
+- #### [NEW] [bbt_option_seller.html](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/templates/bbt_option_seller.html)
   - 专为期权卖方打造的深色/现代半透明量化控制台页面，支持实时 WebSocket/轮询刷新。
-- #### [MODIFY] [bbt_signal_app.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_signal_web/bbt_signal_app.py)
-  - 注册 `bp_option_seller` 蓝图，启动持仓监控线程。
+- #### [MODIFY] [bbt_data_app.py](file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/bbt_data_app.py)
+  - 注册 `bp_option_seller` 蓝图，并在导航首页追加工具入口，启动持仓监控守护线程。
 
 ---
 
@@ -108,7 +108,7 @@
 - 人工触发一次模拟看多信号，验证系统能否自动记录开仓、实时计算浮动盈亏、并在达到虚拟止盈/止损线时自动触发平仓。
 
 ### 3. 独立页面前端交互验证
-- 访问 `http://127.0.0.1:5008/bbt_option_seller`，检查：
+- 访问 `http://127.0.0.1:5005/bbt_option_seller`，检查：
   - 账户盈亏及统计条正确展示；
   - 活跃持仓卡片、安全垫进度条、Greeks 显示无误；
   - 状态机雷达能正确展示 DISCOVER / STRUCTURE / MANAGE 状态。

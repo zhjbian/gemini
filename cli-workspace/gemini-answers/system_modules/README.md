@@ -111,8 +111,8 @@
 ### 12. [Option Seller 日内自动化交易系统 (SPY 0DTE Spread Engine)](file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine)
 * **演进时间**: `2026-08-29`
 * **归档目录**: `12_2026-08-29_Option_Seller_Intraday_Engine`
-* **系统职责**: 基于 OSMTrade 工业化闭环理念，融合 5分钟哨兵双引擎、Gamma 水位与趋势日防护罩，构建 SPY 0DTE 两腿垂直价差选型、TOS/Schwab 下单与持仓动态生命周期管理（止盈65%、止损2.2x、12:30强平），并提供独立 Web 控制台。
+* **系统职责**: 基于 BBT.AI 工业化闭环理念，融合 5分钟哨兵双引擎、Gamma 水位与趋势日防护罩，构建 SPY 0DTE 两腿垂直价差选型、TOS/Schwab 下单与持仓动态生命周期管理（止盈65%、止损2.2x、12:30强平），并提供独立 Web 控制台。
 * **技术栈**: Python / Option Seller / Schwab API / SPY 0DTE / Web UI / MySQL
 * **实施计划**: [implementation_plan.md](file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/implementation_plan.md)
-* **验收总结**: 待验收 (In Progress)
+* **验收总结**: [walkthrough.md](file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/walkthrough.md)
 

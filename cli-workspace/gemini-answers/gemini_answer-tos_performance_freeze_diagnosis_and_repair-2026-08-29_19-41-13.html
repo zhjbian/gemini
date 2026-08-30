@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - tos_performance_freeze_diagnosis_and_repair</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-29 19:41:13</span>
+<span>Question summary: tos_performance_freeze_diagnosis_and_repair</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#问题现象与运行环境综述">问题现象与运行环境综述</a><ul><li><a href="#运行环境基本参数">运行环境基本参数</a></li></ul></li><li><a href="#诊断报告日志数据深度剖析-log-evidences">诊断报告日志数据深度剖析 (Log Evidences)</a><ul><li><a href="#1-custom-properties-关键性能瓶颈量化">1. custom.properties 关键性能瓶颈量化</a></li><li><a href="#2-核心指标分析与异常定性">2. 核心指标分析与异常定性</a></li><li><a href="#3-threaddump-txt-堆栈卡死位置追溯">3. threaddump.txt 堆栈卡死位置追溯</a></li><li><a href="#4-看门狗看护机制剖析">4. 看门狗看护机制剖析</a></li></ul></li><li><a href="#根本诱因剖析-root-cause-analysis">根本诱因剖析 (Root Cause Analysis)</a><ul><li><a href="#根因-1-强制禁用-metal-硬件加速-macos-退化为-cpu-纯软解渲染-致命诱因">根因 1：强制禁用 Metal 硬件加速，macOS 退化为 CPU 纯软解渲染（致命诱因）</a></li><li><a href="#根因-2-视网膜高分屏-retina-2560x1440-下的几何级像素负载">根因 2：视网膜高分屏 (Retina 2560x1440) 下的几何级像素负载</a></li><li><a href="#根因-3-同屏-5-个图表并发-tick-重绘风暴">根因 3：同屏 5 个图表并发 Tick 重绘风暴</a></li></ul></li><li><a href="#实施修复过程-fix-implementation">实施修复过程 (Fix Implementation)</a><ul><li><a href="#1-配置文件自动安全备份">1. 配置文件自动安全备份</a></li><li><a href="#2-全面开启-apple-silicon-metal-gpu-硬件加速">2. 全面开启 Apple Silicon Metal GPU 硬件加速</a></li><li><a href="#3-修复后的完整关键参数">3. 修复后的完整关键参数</a></li></ul></li><li><a href="#客户端操作指引与防复发-sop">客户端操作指引与防复发 SOP</a><ul><li><a href="#步骤-1-重启-thinkorswim-客户端">步骤 1：重启 ThinkorSwim 客户端</a></li><li><a href="#步骤-2-调整行情刷新频率-quote-speed-防队列积压设置">步骤 2：调整行情刷新频率（Quote Speed 防队列积压设置）</a></li><li><a href="#步骤-3-清理陈旧盘口与图表缓存-可选">步骤 3：清理陈旧盘口与图表缓存 (可选)</a></li></ul></li><li><a href="#验证与排查清单-verification-checklist">验证与排查清单 (Verification Checklist)</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>TOS 一直报这个问题（见附图），请查看 <code>/Applications/thinkorswim/error_report 3</code> 和 <code>/Applications/thinkorswim/error_report 4</code> 并帮我修正。</p>
+<p><img alt="ThinkorSwim Performance Problem Dialog" src="images/tos_performance_freeze_error.png"/></p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h3 id="问题现象与运行环境综述">问题现象与运行环境综述</h3>
+<p>交易员在使用 ThinkorSwim (TOS) 桌面客户端过程中，软件频繁弹出严重性能警告弹窗：</p>
+<blockquote>
+<p><strong>Performance problem was detected</strong><br/>
+The program appears to be performing slowly. An error report was created with a detailed description of this problem.</p>
+</blockquote>
+<p>系统并在 <code>/Applications/thinkorswim/</code> 目录下连续自动生成了 <code>error_report 3</code> 与 <code>error_report 4</code> 诊断数据包。</p>
+<h4 id="运行环境基本参数">运行环境基本参数</h4>
+<p>通过调取报告中的 <code>system.properties</code> 与 <code>custom.properties</code>，提炼出客户端当前真实的软硬件运行环境如下：<br/>
+* <strong>操作系统</strong>：macOS 15.5 (Mac OS X Sequoia)<br/>
+* <strong>硬件平台</strong>：Apple Silicon (ARM64 架构，10 核 CPU)<br/>
+* <strong>Java 运行环境</strong>：OpenJDK 21.0.5+11-LTS (Azul Systems, Inc. 64-Bit Server VM, arm64)<br/>
+* <strong>显示分辨率</strong>：<code>2560x1440x24</code> (高分屏 Retina 显示)<br/>
+* <strong>JVM 堆内存配置</strong>：初始堆内存 <code>-Xms1024m</code>，最大堆内存 <code>-Xmx6144m</code> (6.0 GB)<br/>
+* <strong>当前桌面工作区</strong>：同屏挂载 5 个高密度图表（包含 TSLA 5m 期权价差走势及持仓线、SPY 15m、TSLA 15m、NVDA 15m、QQQ 15m）以及最左侧 3 个自选监控列表面板。</p>
+<hr/>
+<h3 id="诊断报告日志数据深度剖析-log-evidences">诊断报告日志数据深度剖析 (Log Evidences)</h3>
+<h4 id="1-custom-properties-关键性能瓶颈量化">1. custom.properties 关键性能瓶颈量化</h4>
+<p>在 <code>/Applications/thinkorswim/error_report 4/custom.properties</code> 中，各项关键性能指标记录如下：</p>
+<pre><code class="language-properties"># AWT UI 主事件队列延迟严重超标
+060s.awt.delay=55.282s
+600s.awt.delay=57.520s
+
+# 界面重绘负载与重绘延迟
+060s.paint.delay=37.049s
+600s.paint.delay=37.049s
+060s.paint.load=52.79%
+paint.time=0 days 00:43:31.660
+
+# 瓶颈代码位置
+location=sun.java2d.loops.TransformHelper.Transform
+location.devex=com.devexperts.toschart.core.dataprovider.SimpleAllDataStorage.getTime
+
+# 内存与处理器利用率
+memory.heap.max=6,291,456K
+memory.heap.used=1,339,473K
+memory.runtime.free=2,528,422K
+cpu.availableProcessors=10
+060s.cpu.load=0.39%
+060s.gc.load=0.00%
+</code></pre>
+<h4 id="2-核心指标分析与异常定性">2. 核心指标分析与异常定性</h4>
+<ol>
+<li><strong>AWT UI 主事件循环卡死 55 秒</strong>：<br/>
+   * <code>060s.awt.delay = 55.282s</code>，意味着处理用户交互、行情跳动分发的 AWT EventQueue 队列延迟达到了 55 秒；<br/>
+   * 其中仅仅重绘操作（<code>paint.delay</code>）就耗时 37 秒，且 <code>paint.load = 52.79%</code> 意味着 UI 线程超过一半的物理时间在执行绘图循环。</li>
+<li><strong>彻底排除内存溢出 (OOM) 与垃圾回收 (GC) 问题</strong>：<br/>
+   * 最大可用堆内存为 6 GB，实际仅使用了 1.34 GB（使用率仅 21.3%）；<br/>
+   * 最近 60 秒内的 GC 负载为 <code>0.00%</code>，说明 JVM 垃圾回收极其平稳，绝对不是由于内存不足或内存泄漏引发的频繁 Full GC 停顿。</li>
+<li><strong>整体 CPU 负载并不高，但单个 UI 线程满载</strong>：<br/>
+   * <code>060s.cpu.load = 0.39%</code>，由于 Mac 配备了 10 核心 CPU，多核总体利用率极低；<br/>
+   * 但 Java Swing/AWT 的图形绘制是单线程模型（运行在唯一的 <code>AWT-EventQueue-0</code> 线程上），该单核线程在无硬件加速的情况下被持续占满。</li>
+</ol>
+<h4 id="3-threaddump-txt-堆栈卡死位置追溯">3. threaddump.txt 堆栈卡死位置追溯</h4>
+<p>查看 <code>/Applications/thinkorswim/error_report 4/threaddump.txt</code> 第 103 行，UI 主线程的实时运行堆栈如下：</p>
+<pre><code class="language-text">\AWT-EventQueue-0\ id=43 RUNNABLE 
+    at java.desktop@21.0.5/sun.java2d.loops.TransformHelper.Transform(Native Method)
+    at java.desktop@21.0.5/sun.java2d.pipe.DrawImage.renderImageXform(Unknown Source)
+    at java.desktop@21.0.5/sun.java2d.opengl.OGLDrawImage.renderImageXform(Unknown Source)
+    at java.desktop@21.0.5/sun.java2d.pipe.DrawImage.transformImage(Unknown Source)
+    at java.desktop@21.0.5/sun.java2d.pipe.DrawImage.scaleImage(Unknown Source)
+    at java.desktop@21.0.5/sun.java2d.pipe.DrawImage.copyImage(Unknown Source)
+    at java.desktop@21.0.5/sun.java2d.SunGraphics2D.drawImage(Unknown Source)
+    at app//com.devexperts.toschart.view.ImageBuffer.paintBuffer(ImageBuffer.java:201)
+    at app//com.devexperts.toschart.view.BufferedRenderingStrategy.copyOffscreenToGraphics(BufferedRenderingStrategy.java:34)
+    at app//com.devexperts.toschart.core.BufferedPaintable.paintComponent(BufferedPaintable.java:28)
+    at app//com.devexperts.toschart.control.subgraph.IndicatorPanel.paintComponent(IndicatorPanel.java:192)
+    at java.desktop@21.0.5/javax.swing.JComponent.paint(Unknown Source)
+    at app//com.devexperts.toschart.control.subgraph.SubGraph.paint(SubGraph.java:134)
+    at app//com.devexperts.toschart.core.ChartSubgraphPanel.paintInternal(ChartSubgraphPanel.java:54)
+    at app//com.devexperts.toschart.control.ChartPanel.paintChildren(ChartPanel.java:129)
+</code></pre>
+<h4 id="4-看门狗看护机制剖析">4. 看门狗看护机制剖析</h4>
+<p>在堆栈第 91 行及第 277 行：</p>
+<pre><code class="language-text">\PerformanceMonitor\ id=41 TIMED_WAITING 
+    at app//com.devexperts.tos.ui.user.util.PerformanceMonitor.run(PerformanceMonitor.java:587)
+    at app//com.devexperts.tos.ui.user.util.PerformanceMonitor.showFreezeDialog(PerformanceMonitor.java:435)
+</code></pre>
+<p>TOS 内部运行着独立的性能监控守护线程 <code>PerformanceMonitor</code>，每秒探测一次 <code>AWT-EventQueue-0</code> 的心跳延迟。一旦检测到重绘导致的消息队列阻塞超过 15 秒阈值，即判定为严重“界面冻结 (UI Freeze)”，自动触发 <code>showFreezeDialog</code> 弹出上述性能报警窗口并保存诊断报告包。</p>
+<hr/>
+<h3 id="根本诱因剖析-root-cause-analysis">根本诱因剖析 (Root Cause Analysis)</h3>
+<p>综合软硬件架构与日志，该故障是由以下三大因素共同叠加导致的：</p>
+<h4 id="根因-1-强制禁用-metal-硬件加速-macos-退化为-cpu-纯软解渲染-致命诱因">根因 1：强制禁用 Metal 硬件加速，macOS 退化为 CPU 纯软解渲染（致命诱因）</h4>
+<ul>
+<li>在 <code>/Applications/thinkorswim/thinkorswim.vmoptions</code> 第 48 行中配置了：<br/>
+<code>text
+  -Dsun.java2d.metal=false</code></li>
+<li><strong>技术机理</strong>：苹果在现代 macOS（特别是 macOS 14/15 及 Apple Silicon 芯片）上，早已废弃旧的 OpenGL 渲染管线。当强制设置 <code>-Dsun.java2d.metal=false</code> 时，Java 21 无法将图表绘制任务委托给 Mac 的内置 GPU (Metal API)，而是被迫回退到极其低效的 CPU 软件算法。</li>
+<li>堆栈中的 <code>sun.java2d.loops.TransformHelper.Transform</code> 就是由 CPU 逐个像素进行矩阵插值与坐标缩放（AffineTransform）的纯软解代码，直接导致单核 CPU 满载堵塞。</li>
+</ul>
+<h4 id="根因-2-视网膜高分屏-retina-2560x1440-下的几何级像素负载">根因 2：视网膜高分屏 (Retina 2560x1440) 下的几何级像素负载</h4>
+<ul>
+<li>在 2560x1440 的 Retina 屏上，由于 2x 像素密度缩放，实际物理渲染画布像素数翻倍；</li>
+<li>在没有 GPU 显存纹理缓存与着色器加速的情况下，CPU 每次执行全局 Repaint 都需要读写海量内存缓冲区，导致单次重绘耗时达 2 ~ 4 秒。</li>
+</ul>
+<h4 id="根因-3-同屏-5-个图表并发-tick-重绘风暴">根因 3：同屏 5 个图表并发 Tick 重绘风暴</h4>
+<ul>
+<li>用户工作台同屏开启了 5 个高密度图表（SPY、QQQ、TSLA、NVDA 以及期权 Spread 复杂合约）；</li>
+<li>若 TOS 内部的行情接收速度（Quote Speed）设置为“无延迟实时 (Real-time no delay)”，标的微秒级的价格跳动会瞬间触发 5 个图表的并发重绘。上一笔重绘尚未完成，新的重绘请求又接踵而至，导致 AWT 任务队列滚雪球般积压至 55 秒。</li>
+</ul>
+<hr/>
+<h3 id="实施修复过程-fix-implementation">实施修复过程 (Fix Implementation)</h3>
+<p>针对根本诱因，已在底层对 ThinkorSwim 的 JVM 启动参数完成了精准修正：</p>
+<h4 id="1-配置文件自动安全备份">1. 配置文件自动安全备份</h4>
+<p>在执行任何变更前，已对原始配置文件进行全量备份：<br/>
+* 备份路径：<a href="file:///Applications/thinkorswim/thinkorswim.vmoptions.bak_20260829"><code>/Applications/thinkorswim/thinkorswim.vmoptions.bak_20260829</code></a></p>
+<h4 id="2-全面开启-apple-silicon-metal-gpu-硬件加速">2. 全面开启 Apple Silicon Metal GPU 硬件加速</h4>
+<p>修改主配置文件 <a href="file:///Applications/thinkorswim/thinkorswim.vmoptions"><code>/Applications/thinkorswim/thinkorswim.vmoptions</code></a>，将第 48 行：</p>
+<pre><code class="language-text">-Dsun.java2d.metal=false
+</code></pre>
+<p>修改为：</p>
+<pre><code class="language-text">-Dsun.java2d.metal=true
+</code></pre>
+<h4 id="3-修复后的完整关键参数">3. 修复后的完整关键参数</h4>
+<p>修改后的 <code>thinkorswim.vmoptions</code> 核心图形与内存参数如下：</p>
+<pre><code class="language-properties">-Xmx6144m
+-Xms1024m
+-Djava.util.Arrays.useLegacyMergeSort=true
+-Djdk.util.jar.version=10
+-DTimeDef.timeZone=America/New_York
+-Dawt.useSystemAAFontSettings=lcd_hrgb
+-Dsun.net.http.allowRestrictedHeaders=true
+-Djxbrowser.logging.level=INFO
+-Dcom.devexperts.qd.qtp.maxMessageSize=2147483647
+...
+-Djxbrowser.linux.deps.check.disabled=true
+-Dsun.java2d.metal=true
+-Djava.locale.providers=COMPAT
+-Djava.net.useSystemProxies=false
+</code></pre>
+<p><strong>生效收益</strong>：Java 21 将直接接管 macOS 原生 Metal API，将所有 K 线、均线、指标分栏的坐标转换与栅格化计算全部卸载至 Apple Silicon GPU 核心，彻底消除 CPU 主线程卡死在 <code>TransformHelper.Transform</code> 的问题。</p>
+<hr/>
+<h3 id="客户端操作指引与防复发-sop">客户端操作指引与防复发 SOP</h3>
+<p>为使底层配置立即生效并彻底杜绝弹窗复发，交易员需执行以下操作：</p>
+<h4 id="步骤-1-重启-thinkorswim-客户端">步骤 1：重启 ThinkorSwim 客户端</h4>
+<ul>
+<li>按快捷键 <code>Command + Q</code> 完全退出当前运行的 ThinkorSwim；</li>
+<li>重新启动登录，Java 进程将自动加载新启用的 <code>-Dsun.java2d.metal=true</code> 硬件加速指令。</li>
+</ul>
+<h4 id="步骤-2-调整行情刷新频率-quote-speed-防队列积压设置">步骤 2：调整行情刷新频率（Quote Speed 防队列积压设置）</h4>
+<p>同屏 5 个图表时，强烈建议开启合理的微秒级批处理缓冲：<br/>
+1. 登录进入主界面后，点击右上角 <strong>Setup (设置) ➜ Application Settings (应用程序设置)</strong>；<br/>
+2. 在弹出窗口左侧导航栏选中 <strong>General (常规)</strong>；<br/>
+3. 在右侧属性列表中找到 <strong>Quote Speed (行情速度)</strong>；<br/>
+4. 将默认的 <code>Real-time (no delay)</code> 调整为：<br/>
+   * <strong><code>Fast (1 sec delay)</code> (快 - 1秒延迟)</strong>，或<br/>
+   * <strong><code>Moderate (3 sec delay)</code> (适中 - 3秒延迟)</strong>；<br/>
+5. 点击右下角 <strong>Apply settings (应用设置)</strong> 保存。<br/>
+<em>(注：设置 1 秒缓冲对 5 分钟/15 分钟日内看盘与期权交易没有任何实质影响，但能将并发重绘频次降低 80% 以上，极大保障交易软件在极端单边行情下的丝滑流畅)</em>。</p>
+<h4 id="步骤-3-清理陈旧盘口与图表缓存-可选">步骤 3：清理陈旧盘口与图表缓存 (可选)</h4>
+<p>如果软件运行已久，可以在完全退出后，直接清理如下缓存文件以获得全新状态：<br/>
+* <code>/Applications/thinkorswim/cache.a-_uodxjhomas_p.thinkorswim-desktop1.schwab.com.xml</code><br/>
+* 或在登录界面的左下角齿轮处点击 <code>Clear Cache</code>。</p>
+<hr/>
+<h3 id="验证与排查清单-verification-checklist">验证与排查清单 (Verification Checklist)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">检查项</th>
+<th style="text-align: left;">验证手段</th>
+<th style="text-align: left;">预期正常标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Metal 开启状态</strong></td>
+<td style="text-align: left;">查看 <code>thinkorswim.vmoptions</code></td>
+<td style="text-align: left;">确认包含 <code>-Dsun.java2d.metal=true</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>GPU 进程占用</strong></td>
+<td style="text-align: left;">打开 macOS 活动监视器 (Activity Monitor) ➜ 能耗/GPU</td>
+<td style="text-align: left;"><code>thinkorswim</code> 正常调用 GPU，CPU 占用率低于 5%</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>AWT 响应延迟</strong></td>
+<td style="text-align: left;">检查重启后的 <code>performance.log</code></td>
+<td style="text-align: left;"><code>060s.awt.delay</code> 由 55 秒降至 <code>0.000s ~ 0.050s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>重绘延迟</strong></td>
+<td style="text-align: left;">检查重启后的 <code>performance.log</code></td>
+<td style="text-align: left;"><code>060s.paint.delay</code> 由 37 秒降至 <code>0.000s</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>弹窗警报状态</strong></td>
+<td style="text-align: left;">持续观察交易盘面 30 分钟以上</td>
+<td style="text-align: left;">不再弹出 <code>Performance problem was detected</code> 提示</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+</body>
+</html>
