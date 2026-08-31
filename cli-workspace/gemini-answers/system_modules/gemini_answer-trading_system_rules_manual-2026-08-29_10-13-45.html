@@ -259,12 +259,12 @@
       border-color: #cbd5e1;
     }
 
-    /* Reading Container */
+    /* Reading Container - Ultra-wide 96% viewport span */
     .content-area {
-      max-width: 1280px;
-      width: 100%;
+      max-width: 96%;
+      width: 96%;
       margin: 0 auto;
-      padding: 36px 48px 80px;
+      padding: 30px 24px 80px;
     }
 
     /* Hero Banner */
@@ -470,32 +470,42 @@
       font-size: 0.88rem;
     }
 
-    /* Tables */
+    /* Tables - Enhanced Crisp Borders & High Legibility */
     table {
       width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 24px 0;
       font-size: 0.90rem;
-      border: 1px solid var(--border);
+      border: 1.5px solid #94a3b8;
       border-radius: 8px;
       overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
     th, td {
-      padding: 12px 14px;
+      padding: 13px 16px;
       text-align: left;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #cbd5e1;
+      border-right: 1px solid #cbd5e1;
+      line-height: 1.6;
+    }
+    th:last-child, td:last-child {
+      border-right: none;
+    }
+    tr:last-child td {
+      border-bottom: none;
     }
     th {
-      background: #f8fafc;
-      color: #1e293b;
+      background: #e2e8f0;
+      color: #0f172a;
       font-weight: 700;
-      border-right: 1px solid var(--border);
-    }
-    td {
-      border-right: 1px solid var(--border);
+      font-size: 0.92rem;
+      border-bottom: 2px solid #94a3b8;
+      letter-spacing: 0.01em;
     }
     tr:nth-child(even) {
-      background: #fcfdfe;
+      background: #f8fafc;
     }
     tr:hover {
       background: #f0f9ff;
@@ -645,15 +655,9 @@
             <span class="nav-text">Option Seller 自动交易系统风控与选型规则 (Option Seller Rules)</span>
           </a>
         </li>
-        <li class="nav-item" data-title="motivewave quantpivot 动态波动率与跳空自适应规则 (mw study rules)">
+        <li class="nav-item" data-title="交易系统全景定时任务、轮询机制与后台守护线程执行规范 (system scheduled tasks, polling & daemons)">
           <a href="#chapter-18" class="nav-link" onclick="setActiveNav(this)">
             <span class="nav-num">18</span>
-            <span class="nav-text">MotiveWave QuantPivot 动态波动率与跳空自适应规则 (MW Study Rules)</span>
-          </a>
-        </li>
-        <li class="nav-item" data-title="交易系统全景定时任务、轮询机制与后台守护线程执行规范 (system scheduled tasks, polling & daemons)">
-          <a href="#chapter-19" class="nav-link" onclick="setActiveNav(this)">
-            <span class="nav-num">19</span>
             <span class="nav-text">交易系统全景定时任务、轮询机制与后台守护线程执行规范 (Scheduled Tasks & Daemons)</span>
           </a>
         </li>
@@ -1364,10 +1368,10 @@
   <table>
     <thead>
       <tr>
-        <th style="width: 20%;">漏斗层级</th>
-        <th style="width: 26%;">核心检验维度</th>
-        <th style="width: 24%;">触发硬性阈值</th>
-        <th style="width: 30%;">仲裁逻辑与决策意图</th>
+        <th style="width: 14%;">漏斗层级</th>
+        <th style="width: 20%;">核心检验维度</th>
+        <th style="width: 20%;">触发硬性阈值</th>
+        <th style="width: 46%;">仲裁逻辑与决策意图</th>
       </tr>
     </thead>
     <tbody>
@@ -1395,13 +1399,142 @@
       </tr>
       <tr>
         <td><strong>维度 2：SPX 0DTE Gamma 结构</strong><br>(权重 30分)</td>
-        <td>现价 vs ZGL / Wall 屏障<br>(需贡献 &gt;= 15分)</td>
-        <td>• <strong>看多</strong>：现价处于零 Gamma 线 (ZGL) 之上做市商减震区，且远高于下方 Put Wall。<br>• <strong>看空</strong>：现价处于零 Gamma 线 (ZGL) 之下顺势助跌，或受上方 Call Wall 强阻力压制。</td>
+        <td>
+          • <strong>Cluster &amp; Ratio (15分)</strong><br>
+          • <strong>Wall 物理屏障垫 (10分)</strong><br>
+          • <strong>主方向基调 (5分)</strong><br>
+          (需贡献 &gt;= 15分)
+        </td>
+        <td style="padding: 10px 14px;">
+          <!-- Sub-item 1 Table -->
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            📊 子项 1：多空集群名义金额与比率 (Cluster &amp; Ratio，满分 15分，分时动态校准)
+          </div>
+          <p style="font-size: 0.84rem; color: #475569; margin-bottom: 6px; line-height: 1.5;">
+            基于历史 741 组样本分位数实测，消除 0DTE 尾盘到期数学奇点扭曲：<strong>早盘建仓期 (06:30-08:00 PST)</strong> 历史中位数 ~$4.8B，门限设为 <strong>$5.0B / $3.5B</strong>；<strong>盘中黄金期 (08:00-11:30 PST)</strong> 历史中位数升至 ~$15B，门限设为 <strong>$15.0B / $10.0B</strong>。
+          </p>
+          <table style="margin: 6px 0 12px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 18%;">加分档位</th>
+                <th style="padding: 6px 10px; width: 41%;">看多加分条件 (做多卖 Put 垫背)</th>
+                <th style="padding: 6px 10px; width: 41%;">看空加分条件 (做空卖 Call 引力)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #047857; background: #f0fdf4;">+15 分 (顶格满分)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &gt;= 2.0:1</code> 且 <code>Bull &gt;= 顶格门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $5.0B / 盘中 &gt;= $15.0B)</span></td>
+                <td style="padding: 6px 10px;"><code>Ratio &lt;= 0.5:1</code> 且 <code>Bear &gt;= 顶格门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $5.0B / 盘中 &gt;= $15.0B)</span></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0284c7; background: #f0f9ff;">+10 分 (中度稳态)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &gt;= 1.3:1</code> 且 <code>Bull &gt;= 基础门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $3.5B / 盘中 &gt;= $10.0B)</span></td>
+                <td style="padding: 6px 10px;"><code>Ratio &lt;= 0.77:1</code> 且 <code>Bear &gt;= 基础门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $3.5B / 盘中 &gt;= $10.0B)</span></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #475569; background: #f8fafc;">+5 分 (弱势偏向)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &gt;= 1.1:1</code> (纯方向优势)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &lt;= 0.9:1</code> (纯方向优势)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Sub-item 2 Table -->
+          <div style="font-weight: 700; color: #0f172a; margin-top: 10px; margin-bottom: 6px;">
+            🧱 子项 2：期权大墙物理屏障与距离安全垫 (Call/Put Wall Cushion，满分 10分)
+          </div>
+          <table style="margin: 6px 0 12px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 18%;">加分档位</th>
+                <th style="padding: 6px 10px; width: 41%;">看多：下方 Put Wall 铁底承接</th>
+                <th style="padding: 6px 10px; width: 41%;">看空：上方 Call Wall 天花板压制</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #047857; background: #f0fdf4;">+10 分 (核心屏障)</td>
+                <td style="padding: 6px 10px;">现价距下方 Put Wall 距离 <strong>0.1% ~ 0.8%</strong> 且企稳</td>
+                <td style="padding: 6px 10px;">现价距上方 Call Wall 距离 <strong>0.1% ~ 0.8%</strong> 且承压</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0284c7; background: #f0f9ff;">+6 分 (次近屏障)</td>
+                <td style="padding: 6px 10px;">现价距下方 Put Wall 距离 <strong>0.8% ~ 1.5%</strong> 缓冲带</td>
+                <td style="padding: 6px 10px;">现价距上方 Call Wall 距离 <strong>0.8% ~ 1.5%</strong> 阻力带</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Sub-item 3 Box -->
+          <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; font-size: 0.82rem; margin-top: 6px;">
+            <strong>🎯 子项 3：大盘主方向基调与辅助状态 (Direction Baseline，满分 5分)</strong>：<br>
+            • <code>direction == 'Positive' / 'Bullish'</code> 辅助看多 <strong>+5分</strong>；<code>direction == 'Negative' / 'Bearish'</code> 辅助看空 <strong>+5分</strong>。<br>
+            <span style="color: #64748b;">(彻底剔除对 0DTE 频繁上下翻转的 ZGL 噪音依赖，仅做顺势背景校验)。</span>
+          </div>
+        </td>
       </tr>
       <tr>
-        <td><strong>维度 3：Smashelito Pivot 拍卖位</strong><br>(权重 15分)</td>
-        <td>现价 vs 核心 Pivot / S / R<br>(需贡献 &gt;= 10分)</td>
-        <td>• <strong>看多</strong>：价格位于今日核心 Pivot 之上，或回踩支撑位 (S1/S2/Pivot) 企稳确认。<br>• <strong>看空</strong>：价格位于今日核心 Pivot 之下，或反抽阻力位 (R1/R2/Pivot) 承压遇阻确认。</td>
+        <td><strong>维度 3：拍卖关键位与 QuantPivot 反转边界</strong><br>(权重 15分)</td>
+        <td>
+          • <strong>Smashelito Pivot (日内中枢)</strong><br>
+          • <strong>QuantPivot 波动率边界 (L1/L2, H1/H2)</strong><br>
+          (需贡献 &gt;= 10分)
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            🎯 拍卖中枢与 QuantPivot 统计学反转边界双重共振 (满分 15分)
+          </div>
+          <p style="font-size: 0.84rem; color: #475569; margin-bottom: 6px; line-height: 1.5;">
+            将<strong>第 9 节 QuantPivot 统计学反转边界</strong>深度嵌入为本维度的量化决策内核，与 Smashelito 拍卖关键位实施双层共振验证与累加赋分：
+          </p>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 22%;">触发层级与特征</th>
+                <th style="padding: 6px 10px; width: 39%;">🟢 看多看涨 (做多卖出 Bull Put Spread)</th>
+                <th style="padding: 6px 10px; width: 39%;">🔴 看空看跌 (做空卖出 Bear Call Spread)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">1. QuantPivot 边界初碰</td>
+                <td style="padding: 6px 10px;">
+                  价格下探测试 <strong>L1 支撑带</strong>（统计学动能初次衰竭）<br>
+                  ➔ <strong style="color: #047857;">+8 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格上冲测试 <strong>H1 阻力带</strong>（多头动能初次衰竭）<br>
+                  ➔ <strong style="color: #b91c1c;">+8 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">2. QuantPivot 极限耗竭</td>
+                <td style="padding: 6px 10px;">
+                  深跌穿入 <strong>&lt;= L2 极端反转带</strong>（95% 置信度超跌耗竭极限，均值回归概率最高）<br>
+                  ➔ <strong style="color: #047857;">额外 +5 分 (累积 13分！)</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  冲入 <strong>&gt;= H2 极端反转带</strong>（95% 置信度超买耗竭极限）<br>
+                  ➔ <strong style="color: #b91c1c;">额外 +5 分 (累积 13分！)</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">3. Smashelito 双共振</td>
+                <td style="padding: 6px 10px;">
+                  若同时在日内关键支撑（S1/S2 或 Pivot）获得企稳承接<br>
+                  ➔ <strong style="color: #047857;">额外 +4 分 (直接封顶 15分满分！)</strong><br>
+                  <span style="color: #64748b; font-size: 0.78rem;">(单纯位于 Pivot 之上健康运行贡献 +6分)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  若同时在日内关键阻力（R1/R2 或 Pivot）遇阻承压回落<br>
+                  ➔ <strong style="color: #b91c1c;">额外 +4 分 (直接封顶 15分满分！)</strong><br>
+                  <span style="color: #64748b; font-size: 0.78rem;">(单纯位于 Pivot 之下承压运行贡献 +6分)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
       </tr>
       <tr>
         <td><strong>维度 4：EMA 13-21 趋势防护盾</strong><br>(权重 15分)</td>
@@ -1409,7 +1542,7 @@
         <td>• <strong>看多</strong>：15m EMA 13 &gt; EMA 21 多头排列，5m 价格稳固于均线上方或回踩企稳。<br>• <strong>看空</strong>：15m EMA 13 &lt; EMA 21 空头排列，5m 价格受制于均线下方或反抽遇阻。</td>
       </tr>
       <tr>
-        <td rowspan="3"><strong>第二层附：刚性一票否决项<br>(Hard Vetoes)</strong></td>
+        <td rowspan="4"><strong>第二层附：刚性一票否决项<br>(Hard Vetoes)</strong></td>
         <td><strong>虚假撤单陷阱一票否决</strong></td>
         <td><code>is_spoof_trap == False</code></td>
         <td>5分钟 DOM 深度检测到假单冰山/虚假大单撤单诱多/诱空时，直接一票否决，拒绝成为对手盘流动性。</td>
@@ -1420,6 +1553,79 @@
         <td>单边大涨趋势日（Bullish Trend）严禁卖 Call；单边大跌趋势日（Bearish Trend）严禁卖 Put，杜绝逆大势顶风作案。</td>
       </tr>
       <tr>
+        <td><strong>市场状态与时间双自适应位置保护<br>(Regime- &amp; Time-Adaptive Position Boundary)</strong></td>
+        <td>
+          • <strong>开盘前 30m 宽泛模式 (30% 保护带)</strong><br>
+          • <strong>震荡市严格中枢模式 (50% 分割)</strong><br>
+          • <strong>单边趋势日放宽模式 (65%/35%)</strong><br>
+          <span style="color: #b91c1c; font-weight: 600;">(违背即触发一票否决)</span>
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            🛡️ 极端位置反转阻断自适应裁决矩阵 (Hard Veto)
+          </div>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 22%;">时段与市场状态</th>
+                <th style="padding: 6px 10px; width: 39%;">🚫 严禁卖 Put 阻断门限 (防追高回撤)</th>
+                <th style="padding: 6px 10px; width: 39%;">🚫 严禁卖 Call 阻断门限 (防杀跌反弹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  开盘前 30 分钟<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(06:30 - 07:00 PST 宽泛探索)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日内极高位：<br>
+                  <strong style="color: #b91c1c;">Pos &gt;= 70% 禁卖 Put</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(仅拦截最高 30% 极端区，保留试盘容错)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日内极低位：<br>
+                  <strong style="color: #b91c1c;">Pos &lt;= 30% 禁卖 Call</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(仅拦截最低 30% 极端区，保留试盘容错)</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  开盘 30m 后：震荡市<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(07:00 后 常规平衡区间)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日面上半区：<br>
+                  <strong style="color: #b91c1c;">Pos &gt;= 50% 一律禁卖 Put</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(严格中枢分割，严禁在上半区追多，防冲高回落深套)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日面下半区：<br>
+                  <strong style="color: #b91c1c;">Pos &lt;= 50% 一律禁卖 Call</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(严格中枢分割，严禁在下半区杀跌，防触底报复反弹)</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  开盘 30m 后：强趋势日<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(15m 均线强单边推进)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  趋势跟随自适应放宽：<br>
+                  <strong style="color: #b91c1c;">Pos &gt;= 65% 才禁卖 Put</strong><br>
+                  <span style="color: #047857; font-size: 0.76rem;">(多头单边日允许在 50%~64% 均线回踩卖 Put，杜绝踏空死锁)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  趋势跟随自适应放宽：<br>
+                  <strong style="color: #b91c1c;">Pos &lt;= 35% 才禁卖 Call</strong><br>
+                  <span style="color: #047857; font-size: 0.76rem;">(空头单边日允许在 36%~50% 均线反抽卖 Call，杜绝踏空死锁)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
         <td><strong>均线严重纠缠混沌否决</strong></td>
         <td><code>EMA Tangled == False</code></td>
         <td>15m EMA 13 与 EMA 21 严重粘合且价格反复穿越，多空混沌无序时坚决空仓观望。</td>
@@ -1427,13 +1633,13 @@
       <tr>
         <td rowspan="3"><strong>第三层：策略自适应选型<br>(Profile Selection)</strong></td>
         <td><strong>⚡ 激进型 (Aggressive)</strong></td>
-        <td><strong>共振得分 &gt;= 75 分</strong></td>
-        <td>四维全要素强共振，贴近日内关键阻力/支撑位，博取高额权利金，顺应强单边推进。</td>
+        <td><strong>共振得分 &gt;= 75 分</strong><br>(或命中 QuantPivot L2/H2 极值)</td>
+        <td>四维全要素强共振，或<strong>触碰 QuantPivot L2 极端超跌/H2 极端超买耗竭线</strong>时自动激活！贴近日内关键阻力/支撑位，卖出更高 Delta 垂直价差，博取超额权利金与 Vega/Theta 极速双重收割。</td>
       </tr>
       <tr>
         <td><strong>⚖️ 平衡型 (Balanced / 核心主力)</strong></td>
-        <td><strong>共振得分 55 ~ 74 分</strong></td>
-        <td>三维标准稳态共振，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。</td>
+        <td><strong>共振得分 55 ~ 74 分</strong><br>(命中 QuantPivot L1/H1 常规带)</td>
+        <td>三维标准稳态共振，价格处于 QuantPivot L1/H1 支撑阻力带，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。</td>
       </tr>
       <tr>
         <td><strong>🛡️ 保守型 (Conservative / 防守)</strong></td>
@@ -1486,185 +1692,73 @@
 
   <p style="margin-top: 12px; font-size: 0.90rem; color: var(--muted);"><strong>触发后执行动作</strong>：四层漏斗全部验算通过后，系统自动卖出 2 手双批次垂直价差（Tranche 1 与 Tranche 2），同步持久化写入数据库，并即刻移交 <strong>10 秒风控守护线程</strong>，进入 40%/75% 阶梯止盈、2.20 倍硬止损与 12:30 PST 强制时间全平的全程盯市闭环。</p>
 
-  <h4 class="rule-heading">9. 关键价位共振与行权价护城河联动机制 (Linkage to MW QuantPivot Rules)</h4>
-  <p>期权卖方在日内关键极值位置开仓的共振判定（维度 3）以及 Short Strike 波动率护城河锚定，独立归类并全面对接 <strong>第十八章《MotiveWave QuantPivot 动态波动率枢轴与跳空跨时段自适应规则》</strong>：</p>
-  <ul>
-    <li><strong>空头开仓 (Bear Call Spread)</strong>：价格测试 QuantPivot H1 阻力赋 Bearish 评分 (+8 ~ +12 分)，Short Call Strike 优先锚定在 <code>&gt;= H2</code>（或 <code>&gt;= H1 + 0.5%</code>）；</li>
-    <li><strong>多头开仓 (Bull Put Spread)</strong>：价格测试 QuantPivot L1 支撑赋 Bullish 评分 (+8 ~ +12 分)，Short Put Strike 优先锚定在 <code>&lt;= L2</code>（或 <code>&lt;= L1 - 0.5%</code>）；</li>
-    <li><strong>跳空日自适应护城河</strong>：高开日卖 Call 严禁使用虚高的 RTH H2，必须锚定 24H H2；高开日卖 Put 必须以现货企稳下沿 RTH L2 为底线。低开日反之。</li>
-  </ul>
+  <h4 class="rule-heading">9. QuantPivot 统计学动态波动率耗竭与反转边界开仓决策规范 (QuantPivot Statistical Volatility Reversion Bands Entry Rules)</h4>
+  <p>为进一步增强期权卖方在日内关键极值位置开仓的统计学确定性，系统将基于 30 日真实日线波动范围（True Daily Range）的 <strong>QuantPivots (<code>Open</code>, <code>H1</code>, <code>H2</code>, <code>L1</code>, <code>L2</code>)</strong> 正式纳入开仓决策与行权价锚定架构：</p>
 
-  <h4 class="rule-heading">10. Dry-Run 模拟与实盘预埋限价止盈双轨执行规范 (Dual-Track Resting Limit Order & Guardian Rules)</h4>
-  <p>在交易执行与风控生命周期中，系统根据实盘（Live Trading）与模拟盘（Dry-Run）的本质差异，严格执行双轨分流与原子时序控制：</p>
-  <ul>
-    <li><strong>双轨分流原则 (Dual-Track Principle)</strong>：
-      <br>• <strong>Dry-Run 模式（模拟测试）</strong>：100% 运行于本地内存与数据库，绝不调用券商订单接口。由独立的 10 秒风控守护线程基于实时期权链盘口 Mark 进行模拟撮合与盈亏记账，零 API 损耗、零账户污染；
-      <br>• <strong>Live-Trading 模式（实盘资金）</strong>：开仓订单成功后，系统强制立即向 Schwab/TOS 预埋 2 笔限价平仓买单（Limit Buy-to-Close），将单子直接挂入期权交易所 Order Book 排队，享受最高撮合排队优先权并天然免疫本地断网。
-    </li>
-    <li><strong>预埋限价止盈定价公式 (纯文本表示，严禁 LaTeX)</strong>：
-      <br>• Tranche 1 止盈限价 (40% 衰减): <code>tp1_price = max(0.01, min(net_credit - 0.01, round(net_credit * (1.0 - 0.40), 2)))</code>
-      <br>• Tranche 2 止盈限价 (75% 衰减): <code>tp2_price = max(0.01, min(tp1_price - 0.01, round(net_credit * (1.0 - 0.75), 2)))</code>
-    </li>
-    <li><strong>交易所 FILLED 自动结案防重构机制</strong>：
-      <br>• 本地 10 秒守护线程优先轮询券商挂单状态；
-      <br>• 若券商返回 <code>status == 'FILLED'</code>，说明交易所已毫秒级自动撮合成交，系统立即标记为 <code>CLOSED_TAKE_PROFIT_T1</code> 或 <code>T2</code> 结案；
-      <br>• 严格锁定 <code>is_broker_filled = True</code>，绝对严禁重复发起二次平仓买单，防止反向开新仓。
-    </li>
-    <li><strong>硬止损与时间止损的撤单优先级时序铁律 (Cancel-Before-Close Precedence Rule)</strong>：
-      <br>• 当盘面恶化导致买回成本触碰 <code>2.20 * net_credit</code> 硬止损线、或到达美西 12:30 PST 强制时间全平线时，系统必须遵循严格的<strong>两步原子时序</strong>：
-      <br>&nbsp;&nbsp;① <strong>步骤 1：先撤挂单</strong>：立即调用 <code>BBTOS.cancel_order(tp_broker_order_id)</code> 撤销券商端在途的止盈限价单；
-      <br>&nbsp;&nbsp;② <strong>步骤 2：再发平仓</strong>：确认释放该期权腿的仓位锁定后，立即调用 <code>BBTOS.close_vertical_spread</code> 发送市价/盘口止损单平仓；
-      <br>• <strong>核心防范</strong>：彻底消除因在途止盈挂单锁定持仓导致后续止损平仓被券商拒绝（Rejected: Position Locked）的重大爆仓隐患。
-    </li>
-  </ul>
-
-  <h5 style="color: var(--primary); font-size: 1.02rem; margin-top: 22px; margin-bottom: 12px;"><i class="fas fa-sitemap"></i> 双轨执行与风控生命周期状态机决策树 (State Machine Decision Tree)</h5>
-  
-  <div style="margin: 16px 0 24px 0; text-align: center;">
-    <img src="15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/option_seller_dual_track_decision_tree.png" 
-         alt="Option Seller 双轨执行与风控生命周期状态机决策树" 
-         style="width: 100%; max-width: 960px; height: auto; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 16px rgba(0,0,0,0.06); display: inline-block;">
-    <div style="margin-top: 8px; font-size: 0.85rem; color: var(--muted);">
-      <i class="fas fa-image"></i> 图 17-1: Option Seller 双轨执行与本地守护风控生命周期状态机架构
-    </div>
+  <div class="rule-subgroup">
+    <h5>1. 数学模型与统计学理论 (Mathematical Principles)</h5>
+    <ul>
+      <li><strong>样本数据口径</strong>：严格基于标的过去 30 个交易日交易所标准交易时段（RTH 09:30 - 16:00 EST / 06:30 - 13:00 PST）的纯日线 OHLC 历史数据。</li>
+      <li><strong>日内多空扩张百分比定义</strong>：
+        <br>• 上涨扩张百分比: <code>up = 100 * (High - Open) / Close</code>
+        <br>• 下跌扩张百分比: <code>down = 100 * abs(Open - Low) / Close</code>
+      </li>
+      <li><strong>30 日样本均值与标准差</strong>：
+        <br>• <code>aveUp = avg(up)</code>，<code>upSD = stdev(up, ddof=1)</code>
+        <br>• <code>aveDown = avg(down)</code>，<code>downSD = stdev(down, ddof=1)</code>
+      </li>
+      <li><strong>当日动态波动率边界计算公式</strong>（基准 pO 为美东 09:30 / 美西 06:30 官方 RTH 开盘价）：
+        <br>• <strong>H2 (极端上行耗竭位 / 阻力 2)</strong>: <code>H2 = pO + ((aveUp + upSD) / 100) * pO</code>
+        <br>• <strong>H1 (平均期望上行耗竭位 / 阻力 1)</strong>: <code>H1 = pO + (aveUp / 100) * pO</code>
+        <br>• <strong>pO (RTH 开盘锚点)</strong>: <code>pO = RTH Open</code>
+        <br>• <strong>L1 (平均期望下行耗竭位 / 支撑 1)</strong>: <code>L1 = pO - (aveDown / 100) * pO</code>
+        <br>• <strong>L2 (极端下行耗竭位 / 支撑 2)</strong>: <code>L2 = pO - ((aveDown + downSD) / 100) * pO</code>
+      </li>
+      <li><strong>统计学概率分布意义</strong>：H1 与 L1 代表单日日内多空波动的期望均值边界；H2 与 L2 代表均值 + 1 倍标准差，历史经验表明约 84% 以上交易日的 RTH 极值均被有效约束在 H2 之下与 L2 之上，构筑了高确定性的期权卖方防御防线。</li>
+    </ul>
   </div>
 
-  <h5 style="color: var(--primary); font-size: 0.95rem; margin-top: 18px; margin-bottom: 8px;"><i class="fas fa-list-ol"></i> 决策树逻辑时序逐级分解 (Sequential Decision Breakdown)</h5>
-  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; font-size: 0.88rem; line-height: 1.75; color: #334155;">
-    <strong>1. 开仓信号触发 (Entry Signal Qualified)</strong><br>
-    &nbsp;&nbsp;├─► <strong>[模式 A: Dry-Run 模拟盘]</strong>：生成本地模拟单号 (DRY-*) ──► 100% 本地运算，记录初始权利金 ──► 移交 10s 守护线程监控<br>
-    &nbsp;&nbsp;└─► <strong>[模式 B: Live-Trading 实盘]</strong>：向 Schwab 提交垂直价差开仓单 ──► 成交获取真实 Order ID ──► 立即预埋 2 笔限价止盈单 (T1 40% / T2 75%) ──► 挂单进驻交易所 Order Book 排队 (防御本地断网)<br>
-    <br>
-    <strong>2. 移交后台 10s 风控守护线程监控 (Guardian Loop)</strong><br>
-    &nbsp;&nbsp;├─► <strong>[首要检验: 券商挂单 status == 'FILLED']</strong>：交易所已毫秒级自动撮合成交 ──► 本地直接标记 <code>CLOSED_TAKE_PROFIT</code> 结案 ──► 锁定 <code>is_broker_filled = True</code> (绝不重复向券商发单)<br>
-    &nbsp;&nbsp;└─► <strong>[持续监控: 状态为 WORKING 或处于 Dry-Run 模式]</strong>：抓取实时期权链计算当前买回成本 Mark: <code>current_close_cost</code> ──► 触发本地三重退出判定：<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─► <strong>规则 A：买回成本 &lt;= 止盈线 (40% / 75% 衰减)</strong><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;• Dry-Run: 直接本地记账盈利平仓；<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;• Live: 预埋单已在交易所排队等待撮合，免除主动市价吃单滑点损耗；<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─► <strong>规则 B：买回成本 &gt;= 止损线触发 (2.20x 硬止损 或 1.00x 保本损)</strong><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;• <strong>刚性原子时序</strong>：① 先调用 <code>cancel_order</code> 撤销券商在途挂单释放持仓锁定 ──► ② 立即调用 <code>close_vertical_spread</code> 市价/盘口对价迅速斩仓 ──► ③ 结案 <code>CLOSED_STOP_LOSS</code> 或 <code>CLOSED_BREAKEVEN_T2</code>；<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─► <strong>规则 C：美西时间 &gt;= 12:30:00 PST (强制时间止损)</strong><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;• <strong>刚性原子时序</strong>：① 先撤在途止盈挂单 ──► ② 立即执行强制市价全清，清空持仓绝不过夜 ──► ③ 结案 <code>CLOSED_TIME_STOP</code>。
+  <div class="rule-subgroup">
+    <h5>2. 双向开仓决策与微观共振仲裁规范 (Bidirectional Entry Rules)</h5>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 18%;">交易方向</th>
+          <th style="width: 24%;">价格位置状态</th>
+          <th style="width: 28%;">订单流 / DOM 微观共振要求</th>
+          <th style="width: 30%;">决策评分与行权价优选锚定</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>空头开仓<br>(Bear Call Spread)</strong></td>
+          <td><strong>触及或测试 H1 阻力</strong>：<br>现价进入 <code>[H1 - 0.15%, H1 + 0.30%]</code> 区域；或价格刺破 H1 向 H2 延伸并出现滞涨冲高回落。</td>
+          <td>• CVD 顶背离或 Delta 出现急剧负值反转；<br>• DOM 显示主动买单竭尽，卖方大单冰山密集挂出吸收或买单真空。</td>
+          <td>• <strong>评分</strong>：维度 3 赋予 Bearish 评分 (+8 ~ +12 分)；若与 Smashelito UT1 / Smash 重合承压，直接封顶满分 15 分。<br>• <strong>行权价锚定</strong>：Short Call Strike 优先锚定在 <code>&gt;= H2</code>（或 <code>&gt;= H1 + 0.5%</code>），借助 1-SD 极端边界阻挡击穿。</td>
+        </tr>
+        <tr>
+          <td><strong>多头开仓<br>(Bull Put Spread)</strong></td>
+          <td><strong>触及或测试 L1 支撑</strong>：<br>现价进入 <code>[L1 - 0.30%, L1 + 0.15%]</code> 区域；或价格跌破 L1 向 L2 延伸并出现探底企稳回升。</td>
+          <td>• CVD 底背离或 Delta 出现急剧正值回暖；<br>• DOM 显示主动砸盘竭尽，买方大单冰山密集挂出吸收或卖单真空。</td>
+          <td>• <strong>评分</strong>：维度 3 赋予 Bullish 评分 (+8 ~ +12 分)；若与 Smashelito DT1 / Smash 重合企稳，直接封顶满分 15 分。<br>• <strong>行权价锚定</strong>：Short Put Strike 优先锚定在 <code>&lt;= L2</code>（或 <code>&lt;= L1 - 0.5%</code>），借助 1-SD 极端边界阻挡下穿。</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <h4 id="ch17-11" style="margin-top: 28px;"><span class="badge badge-accent">11</span> Tranche 1 止盈后 Tranche 2 动态保本推损机制 (Scheme A: Breakeven Stop Loss Protection for Tranche 2)</h4>
-  <p>为彻底防范日内行情在快速止盈第一手后发生极端反抽导致“大幅浮盈恶化为亏损”的负面风险，系统执行业界成熟的<strong>“方案 A：首手止盈兑现后推保本”</strong>动态风控机制：</p>
-  <ul>
-    <li><strong>触发条件 (Activation Trigger)</strong>：
-      <br>• 同一开仓批次中的 <strong>Tranche 1 (初级止盈 40% 衰减)</strong> 成功触发 Take Profit 结案（无论是实盘预埋限价单由交易所自动 FILLED 撮合，还是本地守护线程计算成交）；
-    </li>
-    <li><strong>动态推损迁移规则 (Stop Loss Migration)</strong>：
-      <br>• 在结案 Tranche 1 的同一原子锁事务内，系统自动检索仍在活跃队列中的同批次 <strong>Tranche 2 (深度止盈 75% 衰减)</strong> 挂单持仓；
-      <br>• 立即将 Tranche 2 的止损线 <code>stop_loss_price</code> 从初始的 <code>2.20 * net_credit</code> <strong>动态下调至 <code>net_credit</code>（开仓保本价）</strong>，并在持仓状态及数据库 <code>entry_evidence</code> 中持久化标记 <code>is_breakeven_protected = True</code>；
-    </li>
-    <li><strong>零风险博弈锁定 (100% Risk-Free Trade Guarantee)</strong>：
-      <br>• Tranche 1 已落袋利润：<code>0.40 * net_credit * 100</code> 美元；
-      <br>• Tranche 2 最差结果（触碰保本线平仓）：买回成本为 <code>net_credit</code>，单手损益为 <code>(net_credit - net_credit) * 100 = $0.00</code>；
-      <br>• <strong>整次回合保底净利润</strong>：整笔交易总账底线锁定为 <code>+0.40 * net_credit * 100</code> 美元。<strong>在数学概率与会计上彻底排除了由赢转亏的可能性</strong>。
-    </li>
-    <li><strong>微观结构抗洗盘优势 (Microstructure Resilience)</strong>：
-      <br>• 绝不在开仓初期（微浮盈 10%~20%）盲目推保本，彻底消除 0DTE 价差因盘口 Bid-Ask 点差微幅拉宽或小幅正常呼吸而被“过早假击穿洗出局 (Whipsaw)”的弊端；
-      <br>• 必须等待首手 40% 利润落袋这一强确认信号后才推进保本，兼顾策略基础高胜率（85%+）与严格的单边回撤截断。
-    </li>
-    <li><strong>结案流水与实盘原子保护</strong>：
-      <br>• 若标的资产随后发生趋势反转导致买回成本升至保本价（<code>cost &gt;= net_credit</code>），系统自动以 <code>CLOSED_BREAKEVEN_T2</code> 结案并展示专属保本徽章；
-      <br>• 实盘执行时，同样严格遵循<strong>“① 先撤销券商在途预埋的 75% 限价止盈单 ➜ ② 释放仓位锁定 ➜ ③ 提交对价平仓单”</strong>的原子时序，彻底杜绝爆仓死锁。
-    </li>
-  </ul>
+  <div class="rule-subgroup">
+    <h5>3. 极值状态加权 (Extreme Volatility Reversal Boost)</h5>
+    <ul>
+      <li>当标的价格触及或暂时刺破 <strong>H2 (&gt;= H2)</strong> 时，属于小概率极端超买耗竭，系统自动标记为 <code>AT_OR_ABOVE_H2</code>，额外追加 +5 分反转倾向；</li>
+      <li>当标的价格触及或暂时刺破 <strong>L2 (&lt;= L2)</strong> 时，属于小概率极端超卖耗竭，系统自动标记为 <code>AT_OR_BELOW_L2</code>，额外追加 +5 分反转倾向；</li>
+      <li>该极值反转加权机制能够有效抵抗滞后的均线动量指标，帮助系统精准捕捉像 2026-08-28 SPY 在 H1/H2 与 L1/L2 的结构性高赔率反转点位。</li>
+    </ul>
+  </div>
 </article></div>
 
-      <!-- Chapter 18: MotiveWave QuantPivot MW Study -->
+      <!-- Chapter 18 -->
       <div class="rule-card" id="chapter-18"><article>
-  <h2 class="chapter-heading" id="chapter-18"><span class="badge badge-accent">Chapter 18</span> MotiveWave QuantPivot 动态波动率枢轴与跳空跨时段自适应规则 (MW Study: QuantPivot Rules)</h2>
-  <div class="rule-meta"><span class="meta-tag"><i class="fas fa-chart-line"></i> MW Study 指标库</span><span class="meta-tag"><i class="fas fa-calculator"></i> 统计波动率边界</span><span class="meta-tag"><i class="fas fa-arrows-split-up-and-left"></i> 跳空非对称自适应</span></div>
-
-  <h3 style="color: var(--primary); font-size: 1.12rem; margin-top: 24px; border-bottom: 2px solid var(--line); padding-bottom: 8px;"><i class="fas fa-layer-group"></i> 一、 归属分类与核心定位 (MW Study Classification)</h3>
-  <ul>
-    <li><strong>归属分类</strong>：独立归属于 <strong>MotiveWave Study (MW Study)</strong> 核心图表指标与量化分析体系（对应插件 <code>BBT Quant Pivot</code> / <code>StudyQuantPivot.java</code> 以及 Python <code>quant_pivot.py</code>），绝非单一隶属于期权卖方模块。</li>
-    <li><strong>系统核心定位</strong>：基于真实日线波幅（True Daily Range）的日内统计学波动率均值与 1 倍标准差耗竭边界，为全交易系统提供跨资产（ES、NQ 期货及 SPY、SPX 现货/ETF）通用的日内多空耗竭中枢与支撑阻力基准，广泛赋能于盘面人工看盘、订单流大单共振以及期权卖方护城河锚定。</li>
-  </ul>
-
-  <h3 style="color: var(--primary); font-size: 1.12rem; margin-top: 24px; border-bottom: 2px solid var(--line); padding-bottom: 8px;"><i class="fas fa-square-root-variable"></i> 二、 数学模型与统计学理论 (Mathematical Principles)</h3>
-  <ul>
-    <li><strong>样本数据口径</strong>：严格基于标的过去 30 个交易日交易所标准交易时段（RTH 09:30 - 16:00 EST / 06:30 - 13:00 PST）的纯日线 OHLC 历史数据。</li>
-    <li><strong>日内多空扩张百分比定义</strong>：
-      <br>• 上涨扩张百分比: <code>up = 100 * (High - Open) / Close</code>
-      <br>• 下跌扩张百分比: <code>down = 100 * abs(Open - Low) / Close</code>
-    </li>
-    <li><strong>30 日样本均值与标准差</strong>：
-      <br>• <code>aveUp = avg(up)</code>，<code>upSD = stdev(up, ddof=1)</code>
-      <br>• <code>aveDown = avg(down)</code>，<code>downSD = stdev(down, ddof=1)</code>
-    </li>
-    <li><strong>当日动态波动率边界计算公式</strong>（基准 pO 为官方开盘价）：
-      <br>• <strong>H2 (极端上行耗竭位 / 阻力 2)</strong>: <code>H2 = pO + ((aveUp + upSD) / 100) * pO</code>
-      <br>• <strong>H1 (平均期望上行耗竭位 / 阻力 1)</strong>: <code>H1 = pO + (aveUp / 100) * pO</code>
-      <br>• <strong>pO (开盘锚点)</strong>: <code>pO = Official Open</code>
-      <br>• <strong>L1 (平均期望下行耗竭位 / 支撑 1)</strong>: <code>L1 = pO - (aveDown / 100) * pO</code>
-      <br>• <strong>L2 (极端下行耗竭位 / 支撑 2)</strong>: <code>L2 = pO - ((aveDown + downSD) / 100) * pO</code>
-    </li>
-    <li><strong>统计学概率分布意义</strong>：H1 与 L1 代表单日日内多空波动的期望均值边界；H2 与 L2 代表均值 + 1 倍标准差，历史经验表明约 84% 以上交易日的 RTH 极值均被有效约束在 H2 之下与 L2 之上，构筑了高确定性的日内耗竭与防守防线。</li>
-  </ul>
-
-  <h3 style="color: var(--primary); font-size: 1.12rem; margin-top: 24px; border-bottom: 2px solid var(--line); padding-bottom: 8px;"><i class="fas fa-triangle-exclamation"></i> 三、 市场微观结构动因与单一锚点失真问题 (Structural Motivation)</h3>
-  <ul>
-    <li><strong>现货与期货的拍卖机制差异</strong>：
-      <br>• <strong>现货市场 (SPX / SPY)</strong>：仅在美东 09:30 - 16:00 (RTH) 集中交易，其日内对称拍卖完全以 09:30 开盘价为真原点，H1 与 L1 完美对称包夹全天高低点；
-      <br>• <strong>股指期货 (ES / NQ)</strong>：横跨连续 23 小时 CME Globex 交易时段。当存在显著隔夜跳空 (Overnight Gap) 时，单一锚点计算存在物理失真：
-      <br>&nbsp;&nbsp;- <em>单一 24H 锚点失真</em>：顺势冲高上限 (H1) 极准，但由于原点未吸收隔夜涨幅，逆势下杀下限 (L1) 计算过深，日内无法探底（如 2026-08-28 ES 24H L1 为 7697，实战低点止步于 7705）；
-      <br>&nbsp;&nbsp;- <em>单一 RTH 锚点失真</em>：逆势回踩下限 (L1) 极准，但顺势冲高上限将隔夜涨幅双重计价，导致 H1 虚高无法触及（如 2026-08-28 ES RTH H1 虚高至 7784，实战高点止步于 7777）。
-    </li>
-    <li><strong>非对称跨时段自适应原理</strong>：顺势方向必须吸收隔夜动能防止目标虚设，逆势方向必须以现货开盘价为原点计算现货回吐空间。</li>
-  </ul>
-
-  <h3 style="color: var(--primary); font-size: 1.12rem; margin-top: 24px; border-bottom: 2px solid var(--line); padding-bottom: 8px;"><i class="fas fa-arrows-split-up-and-left"></i> 四、 双向对称非对称锚定算法 (Gap-Adaptive Hybrid Algorithm)</h3>
-  <ul>
-    <li><strong>跳空测算与阈值</strong>：
-      <br>• <code>Gap = RTH_Open - Globex_Open</code>
-      <br>• <code>Gap_Threshold = 0.05% * Globex_Open</code> (ES 对应约 3.8 个点)
-    </li>
-    <li><strong>场景 A：隔夜高开日 (Gap Up, Gap &gt; Gap_Threshold，例如 2026-08-28)</strong>：
-      <br>• <strong>顺势冲高耗竭阻力 (H1 / H2)</strong> ➜ 锚定 <strong>24H Globex 连续日线</strong>（原点 Globex_Open）：
-      <br>&nbsp;&nbsp;<code>H1 = Globex_Open + (aveUp_24h / 100) * Globex_Open</code>
-      <br>&nbsp;&nbsp;<code>H2 = Globex_Open + ((aveUp_24h + upSD_24h) / 100) * Globex_Open</code>
-      <br>&nbsp;&nbsp;<em>机制</em>：消除隔夜冲高对日内空间的虚增，精准锁定全天多头极限枯竭点（2026-08-28 H1 为 7777.27，实战高点 7777.50）；
-      <br>• <strong>逆势下杀回踩支撑 (L1 / L2)</strong> ➜ 锚定 <strong>RTH Cash 现货日线</strong>（原点 RTH_Open）：
-      <br>&nbsp;&nbsp;<code>L1 = RTH_Open - (aveDown_rth / 100) * RTH_Open</code>
-      <br>&nbsp;&nbsp;<code>L2 = RTH_Open - ((aveDown_rth + downSD_rth) / 100) * RTH_Open</code>
-      <br>&nbsp;&nbsp;<em>机制</em>：日内回撤由 09:30 开盘的现货抛压与做市商对冲主导，以现货开盘价真实反映回撤空间（2026-08-28 L1 为 7705.86，实战低点 7705.50）；
-      <br>• <strong>基准分水岭</strong>：<code>Period_Open = RTH_Open</code>，线条与标签标注 <code>(24H)</code> 与 <code>(RTH)</code> 来源。
-    </li>
-    <li><strong>场景 B：隔夜低开日 (Gap Down, Gap &lt; -Gap_Threshold)</strong>：
-      <br>• <strong>顺势下杀耗竭支撑 (L1 / L2)</strong> ➜ 锚定 <strong>24H Globex 连续日线</strong>（原点 Globex_Open）：
-      <br>&nbsp;&nbsp;<code>L1 = Globex_Open - (aveDown_24h / 100) * Globex_Open</code>
-      <br>&nbsp;&nbsp;<code>L2 = Globex_Open - ((aveDown_24h + downSD_24h) / 100) * Globex_Open</code>
-      <br>&nbsp;&nbsp;<em>机制</em>：消除隔夜杀跌对下行空间的虚增，防止低开后再虚减跌幅，锁定 24 小时空头动能极限；
-      <br>• <strong>逆势轧空反弹阻力 (H1 / H2)</strong> ➜ 锚定 <strong>RTH Cash 现货日线</strong>（原点 RTH_Open）：
-      <br>&nbsp;&nbsp;<code>H1 = RTH_Open + (aveUp_rth / 100) * RTH_Open</code>
-      <br>&nbsp;&nbsp;<code>H2 = RTH_Open + ((aveUp_rth + upSD_rth) / 100) * RTH_Open</code>
-      <br>&nbsp;&nbsp;<em>机制</em>：现货资金入场抄底与轧空回补是以 RTH 低开价为起点的反弹，由 RTH 阻力线压制；
-      <br>• <strong>基准分水岭</strong>：<code>Period_Open = RTH_Open</code>。
-    </li>
-    <li><strong>场景 C：平开日 (Flat Open, abs(Gap) &lt;= Gap_Threshold)</strong>：
-      <br>• 维持标准 24H 连续点位计算，无跳空断层。
-    </li>
-  </ul>
-
-  <h3 style="color: var(--primary); font-size: 1.12rem; margin-top: 24px; border-bottom: 2px solid var(--line); padding-bottom: 8px;"><i class="fas fa-bullseye"></i> 五、 多空反转区间评估与决策输出规范 (Reversal Band Decisions)</h3>
-  <ul>
-    <li><strong>H1 / H2 空头反转区 (Bearish Reversal Zone)</strong>：
-      <br>• 当现价进入 <code>[H1 - 0.15%, H1 + 0.30%]</code> 区域时，属于期望上行耗竭区，系统标记为偏空反转信号；
-      <br>• 当现价触及或刺破 <code>H2</code> (<code>&gt;= H2</code>) 时，属于 1-SD 极端超买耗竭区，系统追加 <code>AT_OR_ABOVE_H2</code> 极值反转加权；
-    </li>
-    <li><strong>L1 / L2 多头反转区 (Bullish Reversal Zone)</strong>：
-      <br>• 当现价进入 <code>[L1 - 0.30%, L1 + 0.15%]</code> 区域时，属于期望下行耗竭区，系统标记为偏多反转信号；
-      <br>• 当现价触及或跌破 <code>L2</code> (<code>&lt;= L2</code>) 时，属于 1-SD 极端超卖耗竭区，系统追加 <code>AT_OR_BELOW_L2</code> 极值反转加权。
-    </li>
-  </ul>
-</article></div>
-
-      <!-- Chapter 19 -->
-      <div class="rule-card" id="chapter-19"><article>
-  <h2 class="chapter-heading" id="chapter-19"><span class="badge badge-accent">Chapter 19</span> 交易系统全景定时任务、轮询机制与后台守护线程执行规范 (System Scheduled Tasks, Polling & Daemons)</h2>
+  <h2 class="chapter-heading" id="chapter-18"><span class="badge badge-accent">Chapter 18</span> 交易系统全景定时任务、轮询机制与后台守护线程执行规范 (System Scheduled Tasks, Polling & Daemons)</h2>
   <div class="rule-meta"><span class="meta-tag"><i class="fas fa-clock"></i> 定时与轮询体系</span><span class="meta-tag"><i class="fas fa-microchip"></i> 风控守护线程</span><span class="meta-tag"><i class="fas fa-shield-halved"></i> 自动化全闭环</span></div>
   <p>本章系统性梳理期权卖方日内交易控制台 (<code>bbt_option_seller</code>) 以及整个量化交易系统中，前端与后端所有定时任务、高频轮询机制及后台守护线程的具体周期、对应代码与执行规范：</p>
 

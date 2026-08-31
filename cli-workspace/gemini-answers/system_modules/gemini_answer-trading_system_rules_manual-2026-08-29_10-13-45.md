@@ -158,8 +158,11 @@
 
 #### 2. 5分钟 DOM 盘口深度规则引擎 (DOM 500ms Time-Series Engine)
 
-##### (1) 500ms 离散网格与微观动量建模
+##### (1) 500ms 离散网格与上下 30 点核心加权建模
 - **600 步长离散网格**: 在 5 分钟（300 秒）窗口内，划分 600 个 500ms 均匀时间戳，采用前向填充（Forward-Fill）追踪全景 0-199 档挂单深度。
+- **上下 30 点核心主导加权 (30-Point Dominance Weighting)**:
+    - 规则: 挂单深度按距离划分，近端（0-5档占50%）+ 中端（6-20档占35%）+ 30点核心深层（20-120档占10%），**30点以内核心常态占据 95% 绝对权重**。
+    - 30点外深水区（120-200档/30-50点）常态下仅分配 **5% 背景底色权重**，彻底杜绝远端僵尸挂单稀释近端博弈信号。
 - **5 分钟微观动量 (`imb_momentum`)**:
     - 公式: `imb_momentum = late_w_imb (后半段 2.5m 均值) - early_w_imb (前半段 2.5m 均值)`
     - 判定: 若动量显著偏正（> +0.04），表明买单防线持续增厚抢筹；若动量显著偏负（< -0.04），表明买盘撤单溃退，卖压加速堆积。
@@ -169,6 +172,14 @@
     - 累计单档挂单不足 10 手的步长总数并转换为秒数，要求实质断层持续 >= 1.5 秒以规避瞬态扰动。
 
 ##### (2) 核心微观结构规则判定
+- **盘口买卖比率极速大翻转规则 (The Book Flip at Key Levels)**:
+    - **底部多头大翻转 (`dom_bull_book_flip`)**:
+        - 条件: 在 600 个步长上监控近端买卖比率 `Book_Ratio = Near_Bids / Near_Asks`，前半段空头压制 `early_ratio < 0.85`，后半段买方猛烈翻盘 `late_ratio > 1.40`（激增 > 60%）且处于日内相对低位 `price_position_pct <= 40%`。
+        - 裁决: **确认买方夺得盘口主导权，强制激活 Bullish HIGH 信号**。
+    - **顶部空头大翻转 (`dom_bear_book_flip`)**:
+        - 条件: 前半段多头占优 `early_ratio > 1.15`，后半段卖方极速筑墙 `late_ratio < 0.70`（骤降 > 40%）且处于日内相对高位 `price_position_pct >= 60%`。
+        - 裁决: **确认卖方筑墙锁死天花板，强制激活 Bearish HIGH 信号**。
+
 - **流动性真空逼空与破位规则 (Vacuum Squeeze & Breakdown)**:
     - **多头逼空触发 (`dom_bull_vacuum_squeeze`)**:
         - 条件: 最近 5 分钟检测到卖方真空持续 `vacuum_ask_sec >= 1.5s` 且近端失衡或动量看多（`imb_near > 0.05` 或 `imb_momentum > 0.04`）且买方堆单加固 `stack_bid >= stack_ask`。
@@ -177,13 +188,13 @@
         - 条件: 最近 5 分钟检测到买方真空持续 `vacuum_bid_sec >= 1.5s` 且近端失衡或动量看空（`imb_near < -0.05` 或 `imb_momentum < -0.04`）且卖方堆单压制 `stack_ask >= stack_bid`。
         - 裁决: 判定买方托单断层溃败，**强制激活 Bearish HIGH 信号**。
 
-- **微观冰山密集吸收与最高覆写规则 (Micro Iceberg Burst)**:
-    - **底部强冰山吸筹 (`dom_bull_iceberg_burst`)**:
-        - 条件: 最近 5 分钟多头冰山单 `iceberg_bull >= 2` 次（大额市价卖单砸盘但价格不跌），且处于相对中低位 `price_position_pct <= 45.0%`。
-        - 裁决: **DOM 被动吸收享有最高覆写权 (Override)，强制激活 Bullish HIGH 信号**。
-    - **高位强冰山派发 (`dom_bear_iceberg_burst`)**:
-        - 条件: 最近 5 分钟空头冰山单 `iceberg_bear >= 2` 次（大额市价买单推升但价格不涨），且处于相对中高位 `price_position_pct >= 55.0%`。
-        - 裁决: 判定为主力高位冰山挂单拦截，**强制激活 Bearish HIGH 信号**。
+- **梯级冰山密集吸收与最高覆写规则 (Tiered Iceberg Burst)**:
+    - **Tier 1 极致死守 (`iceberg_extreme <= 1.0点`)**: 单根 Bar 内 Delta 冲击超过 1000 手但价格移动 <= 1.0 点。**仅需 1 次发生即可最高置信度激活 HIGH 信号**（低位触发看多，高位触发看空）。
+    - **Tier 2 主流波段 (`iceberg_std <= 3.0点`)**: 涵盖 8~12 个 Tick 算法单分层吸筹/出货，发生 >= 2 次触发 HIGH 信号，兼顾防洗盘。
+
+- **远端 30 点外确定性大墙异动触发规则 (Far-Zone Wall Exception)**:
+    - 规则: 当 30~50 点深水区（120~200档）突发检测到单档挂单 **>= 800 手** 战略大单，且与微观动量同向；
+    - 裁决: **远端权重瞬间动态上调至 20%**，并直接触发天花板压迫或托底防线预警。
 
 - **虚假撤单诱多/诱空陷阱过滤规则 (Spoofing Trap Filter)**:
     - **诱多假托单陷阱 (`spoof_bull_trap`)**:
@@ -571,14 +582,15 @@
 | | **必须从“绝对空仓”开始** | `len(active_trades) == 0` | 严守“单次回合只持有一组双批次仓位”铁律，已有持仓未全平前，随后的 5 分钟检测微秒级跳过，坚决不加仓、不重叠开仓。 |
 | | **目标到期日与时间窗口** | **0DTE** (当天到期)<br>且时间 < **11:30 PST** | 自动交易强制执行 0DTE 高速 Theta 衰减策略，并在美西 12:30 PST 强制全平，绝不过夜；11:30 PST 后禁止新开仓。 |
 | **第二层：四维微观共振评分<br>(4-Factor Synthesis 100分制)** | **维度 1：5m 订单流微观盘口**<br>(权重 40分) | Delta 推进 / 吸收 / 竭尽<br>(需贡献 >= 20分) | • **看多**：5m Delta 持续为正且主动吃单推进，或卖盘竭尽被动吸收。<br>• **看空**：5m Delta 持续为负且主动砸盘下挫，或买盘竭尽被动拦截。 |
-| | **维度 2：SPX 0DTE Gamma 结构**<br>(权重 30分) | 现价 vs ZGL / Wall 屏障<br>(需贡献 >= 15分) | • **看多**：现价处于零 Gamma 线 (ZGL) 之上做市商减震区，且远高于下方 Put Wall。<br>• **看空**：现价处于零 Gamma 线 (ZGL) 之下顺势助跌，或受上方 Call Wall 强阻力压制。 |
-| | **维度 3：Smashelito Pivot 拍卖位**<br>(权重 15分) | 现价 vs 核心 Pivot / S / R<br>(需贡献 >= 10分) | • **看多**：价格位于今日核心 Pivot 之上，或回踩支撑位 (S1/S2/Pivot) 企稳确认。<br>• **看空**：价格位于今日核心 Pivot 之下，或反抽阻力位 (R1/R2/Pivot) 承压遇阻确认。 |
+| | **维度 2：SPX 0DTE Gamma 结构**<br>(权重 30分) | • **Cluster & Ratio (15分)**<br>• **Wall 物理屏障垫 (10分)**<br>• **主方向基调 (5分)**<br>(需贡献 >= 15分) | • **子项 1：多空集群名义金额与比率 (Cluster & Ratio，满分 15分，分时动态校准)**：<br>&nbsp;&nbsp;**时序分段自适应机制**（基于历史 741 组样本分位数实测，消除 0DTE 尾盘数学奇点扭曲）：<br>&nbsp;&nbsp;- **开盘前 1.5 小时 (06:30 - 08:00 PST 早盘建仓期)**：Gamma 尚未发生数学爆炸（历史中位数仅 ~$4.8B），阈值动态调适为：**顶格门限 $5.0B / 基础门限 $3.5B**；<br>&nbsp;&nbsp;- **盘中黄金期 (08:00 - 11:30 PST)**：交易量与 Gamma 随时间自然放大（历史中位数升至 ~$12B~$18B），阈值调适为：**顶格门限 $15.0B / 基础门限 $10.0B**。<br>&nbsp;&nbsp;**具体加分规则**：<br>&nbsp;&nbsp;• **看多加分**：`Ratio >= 2.0:1` 且 `Bull Cluster >= 顶格门限` ➔ **+15分（顶格最强做市商吸盘垫背）**；`Ratio >= 1.3:1` 且 `Bull >= 基础门限` ➔ **+10分**；`Ratio >= 1.1:1` ➔ **+5分**。<br>&nbsp;&nbsp;• **看空加分**：`Ratio <= 0.5:1` 且 `Bear Cluster >= 顶格门限` ➔ **+15分（顶格做市商向下抛售引力）**；`Ratio <= 0.77:1` 且 `Bear >= 基础门限` ➔ **+10分**；`Ratio <= 0.9:1` ➔ **+5分**。<br>• **子项 2：期权大墙物理屏障与距离安全垫 (Call/Put Wall Cushion，满分 10分)**：<br>&nbsp;&nbsp;- **看多**：现价距下方 Put Wall 极近且企稳（距离 0.1% ~ 0.8%），最大 Put 未平仓铁底 ➔ **+10分**（次近 0.8%~1.5% ➔ +6分）。<br>&nbsp;&nbsp;- **看空**：现价距上方 Call Wall 极近且承压（距离 0.1% ~ 0.8%），最大 Call 未平仓天花板 ➔ **+10分**（次近 0.8%~1.5% ➔ +6分）。<br>• **子项 3：大盘主方向基调与辅助状态 (Direction Baseline，满分 5分)**：<br>&nbsp;&nbsp;- `direction == 'Positive' / 'Bullish'` 辅助看多 +5分；`direction == 'Negative' / 'Bearish'` 辅助看空 +5分（彻底降低对 0DTE 频繁上下翻转的 ZGL 噪音依赖）。 |
+| | **维度 3：拍卖关键位与 QuantPivot 反转边界**<br>(权重 15分) | • **Smashelito Pivot (日内中枢)**<br>• **QuantPivot 波动率边界 (L1/L2, H1/H2)**<br>(需贡献 >= 10分) | 将**第 9 节 QuantPivot 统计学反转边界**深度嵌入为本维度的量化决策内核，与 Smashelito 拍卖关键位双重共振：<br>• **做多看涨 (卖出 Bull Put Spread)**：<br>&nbsp;&nbsp;1. **QuantPivot 支撑触碰**：价格下探测试 `L1` 支撑（统计学动能初次衰竭）➔ **+8分**；若深跌穿入 `<= L2` 极端反转带（95% 置信度超跌耗竭极限，均值回归概率最高）➔ **额外 +5分（直斩 13分！）**；<br>&nbsp;&nbsp;2. **Smashelito 拍卖位双共振**：若同时在日内关键支撑（S1/S2 或 Pivot）获得承接 ➔ **额外 +4分（直接封顶 15分满分！）**；单纯位于 Pivot 之上运行贡献 +6分。<br>• **做空看跌 (卖出 Bear Call Spread)**：<br>&nbsp;&nbsp;1. **QuantPivot 阻力触碰**：价格上冲测试 `H1` 阻力（多头动能初次衰竭）➔ **+8分**；若冲入 `>= H2` 极端反转带（95% 置信度超买耗竭极限）➔ **额外 +5分（直斩 13分！）**；<br>&nbsp;&nbsp;2. **Smashelito 拍卖位双共振**：若同时在日内关键阻力（R1/R2 或 Pivot）遇阻承压 ➔ **额外 +4分（直接封顶 15分满分！）**；单纯位于 Pivot 之下运行贡献 +6分。 |
 | | **维度 4：EMA 13-21 趋势防护盾**<br>(权重 15分) | 15m EMA 排列 / 5m 回踩<br>(需贡献 >= 10分) | • **看多**：15m EMA 13 > EMA 21 多头排列，5m 价格稳固于均线上方或回踩企稳。<br>• **看空**：15m EMA 13 < EMA 21 空头排列，5m 价格受制于均线下方或反抽遇阻。 |
 | **第二层附：刚性一票否决项<br>(Hard Vetoes)** | **虚假撤单陷阱一票否决** | `is_spoof_trap == False` | 5分钟 DOM 深度检测到假单冰山/虚假大单撤单诱多/诱空时，直接一票否决，拒绝成为对手盘流动性。 |
 | | **15分钟趋势日防护罩反向阻断** | `Trend Day Shield`<br>反向绝对阻断 | 单边大涨趋势日（Bullish Trend）严禁卖 Call；单边大跌趋势日（Bearish Trend）严禁卖 Put，杜绝逆大势顶风作案。 |
+| | **市场状态与时间双自适应位置保护<br>(Regime- & Time-Adaptive Position Boundary)** | **开盘前 30 分钟 (06:30 - 07:00 PST)**：<br>• 宽泛极值保护 (30% 极值保护带)<br>• **Pos >= 70% 禁卖 Put**<br>• **Pos <= 30% 禁卖 Call**<br><br>**开盘 30 分钟后 (07:00 PST 之后)**：<br>• **常规区间震荡市 (Neutral)**：<br>&nbsp;&nbsp;- 严格 50% 中枢分割！<br>&nbsp;&nbsp;- **上半区 (Pos >= 50%) 禁卖 Put**<br>&nbsp;&nbsp;- **下半区 (Pos <= 50%) 禁卖 Call**<br>• **单边强趋势日 (Trend Day)**：<br>&nbsp;&nbsp;- 趋势跟随自适应放宽至 65%，杜绝牛熊踏空死锁！<br>&nbsp;&nbsp;- 强多头趋势：**Pos >= 65%** 极值区才禁卖 Put；<br>&nbsp;&nbsp;- 强空头趋势：**Pos <= 35%** 极值区才禁卖 Call。 | • **开盘前 30 分钟 (宽泛探索模式)**：日内大波段未完全展开，保留试盘容错。仅在极限位置硬风控：最高 30% 区域（`Pos >= 70%`）禁止追高卖 Put；最低 30% 区域（`Pos <= 30%`）禁止杀跌卖 Call。<br>• **开盘 30 分钟后 (震荡市中枢分割 50%)**：大盘处于平衡震荡态时，50% 中枢线即为价值中线。坚决执行“上半区禁卖 Put（防冲高回落）、下半区禁卖 Call（防触底反弹）”的教科书级防守。<br>• **开盘 30 分钟后 (强趋势日自适应放宽 65% / 35%)**：当 15m 均线带确认单边大单边趋势时，顺大势方向将保护门限从 50% 放宽至 65%（多头）/ 35%（空头）。允许策略在均线回调支撑处（如 50% ~ 64% 区间）稳健建立顺势价差，同时坚决封杀贴近 65% 以上极端超买区的盲目追高，实现胜率与盈亏比的最优均衡。 |
 | | **均线严重纠缠混沌否决** | `EMA Tangled == False` | 15m EMA 13 与 EMA 21 严重粘合且价格反复穿越，多空混沌无序时坚决空仓观望。 |
-| **第三层：策略自适应选型<br>(Profile Selection)** | **⚡ 激进型 (Aggressive)** | **共振得分 >= 75 分** | 四维全要素强共振，贴近日内关键阻力/支撑位，博取高额权利金，顺应强单边推进。 |
-| | **⚖️ 平衡型 (Balanced / 核心主力)** | **共振得分 55 ~ 74 分** | 三维标准稳态共振，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。 |
+| **第三层：策略自适应选型<br>(Profile Selection)** | **⚡ 激进型 (Aggressive)** | **共振得分 >= 75 分**<br>(或命中 QuantPivot L2/H2 极值) | 四维全要素强共振，或**触碰 QuantPivot L2 极端超跌/H2 极端超买耗竭线**时自动激活！贴近日内关键阻力/支撑位，卖出更高 Delta 垂直价差，博取超额权利金与 Vega/Theta 极速双重收割。 |
+| | **⚖️ 平衡型 (Balanced / 核心主力)** | **共振得分 55 ~ 74 分**<br>(命中 QuantPivot L1/H1 常规带) | 三维标准稳态共振，价格处于 QuantPivot L1/H1 支撑阻力带，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。 |
 | | **🛡️ 保守型 (Conservative / 防守)** | **共振得分 40 ~ 54 分** | 双维偏弱共振，大盘缺乏催化时退守极远端大安全垫收割平稳时间溢价（得分 < 40 拒绝入场）。 |
 
 | 第四层：期权链盘口硬性验算 | 🛡️ 保守型 (Conservative) | ⚖️ 平衡型 (Balanced / 核心主力) | ⚡ 激进型 (Aggressive) |
@@ -591,85 +603,11 @@
 
 **触发后执行动作**：四层漏斗全部验算通过后，系统自动卖出 2 手双批次垂直价差（Tranche 1 与 Tranche 2），同步持久化写入数据库，并即刻移交 **10 秒风控守护线程**，进入 40%/75% 阶梯止盈、2.20 倍硬止损与 12:30 PST 强制时间全平的全程盯市闭环。
 
-#### 9. 关键价位共振与行权价护城河联动机制 (Linkage to MW QuantPivot Rules)
-期权卖方在日内关键极值位置开仓的共振判定（维度 3）以及 Short Strike 波动率护城河锚定，独立归类并全面对接 **第十八章《MotiveWave QuantPivot 动态波动率枢轴与跳空跨时段自适应规则》**：
-- **空头开仓 (Bear Call Spread)**：价格测试 QuantPivot H1 阻力赋 Bearish 评分 (+8 ~ +12 分)，Short Call Strike 优先锚定在 `>= H2`（或 `>= H1 + 0.5%`）；
-- **多头开仓 (Bull Put Spread)**：价格测试 QuantPivot L1 支撑赋 Bullish 评分 (+8 ~ +12 分)，Short Put Strike 优先锚定在 `<= L2`（或 `<= L1 - 0.5%`）；
-- **跳空日自适应护城河**：高开日卖 Call 严禁使用虚高的 RTH H2，必须锚定 24H H2；高开日卖 Put 必须以现货企稳下沿 RTH L2 为底线。低开日反之。
+#### 9. QuantPivot 统计学动态波动率耗竭与反转边界开仓决策规范 (QuantPivot Statistical Volatility Reversion Bands Entry Rules)
 
-#### 10. Dry-Run 模拟与实盘预埋限价止盈双轨执行规范 (Dual-Track Resting Limit Order & Guardian Rules)
-在交易执行与风控生命周期中，系统根据实盘（Live Trading）与模拟盘（Dry-Run）的本质差异，严格执行双轨分流与原子时序控制：
+为进一步增强期权卖方在日内关键极值位置开仓的统计学确定性，系统将基于 30 日真实日线波动范围（True Daily Range）的 **QuantPivots (`Open`, `H1`, `H2`, `L1`, `L2`)** 正式纳入开仓决策与行权价锚定架构：
 
-- **双轨分流原则 (Dual-Track Principle)**：
-    - **Dry-Run 模式（模拟测试）**：100% 运行于本地内存与数据库，绝不调用券商订单接口。由独立的 10 秒风控守护线程基于实时期权链盘口 Mark 进行模拟撮合与盈亏记账，零 API 损耗、零账户污染；
-    - **Live-Trading 模式（实盘资金）**：开仓订单成功后，系统强制立即向 Schwab/TOS 预埋 2 笔限价平仓买单（Limit Buy-to-Close），将单子直接挂入期权交易所 Order Book 排队，享受最高撮合排队优先权并天然免疫本地断网。
-
-- **预埋限价止盈定价公式 (纯文本表示，严禁 LaTeX)**：
-    - Tranche 1 止盈限价 (40% 衰减):
-      `tp1_price = max(0.01, min(net_credit - 0.01, round(net_credit * (1.0 - 0.40), 2)))`
-    - Tranche 2 止盈限价 (75% 衰减):
-      `tp2_price = max(0.01, min(tp1_price - 0.01, round(net_credit * (1.0 - 0.75), 2)))`
-
-- **交易所 FILLED 自动结案防重构机制**：
-    - 本地 10 秒守护线程优先轮询券商挂单状态；
-    - 若券商返回 `status == 'FILLED'`，说明交易所已毫秒级自动撮合成交，系统立即标记为 `CLOSED_TAKE_PROFIT_T1` 或 `T2` 结案；
-    - 严格锁定 `is_broker_filled = True`，绝对严禁重复发起二次平仓买单，防止反向开新仓。
-
-- **硬止损与时间止损的撤单优先级时序铁律 (Cancel-Before-Close Precedence Rule)**：
-    - 当盘面恶化导致买回成本触碰 `2.20 * net_credit` 硬止损线、或到达美西 12:30 PST 强制时间全平线时，系统必须遵循严格的**两步原子时序**：
-        - **步骤 1：先撤挂单**：立即调用 `BBTOS.cancel_order(tp_broker_order_id)` 撤销券商端在途的止盈限价单；
-        - **步骤 2：再发平仓**：确认释放该期权腿的仓位锁定后，立即调用 `BBTOS.close_vertical_spread` 发送市价/盘口止损单平仓；
-    - **核心防范**：彻底消除因在途止盈挂单锁定持仓导致后续止损平仓被券商拒绝（Rejected: Position Locked）的重大爆仓隐患。
-
-- **双轨执行与风控生命周期状态机决策树 (State Machine Decision Tree)**：
-
-![Option Seller 双轨执行与风控生命周期状态机决策树](15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/option_seller_dual_track_decision_tree.png)
-
-> **图 17-1: Option Seller 双轨执行与本地守护风控生命周期状态机架构**（高清矢量图与 PNG 已归档于 `system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/`）。
-
-##### 决策树逻辑时序逐级分解 (Sequential Decision Breakdown)
-1. **开仓信号触发 (Entry Signal Qualified)**：
-   - **[模式 A: Dry-Run 模拟盘]**：生成本地模拟单号 (DRY-*) ──► 100% 本地运算，记录初始权利金 ──► 移交 10s 守护线程监控；
-   - **[模式 B: Live-Trading 实盘]**：向 Schwab 提交垂直价差开仓单 ──► 成交获取真实 Order ID ──► 立即预埋 2 笔限价止盈单 (T1 40% / T2 75%) ──► 挂单进驻交易所 Order Book 排队 (防御本地断网)；
-
-2. **移交后台 10s 风控守护线程监控 (Guardian Loop)**：
-   - **[首要检验: 券商挂单 status == 'FILLED']**：交易所已毫秒级自动撮合成交 ──► 本地直接标记 `CLOSED_TAKE_PROFIT` 结案 ──► 锁定 `is_broker_filled = True` (绝不重复向券商发单)；
-   - **[持续监控: 状态为 WORKING 或处于 Dry-Run 模式]**：抓取实时期权链计算当前买回成本 Mark: `current_close_cost` ──► 触发本地三重退出判定：
-     - **规则 A：买回成本 <= 止盈线 (40% / 75% 衰减)**：
-       - Dry-Run: 直接本地记账盈利平仓；
-       - Live: 预埋单已在交易所排队等待撮合，免除主动市价吃单滑点损耗；
-     - **规则 B：买回成本 >= 止损线触发 (2.20x 硬止损 或 1.00x 保本损)**：
-       - **刚性原子时序**：① 先调用 `cancel_order` 撤销券商在途挂单释放持仓锁定 ──► ② 立即调用 `close_vertical_spread` 市价/盘口对价迅速斩仓 ──► ③ 结案 `CLOSED_STOP_LOSS` 或 `CLOSED_BREAKEVEN_T2`；
-     - **规则 C：美西时间 >= 12:30:00 PST (强制时间止损)**：
-       - **刚性原子时序**：① 先撤在途止盈挂单 ──► ② 立即执行强制市价全清，清空持仓绝不过夜 ──► ③ 结案 `CLOSED_TIME_STOP`。
-
-#### 11. Tranche 1 止盈后 Tranche 2 动态保本推损机制 (Scheme A: Breakeven Stop Loss Protection for Tranche 2)
-- **业务背景与痛点**：在双批次退出架构中，Tranche 1 承担 40% 快速落袋任务，Tranche 2 承担 75% 深度收割任务。但若行情在 T1 止盈后发生极端单边反抽，若 T2 仍执行原始的 2.20x 硬止损，将导致整笔交易从账面大幅浮盈恶化为实际净亏损，对交易心态与账户净值产生负面冲击。
-- **触发条件 (Activation Trigger)**：
-  - 同一开仓批次中的 **Tranche 1 (初级止盈 40% 衰减)** 成功触发 Take Profit 结案（无论是实盘预埋限价单由交易所自动 FILLED 撮合，还是本地守护线程计算成交）。
-- **动态推损迁移规则 (Stop Loss Migration)**：
-  - 在结案 Tranche 1 的同一原子锁事务内，系统自动检索同批次仍在活跃队列中的 **Tranche 2 (深度止盈 75% 衰减)** 挂单持仓；
-  - 立即将 Tranche 2 的止损线 `stop_loss_price` 从初始的 `2.20 * net_credit` **动态下调至 `net_credit`（开仓保本价）**，并在持仓状态及数据库 `entry_evidence` 中持久化标记 `is_breakeven_protected = True`。
-- **零风险博弈锁定 (100% Risk-Free Trade Guarantee)**：
-  - Tranche 1 已落袋利润：`0.40 * net_credit * 100` 美元；
-  - Tranche 2 最差结果（触碰保本线平仓）：买回成本为 `net_credit`，单手损益为 `(net_credit - net_credit) * 100 = $0.00`；
-  - **整次回合保底净利润**：整笔交易总账底线锁定为 `+0.40 * net_credit * 100` 美元。**在数学概率与会计上彻底排除了由赢转亏的可能性**。
-- **微观结构抗洗盘优势 (Microstructure Resilience)**：
-  - 绝不在开仓初期（微浮盈 10%~20%）盲目推保本，彻底消除 0DTE 价差因盘口 Bid-Ask 点差微幅拉宽或小幅正常呼吸而被“过早假击穿洗出局 (Whipsaw)”的弊端；
-  - 必须等待首手 40% 利润落袋这一强确认信号后才推进保本，兼顾策略基础高胜率（85%+）与严格的单边回撤截断。
-- **结案流水与实盘原子保护**：
-  - 若标的资产随后发生趋势反转导致买回成本升至保本价（`cost >= net_credit`），系统自动以 `CLOSED_BREAKEVEN_T2` 结案并展示专属保本徽章；
-  - 实盘执行时，同样严格遵循**“① 先撤销券商在途预埋的 75% 限价止盈单 ➜ ② 释放仓位锁定 ➜ ③ 提交对价平仓单”**的原子时序，彻底杜绝爆仓死锁。
-
----
-
-### 第十八章：MotiveWave QuantPivot 动态波动率枢轴与跳空跨时段自适应规则 (MotiveWave QuantPivot & Gap-Adaptive Hybrid Rules)
-
-#### 一、 归属分类与核心定位 (MW Study Classification)
-- **归属分类**：独立归属于 **MotiveWave Study (MW Study)** 核心图表指标与量化分析体系（对应插件 `BBT Quant Pivot` / `StudyQuantPivot.java` 以及 Python `quant_pivot.py`），绝非单一隶属于期权卖方模块。
-- **系统核心定位**：基于真实日线波幅（True Daily Range）的日内统计学波动率均值与 1 倍标准差耗竭边界，为全交易系统提供跨资产（ES、NQ 期货及 SPY、SPX 现货/ETF）通用的日内多空耗竭中枢与支撑阻力基准，广泛赋能于盘面人工交易、订单流大单共振以及期权卖方护城河锚定。
-
-#### 二、 数学模型与统计学理论 (Mathematical Principles)
+##### 1. 数学模型与统计学理论 (Mathematical Principles)
 - **样本数据口径**：严格基于标的过去 30 个交易日交易所标准交易时段（RTH 09:30 - 16:00 EST / 06:30 - 13:00 PST）的纯日线 OHLC 历史数据。
 - **日内多空扩张百分比定义**：
   - 上涨扩张百分比: up = 100 * (High - Open) / Close
@@ -679,62 +617,31 @@
   - upSD = stdev(up, ddof=1)
   - aveDown = avg(down)
   - downSD = stdev(down, ddof=1)
-- **当日动态波动率边界计算公式**（基准 pO 为美东 09:30 / 美西 06:30 官方开盘价）：
+- **当日动态波动率边界计算公式**（基准 pO 为美东 09:30 / 美西 06:30 官方 RTH 开盘价）：
   - H2 (极端上行耗竭位 / 阻力 2): H2 = pO + ((aveUp + upSD) / 100) * pO
   - H1 (平均期望上行耗竭位 / 阻力 1): H1 = pO + (aveUp / 100) * pO
-  - pO (开盘锚点): pO = Official Open
+  - pO (RTH 开盘锚点): pO = RTH Open
   - L1 (平均期望下行耗竭位 / 支撑 1): L1 = pO - (aveDown / 100) * pO
   - L2 (极端下行耗竭位 / 支撑 2): L2 = pO - ((aveDown + downSD) / 100) * pO
 - **统计学概率分布意义**：
   - H1 与 L1 代表单日日内多空波动的期望均值边界；
-  - H2 与 L2 代表均值 + 1 倍标准差，历史经验表明约 84% 以上交易日的 RTH 极值均被有效约束在 H2 之下与 L2 之上，构筑了高确定性的日内耗竭与防守防线。
+  - H2 与 L2 代表日内波动率均值 + 1 倍标准差，历史经验表明约 84% 以上交易日的 RTH 极值均被有效约束在 H2 之下与 L2 之上，构筑了高确定性的期权卖方防御防线。
 
-#### 三、 市场微观结构动因与单一锚点失真问题 (Structural Motivation)
-- **现货与期货的拍卖机制差异**：
-  - **现货市场 (SPX / SPY)**：仅在美东 09:30 - 16:00 (RTH) 集中交易，其日内对称拍卖完全以 09:30 开盘价为真原点，H1 与 L1 完美对称包夹全天高低点；
-  - **股指期货 (ES / NQ)**：横跨连续 23 小时 CME Globex 交易时段。当存在显著隔夜跳空 (Overnight Gap) 时，单一锚点计算存在物理失真：
-    - *单一 24H 锚点失真*：顺势冲高上限 (H1) 极准，但由于原点未吸收隔夜涨幅，逆势下杀下限 (L1) 计算过深，日内无法探底（如 2026-08-28 ES 24H L1 为 7697，实战低点止步于 7705）；
-    - *单一 RTH 锚点失真*：逆势回踩下限 (L1) 极准，但顺势冲高上限将隔夜涨幅双重计价，导致 H1 虚高无法触及（如 2026-08-28 ES RTH H1 虚高至 7784，实战高点止步于 7777）。
-- **非对称跨时段自适应原理**：顺势方向必须吸收隔夜动能防止目标虚设，逆势方向必须以现货开盘价为原点计算现货回吐空间。
+##### 2. 双向开仓决策与微观共振仲裁规范 (Bidirectional Entry Rules)
 
-#### 四、 双向对称非对称锚定算法 (Gap-Adaptive Hybrid Algorithm)
-- **跳空测算与阈值**：
-  - Gap = RTH_Open - Globex_Open
-  - Gap_Threshold = 0.05% * Globex_Open (ES 对应约 3.8 个点)
-- **场景 A：隔夜高开日 (Gap Up, Gap > Gap_Threshold，例如 2026-08-28)**：
-  - **顺势冲高耗竭阻力 (H1 / H2)** ➜ 锚定 **24H Globex 连续日线**（原点 Globex_Open）：
-    - H1 = Globex_Open + (aveUp_24h / 100) * Globex_Open
-    - H2 = Globex_Open + ((aveUp_24h + upSD_24h) / 100) * Globex_Open
-    - *机制*：消除隔夜冲高对日内空间的虚增，精准锁定全天多头极限枯竭点（2026-08-28 H1 为 7777.27，实战高点 7777.50）；
-  - **逆势下杀回踩支撑 (L1 / L2)** ➜ 锚定 **RTH Cash 现货日线**（原点 RTH_Open）：
-    - L1 = RTH_Open - (aveDown_rth / 100) * RTH_Open
-    - L2 = RTH_Open - ((aveDown_rth + downSD_rth) / 100) * RTH_Open
-    - *机制*：日内回撤由 09:30 开盘的现货抛压与做市商对冲主导，以现货开盘价真实反映回撤空间（2026-08-28 L1 为 7705.86，实战低点 7705.50）；
-  - **基准分水岭**：Period_Open = RTH_Open，线条与标签标注 `(24H)` 与 `(RTH)` 来源。
-- **场景 B：隔夜低开日 (Gap Down, Gap < -Gap_Threshold)**：
-  - **顺势下杀耗竭支撑 (L1 / L2)** ➜ 锚定 **24H Globex 连续日线**（原点 Globex_Open）：
-    - L1 = Globex_Open - (aveDown_24h / 100) * Globex_Open
-    - L2 = Globex_Open - ((aveDown_24h + downSD_24h) / 100) * Globex_Open
-    - *机制*：消除隔夜杀跌对下行空间的虚增，防止低开后再虚减跌幅，锁定 24 小时空头动能极限；
-  - **逆势轧空反弹阻力 (H1 / H2)** ➜ 锚定 **RTH Cash 现货日线**（原点 RTH_Open）：
-    - H1 = RTH_Open + (aveUp_rth / 100) * RTH_Open
-    - H2 = RTH_Open + ((aveUp_rth + upSD_rth) / 100) * RTH_Open
-    - *机制*：现货资金入场抄底与轧空回补是以 RTH 低开价为起点的反弹，由 RTH 阻力线压制；
-  - **基准分水岭**：Period_Open = RTH_Open。
-- **场景 C：平开日 (Flat Open, abs(Gap) <= Gap_Threshold)**：
-  - 维持标准 24H 连续点位计算，无跳空断层。
+| 交易方向 | 价格位置状态 | 订单流 / DOM 微观共振要求 | 决策输出与评分 | 期权行权价优选锚定 (Strike Moat) |
+| :--- | :--- | :--- | :--- | :--- |
+| **空头开仓<br>(Bear Call Spread)** | **触及或测试 H1 阻力**：<br>现价进入 `[H1 - 0.15%, H1 + 0.30%]` 区域；或价格刺破 H1 向 H2 延伸并出现滞涨冲高回落。 | • CVD 顶背离或 Delta 出现急剧负值反转；<br>• DOM 显示主动买单竭尽，卖方大单冰山密集挂出吸收或买单真空。 | **维度 3 赋予 Bearish 评分 (+8 ~ +12 分)**；<br>若与 Smashelito UT1 / Smash 重合承压，直接封顶满分 15 分。总分达标后自动开仓 Bear Call Spread。 | **Short Call Strike 优先锚定在 >= H2**；<br>若由于权利金限制无法达到 H2，则退守 `>= H1 + 0.5%`，借助统计学 1-SD 极端边界阻挡标的击穿。 |
+| **多头开仓<br>(Bull Put Spread)** | **触及或测试 L1 支撑**：<br>现价进入 `[L1 - 0.30%, L1 + 0.15%]` 区域；或价格跌破 L1 向 L2 延伸并出现探底企稳回升。 | • CVD 底背离或 Delta 出现急剧正值回暖；<br>• DOM 显示主动砸盘竭尽，买方大单冰山密集挂出吸收或卖单真空。 | **维度 3 赋予 Bullish 评分 (+8 ~ +12 分)**；<br>若与 Smashelito DT1 / Smash 重合企稳，直接封顶满分 15 分。总分达标后自动开仓 Bull Put Spread。 | **Short Put Strike 优先锚定在 <= L2**；<br>若由于权利金限制无法达到 L2，则退守 `<= L1 - 0.5%`，借助统计学 1-SD 极端边界阻挡标的下穿。 |
 
-#### 五、 多空反转区间评估与决策输出规范 (Reversal Band Decisions)
-- **H1 / H2 空头反转区 (Bearish Reversal Zone)**：
-  - 当现价进入 `[H1 - 0.15%, H1 + 0.30%]` 区域时，属于期望上行耗竭区，系统标记为偏空反转信号；
-  - 当现价触及或刺破 `H2` (`>= H2`) 时，属于 1-SD 极端超买耗竭区，系统追加 `AT_OR_ABOVE_H2` 极值反转加权；
-- **L1 / L2 多头反转区 (Bullish Reversal Zone)**：
-  - 当现价进入 `[L1 - 0.30%, L1 + 0.15%]` 区域时，属于期望下行耗竭区，系统标记为偏多反转信号；
-  - 当现价触及或跌破 `L2` (`<= L2`) 时，属于 1-SD 极端超卖耗竭区，系统追加 `AT_OR_BELOW_L2` 极值反转加权。
+##### 3. 极值状态加权 (Extreme Volatility Reversal Boost)
+- 当标的价格在早盘或盘中触及或暂时刺破 **H2 (>= H2)** 时，属于小概率极端超买耗竭，系统自动将当前价格标记为 `AT_OR_ABOVE_H2`，额外追加 +5 分反转倾向；
+- 当标的价格触及或暂时刺破 **L2 (<= L2)** 时，属于小概率极端超卖耗竭，系统自动将当前价格标记为 `AT_OR_BELOW_L2`，额外追加 +5 分反转倾向；
+- 该极值反转加权机制能够有效抵抗滞后的均线动量指标，帮助系统精准捕捉像 2026-08-28 SPY 在 H1/H2 与 L1/L2 的结构性高赔率反转点位。
 
 ---
 
-### 第十九章：交易系统全景定时任务、轮询机制与后台守护线程执行规范 (System Scheduled Tasks, Polling & Daemons)
+### 第十八章：交易系统全景定时任务、轮询机制与后台守护线程执行规范 (System Scheduled Tasks, Polling & Daemons)
 
 本章系统性梳理期权卖方日内交易控制台 (`bbt_option_seller`) 以及整个量化交易系统中，前端与后端所有定时任务、高频轮询机制及后台守护线程的具体周期、对应代码与执行规范：
 

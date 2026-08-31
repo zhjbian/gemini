@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5分钟订单流哨兵检测架构与决策规则技术手册 (Order Flow Sentinel 5M Technical Architecture)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --primary-light: #e0f2fe;
+      --accent: #f59e0b;
+      --bg: #f8fafc;
+      --sidebar-bg: #ffffff;
+      --panel-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-focus: #38bdf8;
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-sub: #64748b;
+      --bull: #10b981;
+      --bull-bg: #ecfdf5;
+      --bull-border: #a7f3d0;
+      --bear: #ef4444;
+      --bear-bg: #fef2f2;
+      --bear-border: #fecaca;
+      --trap: #f59e0b;
+      --trap-bg: #fffbeb;
+      --trap-border: #fde68a;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.68;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: 360px;
+      min-width: 360px;
+      height: 100vh;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+      z-index: 20;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    .brand-title {
+      font-size: 1.10rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand-title i {
+      color: var(--primary);
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      font-weight: 500;
+      margin-top: 4px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 9px 12px 9px 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .search-box input:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 11px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px 40px;
+    }
+
+    .nav-group {
+      margin-bottom: 18px;
+    }
+
+    .nav-group-title {
+      font-size: 0.80rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #f8fafc;
+      margin-bottom: 6px;
+    }
+    .nav-group-title a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .nav-list {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 2px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.86rem;
+      line-height: 1.35;
+      transition: all 0.15s ease;
+    }
+    .nav-link:hover {
+      background: #f1f5f9;
+      color: var(--primary);
+    }
+    .nav-link.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    .main-container {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      background: var(--bg);
+      padding: 40px 60px 80px;
+    }
+
+    .content-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header-banner {
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      color: var(--text-main);
+      padding: 36px 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 36px;
+      border: 1px solid #bae6fd;
+    }
+
+    .header-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #7dd3fc;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    .header-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .header-desc {
+      font-size: 0.95rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .header-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Section Cards */
+    .rule-section {
+      background: var(--panel-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+      padding: 32px 36px;
+      margin-bottom: 32px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+    }
+    .section-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+
+    /* Media Visual Boxes (Pure Light Theme) */
+    .media-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px;
+      margin: 24px 0;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+      text-align: center;
+    }
+    .media-card img {
+      width: 100%;
+      max-width: 1150px;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+      margin: 0 auto;
+      border: 1px solid #f1f5f9;
+    }
+    .media-caption {
+      margin-top: 12px;
+      font-size: 0.84rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    /* Rule Cards Grid */
+    .rule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .rule-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .rule-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+    }
+    .rule-card.bull {
+      border-left: 4px solid var(--bull);
+      background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+    }
+    .rule-card.bear {
+      border-left: 4px solid var(--bear);
+      background: linear-gradient(180deg, #ffffff 0%, #fef2f2 100%);
+    }
+    .rule-card.trap {
+      border-left: 4px solid var(--trap);
+      background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+    }
+    .rule-card.neutral {
+      border-left: 4px solid var(--primary);
+      background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+    }
+
+    .card-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .badge-bull { background: #dcfce7; color: #15803d; }
+    .badge-bear { background: #fee2e2; color: #b91c1c; }
+    .badge-trap { background: #fef3c7; color: #b45309; }
+    .badge-primary { background: #e0f2fe; color: #0369a1; }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+    }
+
+    .rule-list {
+      list-style: none;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+    .rule-list li {
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .rule-list li::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    /* Code & Metrics Pill */
+    .metric-pill {
+      font-family: var(--font-mono);
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Comparison Table */
+    .table-container {
+      overflow-x: auto;
+      margin: 24px 0;
+      border-radius: 10px;
+      border: 1.5px solid #94a3b8;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.88rem;
+      background: #ffffff;
+    }
+    th {
+      background: #e2e8f0;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.90rem;
+      text-align: left;
+      padding: 13px 16px;
+      border-bottom: 2px solid #94a3b8;
+      border-right: 1px solid #cbd5e1;
+    }
+    th:last-child { border-right: none; }
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid #cbd5e1;
+      border-right: 1px solid #cbd5e1;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+    td:last-child { border-right: none; }
+    tr:last-child td { border-bottom: none; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    tr:hover td { background: #f0f9ff; }
+
+    /* Alert callout */
+    .callout {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      font-size: 0.90rem;
+      line-height: 1.6;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .callout-info {
+      background: #f0f9ff;
+      border-left: 4px solid var(--primary);
+      color: #0c4a6e;
+    }
+    .callout-warning {
+      background: #fffbeb;
+      border-left: 4px solid var(--accent);
+      color: #78350f;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar { display: none; }
+      .main-container { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Left Navigation Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-title">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span>BBTrading Sentinel</span>
+      </div>
+      <div class="brand-subtitle">5-Minute Order Flow Architecture</div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="ruleSearch" placeholder="搜索架构、算法与决策规则..." onkeyup="filterNav()">
+      </div>
+    </div>
+
+    <div class="sidebar-scroll">
+      <div class="nav-group">
+        <div class="nav-group-title"><a href="#overview">系统全流程与架构</a></div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#overview" class="nav-link"><i class="fa-solid fa-diagram-project"></i> 架构全景拓扑图</a></li>
+          <li class="nav-item"><a href="#incremental-data" class="nav-link"><i class="fa-solid fa-bolt"></i> 基线锚定与增量拼接</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title"><a href="#channel-a">通道 A: 成交流与大单规则</a></div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#channel-a-bull" class="nav-link"><i class="fa-solid fa-arrow-trend-up"></i> 多头强信号四步裁决</a></li>
+          <li class="nav-item"><a href="#channel-a-bear" class="nav-link"><i class="fa-solid fa-arrow-trend-down"></i> 空头强信号对称判定</a></li>
+          <li class="nav-item"><a href="#channel-a-override" class="nav-link"><i class="fa-solid fa-shield-halved"></i> 2H 机构大宗最高覆盖</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title"><a href="#channel-b">通道 B: DOM 500ms 重采样规则</a></div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#channel-b-mechanisms" class="nav-link"><i class="fa-solid fa-microchip"></i> 双微观机制图解</a></li>
+          <li class="nav-item"><a href="#channel-b-bull-decision" class="nav-link"><i class="fa-solid fa-circle-arrow-up"></i> 多头 HIGH 触发四大法则</a></li>
+          <li class="nav-item"><a href="#channel-b-bear-decision" class="nav-link"><i class="fa-solid fa-circle-arrow-down"></i> 空头 HIGH 触发四大法则</a></li>
+          <li class="nav-item"><a href="#channel-b-bookflip" class="nav-link"><i class="fa-solid fa-repeat"></i> 盘口极速大翻转 (Book Flip)</a></li>
+          <li class="nav-item"><a href="#channel-b-iceberg" class="nav-link"><i class="fa-solid fa-icicles"></i> 梯级冰山吸收与极端死守</a></li>
+          <li class="nav-item"><a href="#channel-b-vacuum" class="nav-link"><i class="fa-solid fa-wind"></i> 流动性真空逼空/破位</a></li>
+          <li class="nav-item"><a href="#channel-b-spoof" class="nav-link"><i class="fa-solid fa-shield-virus"></i> 70% 频繁撤单诱导过滤</a></li>
+          <li class="nav-item"><a href="#channel-b-weighting" class="nav-link"><i class="fa-solid fa-crosshairs"></i> 30点核心加权与巨墙异动</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-title"><a href="#downstream">下游协同与通知机制</a></div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#cooldown" class="nav-link"><i class="fa-solid fa-hourglass-half"></i> 30分钟同向冷却窗口</a></li>
+          <li class="nav-item"><a href="#ai-dispatch" class="nav-link"><i class="fa-solid fa-brain"></i> BBAI 智能模型路由即时唤醒</a></li>
+          <li class="nav-item"><a href="#notification" class="nav-link"><i class="fa-solid fa-envelope"></i> 三维立体报警与期权卖方联动</a></li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-container">
+    <div class="content-wrapper">
+
+      <!-- Header Banner -->
+      <div class="header-banner">
+        <div class="header-tag"><i class="fa-solid fa-code"></i> Engineering Architecture & Rules Manual</div>
+        <h1 class="header-title">ES 5分钟订单流哨兵检测架构与决策规则手册</h1>
+        <p class="header-desc">
+          系统核心微观哨兵 <code>order_flow_sentinel.py</code> 与 <code>dom_sentinel_evaluator.py</code> 的全量技术架构白皮书。详细解构 500ms 高频网格重采样、盘口比率极速翻转（The Book Flip）、梯级被动冰山吸收判定、以及 2小时机构大宗多空覆盖的执行链路。
+        </p>
+        <div class="header-meta">
+          <span><i class="fa-solid fa-file-code"></i> 主控脚本: <code>PyTools/order_flow_analysis/order_flow_sentinel.py</code></span>
+          <span><i class="fa-solid fa-layer-group"></i> 评估引擎: <code>dom_sentinel_evaluator.py</code></span>
+          <span><i class="fa-solid fa-clock"></i> 周期: 每 5 分钟 (RTH 06:30 - 13:00)</span>
+          <span><i class="fa-solid fa-calendar-check"></i> 生效版本: 2026-08-30</span>
+        </div>
+      </div>
+
+      <!-- Section 1: System Overview -->
+      <section id="overview" class="rule-section">
+        <div class="section-head">
+          <div class="section-icon"><i class="fa-solid fa-diagram-project"></i></div>
+          <h2 class="section-title">1. 系统全流程与架构拓扑</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+          5分钟订单流哨兵是日内实盘交易系统的最前哨神经元。它在 RTH 开盘时段（06:30 至 13:00，避开 30 分钟整点边界）由 <code>daily_jobs.py</code> 定时唤醒，以 0.2 秒的极速完成微观盘口扫描，在确认日内顶底异动时事件驱动唤醒 AI 并触发推送。
+        </p>
+
+        <!-- High-Res Diagram 1 -->
+        <div class="media-card">
+          <img src="images/order_flow_sentinel_architecture.png" alt="Order Flow Sentinel Architecture Diagram">
+          <div class="media-caption">图 1: ES 订单流 5分钟周期哨兵完整架构与执行流程图 (高清矢量渲染)</div>
+        </div>
+
+        <div id="incremental-data" style="margin-top: 28px;">
+          <h3 style="font-size: 1.15rem; color: var(--text-main); margin-bottom: 12px;"><i class="fa-solid fa-bolt" style="color: var(--accent);"></i> 基线锚定与增量 Tick 拼接机制</h3>
+          <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 16px;">
+            在常规日内交易中，ES 期货成交流全天可达 200,000 ~ 400,000 笔。如果每 5 分钟都从当日 00:00 重新加载全天 CSV，将导致严重磁盘 I/O 拥塞与秒级延迟。哨兵系统采用了高效的<strong>“基线锚定 + 增量拼接”</strong>架构：
+          </p>
+          
+          <div class="rule-grid">
+            <div class="rule-card neutral">
+              <span class="card-badge badge-primary">Step 1: DB Baseline</span>
+              <div class="card-title">读取 30m 整点快照</div>
+              <ul class="rule-list">
+                <li>从 MySQL <code>order_flow_signals</code> 倒序检索最近一次 30 分钟整点信号。</li>
+                <li>提取已固化的历史基线：<code>baseline_rth_delta</code> 与 <code>baseline_rth_volume</code>。</li>
+                <li>继承上一个周期的 5m micro_intervals 历史演进路径。</li>
+              </ul>
+            </div>
+
+            <div class="rule-card neutral">
+              <span class="card-badge badge-primary">Step 2: Incremental Ticks</span>
+              <div class="card-title">磁盘极速增量扫描</div>
+              <ul class="rule-list">
+                <li>仅扫描基线时间戳到当前时刻（5~25分钟窗口）的微量成交流（通常仅数千笔）。</li>
+                <li>直接信任 Native Side 列（Bid/Ask 真实主动方），计算增量 Delta 与 Volume。</li>
+                <li>单次解析与微观聚合耗时严格控制在 <strong>200ms 以内</strong>。</li>
+              </ul>
+            </div>
+
+            <div class="rule-card neutral">
+              <span class="card-badge badge-primary">Step 3: Path Rebuild</span>
+              <div class="card-title">全日动态路径重建</div>
+              <ul class="rule-list">
+                <li>动态计算今日 RTH 累积 Delta 峰值与谷值。</li>
+                <li>计算 <code>delta_drawdown</code> (高位跳水回撤) 与 <code>delta_runup</code> (底部强势反弹)。</li>
+                <li>计算当前相对价格在日内极值区间的位置百分比 <code>price_position_pct</code>。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Channel A -->
+      <section id="channel-a" class="rule-section">
+        <div class="section-head">
+          <div class="section-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+          <h2 class="section-title">2. 通道 A: 已成交流与大单量化决策体系</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+          通道 A 由 <code>order_flow_rules_optimizer.py</code> 驱动，对过去 5m、15m、30m 的 Delta 动量及 2 小时大宗机构单进行多级过滤，确保信号既敏锐又具备极强抗噪性。
+        </p>
+
+        <div class="rule-grid">
+          <!-- Bullish High -->
+          <div id="channel-a-bull" class="rule-card bull">
+            <span class="card-badge badge-bull">Bullish High</span>
+            <div class="card-title">看多强信号裁决体系</div>
+            <ul class="rule-list">
+              <li><strong>前置比例约束 (Pre-condition)</strong>: 累积 Delta 占成交量比例 <span class="metric-pill">delta_pct_vol &le; 0.015</span>，防止在严重超买竭尽时追高。</li>
+              <li><strong>条件 A (动量爆发)</strong>: 最近 15 分钟 Delta &ge; 8,000 手，或单根 5 分钟 Delta &ge; 6,000 手。</li>
+              <li><strong>条件 B (逆转推进)</strong>: 5 分钟价格上涨 &ge; 10.0 点且伴随买方承接。</li>
+              <li><strong>条件 C (底背离反弹)</strong>: Delta 从当日最低点强劲反弹 <span class="metric-pill">delta_runup &ge; 10,000</span> 手，或 30m 净增 > 5,000 手。</li>
+              <li><strong>条件 D (持续单边)</strong>: 30 分钟价格上涨 &ge; 15.0 点且 Delta 为正。</li>
+            </ul>
+          </div>
+
+          <!-- Bearish High -->
+          <div id="channel-a-bear" class="rule-card bear">
+            <span class="card-badge badge-bear">Bearish High</span>
+            <div class="card-title">看空强信号裁决体系 (对称设计)</div>
+            <ul class="rule-list">
+              <li><strong>前置比例约束</strong>: 累积 Delta 占成交量比例 <span class="metric-pill">delta_pct_vol &ge; 0.015</span>，防止在严重超卖竭尽时追空。</li>
+              <li><strong>条件 A (打压爆发)</strong>: 最近 15 分钟 Delta &le; -8,000 手，或单根 5 分钟 Delta &le; -6,000 手。</li>
+              <li><strong>条件 B (击穿下行)</strong>: 5 分钟价格下跌 &le; -10.0 点且伴随卖方持续下压。</li>
+              <li><strong>条件 C (顶背离跳水)</strong>: Delta 从当日最高点跳水回落 <span class="metric-pill">delta_drawdown &ge; 10,000</span> 手，或 30m 净流出 < -5,000 手。</li>
+              <li><strong>条件 D (单边下泻)</strong>: 30 分钟价格下跌 &le; -15.0 点且 Delta 为负。</li>
+            </ul>
+          </div>
+
+          <!-- 2H Institutional Override -->
+          <div id="channel-a-override" class="rule-card trap" style="grid-column: 1 / -1;">
+            <span class="card-badge badge-trap">Highest Authority Override</span>
+            <div class="card-title"><i class="fa-solid fa-shield-halved"></i> 2小时机构大宗被动吸筹/派发最高覆盖逻辑</div>
+            <p style="font-size: 0.88rem; color: #78350f; margin-bottom: 12px;">
+              顶级机构（如 Adam Set 理论强调的暗池大宗交易）通常采用限价单被动吸收散户的恐慌抛盘。此时若仅看微观 Delta，往往显示为负数（因为是市价单砸向限价买单），容易诱导系统误判为 Bearish。为此系统设立最高覆盖法则：
+            </p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="background: rgba(255,255,255,0.7); padding: 12px; border-radius: 8px;">
+                <strong style="color: #15803d;">🟢 低位机构吸筹覆盖 (Bullish Accumulation)</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                  当 2小时大宗净额 <span class="metric-pill">&ge; 3,000 手</span>（或权重分 &ge; 1500），且价格处于日内相对低位 <span class="metric-pill">Pos &le; 40%</span>：<strong>一票否决空头判定，强制触发看多覆盖！</strong>
+                </p>
+              </div>
+              <div style="background: rgba(255,255,255,0.7); padding: 12px; border-radius: 8px;">
+                <strong style="color: #b91c1c;">🔴 高位机构派发覆盖 (Bearish Distribution)</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                  当 2小时大宗净额 <span class="metric-pill">&le; -3,000 手</span>（或权重分 &le; -1500），且价格处于日内相对高位 <span class="metric-pill">Pos &ge; 60%</span>：<strong>一票否决多头判定，强制触发看空覆盖！</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Channel B -->
+      <section id="channel-b" class="rule-section">
+        <div class="section-head">
+          <div class="section-icon"><i class="fa-solid fa-microchip"></i></div>
+          <h2 class="section-title">3. 通道 B: DOM 500ms 重采样高频规则引擎</h2>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+          通道 B 由 <code>dom_sentinel_evaluator.py</code> 驱动。系统将过去 5 分钟窗口在时间轴上离散化为 <strong>600 个 500ms 均匀步长</strong>，直接监控未成交的限价挂单薄（Depth of Market）微观结构演变。
+        </p>
+
+        <!-- High-Res Diagram 2 -->
+        <div id="channel-b-mechanisms" class="media-card">
+          <img src="images/dom_sentinel_mechanisms.png" alt="DOM Sentinel Dual Micro-Mechanisms Diagram">
+          <div class="media-caption">图 2: 盘口极速大翻转 (The Book Flip) 与梯级被动冰山吸收判定规范 (高清矢量渲染)</div>
+        </div>
+
+        <!-- Direct Bullish & Bearish Trigger Rule Specification Cards -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0;">
+          <!-- Bullish HIGH Activation Card -->
+          <div id="channel-b-bull-decision" class="rule-card bull">
+            <span class="card-badge badge-bull"><i class="fa-solid fa-bolt"></i> is_dom_bull_high 触发法则</span>
+            <div class="card-title" style="color: #15803d;"><i class="fa-solid fa-circle-arrow-up"></i> 通道 B 多头强信号四项触发条件 (满足任一即激活)</div>
+            <p style="font-size: 0.88rem; color: #166534; margin-bottom: 12px;">
+              当 5 分钟 DOM 数据命中以下<strong>任意一项高确信度微观结构</strong>，且未被诱多假托单陷阱拦截时，直接将 <code>is_dom_bull_high = True</code> 激活看多 HIGH 信号：
+            </p>
+            <ul class="rule-list">
+              <li>
+                <strong>条件 1 (卖方流动性真空逼空)</strong>:
+                上方卖单单档挂单不足 10 手持续 <span class="metric-pill">vacuum_ask_sec &ge; 1.5s</span>，且近端失衡看多（<span class="metric-pill">imb_near > 0.05</span> 或动量 <span class="metric-pill">imb_momentum > 0.04</span>），同时买方堆单持续加固（<span class="metric-pill">stack_bid &ge; stack_ask</span>）。
+              </li>
+              <li>
+                <strong>条件 2 (底部梯级冰山死守吸筹)</strong>:
+                价格处于日内相对中低位 (<span class="metric-pill">Pos &le; 45%</span>)，且命中：
+                <br>• <strong>极致死守</strong>: 单根 5m Bar 位移 <span class="metric-pill">&le; 1.0 点</span> 且 Delta < -800 出现 <span class="metric-pill">&ge; 1 次</span>；
+                <br>• 或 <strong>标准波段吸收</strong>: 位移 <span class="metric-pill">&le; 3.0 点</span> 出现 <span class="metric-pill">&ge; 2 次</span>。
+              </li>
+              <li>
+                <strong>条件 3 (底部盘口大翻转 The Book Flip)</strong>:
+                价格处于日内低位区 (<span class="metric-pill">Pos &le; 40%</span>)，前半段 2.5m 空头压制 (<span class="metric-pill">early_ratio < 0.85</span>)，后半段买方猛烈增厚翻盘 (<span class="metric-pill">late_ratio > 1.40</span> 且增幅超 60%)。
+              </li>
+              <li>
+                <strong>条件 4 (多头堆单防线持续筑底加固)</strong>:
+                买方堆单 <span class="metric-pill">stack_bid &ge; 8 次</span> 且达到卖方的 2 倍以上 (<span class="metric-pill">stack_bid &ge; 2 * stack_ask</span>)，同时加权失衡或动量看多 (<span class="metric-pill">w_imb > 0.04</span> 或 <span class="metric-pill">momentum > 0.04</span>)。
+              </li>
+            </ul>
+          </div>
+
+          <!-- Bearish HIGH Activation Card -->
+          <div id="channel-b-bear-decision" class="rule-card bear">
+            <span class="card-badge badge-bear"><i class="fa-solid fa-bolt"></i> is_dom_bear_high 触发法则</span>
+            <div class="card-title" style="color: #b91c1c;"><i class="fa-solid fa-circle-arrow-down"></i> 通道 B 空头强信号四项触发条件 (满足任一即激活)</div>
+            <p style="font-size: 0.88rem; color: #991b1b; margin-bottom: 12px;">
+              当 5 分钟 DOM 数据命中以下<strong>任意一项高确信度微观结构</strong>，且未被诱空假压单陷阱拦截时，直接将 <code>is_dom_bear_high = True</code> 激活看空 HIGH 信号：
+            </p>
+            <ul class="rule-list">
+              <li>
+                <strong>条件 1 (买方流动性断层击穿)</strong>:
+                下方买单单档挂单不足 10 手持续 <span class="metric-pill">vacuum_bid_sec &ge; 1.5s</span>，且近端失衡看空（<span class="metric-pill">imb_near < -0.05</span> 或动量 <span class="metric-pill">imb_momentum < -0.04</span>），同时卖方堆单持续压迫（<span class="metric-pill">stack_ask &ge; stack_bid</span>）。
+              </li>
+              <li>
+                <strong>条件 2 (高位梯级冰山死守拦截)</strong>:
+                价格处于日内相对中高位 (<span class="metric-pill">Pos &ge; 55%</span>)，且命中：
+                <br>• <strong>极致死守</strong>: 单根 5m Bar 位移 <span class="metric-pill">&le; 1.0 点</span> 且 Delta > 800 出现 <span class="metric-pill">&ge; 1 次</span>；
+                <br>• 或 <strong>标准波段拦截</strong>: 位移 <span class="metric-pill">&le; 3.0 点</span> 出现 <span class="metric-pill">&ge; 2 次</span>。
+              </li>
+              <li>
+                <strong>条件 3 (顶部盘口大翻转 The Book Flip)</strong>:
+                价格处于日内高位区 (<span class="metric-pill">Pos &ge; 60%</span>)，前半段 2.5m 多头占优 (<span class="metric-pill">early_ratio > 1.15</span>)，后半段卖方猛烈筑墙翻盘 (<span class="metric-pill">late_ratio < 0.70</span> 且降幅超 40%)。
+              </li>
+              <li>
+                <strong>条件 4 (空头堆单防线持续封顶压制)</strong>:
+                卖方堆单 <span class="metric-pill">stack_ask &ge; 8 次</span> 且达到买方的 2 倍以上 (<span class="metric-pill">stack_ask &ge; 2 * stack_bid</span>)，同时加权失衡或动量看空 (<span class="metric-pill">w_imb < -0.04</span> 或 <span class="metric-pill">momentum < -0.04</span>)。
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="rule-grid" style="margin-top: 24px;">
+          <!-- Book Flip -->
+          <div id="channel-b-bookflip" class="rule-card neutral">
+            <span class="card-badge badge-primary">The Book Flip</span>
+            <div class="card-title">盘口买卖比率极速翻转</div>
+            <ul class="rule-list">
+              <li><strong>核心定义</strong>: <span class="metric-pill">Book_Ratio = Near_Bids / Near_Asks</span>（近端前 5 档深度比值）。</li>
+              <li>对比前半段 2.5m 均值与后半段 2.5m 均值。</li>
+              <li><strong>底部多头大翻转</strong>: 前半段 Ratio < 0.85 ➔ 后半段暴增至 > 1.40 且处于低位区 (<span class="metric-pill">Pos &le; 40%</span>)，确认买方主力进场夺取盘口控制权。</li>
+              <li><strong>顶部空头大翻转</strong>: 前半段 Ratio > 1.15 ➔ 后半段暴跌至 < 0.70 且处于高位区 (<span class="metric-pill">Pos &ge; 60%</span>)，确认卖方大单筑墙压制。</li>
+            </ul>
+          </div>
+
+          <!-- Tiered Absorption -->
+          <div id="channel-b-iceberg" class="rule-card trap">
+            <span class="card-badge badge-trap">Tiered Absorption</span>
+            <div class="card-title">梯级冰山被动吸收判定</div>
+            <ul class="rule-list">
+              <li><strong>Tier 1 极致死守 (<span class="metric-pill">&le; 1.0 点</span>)</strong>: Delta > 1,000 手但价格位移仅 1 点以内。<strong>单次出现即具备最高置信度</strong>，直接触发哨兵报警。</li>
+              <li><strong>Tier 2 主流波段 (<span class="metric-pill">&le; 3.0 点</span>)</strong>: 涵盖 8~12 个 Tick 算法单分层吸筹/出货，发生 &ge; 2 次触发哨兵。</li>
+              <li><strong>Tier 3 广义拦截 (<span class="metric-pill">&le; 5.0 点</span>)</strong>: 动能衰竭与洗盘预警。</li>
+            </ul>
+          </div>
+
+          <!-- Liquidity Vacuum -->
+          <div id="channel-b-vacuum" class="rule-card bull">
+            <span class="card-badge badge-bull">Liquidity Vacuum</span>
+            <div class="card-title">流动性断层真空逼空 / 破位</div>
+            <ul class="rule-list">
+              <li><strong>逼空预警</strong>: 上方卖单单档挂单不足 10 手持续 <span class="metric-pill">&ge; 1.5 秒</span>，且买方堆单持续注入，触发卖方真空逼空。</li>
+              <li><strong>击穿预警</strong>: 下方买单单档挂单不足 10 手持续 <span class="metric-pill">&ge; 1.5 秒</span>，且卖方堆单持续压迫，触发买方真空击穿。</li>
+            </ul>
+          </div>
+
+          <!-- Spoofing Shield -->
+          <div id="channel-b-spoof" class="rule-card bear">
+            <span class="card-badge badge-bear">Spoofing Shield</span>
+            <div class="card-title">70% 频繁撤单诱多诱空屏蔽</div>
+            <ul class="rule-list">
+              <li>统计 500ms 步长内单步撤单骤降 < -50 手的虚假闪烁频次。</li>
+              <li><strong>诱多假托单</strong>: 买盘撤单占撤单总量 &ge; 70% 且超卖盘 2 倍以上，<strong>绝对屏蔽多头信号</strong>。</li>
+              <li><strong>诱空假压单</strong>: 卖盘撤单占撤单总量 &ge; 70% 且超买盘 2 倍以上，<strong>绝对屏蔽空头信号</strong>。</li>
+            </ul>
+          </div>
+
+          <!-- 30-Point Dominance & Far Wall Exception -->
+          <div id="channel-b-weighting" class="rule-card neutral" style="grid-column: 1 / -1;">
+            <span class="card-badge badge-primary">Dynamic Depth Weighting</span>
+            <div class="card-title"><i class="fa-solid fa-crosshairs"></i> 上下30点核心深度主导加权 (90%) 与 远端机构巨墙异动触发 (20%)</div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 12px;">
+              为兼顾<strong>“全景保留 50 点大格局视野”</strong>与<strong>“消除远端僵尸挂单对近端博弈信号的钝化稀释”</strong>，系统在微观计算与 AI 提示词中引入分层加权与条件激活机制：
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px;">
+              <div style="background: #f8fafc; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border);">
+                <strong style="color: var(--primary-dark); font-size: 0.90rem;"><i class="fa-solid fa-bullseye"></i> 1. 上下30点内核心主导 (0~120档)</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                  涵盖近端 5 档（50%）与中端 40 档（35%）和核心深层（10%），<strong>常态下占据加权失衡 95% 权重</strong>，主导日内突破与翻转判断。
+                </p>
+              </div>
+              <div style="background: #f8fafc; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--border);">
+                <strong style="color: #64748b; font-size: 0.90rem;"><i class="fa-solid fa-water"></i> 2. 30点外深水区常态弱化 (120~200档)</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 4px;">
+                  仅保留 <strong>5% 背景基准权重</strong> 作为底色参考，彻底避免 40~50 点外无关紧要的死单稀释近端冲刺信号。
+                </p>
+              </div>
+              <div style="background: #fffbeb; padding: 12px 14px; border-radius: 8px; border: 1px solid #fde68a;">
+                <strong style="color: #b45309; font-size: 0.90rem;"><i class="fa-solid fa-triangle-exclamation"></i> 3. 远端确定性大墙异动触发 (>= 800手)</strong>
+                <p style="font-size: 0.84rem; color: #78350f; margin-top: 4px;">
+                  一旦在 30~50 点外检测到单档挂单 <span class="metric-pill">&ge; 800 手</span> 战略大单，<strong>远端权重瞬间动态上调至 20%</strong> 并触发宏观天花板/托底预警！
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Downstream -->
+      <section id="downstream" class="rule-section">
+        <div class="section-head">
+          <div class="section-icon"><i class="fa-solid fa-satellite-dish"></i></div>
+          <h2 class="section-title">4. 下游协同、冷却防护与多维立体通知</h2>
+        </div>
+
+        <div class="rule-grid">
+          <!-- Cooldown -->
+          <div id="cooldown" class="rule-card neutral">
+            <span class="card-badge badge-primary">Noise Shield</span>
+            <div class="card-title"><i class="fa-solid fa-hourglass-half"></i> 30分钟同向冷却守护 (Cooldown)</div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 10px;">
+              为杜绝激烈震荡期间每 5 分钟轰炸报警，系统在 <code>.order_flow_sentinel_state.json</code> 中动态维护状态：
+            </p>
+            <ul class="rule-list">
+              <li><strong>同向保护</strong>: 若 30 分钟内已对 Bullish 发送过报警，同向新信号只记录日志与数据库，不发送重复邮件。</li>
+              <li><strong>极速放行</strong>: 若方向发生反转（如多转空），或距离上次发信已超 30 分钟，立刻放行新一轮报警。</li>
+            </ul>
+          </div>
+
+          <!-- AI Dispatch -->
+          <div id="ai-dispatch" class="rule-card neutral">
+            <span class="card-badge badge-primary">AI Re-ranking</span>
+            <div class="card-title"><i class="fa-solid fa-brain"></i> BBAI 智能多级灾备模型即时唤醒</div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 10px;">
+              通道 B 触发 HIGH 信号后，异步唤醒 <code>ai_tape_analyst.py --sentinel</code>，由 <code>BBAI.call_gemini</code> 动态调度：
+            </p>
+            <ul class="rule-list">
+              <li><strong>动态模型链</strong>: 优先调度 <code>gemini-3.7-flash</code>、<code>gemini-3.6-flash</code>、<code>gemini-3.5-flash</code>，遇 429 自动平滑降级。</li>
+              <li>大模型结合 50 档全景深度（30点主导加权）与梯级冰山吸收点，输出精准点位。</li>
+              <li>输出 <strong>Target High（潜在阻力位）</strong> 与 <strong>Target Low（潜在支撑位）</strong>。</li>
+              <li>指定日内急拉/急砸产生的单边流动性断层为 <strong>真空回补目标 (Vacuum Pocket Targets)</strong>。</li>
+            </ul>
+          </div>
+
+          <!-- Notification -->
+          <div id="notification" class="rule-card neutral" style="grid-column: 1 / -1;">
+            <span class="card-badge badge-primary">Multi-Channel Broadcast</span>
+            <div class="card-title"><i class="fa-solid fa-envelope"></i> 三维立体通知与自动化开仓联动</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 10px;">
+              <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+                <strong style="color: var(--primary);"><i class="fa-solid fa-mobile-screen"></i> 1. Gmail 富文本邮件即时推送</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">
+                  通道 B 触发后唤醒 AI 分析，完成后由 <code>BBSms.send_to_gmail</code> 将 Verdict 结论、DOM 吸收点位、以及止损位，毫秒级推送到交易员手机。
+                </p>
+              </div>
+              <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+                <strong style="color: var(--bull);"><i class="fa-solid fa-desktop"></i> 2. Web 信号大屏高亮标记</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">
+                  写入 <code>order_flow_signals</code> 表，在 <code>/bbt_signals</code> 看板置顶展示 <code>[Sentinel 哨兵报警]</code> 专属醒目标签及红绿预警框。
+                </p>
+              </div>
+              <div style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+                <strong style="color: var(--accent);"><i class="fa-solid fa-robot"></i> 3. Option Seller 期权卖方引擎联动</strong>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 6px;">
+                  每 5 分钟轮询将<strong>通道 A（Ticks 真实成交 Delta、大单流）</strong>与<strong>通道 B（DOM 500ms 微观深度、Book Flip 翻转、冰山与撤单陷阱）</strong>的双通道融合指标注入 <code>OptionSellerManager</code>：<br>
+                  • <strong>开仓赋能</strong>：<strong>通道 A 或 通道 B 任意一个触发 HIGH</strong>，均直接将订单流评级提升至最高等级 <strong>High</strong>，满足 40 分顶格评分门槛；<br>
+                  • <strong>反向阻断</strong>：通道 B 对通道 A 享有<strong>反向一票否决权</strong>（若检出 70% 撤单陷阱直接硬阻断），并叠加<strong>市场状态与时间双自适应位置保护</strong>（开盘前30分钟30%缓冲，震荡市50%中枢分割，趋势日放宽至65%/35%）；<br>
+                  • <strong>跨界共振</strong>：与 SPX 0DTE Gamma 墙形成合力，在关键阻力位精准卖出 Bear Call Spread，在关键支撑位卖出 Bull Put Spread。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    function filterNav() {
+      const input = document.getElementById('ruleSearch');
+      const filter = input.value.toLowerCase();
+      const items = document.getElementsByClassName('nav-item');
+      for (let i = 0; i < items.length; i++) {
+        const text = items[i].innerText || items[i].textContent;
+        if (text.toLowerCase().indexOf(filter) > -1) {
+          items[i].style.display = "";
+        } else {
+          items[i].style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>

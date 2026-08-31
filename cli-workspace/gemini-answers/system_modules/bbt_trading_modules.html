@@ -232,7 +232,7 @@
         <h1><i class="fas fa-timeline"></i> 交易系统核心技术模块实施计划与交付总结全集</h1>
         <div class="meta">
           <span><i class="fas fa-clock"></i> 排序方式: 按时间发生先后排序 (Chronological Order)</span>
-          <span><i class="fas fa-folder-tree"></i> 涵盖模块: 15 大核心量化子系统</span>
+          <span><i class="fas fa-folder-tree"></i> 涵盖模块: 16 大核心量化子系统</span>
           <span><i class="fas fa-code-branch"></i> 架构: Java (MotiveWave) + Python (AI &amp; Rules) + MySQL + Web</span>
         </div>
       </header>
@@ -256,6 +256,8 @@
           <li><a href="#mod-13"><i class="fas fa-calendar-day"></i> [2026-08-29] 13. 5分钟多维共振期权卖方综合决策引擎 (5-Min Multi-Factor Option Seller Engine)</a></li>
           <li><a href="#mod-14"><i class="fas fa-calendar-day"></i> [2026-08-30] 14. MotiveWave QuantPivot 指标与跳空跨时段自适应计算模块 (MW Study: BBT Quant Pivot)</a></li>
           <li><a href="#mod-15"><i class="fas fa-calendar-day"></i> [2026-08-30] 15. Option Seller 实盘预埋限价止盈 (Resting Limit Order) 与本地双轨风控守护模块</a></li>
+          <li><a href="#mod-16"><i class="fas fa-calendar-day"></i> [2026-08-30] 16. Option Seller 异步单会话邮件通知引擎 (BBT_OptionSeller Threaded Notifier)</a></li>
+          <li><a href="#mod-17"><i class="fas fa-calendar-day"></i> [2026-08-30] 17. 深度 DOM 200 档梯级吸收与日内顶底预判引擎 (DOM Point Prediction Engine)</a></li>
         </ul>
       </div>
       <section class="manual-body">
@@ -689,6 +691,33 @@
           </li>
           <li><strong>验收总结</strong>: <a
               href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-16">16. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine">Option Seller 异步单会话邮件通知引擎 (BBT_OptionSeller Threaded Notifier)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-30</code></li>
+          <li><strong>归档目录</strong>: <code>16_2026-08-30_Option_Seller_Email_Notification_Engine</code></li>
+          <li><strong>系统职责</strong>: 为 Option Seller 期权卖方交易系统构建高时效、异步非阻塞的专属邮件通知体系。全面覆盖仓位核心生命周期（开仓成功、分批止盈 T1/T2、伴生保本激活通知、2.2x 硬止损、美西 12:30 时间强平与手动平仓）。所有邮件通知强制绑定固定主题 <code>BBT_OptionSeller</code>，并配置专属 <code>In-Reply-To</code> 与 <code>References</code> 标识头，实现 Gmail 邮箱手机/桌面端 100% 自动归拢至单一连续会话 Thread，方便历史翻阅与上下文追踪；网络发信完全隔离于后台守护线程，确保交易执行零时延。</li>
+          <li><strong>技术栈</strong>: Python / smtplib / MIME Multipart & HTML / Threading Daemon / Gmail SMTP Threading / Option Seller Lifecycle</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        <h3 id="mod-17">17. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine">深度 DOM 200 档梯级吸收与日内顶底预判引擎 (DOM Point Prediction & Tiered Absorption Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-30</code></li>
+          <li><strong>归档目录</strong>: <code>17_2026-08-30_DOM_Point_Prediction_Engine</code></li>
+          <li><strong>系统职责</strong>: 结合顶级专业交易员 DOM 读盘实战与 Adam Set 日内顶底提前预判机制，在原生 200 档 DOM 采集基础上全面构建顶底点位预判与分层吸收量化体系。废除单一硬编码 1.0 点的价格位移限制，创新落地梯级冰山吸收体系（极致冰山 <=1.0点单档死守、主流波段吸收 <=3.0点微观换手、广义拦截 <=5.0点动能衰竭）；引入 DPER (Delta-Price Efficiency Ratio) 监控价格移动与净 Delta 的转化率，在 DPER 归零且成交巨量时确证被动吸收；结合 50 点静态挂单壁垒与实时吸收特征，自动推演输出日内潜在阻力（Target High）与潜在支撑（Target Low），并将单边击穿留下的流动性真空带（Vacuum Pockets / Zero Prints）锁定为反手止盈回补目标。</li>
+          <li><strong>技术栈</strong>: Python / Order Flow / DOM 200 Levels / Tiered Iceberg Absorption / DPER / Zero Prints / Liquidity Vacuum / Gemini AI Tape Prompt / Dynamic S/R</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine/walkthrough.md">walkthrough.md</a>
           </li>
         </ul>
       </section>

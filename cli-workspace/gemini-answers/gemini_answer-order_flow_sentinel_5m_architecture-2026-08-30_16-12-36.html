@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - order_flow_sentinel_5m_architecture</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-30 16:12:36</span>
+<span>Question summary: order_flow_sentinel_5m_architecture</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-系统架构与运行流程总览">一、 系统架构与运行流程总览</a></li><li><a href="#二-数据重构与增量拼接机制-incremental-architecture">二、 数据重构与增量拼接机制 (Incremental Architecture)</a><ul><li><a href="#1-为什么采用-基线锚定-增量-tick-的设计">1. 为什么采用“基线锚定 + 增量 Tick”的设计？</a></li><li><a href="#2-5分钟-bar-聚合结构">2. 5分钟 Bar 聚合结构</a></li></ul></li><li><a href="#三-决策规则全量拆解">三、 决策规则全量拆解</a><ul><li><a href="#1-通道-a-已成交-ticks-与大单规则-order_flow_rules_optimizer-py">1. 通道 A：已成交 Ticks 与大单规则 (order_flow_rules_optimizer.py)</a><ul><li><a href="#多头强信号-bullish-high">多头强信号 (Bullish High)</a></li><li><a href="#空头强信号-bearish-high">空头强信号 (Bearish High)</a></li></ul></li><li><a href="#2-通道-b-500ms-重采样未成交-dom-深度规则-dom_sentinel_evaluator-py">2. 通道 B：500ms 重采样未成交 DOM 深度规则 (dom_sentinel_evaluator.py)</a><ul><li><a href="#1-梯级冰山单被动吸收体系-tiered-passive-absorption">1. 梯级冰山单被动吸收体系 (Tiered Passive Absorption)</a></li><li><a href="#2-盘口买卖盘比率极速翻转-the-book-flip-at-key-levels">2. 盘口买卖盘比率极速翻转 (The Book Flip at Key Levels)</a></li><li><a href="#3-流动性真空逼空与破位-liquidity-vacuum-squeeze-breakdown">3. 流动性真空逼空与破位 (Liquidity Vacuum Squeeze &amp; Breakdown)</a></li><li><a href="#4-虚假撤单陷阱过滤-spoofing-shield">4. 虚假撤单陷阱过滤 (Spoofing Shield)</a></li></ul></li></ul></li><li><a href="#四-下游业务联动与即时通知">四、 下游业务联动与即时通知</a><ul><li><a href="#1-30分钟同向冷却窗口-directional-cooldown">1. 30分钟同向冷却窗口 (Directional Cooldown)</a></li><li><a href="#2-唤醒大模型-ai-深度研判">2. 唤醒大模型 AI 深度研判</a></li><li><a href="#3-三维立体通知触达">3. 三维立体通知触达</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/order_flow_sentinel.py 现在有点复杂了 且非常重要 请整理一个文档 cover 5分钟周期检测的逻辑 流程 和 决策规则</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h1><code>order_flow_sentinel.py</code> 5分钟周期检测系统架构手册</h1>
+<p>本文档全面梳理与记录 ES 订单流 5 分钟实时哨兵系统 (<code>order_flow_sentinel.py</code>) 的核心业务逻辑、执行流程与决策判定规则，涵盖 Tick 增量聚合、DOM 500ms 重采样评估、多维度陷阱防护与下游自动化联动。</p>
+<hr/>
+<h2 id="一-系统架构与运行流程总览">一、 系统架构与运行流程总览</h2>
+<pre><code>                              【 5分钟订单流哨兵运行全流程图 】
+
+        ┌─────────────────────────────────────────────────────────────┐
+        │ daily_jobs.py 每 5 分钟触发 (RTH 06:30 ~ 13:00, 避开整点30分) │
+        └──────────────────────────────┬──────────────────────────────┘
+                                       ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ 步骤 1: 30分钟锚定基线拉取 (Baseline Recovery from DB)        │
+        │ - 查询 OrderFlowSignal 表最近一条 30m 整点信号                │
+        │ - 获得 rth_delta、rth_volume、前序 5m intervals 历史路径      │
+        └──────────────────────────────┬──────────────────────────────┘
+                                       ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ 步骤 2: 增量 Ticks 解析与微观聚合 (Incremental Parsing)     │
+        │ - 读取 ES_YYYYMMDD_TICKS.csv 中从基线到当前时刻的全部成交流  │
+        │ - 聚合划分为 5m Bins: Delta, Volume, Price Start/End        │
+        └──────────────────────────────┬──────────────────────────────┘
+                                       ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ 步骤 3: 宏观累积路径与抽撤回撤重构                          │
+        │ - 重建今日 RTH 累积 Delta 曲线 ➔ 计算 peak/trough          │
+        │ - 计算 Delta 冲高回落 (Drawdown) 与 抄底回升 (Runup)        │
+        └──────────────────────────────┬──────────────────────────────┘
+                                       ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ 步骤 4: 双轨核心规则判定引擎 (Dual-Engine Evaluation)        │
+        │                                                             │
+        │  【通道 A: Tick 动量与大单规则】   【通道 B: DOM 500ms 重采样规则】
+        │   order_flow_rules_optimizer      dom_sentinel_evaluator   │
+        │   - 前置比例条件 (Pre-condition)    - 600 bins 网格失衡/动量  │
+        │   - 15m/5m 极值冲击 (条件 A)       - 梯级冰山吸收 (&lt;=3pt/1pt)│
+        │   - 30m 剧烈位移 (条件 B/D)        - 盘口比率极速翻转(BookFlip)
+        │   - 抄底反弹/假突破回撤 (条件 C)    - 撤单诱多诱空陷阱过滤   │
+        │   - 2H 机构大单与被动吸筹覆盖      - 流动性真空 (&gt;=1.5s 逼空)│
+        └──────────────────────────────┬──────────────────────────────┘
+                                       ▼
+                         ┌───────────────────────────┐
+                         │ 是否触发 HIGH (多/空强信号)? │
+                         └─────────────┬─────────────┘
+                                       │
+                      ┌────────────────┴────────────────┐
+                   YES│                                 │NO
+                      ▼                                 ▼
+        ┌─────────────────────────────┐   ┌───────────────────────────┐
+        │ 步骤 5: 30分钟冷却校验     │   │ 正常静默退出              │
+        │ (Directional Cooldown)      │   │ - 记入本地日志            │
+        │ - 同向在 30 分钟内?         │   │ - 供期权卖方引擎参考       │
+        └─────────────┬───────────────┘   └───────────────────────────┘
+                      │ 未在冷却期
+                      ▼
+        ┌─────────────────────────────────────────────────────────────┐
+        │ 步骤 6: 唤醒 AI 大模型深度研判与即时报警                   │
+        │ - 执行 run_ai_tape_analyst --sentinel (Gemini 2.5 Pro)      │
+        │ - 生成 DOM 预判支撑阻力位与真空回补目标                     │
+        │ - 触发 Gmail 富文本邮件毫秒级推送到手机 (BBT_OrderFlow信号)  │
+        │ - 持久化至 MySQL 数据库并在 Web 信号看板上高亮警示          │
+        └─────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr/>
+<h2 id="二-数据重构与增量拼接机制-incremental-architecture">二、 数据重构与增量拼接机制 (Incremental Architecture)</h2>
+<h3 id="1-为什么采用-基线锚定-增量-tick-的设计">1. 为什么采用“基线锚定 + 增量 Tick”的设计？</h3>
+<ul>
+<li><strong>性能极致优化</strong>：RTH 全天成交流超过 20~30 万笔，如果每 5 分钟从 00:00 重新计算全天数据，I/O 耗时将达数秒并引发 CPU 飙升；</li>
+<li><strong>原子拼接法</strong>：哨兵直接读取上一个 30 分钟整点（如 09:30）存入数据库的快照作为基线 (<code>baseline_rth_delta</code>)，只需从磁盘扫描过去 5~25 分钟的微量 Ticks（数千笔），<strong>整个执行过程在 0.2 秒内极速完成</strong>。</li>
+</ul>
+<h3 id="2-5分钟-bar-聚合结构">2. 5分钟 Bar 聚合结构</h3>
+<p>每个 5 分钟时间片段提取以下核心指标：<br/>
+* <code>interval</code>: 时间跨度（如 <code>"09:30-09:35"</code>）；<br/>
+* <code>delta</code>: 5 分钟内主动买入量减去主动卖出量；<br/>
+* <code>volume</code>: 5 分钟总成交量；<br/>
+* <code>price_start</code> / <code>price_end</code>: 5 分钟开盘价与收盘价；<br/>
+* <code>price_change</code>: 收盘价 - 开盘价。</p>
+<hr/>
+<h2 id="三-决策规则全量拆解">三、 决策规则全量拆解</h2>
+<p>哨兵在每一轮 5 分钟检测中，对以下两套体系进行严格交叉验算：</p>
+<h3 id="1-通道-a-已成交-ticks-与大单规则-order_flow_rules_optimizer-py">1. 通道 A：已成交 Ticks 与大单规则 (<code>order_flow_rules_optimizer.py</code>)</h3>
+<h4 id="多头强信号-bullish-high">多头强信号 (Bullish High)</h4>
+<ol>
+<li><strong>前置条件 (Pre-condition)</strong>: 全天累积 Delta 占比不大 (<code>delta_pct_vol &lt;= 0.015</code>)，排除多头已严重超买竭尽状态；</li>
+<li><strong>满足以下任一进攻或反转特征</strong>:<br/>
+   * <strong>条件 A (动量爆发)</strong>: 最近 15 分钟 Delta &gt;= 8000 手，或单笔 5 分钟 Delta &gt;= 6000 手；<br/>
+   * <strong>条件 B (逆转推进)</strong>: 5 分钟价格上涨 &gt;= 10.0 点且伴随买方吸收/被动承接；<br/>
+   * <strong>条件 C (底背离反弹)</strong>: Delta 从当日最低点强劲反弹 &gt;= 10000 手（或 30m 净增 &gt; 5000 手）；<br/>
+   * <strong>条件 D (持续单边)</strong>: 最近 30 分钟价格上涨 &gt;= 15.0 点且 Delta 为正。</li>
+<li><strong>低位大宗单强力吸筹最高覆盖 (Institutional Accumulation Override)</strong>:<br/>
+   * 若过去 2 小时内机构买入大宗单（Block Trades）累计净额 &gt;= 3000 手，且价格处于日内 RTH 区间 &lt;= 40% 的相对低位；<br/>
+   * 即使微观 Delta 呈负值（市价砸盘在限价买单上被动承接），<strong>强制触发看多覆盖，阻止误判为 Bearish</strong>。</li>
+</ol>
+<h4 id="空头强信号-bearish-high">空头强信号 (Bearish High)</h4>
+<p>严格遵循多空通用对称性（Rule 6 约束）：<br/>
+1. <strong>前置条件</strong>: <code>delta_pct_vol &gt;= 0.015</code>（排除极度超卖）；<br/>
+2. <strong>进攻与打压特征</strong>:<br/>
+   * <strong>条件 A</strong>: 最近 15 分钟 Delta &lt;= -8000 手，或单笔 5 分钟 Delta &lt;= -6000 手；<br/>
+   * <strong>条件 B</strong>: 5 分钟价格下跌 &lt;= -10.0 点且伴随卖方拦截；<br/>
+   * <strong>条件 C</strong>: Delta 从当日最高点跳水回落 &gt;= 10000 手（或 30m 净流出 &lt; -5000 手）；<br/>
+   * <strong>条件 D</strong>: 最近 30 分钟价格下跌 &lt;= -15.0 点且 Delta 为负。<br/>
+3. <strong>高位大宗单强力派发最高覆盖 (Institutional Distribution Override)</strong>:<br/>
+   * 若过去 2 小时内机构卖出大宗单累计净额 &lt;= -3000 手，且价格处于日内 RTH 区间 &gt;= 60% 的相对高位；<br/>
+   * <strong>强制触发看空覆盖</strong>。</p>
+<hr/>
+<h3 id="2-通道-b-500ms-重采样未成交-dom-深度规则-dom_sentinel_evaluator-py">2. 通道 B：500ms 重采样未成交 DOM 深度规则 (<code>dom_sentinel_evaluator.py</code>)</h3>
+<p>在过去 5 分钟窗口内，基于 600 个 500ms 离散网格点进行连续时间序列分析：</p>
+<h4 id="1-梯级冰山单被动吸收体系-tiered-passive-absorption">1. 梯级冰山单被动吸收体系 (Tiered Passive Absorption)</h4>
+<ul>
+<li><strong>极致死守 (<code>iceberg_extreme &lt;= 1.0 点</code>)</strong>:</li>
+<li>5 分钟内 Delta 冲击超过 1000 手，但价格位移仅 &lt;= 1.0 点；</li>
+<li><strong>单次发生即具备极高物理置信度</strong>，结合低位/高位直接触发哨兵警报。</li>
+<li><strong>主流波段吸收 (<code>iceberg_bull/bear &lt;= 3.0 点</code>)</strong>:</li>
+<li>兼顾 8~12 个 Tick 算法单分层铺设与微观洗盘；</li>
+<li>发生次数 &gt;= 2 次（或伴随低位/高位共振）触发哨兵。</li>
+<li><strong>广义拦截 (<code>iceberg_broad &lt;= 5.0 点</code>)</strong>:</li>
+<li>标记大动能被吞噬大半的衰竭预警。</li>
+</ul>
+<h4 id="2-盘口买卖盘比率极速翻转-the-book-flip-at-key-levels">2. 盘口买卖盘比率极速翻转 (The Book Flip at Key Levels)</h4>
+<ul>
+<li>在 600 个步长上计算买卖盘挂单厚度比率：<code>Book_Ratio = Near_Bids / Near_Asks</code>，对比前 2.5 分钟均值与后 2.5 分钟均值；</li>
+<li><strong>底部买盘大翻转 (<code>book_flip_bull</code>)</strong>: 前半段空头压制（Ratio &lt; 0.85），后半段买方猛烈增厚（Ratio &gt; 1.40 且增幅超 60%），若处于日内低位区（Pos &lt;= 40%），直接激活多头大翻转；</li>
+<li><strong>顶部卖盘大翻转 (<code>book_flip_bear</code>)</strong>: 前半段多头占优（Ratio &gt; 1.15），后半段卖盘猛烈筑墙（Ratio &lt; 0.70 且降幅超 40%），若处于日内高位区（Pos &gt;= 60%），直接激活空头大翻转。</li>
+</ul>
+<h4 id="3-流动性真空逼空与破位-liquidity-vacuum-squeeze-breakdown">3. 流动性真空逼空与破位 (Liquidity Vacuum Squeeze &amp; Breakdown)</h4>
+<ul>
+<li><strong>卖方真空逼空 (<code>vacuum_ask_sec &gt;= 1.5s</code>)</strong>: 上方卖单单档 &lt; 10 手持续超过 1.5 秒，且近端失衡或动量看多，买方堆单占优，触发逼空暴涨警报；</li>
+<li><strong>买方真空击穿 (<code>vacuum_bid_sec &gt;= 1.5s</code>)</strong>: 下方买单单档 &lt; 10 手持续超过 1.5 秒，且近端失衡或动量看空，卖方堆单占优，触发破位下杀警报。</li>
+</ul>
+<h4 id="4-虚假撤单陷阱过滤-spoofing-shield">4. 虚假撤单陷阱过滤 (Spoofing Shield)</h4>
+<ul>
+<li>统计 500ms 步长上单档撤单降幅 <code>&lt; -50</code> 手的频次；</li>
+<li>若买方撤单占撤单总量 &gt;= 70% 且超过卖方撤单 2 倍以上，判定为虚假托单诱多陷阱，<strong>绝对屏蔽一切多头信号 (<code>block_bull_by_spoof = True</code>)</strong>；</li>
+<li>若卖方撤单占撤单总量 &gt;= 70% 且超过买方撤单 2 倍以上，判定为虚假压单诱空陷阱，<strong>绝对屏蔽一切空头信号 (<code>block_bear_by_spoof = True</code>)</strong>。</li>
+</ul>
+<hr/>
+<h2 id="四-下游业务联动与即时通知">四、 下游业务联动与即时通知</h2>
+<h3 id="1-30分钟同向冷却窗口-directional-cooldown">1. 30分钟同向冷却窗口 (Directional Cooldown)</h3>
+<ul>
+<li>哨兵状态文件维护在 <code>.order_flow_sentinel_state.json</code>；</li>
+<li>同一方向（如 Bullish）在 30 分钟内已触发过报警，将进入冷却期静默，防止在激烈震荡中重复打扰；</li>
+<li>一旦方向发生反转（如从多转空），或距离上次触发超过 30 分钟，立刻放行警报。</li>
+</ul>
+<h3 id="2-唤醒大模型-ai-深度研判">2. 唤醒大模型 AI 深度研判</h3>
+<ul>
+<li>放行警报后，异步调度 <code>ai_tape_analyst.py --sentinel</code>；</li>
+<li>Gemini 2.5 Pro 大模型结合 50 点 DOM 挂单池与梯级吸收点位，自动计算并输出：</li>
+<li><strong>Target High (潜在阻力位)</strong> 与 <strong>Target Low (潜在支撑位)</strong>；</li>
+<li><strong>真空反手回补止盈目标 (Vacuum Pocket Targets)</strong>。</li>
+</ul>
+<h3 id="3-三维立体通知触达">3. 三维立体通知触达</h3>
+<ol>
+<li><strong>Gmail 富文本推送</strong>：主题固定为 <code>BBT_OrderFlow信号</code>，包含微观卡片与决策建议，毫秒级推送到手机；</li>
+<li><strong>Web 信号大屏高亮</strong>：数据持久化至 MySQL <code>order_flow_signals</code> 表，Web 看板显示 <code>[Sentinel 哨兵报警]</code> 警示徽章；</li>
+<li><strong>Option Seller 自动化联动</strong>：自动向期权卖方引擎传递 <code>of_eval_metrics</code>，在阻力位共振卖出 Bear Call Spread，在支撑位共振卖出 Bull Put Spread。</li>
+</ol>
+</section>
+</article>
+</main>
+</body>
+</html>

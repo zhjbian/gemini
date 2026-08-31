@@ -259,12 +259,12 @@
       border-color: #cbd5e1;
     }
 
-    /* Reading Container */
+    /* Reading Container - Ultra-wide 96% viewport span */
     .content-area {
-      max-width: 1280px;
-      width: 100%;
+      max-width: 96%;
+      width: 96%;
       margin: 0 auto;
-      padding: 36px 48px 80px;
+      padding: 30px 24px 80px;
     }
 
     /* Hero Banner */
@@ -470,32 +470,42 @@
       font-size: 0.88rem;
     }
 
-    /* Tables */
+    /* Tables - Enhanced Crisp Borders & High Legibility */
     table {
       width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 24px 0;
       font-size: 0.90rem;
-      border: 1px solid var(--border);
+      border: 1.5px solid #94a3b8;
       border-radius: 8px;
       overflow: hidden;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
     th, td {
-      padding: 12px 14px;
+      padding: 13px 16px;
       text-align: left;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #cbd5e1;
+      border-right: 1px solid #cbd5e1;
+      line-height: 1.6;
+    }
+    th:last-child, td:last-child {
+      border-right: none;
+    }
+    tr:last-child td {
+      border-bottom: none;
     }
     th {
-      background: #f8fafc;
-      color: #1e293b;
+      background: #e2e8f0;
+      color: #0f172a;
       font-weight: 700;
-      border-right: 1px solid var(--border);
-    }
-    td {
-      border-right: 1px solid var(--border);
+      font-size: 0.92rem;
+      border-bottom: 2px solid #94a3b8;
+      letter-spacing: 0.01em;
     }
     tr:nth-child(even) {
-      background: #fcfdfe;
+      background: #f8fafc;
     }
     tr:hover {
       background: #f0f9ff;
@@ -1358,10 +1368,10 @@
   <table>
     <thead>
       <tr>
-        <th style="width: 20%;">漏斗层级</th>
-        <th style="width: 26%;">核心检验维度</th>
-        <th style="width: 24%;">触发硬性阈值</th>
-        <th style="width: 30%;">仲裁逻辑与决策意图</th>
+        <th style="width: 14%;">漏斗层级</th>
+        <th style="width: 20%;">核心检验维度</th>
+        <th style="width: 20%;">触发硬性阈值</th>
+        <th style="width: 46%;">仲裁逻辑与决策意图</th>
       </tr>
     </thead>
     <tbody>
@@ -1389,13 +1399,142 @@
       </tr>
       <tr>
         <td><strong>维度 2：SPX 0DTE Gamma 结构</strong><br>(权重 30分)</td>
-        <td>现价 vs ZGL / Wall 屏障<br>(需贡献 &gt;= 15分)</td>
-        <td>• <strong>看多</strong>：现价处于零 Gamma 线 (ZGL) 之上做市商减震区，且远高于下方 Put Wall。<br>• <strong>看空</strong>：现价处于零 Gamma 线 (ZGL) 之下顺势助跌，或受上方 Call Wall 强阻力压制。</td>
+        <td>
+          • <strong>Cluster &amp; Ratio (15分)</strong><br>
+          • <strong>Wall 物理屏障垫 (10分)</strong><br>
+          • <strong>主方向基调 (5分)</strong><br>
+          (需贡献 &gt;= 15分)
+        </td>
+        <td style="padding: 10px 14px;">
+          <!-- Sub-item 1 Table -->
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            📊 子项 1：多空集群名义金额与比率 (Cluster &amp; Ratio，满分 15分，分时动态校准)
+          </div>
+          <p style="font-size: 0.84rem; color: #475569; margin-bottom: 6px; line-height: 1.5;">
+            基于历史 741 组样本分位数实测，消除 0DTE 尾盘到期数学奇点扭曲：<strong>早盘建仓期 (06:30-08:00 PST)</strong> 历史中位数 ~$4.8B，门限设为 <strong>$5.0B / $3.5B</strong>；<strong>盘中黄金期 (08:00-11:30 PST)</strong> 历史中位数升至 ~$15B，门限设为 <strong>$15.0B / $10.0B</strong>。
+          </p>
+          <table style="margin: 6px 0 12px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 18%;">加分档位</th>
+                <th style="padding: 6px 10px; width: 41%;">看多加分条件 (做多卖 Put 垫背)</th>
+                <th style="padding: 6px 10px; width: 41%;">看空加分条件 (做空卖 Call 引力)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #047857; background: #f0fdf4;">+15 分 (顶格满分)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &gt;= 2.0:1</code> 且 <code>Bull &gt;= 顶格门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $5.0B / 盘中 &gt;= $15.0B)</span></td>
+                <td style="padding: 6px 10px;"><code>Ratio &lt;= 0.5:1</code> 且 <code>Bear &gt;= 顶格门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $5.0B / 盘中 &gt;= $15.0B)</span></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0284c7; background: #f0f9ff;">+10 分 (中度稳态)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &gt;= 1.3:1</code> 且 <code>Bull &gt;= 基础门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $3.5B / 盘中 &gt;= $10.0B)</span></td>
+                <td style="padding: 6px 10px;"><code>Ratio &lt;= 0.77:1</code> 且 <code>Bear &gt;= 基础门限</code><br><span style="color: #64748b; font-size: 0.78rem;">(早盘 &gt;= $3.5B / 盘中 &gt;= $10.0B)</span></td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #475569; background: #f8fafc;">+5 分 (弱势偏向)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &gt;= 1.1:1</code> (纯方向优势)</td>
+                <td style="padding: 6px 10px;"><code>Ratio &lt;= 0.9:1</code> (纯方向优势)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Sub-item 2 Table -->
+          <div style="font-weight: 700; color: #0f172a; margin-top: 10px; margin-bottom: 6px;">
+            🧱 子项 2：期权大墙物理屏障与距离安全垫 (Call/Put Wall Cushion，满分 10分)
+          </div>
+          <table style="margin: 6px 0 12px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 18%;">加分档位</th>
+                <th style="padding: 6px 10px; width: 41%;">看多：下方 Put Wall 铁底承接</th>
+                <th style="padding: 6px 10px; width: 41%;">看空：上方 Call Wall 天花板压制</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #047857; background: #f0fdf4;">+10 分 (核心屏障)</td>
+                <td style="padding: 6px 10px;">现价距下方 Put Wall 距离 <strong>0.1% ~ 0.8%</strong> 且企稳</td>
+                <td style="padding: 6px 10px;">现价距上方 Call Wall 距离 <strong>0.1% ~ 0.8%</strong> 且承压</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0284c7; background: #f0f9ff;">+6 分 (次近屏障)</td>
+                <td style="padding: 6px 10px;">现价距下方 Put Wall 距离 <strong>0.8% ~ 1.5%</strong> 缓冲带</td>
+                <td style="padding: 6px 10px;">现价距上方 Call Wall 距离 <strong>0.8% ~ 1.5%</strong> 阻力带</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Sub-item 3 Box -->
+          <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; font-size: 0.82rem; margin-top: 6px;">
+            <strong>🎯 子项 3：大盘主方向基调与辅助状态 (Direction Baseline，满分 5分)</strong>：<br>
+            • <code>direction == 'Positive' / 'Bullish'</code> 辅助看多 <strong>+5分</strong>；<code>direction == 'Negative' / 'Bearish'</code> 辅助看空 <strong>+5分</strong>。<br>
+            <span style="color: #64748b;">(彻底剔除对 0DTE 频繁上下翻转的 ZGL 噪音依赖，仅做顺势背景校验)。</span>
+          </div>
+        </td>
       </tr>
       <tr>
-        <td><strong>维度 3：Smashelito Pivot 拍卖位</strong><br>(权重 15分)</td>
-        <td>现价 vs 核心 Pivot / S / R<br>(需贡献 &gt;= 10分)</td>
-        <td>• <strong>看多</strong>：价格位于今日核心 Pivot 之上，或回踩支撑位 (S1/S2/Pivot) 企稳确认。<br>• <strong>看空</strong>：价格位于今日核心 Pivot 之下，或反抽阻力位 (R1/R2/Pivot) 承压遇阻确认。</td>
+        <td><strong>维度 3：拍卖关键位与 QuantPivot 反转边界</strong><br>(权重 15分)</td>
+        <td>
+          • <strong>Smashelito Pivot (日内中枢)</strong><br>
+          • <strong>QuantPivot 波动率边界 (L1/L2, H1/H2)</strong><br>
+          (需贡献 &gt;= 10分)
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            🎯 拍卖中枢与 QuantPivot 统计学反转边界双重共振 (满分 15分)
+          </div>
+          <p style="font-size: 0.84rem; color: #475569; margin-bottom: 6px; line-height: 1.5;">
+            将<strong>第 9 节 QuantPivot 统计学反转边界</strong>深度嵌入为本维度的量化决策内核，与 Smashelito 拍卖关键位实施双层共振验证与累加赋分：
+          </p>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 22%;">触发层级与特征</th>
+                <th style="padding: 6px 10px; width: 39%;">🟢 看多看涨 (做多卖出 Bull Put Spread)</th>
+                <th style="padding: 6px 10px; width: 39%;">🔴 看空看跌 (做空卖出 Bear Call Spread)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">1. QuantPivot 边界初碰</td>
+                <td style="padding: 6px 10px;">
+                  价格下探测试 <strong>L1 支撑带</strong>（统计学动能初次衰竭）<br>
+                  ➔ <strong style="color: #047857;">+8 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格上冲测试 <strong>H1 阻力带</strong>（多头动能初次衰竭）<br>
+                  ➔ <strong style="color: #b91c1c;">+8 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">2. QuantPivot 极限耗竭</td>
+                <td style="padding: 6px 10px;">
+                  深跌穿入 <strong>&lt;= L2 极端反转带</strong>（95% 置信度超跌耗竭极限，均值回归概率最高）<br>
+                  ➔ <strong style="color: #047857;">额外 +5 分 (累积 13分！)</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  冲入 <strong>&gt;= H2 极端反转带</strong>（95% 置信度超买耗竭极限）<br>
+                  ➔ <strong style="color: #b91c1c;">额外 +5 分 (累积 13分！)</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">3. Smashelito 双共振</td>
+                <td style="padding: 6px 10px;">
+                  若同时在日内关键支撑（S1/S2 或 Pivot）获得企稳承接<br>
+                  ➔ <strong style="color: #047857;">额外 +4 分 (直接封顶 15分满分！)</strong><br>
+                  <span style="color: #64748b; font-size: 0.78rem;">(单纯位于 Pivot 之上健康运行贡献 +6分)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  若同时在日内关键阻力（R1/R2 或 Pivot）遇阻承压回落<br>
+                  ➔ <strong style="color: #b91c1c;">额外 +4 分 (直接封顶 15分满分！)</strong><br>
+                  <span style="color: #64748b; font-size: 0.78rem;">(单纯位于 Pivot 之下承压运行贡献 +6分)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
       </tr>
       <tr>
         <td><strong>维度 4：EMA 13-21 趋势防护盾</strong><br>(权重 15分)</td>
@@ -1403,7 +1542,7 @@
         <td>• <strong>看多</strong>：15m EMA 13 &gt; EMA 21 多头排列，5m 价格稳固于均线上方或回踩企稳。<br>• <strong>看空</strong>：15m EMA 13 &lt; EMA 21 空头排列，5m 价格受制于均线下方或反抽遇阻。</td>
       </tr>
       <tr>
-        <td rowspan="3"><strong>第二层附：刚性一票否决项<br>(Hard Vetoes)</strong></td>
+        <td rowspan="4"><strong>第二层附：刚性一票否决项<br>(Hard Vetoes)</strong></td>
         <td><strong>虚假撤单陷阱一票否决</strong></td>
         <td><code>is_spoof_trap == False</code></td>
         <td>5分钟 DOM 深度检测到假单冰山/虚假大单撤单诱多/诱空时，直接一票否决，拒绝成为对手盘流动性。</td>
@@ -1414,6 +1553,79 @@
         <td>单边大涨趋势日（Bullish Trend）严禁卖 Call；单边大跌趋势日（Bearish Trend）严禁卖 Put，杜绝逆大势顶风作案。</td>
       </tr>
       <tr>
+        <td><strong>市场状态与时间双自适应位置保护<br>(Regime- &amp; Time-Adaptive Position Boundary)</strong></td>
+        <td>
+          • <strong>开盘前 30m 宽泛模式 (30% 保护带)</strong><br>
+          • <strong>震荡市严格中枢模式 (50% 分割)</strong><br>
+          • <strong>单边趋势日放宽模式 (65%/35%)</strong><br>
+          <span style="color: #b91c1c; font-weight: 600;">(违背即触发一票否决)</span>
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            🛡️ 极端位置反转阻断自适应裁决矩阵 (Hard Veto)
+          </div>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 22%;">时段与市场状态</th>
+                <th style="padding: 6px 10px; width: 39%;">🚫 严禁卖 Put 阻断门限 (防追高回撤)</th>
+                <th style="padding: 6px 10px; width: 39%;">🚫 严禁卖 Call 阻断门限 (防杀跌反弹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  开盘前 30 分钟<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(06:30 - 07:00 PST 宽泛探索)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日内极高位：<br>
+                  <strong style="color: #b91c1c;">Pos &gt;= 70% 禁卖 Put</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(仅拦截最高 30% 极端区，保留试盘容错)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日内极低位：<br>
+                  <strong style="color: #b91c1c;">Pos &lt;= 30% 禁卖 Call</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(仅拦截最低 30% 极端区，保留试盘容错)</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  开盘 30m 后：震荡市<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(07:00 后 常规平衡区间)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日面上半区：<br>
+                  <strong style="color: #b91c1c;">Pos &gt;= 50% 一律禁卖 Put</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(严格中枢分割，严禁在上半区追多，防冲高回落深套)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  价格处于日面下半区：<br>
+                  <strong style="color: #b91c1c;">Pos &lt;= 50% 一律禁卖 Call</strong><br>
+                  <span style="color: #64748b; font-size: 0.76rem;">(严格中枢分割，严禁在下半区杀跌，防触底报复反弹)</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  开盘 30m 后：强趋势日<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(15m 均线强单边推进)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  趋势跟随自适应放宽：<br>
+                  <strong style="color: #b91c1c;">Pos &gt;= 65% 才禁卖 Put</strong><br>
+                  <span style="color: #047857; font-size: 0.76rem;">(多头单边日允许在 50%~64% 均线回踩卖 Put，杜绝踏空死锁)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  趋势跟随自适应放宽：<br>
+                  <strong style="color: #b91c1c;">Pos &lt;= 35% 才禁卖 Call</strong><br>
+                  <span style="color: #047857; font-size: 0.76rem;">(空头单边日允许在 36%~50% 均线反抽卖 Call，杜绝踏空死锁)</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
         <td><strong>均线严重纠缠混沌否决</strong></td>
         <td><code>EMA Tangled == False</code></td>
         <td>15m EMA 13 与 EMA 21 严重粘合且价格反复穿越，多空混沌无序时坚决空仓观望。</td>
@@ -1421,13 +1633,13 @@
       <tr>
         <td rowspan="3"><strong>第三层：策略自适应选型<br>(Profile Selection)</strong></td>
         <td><strong>⚡ 激进型 (Aggressive)</strong></td>
-        <td><strong>共振得分 &gt;= 75 分</strong></td>
-        <td>四维全要素强共振，贴近日内关键阻力/支撑位，博取高额权利金，顺应强单边推进。</td>
+        <td><strong>共振得分 &gt;= 75 分</strong><br>(或命中 QuantPivot L2/H2 极值)</td>
+        <td>四维全要素强共振，或<strong>触碰 QuantPivot L2 极端超跌/H2 极端超买耗竭线</strong>时自动激活！贴近日内关键阻力/支撑位，卖出更高 Delta 垂直价差，博取超额权利金与 Vega/Theta 极速双重收割。</td>
       </tr>
       <tr>
         <td><strong>⚖️ 平衡型 (Balanced / 核心主力)</strong></td>
-        <td><strong>共振得分 55 ~ 74 分</strong></td>
-        <td>三维标准稳态共振，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。</td>
+        <td><strong>共振得分 55 ~ 74 分</strong><br>(命中 QuantPivot L1/H1 常规带)</td>
+        <td>三维标准稳态共振，价格处于 QuantPivot L1/H1 支撑阻力带，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。</td>
       </tr>
       <tr>
         <td><strong>🛡️ 保守型 (Conservative / 防守)</strong></td>
