@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - FedEx 错过签字派送同日紧急自提与应急处理指南</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">FedEx 错过签字派送同日紧急自提与应急处理指南</h1>
+<div class="meta">
+<span>Saved: 2026-09-04 15:23:55</span>
+<span>Topic: fedex_missed_delivery_same_day_pickup</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#事件背景与延期根因剖析">事件背景与延期根因剖析</a><ul><li><a href="#包裹关键属性与运单明细">包裹关键属性与运单明细</a></li><li><a href="#系统自动顺延至下周二的原因">系统自动顺延至下周二的原因</a></li></ul></li><li><a href="#官方直属派送大仓（FedEx-Ship-Center）站点信息">官方直属派送大仓（FedEx Ship Center）站点信息</a></li><li><a href="#当天自提行动指南与黄金时间窗口">当天自提行动指南与黄金时间窗口</a><ul><li><a href="#货车流转与最佳前往时段">货车流转与最佳前往时段</a></li><li><a href="#现场取件必备凭证（缺一不可）">现场取件必备凭证（缺一不可）</a></li></ul></li><li><a href="#应急拦截与司机回头联动话术（电话处理复盘）">应急拦截与司机回头联动话术（电话处理复盘）</a><ul><li><a href="#电话菜单直通人工技巧">电话菜单直通人工技巧</a></li><li><a href="#调度联动与锁定大仓实战英文话术">调度联动与锁定大仓实战英文话术</a></li></ul></li><li><a href="#避坑预警与严禁事项">避坑预警与严禁事项</a></li></ul></div>
+<section class="main-content">
+<p>针对 FedEx 隔夜加急特快件（Standard Overnight）因需要必须当面签字（Direct Signature Required）而在周五下午错过派送、被系统自动延期至下周二（跨越劳工节长假）的紧急情况，本文档完整汇总了应急拦截方案、当天去官方大仓自提的精准时段、站点地址与所需证件要求。</p>
+<p><img alt="FedEx 派送失败与门贴记录 (2026-09-04)" src="images/fedex_tracking_missed_delivery_door_tag.png"/></p>
+<h2 id="事件背景与延期根因剖析">事件背景与延期根因剖析</h2>
+<h3 id="包裹关键属性与运单明细">包裹关键属性与运单明细</h3>
+<ul>
+<li><strong>运单号码 (Tracking ID)</strong>：<code>532901203369</code></li>
+<li><strong>门贴编号 (Door Tag Number)</strong>：<code>DT720943547765</code></li>
+<li><strong>发件机构</strong>：ORACLE AMERICA INC (Project Name: Cloud Token, Redwood City, CA) —— 工作急需的云安全令牌硬件</li>
+<li><strong>收件人与地址</strong>：Zhijie Bian，<code>3931 258th Way SE, Sammamish, WA, US, 98029</code></li>
+<li><strong>服务类型</strong>：<code>FedEx Standard Overnight®</code>（工作日次日达）</li>
+<li><strong>特殊管控要求</strong>：</li>
+<li><code>Deliver Weekday</code>（仅工作日派送）</li>
+<li><code>Direct Signature Required</code>（<strong>必须收件人本人在场当面签字</strong>，严禁擅自留置门口或由无凭证邻居代签）</li>
+</ul>
+<h3 id="系统自动顺延至下周二的原因">系统自动顺延至下周二的原因</h3>
+<ul>
+<li><strong>派送未达时间</strong>：<strong>2026 年 9 月 4 日（周五）下午 2:26 PM</strong>。</li>
+<li><strong>节假日重叠</strong>：当天是周五，9 月 5 日至 6 日为周末，<strong>9 月 7 日（周一）为美国联邦法定假日 Labor Day（劳工节）</strong>。</li>
+<li><strong>规则机制</strong>：FedEx Express 的 Standard Overnight 常规件在周末及联邦假日默认不安排投递，系统自动判定下一个常规工作日为 <strong>9 月 8 日（周二）</strong>，因此向收件人发送了长达 4 天的延期通知邮件。</li>
+</ul>
+<p><img alt="FedEx 延期邮件通知与工卡硬件详情" src="images/fedex_email_delayed_oracle_token.png"/></p>
+<hr/>
+<h2 id="官方直属派送大仓（FedEx-Ship-Center）站点信息">官方直属派送大仓（FedEx Ship Center）站点信息</h2>
+<p>该包裹在派送未果后，不会转交普通第三方代收网点，而是会在送货车结束当日行程后统一返回所属的直属分发中心大仓：</p>
+<ul>
+<li><strong>站点官方全称</strong>：<strong>FedEx Ship Center (Issaquah)</strong></li>
+<li><strong>物理详细地址</strong>：<strong>5500 220th Ave SE, Issaquah, WA 98029</strong></li>
+<li><strong>地理位置优势</strong>：位于 I-90 高速公路旁（紧邻 SE 56th St 与 220th Ave SE 交汇处），距 Sammamish 高原（3931 258th Way SE）仅约 <strong>4 ~ 5 英里</strong>，下山驱车仅需 <strong>8 ~ 10 分钟</strong>。</li>
+<li><strong>对外柜台运营时间</strong>：</li>
+<li><strong>周一至周五</strong>：<strong>8:30 AM – 7:00 PM</strong>（周五晚间 7:00 PM 准时闭店关门）</li>
+<li><strong>周六</strong>：<strong>8:30 AM – 5:00 PM</strong></li>
+<li><strong>周日</strong>：休息关闭（Closed）</li>
+<li><strong>联系电话</strong>：1-800-GO-FEDEX (1-800-463-3339)</li>
+</ul>
+<hr/>
+<h2 id="当天自提行动指南与黄金时间窗口">当天自提行动指南与黄金时间窗口</h2>
+<h3 id="货车流转与最佳前往时段">货车流转与最佳前往时段</h3>
+<p>货车司机在下午派送完整个片区前，包裹始终在货车车厢内流转：<br/>
+1. <strong>太早前往（5:00 PM 前）</strong>：司机仍在 Sammamish / Issaquah 各街道派件，大仓前台无件可查，系统显示还在车上。<br/>
+2. <strong>黄金取件窗口（6:00 PM – 6:45 PM）</strong>：<br/>
+   * 快递员通常在 <strong>5:30 PM ~ 6:15 PM</strong> 左右结束所有日间派件，统一驾车返回 5500 220th Ave SE 货场卸货。<br/>
+   * 柜台工作人员会在此时段将“派送未达件”登记入库或从车厢后舱提取。<br/>
+   * 在 7:00 PM 柜台关门前留出 15~45 分钟的充裕时间，是当天拿到包裹概率最高的时间段。</p>
+<h3 id="现场取件必备凭证（缺一不可）">现场取件必备凭证（缺一不可）</h3>
+<p>因该包裹属于最高安全级别的 <code>Direct Signature Required</code>，前台执行极严格的人证核对：<br/>
+1. <strong>贴在门上的 Door Tag 原件</strong>：<br/>
+   * 必须将贴在门上的便签原件完整撕下并带往柜台。<br/>
+   * 便签下方有专属条形码，前台扫码即可秒级调出派件车次与货位号（编号：<code>DT720943547765</code>）。<br/>
+2. <strong>收件人政府签发的有效带照片身份证件（Driver's License / Photo ID）</strong>：<br/>
+   * 证件姓名必须严格匹配运单姓名：<code>Zhijie Bian</code>。<br/>
+   * 证件背面的现住地址必须与运单目的地一致：<code>3931 258th Way SE, Sammamish, WA 98029</code>。</p>
+<hr/>
+<h2 id="应急拦截与司机回头联动话术（电话处理复盘）">应急拦截与司机回头联动话术（电话处理复盘）</h2>
+<p>在刚错过包裹的 30 分钟黄金期内，致电调度中心能够起到关键拦截作用：</p>
+<h3 id="电话菜单直通人工技巧">电话菜单直通人工技巧</h3>
+<ol>
+<li>拨打官方热线 <strong>1-800-463-3339 (1-800-GO-FEDEX)</strong>。</li>
+<li>语音机器人询问时，直接坚决说：<code>"Representative"</code>（人工客服）或报出单号 <code>532901203369</code>。</li>
+</ol>
+<h3 id="调度联动与锁定大仓实战英文话术">调度联动与锁定大仓实战英文话术</h3>
+<blockquote>
+<p><strong>You:</strong><br/>
+<em>"Hi, I just missed the FedEx Express delivery at 2:26 PM at 3931 258th Way SE, Sammamish.<br/>
+Tracking number is </em><em>532901203369</em><em>, Door Tag is </em><em>DT720943547765</em><em>.<br/>
+This package contains an urgent security cloud token from Oracle required for my job. Because of the Labor Day long weekend, the system postponed delivery to next Tuesday, which is unacceptable for my work.<br/>
+Can you please send an urgent broadcast message to the driver on the road to see if they can re-attempt delivery before leaving my neighborhood today?<br/>
+If the driver cannot come back, please put a </em><em>Hold for Evening Pickup at Station</em><em> on this package so that when the truck returns to the </em><em>Issaquah Ship Center at 5500 220th Ave SE</em><em>, the package remains at the front counter for me to pick up tonight before 7:00 PM, instead of being sorted for next Tuesday."</em></p>
+</blockquote>
+<hr/>
+<h2 id="避坑预警与严禁事项">避坑预警与严禁事项</h2>
+<ol>
+<li><strong>切勿在官网或 App 随意点击 "Redirect to Retail Location"（如 Walgreens / Dollar General）</strong>：<br/>
+   * 很多人误以为点“Hold at Location”能更快拿到，实际上将快件转至第三方零售代收点需要重新生成内部流转标签并重新排班路线，在长周末前夕操作会导致包裹在周二甚至周三才能送达代收点，彻底丧失当天在直属大仓自提的机会。</li>
+<li><strong>切勿委托无相同地址证件的朋友代领</strong>：<br/>
+   * Direct Signature 包裹在没有 Door Tag 原件且代领人证件地址不一致的情况下，FedEx 柜台依法有权拒绝放行。</li>
+<li><strong>若周五晚间未能赶上 7:00 PM</strong>：<br/>
+   * 该 Issaquah Ship Center 在 <strong>周六（9 月 5 日）上午 8:30 AM 至下午 5:00 PM</strong> 正常开门营业。只要周五已完成返仓入库且未流转，周六上午仍可前往柜台凭借 ID 和 Door Tag 自行提取。</li>
+</ol>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

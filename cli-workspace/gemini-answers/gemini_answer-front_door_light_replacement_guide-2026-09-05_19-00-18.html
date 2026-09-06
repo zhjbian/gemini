@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 前门灯更换与安装详细指南 (Front Door Light Replacement Guide)</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">前门灯更换与安装详细指南 (Front Door Light Replacement Guide)</h1>
+<div class="meta">
+<span>Saved: 2026-09-05 19:00:18</span>
+<span>Topic: front_door_light_replacement_guide</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#参考图示与现场确认">参考图示与现场确认</a></li><li><a href="#准备工作与工具清单">准备工作与工具清单</a><ul><li><a href="#必要工具">必要工具</a></li></ul></li><li><a href="#断电与验电（安全第一）">断电与验电（安全第一）</a><ul><li><a href="#查找对应断路器（Breaker）">查找对应断路器（Breaker）</a></li><li><a href="#切断电源与验电">切断电源与验电</a></li></ul></li><li><a href="#拆卸旧门灯">拆卸旧门灯</a><ul><li><a href="#拆除旧灯固定螺母">拆除旧灯固定螺母</a></li><li><a href="#割开旧密封胶">割开旧密封胶</a></li><li><a href="#取下旧灯并拆线">取下旧灯并拆线</a></li></ul></li><li><a href="#组装新灯具（依据说明书步骤-2、3、4、5）">组装新灯具（依据说明书步骤 2、3、4、5）</a><ul><li><a href="#安装灯泡与玻璃罩（说明书-Step-2--3）">安装灯泡与玻璃罩（说明书 Step 2 &amp; 3）</a></li><li><a href="#拆下新灯背面的安装板（说明书-Step-4）">拆下新灯背面的安装板（说明书 Step 4）</a></li><li><a href="#拔下快接插头（说明书-Step-5）">拔下快接插头（说明书 Step 5）</a></li></ul></li><li><a href="#固定挂板与接线（说明书步骤-6、7）">固定挂板与接线（说明书步骤 6、7）</a><ul><li><a href="#固定安装背板-(FF)-到墙上接线盒（Step-6）">固定安装背板 (FF) 到墙上接线盒（Step 6）</a></li><li><a href="#连接电线（Step-7）">连接电线（Step 7）</a></li></ul></li><li><a href="#安装灯体与通电测试（说明书步骤-8、9）">安装灯体与通电测试（说明书步骤 8、9）</a><ul><li><a href="#插上快插端子">插上快插端子</a></li><li><a href="#固定灯体">固定灯体</a></li><li><a href="#通电测试">通电测试</a></li></ul></li><li><a href="#户外防水打胶密封（说明书步骤-10，极其关键）">户外防水打胶密封（说明书步骤 10，极其关键）</a></li><li><a href="#lutec_craftsman_lantern_product_links">lutec_craftsman_lantern_product_links</a><ul><li><a href="#产品核心规格与编码">产品核心规格与编码</a></li><li><a href="#渠道背景说明">渠道背景说明</a></li><li><a href="#各主流电商与零售渠道链接">各主流电商与零售渠道链接</a><ul><li><a href="#1.-Costco-直营与查询链接">1. Costco 直营与查询链接</a></li><li><a href="#2.-Amazon-(亚马逊)-官方与同款系列">2. Amazon (亚马逊) 官方与同款系列</a></li><li><a href="#3.-The-Home-Depot-(家得宝)-官方品牌专区">3. The Home Depot (家得宝) 官方品牌专区</a></li></ul></li><li><a href="#官方售后保修与备件咨询">官方售后保修与备件咨询</a></li></ul></li></ul></div>
+<section class="main-content">
+<p>根据现场照片、新灯具结构、说明书以及配电箱标签，以下为您整理的详尽更换安装步骤与关键注意事项。</p>
+<hr/>
+<h2 id="参考图示与现场确认">参考图示与现场确认</h2>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+<div style="flex: 1; min-width: 280px; text-align: center;">
+<img alt="旧门灯现场外观" src="images/media_1788659691704.jpg" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0;"/>
+<p style="font-size: 13px; color: #64748b; margin-top: 6px;">图 1：旧门灯现场实物（两侧带固定螺母）</p>
+</div>
+<div style="flex: 1; min-width: 280px; text-align: center;">
+<img alt="新门灯背面与挂板快插端子" src="images/media_1788659698380.jpg" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0;"/>
+<p style="font-size: 13px; color: #64748b; margin-top: 6px;">图 2：新门灯背部结构、金属挂板与快接端子</p>
+</div>
+</div>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+<div style="flex: 1; min-width: 280px; text-align: center;">
+<img alt="说明书步骤 2-7" src="images/media_1788659706580.jpg" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0;"/>
+<p style="font-size: 13px; color: #64748b; margin-top: 6px;">图 3：安装说明书步骤 2 至步骤 7</p>
+</div>
+<div style="flex: 1; min-width: 280px; text-align: center;">
+<img alt="说明书步骤 8-10" src="images/media_1788659709682.jpg" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0;"/>
+<p style="font-size: 13px; color: #64748b; margin-top: 6px;">图 4：安装说明书步骤 8 至步骤 10</p>
+</div>
+<div style="flex: 1; min-width: 280px; text-align: center;">
+<img alt="配电箱断路器标签" src="images/media_1788659729288.jpg" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0;"/>
+<p style="font-size: 13px; color: #64748b; margin-top: 6px;">图 5：家庭配电箱（右列第 10 槽位为 Porch 回路）</p>
+</div>
+</div>
+<hr/>
+<h2 id="准备工作与工具清单">准备工作与工具清单</h2>
+<h3 id="必要工具">必要工具</h3>
+<ul>
+<li>十字螺丝刀、平口螺丝刀</li>
+<li>测电笔 / 非接触式验电笔（电压测试仪，强烈建议）</li>
+<li>剥线钳 / 钳子（备用）</li>
+<li>硅酮防水胶（Silicone Caulk）及打胶枪（用于最后户外防水密封）</li>
+<li>稳固梯子或矮凳</li>
+<li>适用的灯泡（按说明书要求，如标准 E26 底座灯泡）</li>
+</ul>
+<hr/>
+<h2 id="断电与验电（安全第一）">断电与验电（安全第一）</h2>
+<h3 id="查找对应断路器（Breaker）">查找对应断路器（Breaker）</h3>
+<ul>
+<li>查看配电箱右侧第 5 组开关（第 10 槽位），手写标签为 <strong><code>Porch / LTS / LOW VOLTAGE</code></strong>（Porch 即门廊/前门灯回路）。</li>
+<li>同时留意其下方的 <code>LITES 2</code>、<code>LITES 5</code> 等照明回路。</li>
+</ul>
+<h3 id="切断电源与验电">切断电源与验电</h3>
+<ul>
+<li>将 <strong><code>Porch</code></strong> 对应的 15A 开关扳到 <strong>OFF</strong> 位置。</li>
+<li>如果不确定前门灯具体属于哪个，可先打开前门灯开关让旧灯处于通路状态（若旧灯还能微亮），或者关闭开关后，使用<strong>测电笔</strong>核验。</li>
+<li><strong>绝对准则</strong>：在身体触碰任何导线前，必须用验电笔靠近导线确认<strong>完全无电</strong>。</li>
+</ul>
+<hr/>
+<h2 id="拆卸旧门灯">拆卸旧门灯</h2>
+<h3 id="拆除旧灯固定螺母">拆除旧灯固定螺母</h3>
+<ul>
+<li>从图 1 可见，旧灯底座左右两侧各有一颗固定滚花螺母/螺栓。</li>
+<li>用螺丝刀或徒手拧下两侧的固定螺母。</li>
+</ul>
+<h3 id="割开旧密封胶">割开旧密封胶</h3>
+<ul>
+<li>如果旧灯底座与墙体（木挂板）之间打有防水胶，用美工刀轻轻沿边缘划开，避免用力拉扯损坏外墙漆面或挂板。</li>
+</ul>
+<h3 id="取下旧灯并拆线">取下旧灯并拆线</h3>
+<ul>
+<li>将旧灯轻轻向外拉出，露出接线盒（Junction Box）内的电线。</li>
+<li>此时先用验电笔再次测量电线，确保安全断电。</li>
+<li>拧开电线连接帽（Wire Nuts），将旧灯的黑线、白线、裸铜/绿线与墙体内出线分离。</li>
+<li>拧下固定在墙壁接线盒上的旧金属安装挂板并取下。</li>
+</ul>
+<hr/>
+<h2 id="组装新灯具（依据说明书步骤-2、3、4、5）">组装新灯具（依据说明书步骤 2、3、4、5）</h2>
+<p>新灯采用带有<strong>快插端子（Quick Connector）</strong>的设计，安装非常便捷：</p>
+<h3 id="安装灯泡与玻璃罩（说明书-Step-2--3）">安装灯泡与玻璃罩（说明书 Step 2 &amp; 3）</h3>
+<ul>
+<li>在地面将灯泡装入灯体 <code>(A)</code>。</li>
+<li>将圆柱形磨砂玻璃罩 <code>(B)</code> 安装并固定到灯体上。</li>
+</ul>
+<h3 id="拆下新灯背面的安装板（说明书-Step-4）">拆下新灯背面的安装板（说明书 Step 4）</h3>
+<ul>
+<li>从图 2 实物可见，新灯出厂时金属安装背板 <code>(FF)</code> 已预装在灯座背面，由左右两颗扁头小螺丝 <code>(EE)</code> 固定。</li>
+<li>拧下这两颗螺丝 <code>(EE)</code>，将金属挂板 <code>(FF)</code> 与灯体分离，螺丝妥善收好。</li>
+</ul>
+<h3 id="拔下快接插头（说明书-Step-5）">拔下快接插头（说明书 Step 5）</h3>
+<ul>
+<li>从图 2 可以看到背板中间有一个橙色接线快插端子。</li>
+<li>按下卡扣，将快接公头端与母头端拔开分离。</li>
+</ul>
+<hr/>
+<h2 id="固定挂板与接线（说明书步骤-6、7）">固定挂板与接线（说明书步骤 6、7）</h2>
+<h3 id="固定安装背板-(FF)-到墙上接线盒（Step-6）">固定安装背板 (FF) 到墙上接线盒（Step 6）</h3>
+<ul>
+<li>将墙壁接线盒里的电线穿过金属背板中心大孔。</li>
+<li>使用两颗长安装螺丝 <code>(AA)</code>，将金属板固定到接线盒上。</li>
+<li>调整背板水平度，注意背板朝向（水平保持平直，确保两侧固定小螺孔处于水平左右方向）。</li>
+</ul>
+<h3 id="连接电线（Step-7）">连接电线（Step 7）</h3>
+<ul>
+<li><strong>地线（Ground）</strong>：将墙内出来的裸铜线（或绿线）缠绕在金属板上的<strong>绿色接地螺丝</strong>上并拧紧；同时将快插端子带出的绿线与墙内地线用接线帽（Wire Nut <code>BB</code>）拧紧在一起。</li>
+<li><strong>零线（Neutral - 白线）</strong>：将墙内出来的白色线与快插插头引出的白色线对齐，顺时针用接线帽 <code>(BB)</code> 拧紧。</li>
+<li><strong>火线（Hot - 黑线）</strong>：将墙内出来的黑色线与快插插头引出的黑色线对齐，顺时针用接线帽 <code>(BB)</code> 拧紧。</li>
+<li><strong>检查</strong>：接好后轻拉每根电线，确保没有松脱，铜线未裸露在接线帽外（建议用电工绝缘胶布辅助缠绕一圈加强保护）。</li>
+</ul>
+<hr/>
+<h2 id="安装灯体与通电测试（说明书步骤-8、9）">安装灯体与通电测试（说明书步骤 8、9）</h2>
+<h3 id="插上快插端子">插上快插端子</h3>
+<ul>
+<li>将带电线连接端子的公头与灯体上的母头插紧（听到“咔哒”卡扣到位声）。</li>
+</ul>
+<h3 id="固定灯体">固定灯体</h3>
+<ul>
+<li>将多余的电线小心塞入墙内接线盒中。</li>
+<li>将灯体套在金属安装板上，对齐左右两侧的螺孔。</li>
+<li>用之前拆下的两颗扁头螺丝 <code>(EE)</code> 重新固定拧紧。</li>
+</ul>
+<h3 id="通电测试">通电测试</h3>
+<ul>
+<li>前往配电箱，将 <strong><code>Porch</code></strong> 断路器推回 <strong>ON</strong>。</li>
+<li>打开室内前门灯开关测试：</li>
+<li><em>注意：新灯顶部带有光敏传感器（Photocell，见实物图顶部凸起小传感器）</em>。如果是在白天测试，传感器感应到强光可能不会自动亮起；测试时可用手指或黑布彻底遮住顶部的圆形感应头，等待 5~10 秒，确认灯是否正常点亮。</li>
+</ul>
+<hr/>
+<h2 id="户外防水打胶密封（说明书步骤-10，极其关键）">户外防水打胶密封（说明书步骤 10，极其关键）</h2>
+<p>测试无误后，进行最后一步防雨密封：<br/>
+- 使用<strong>户外防霉硅酮密封胶（Clear 或配合外墙颜色的 Silicone Caulk）</strong>。<br/>
+- 沿着灯体底座与墙面接缝处，打胶密封<strong>顶部及左、右两侧</strong>。<br/>
+- <strong>特别注意</strong>：<strong>底座的最底部务必留出一段约 1-2 厘米的小缝隙不要打胶</strong>（Weep Hole 泄水孔）。<br/>
+  - <em>原因</em>：万一有微量雨水或冷凝水渗入，底部的缝隙可让水分自然排出，防止内部积水浸泡电线导致跳闸或短路故障。</p>
+</section>
+<section><h2 id="lutec_craftsman_lantern_product_links">lutec_craftsman_lantern_product_links</h2><p>根据新灯外包装箱实物照片与条码信息，进一步核实了该灯具的品牌型号、销售渠道背景以及在各大主流电商平台的对应购买链接：</p>
+<div style="max-width: 480px; margin: 16px 0 24px;">
+<img alt="LUTEC Craftsman 外包装箱与货号信息" src="images/media_1788660066264.jpg" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #e2e8f0;"/>
+<p style="font-size: 13px; color: #64748b; margin-top: 6px;">图 6：LUTEC Craftsman 外包装箱实物（右上角标注 Costco 专供货号 1806320）</p>
+</div>
+<h3 id="产品核心规格与编码">产品核心规格与编码</h3>
+<ul>
+<li><strong>品牌商标</strong>：LUTEC</li>
+<li><strong>产品名称</strong>：Craftsman Style Outdoor LED Wall Lantern（美式工艺风格户外 LED 壁灯）</li>
+<li><strong>Costco 专供货号（ITM. / ART.）</strong>：<strong><code>1806320</code></strong></li>
+<li><strong>生产厂商内部型号（Model #）</strong>：<strong><code>5217801012</code></strong></li>
+<li><strong>核心功能亮点</strong>：配备内置 Dusk-to-Dawn（黄昏至黎明）光敏传感器、快接安装挂板端子（Quick Connect Bracket）、附赠 800 流明 E26 暖白光可更换 LED 灯泡、压铸铝耐候材质。</li>
+</ul>
+<h3 id="渠道背景说明">渠道背景说明</h3>
+<p>右上角的 <strong><code>ITM. / ART. 1806320</code></strong> 属于典型的 <strong>Costco 独家专属料号</strong>。该版本为品牌商专为北美 Costco 仓储会员店定制发售，包含专供的一体化快插接线端子与定制灯泡套件，因此在 Amazon 和 Home Depot 通常不会以一模一样的 Costco 内部编号（1806320）作为独立直营商品长期常驻。</p>
+<h3 id="各主流电商与零售渠道链接">各主流电商与零售渠道链接</h3>
+<h4 id="1.-Costco-直营与查询链接">1. Costco 直营与查询链接</h4>
+<ul>
+<li><strong><a href="https://www.costco.com">Costco 官网商品查询 (Item 1806320)</a></strong>：可在搜索框输入 <code>1806320</code> 查看本地 Warehouse 仓库提货库存与送货状态。</li>
+<li><strong><a href="https://www.costco.ca">Costco Canada 对应产品档案</a></strong>：提供同款型号的详细规格参数列表。</li>
+</ul>
+<h4 id="2.-Amazon-(亚马逊)-官方与同款系列">2. Amazon (亚马逊) 官方与同款系列</h4>
+<p>LUTEC 在 Amazon 设有官方品牌店铺，提供同款 Craftsman 造型及相同 Dusk-to-Dawn 光感特性的壁灯：<br/>
+- <strong><a href="https://www.amazon.com/s?k=LUTEC+outdoor+wall+lantern+dusk+to+dawn">Amazon - LUTEC 户外黄昏黎明感应壁灯检索直达</a></strong><br/>
+- <strong><a href="https://www.amazon.com/s?k=Craftsman+Style+Outdoor+LED+Wall+Lantern+dusk+to+dawn">Amazon - 美式 Craftsman 风格黄昏黎明户外壁灯精选</a></strong></p>
+<h4 id="3.-The-Home-Depot-(家得宝)-官方品牌专区">3. The Home Depot (家得宝) 官方品牌专区</h4>
+<p>The Home Depot 设有 LUTEC 户外工程灯具专区：<br/>
+- <strong><a href="https://www.homedepot.com/b/Lighting-Outdoor-Lighting-Outdoor-Wall-Lights/LUTEC/N-5yc1vZbm76Zq3j">The Home Depot - LUTEC 户外照明与壁灯品牌专区</a></strong></p>
+<h3 id="官方售后保修与备件咨询">官方售后保修与备件咨询</h3>
+<p>该灯具提供 3 年有限质保，如需补充备用玻璃罩、螺母小配件或申请售后：<br/>
+- <strong>LUTEC USA 官方服务热线</strong>：<code>1-877-714-8669</code>（美东时间周一至周五 9:00 AM - 5:00 PM EST）<br/>
+- <strong>官方支持邮箱</strong>：<code>service@lutec.net</code><br/>
+- <strong>官方网站</strong>：<a href="https://www.lutec.com">www.lutec.com</a></p></section></article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

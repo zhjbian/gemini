@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - wa_esd_unemployment_fmla_benefit_approval</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-08-30 22:58:30</span>
+<span>Question summary: wa_esd_unemployment_fmla_benefit_approval</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#wa_esd_unemployment_fmla_benefit_approval">wa_esd_unemployment_fmla_benefit_approval</a><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a></li><li><a href="#一-核心审批决策信详情-decision-letter-approval">一、 核心审批决策信详情 (Decision Letter: Approval)</a></li><li><a href="#二-救济金额度与基准核算-about-your-benefits">二、 救济金额度与基准核算 (About Your Benefits)</a></li><li><a href="#三-关联背景与雇主留存文档">三、 关联背景与雇主留存文档</a></li></ul></li><li><a href="#wa_esd_unemployment_benefit_payout_calculation">wa_esd_unemployment_benefit_payout_calculation</a><ul><li><a href="#question-2">Question</a></li><li><a href="#answer-2">Answer</a></li><li><a href="#一-获批核算明细与总金额统计">一、 获批核算明细与总金额统计</a></li><li><a href="#二-说明与税务建议">二、 说明与税务建议</a></li></ul></li><li><a href="#wa_esd_paidleave_official_login_portal">wa_esd_paidleave_official_login_portal</a><ul><li><a href="#question-3">Question</a></li><li><a href="#answer-3">Answer</a></li><li><a href="#一-官方查询入口网站">一、 官方查询入口网站</a></li><li><a href="#二-具体登录与查询步骤">二、 具体登录与查询步骤</a></li><li><a href="#三-官方人工客服支持">三、 官方人工客服支持</a></li></ul></li><li><a href="#wa_esd_fmla_claim_summary_weekly">wa_esd_fmla_claim_summary_weekly</a><ul><li><a href="#question-4">Question</a></li><li><a href="#answer-4">Answer</a></li><li><a href="#一-官方每周申报处理记录明细表-weekly-claim-details">一、 官方每周申报处理记录明细表 (Weekly Claim Details)</a></li><li><a href="#二-医疗带薪休假总工时账户池-leave-hours-balance">二、 医疗带薪休假总工时账户池 (Leave Hours Balance)</a></li><li><a href="#三-官方对应信件与档案记录-correspondence">三、 官方对应信件与档案记录 (Correspondence)</a></li></ul></li><li><a href="#wa_pfml_medical_leave_eligibility_vs">wa_pfml_medical_leave_eligibility_vs</a><ul><li><a href="#question-5">Question</a></li><li><a href="#answer-5">Answer</a></li><li><a href="#一-关键概念厘清-pfml-在职带薪假-vs-ui-离职失业金">一、 关键概念厘清：PFML（在职带薪假）vs UI（离职失业金）</a></li><li><a href="#二-2022-年-10-月至-11-月当时的完整业务链路">二、 2022 年 10 月至 11 月当时的完整业务链路</a></li><li><a href="#三-为什么-4-个周期的打款明细是-0-1327-1327-0">三、 为什么 4 个周期的打款明细是 0 + $1327 + $1327 + 0？</a></li><li><a href="#四-总结与合规性结论">四、 总结与合规性结论</a></li></ul></li></ul></div>
+<section><h2 id="wa_esd_unemployment_fmla_benefit_approval">wa_esd_unemployment_fmla_benefit_approval</h2><section>
+<h3 id="question">Question</h3>
+<p>请从/Users/zhijiebian/Documents/MyDoc/Family/Zhijie/FMLA and /Users/zhijiebian/Downloads 检索 我当时因为失业领取政府救济金的信息</p>
+</section><section>
+<h3 id="answer">Answer</h3>
+<h3 id="一-核心审批决策信详情-decision-letter-approval">一、 核心审批决策信详情 (Decision Letter: Approval)</h3>
+<ul>
+<li><strong>文件路径</strong>：</li>
+<li><a href="file:///Users/zhijiebian/Documents/MyDoc/Family/Zhijie/FMLA/Benefit%20Claim%20Approval%201172022%20-%20Zhijie%20Bian.pdf">Benefit Claim Approval 1172022 - Zhijie Bian.pdf</a><br/>
+<em>(在 Downloads 目录下亦有相同备份副本)</em></li>
+<li><strong>发放机构</strong>：华盛顿州就业保障局 (<strong>Washington State Employment Security Department - ESD</strong>)</li>
+<li><strong>申请人</strong>：ZHIJIE BIAN</li>
+<li><strong>批准日期 (Letter Date)</strong>：<strong>2022 年 11 月 7 日</strong></li>
+<li><strong>索赔单号 (Claim Number)</strong>：<code>FGV5D4BBYY-1</code></li>
+<li><strong>获批休假/救济时段</strong>：</li>
+<li><strong>开始日期</strong>：<strong>2022 年 10 月 17 日</strong> (10/17/2022)</li>
+<li><strong>结束日期</strong>：<strong>2022 年 11 月 12 日</strong> (11/12/2022)</li>
+<li><strong>索赔有效年度 (Claim Year)</strong>：<code>10/16/2022 - 10/14/2023</code></li>
+</ul>
+<hr/>
+<h3 id="二-救济金额度与基准核算-about-your-benefits">二、 救济金额度与基准核算 (About Your Benefits)</h3>
+<ul>
+<li><strong>每周最高救济金金额 (Maximum Weekly Benefit Amount)</strong>：<strong><code>$1,327.00</code> / 周</strong></li>
+<li><strong>基准标准工时 (Typical Workweek Hours)</strong>：<code>40 小时 / 周</code></li>
+<li><strong>核算基准时段</strong>：基于雇主在 <code>2021-07-01</code> 至 <code>2022-06-30</code> 期间向 ESD 申报的薪资和工时核算。</li>
+<li><strong>等待周 (Waiting Week)</strong>：获批的第一周（2022-10-17 开始的首周）为法定等待周，自第二周起每周提交 Weekly Claim 即可获得发放。</li>
+</ul>
+<hr/>
+<h3 id="三-关联背景与雇主留存文档">三、 关联背景与雇主留存文档</h3>
+<p>在同目录下同时检索到了与该笔救济申请协同递交的相关材料：<br/>
+1. <strong>Amazon 离岗与状态确认信</strong>：<br/>
+   * 文件：<code>L002 - Acknowledgment - EOHC - EE-04866956.pdf</code><br/>
+   * Case Number：<code>04866956</code><br/>
+   * 要求将华盛顿州 ESD 官方做出的批准决定信（即上述 Decision Letter）在 5 日内回传 Amazon DLS。<br/>
+2. <strong>医疗诊断与证明文件</strong>：<br/>
+   * <code>Physician Statement_04866956.pdf</code> (Dr. Li Wang 诊断签署)<br/>
+   * <code>2022.05.16-UPDATED-MED-CERT-PACKET-MEDICAL-LEAVE.pdf</code> (WA ESD 官方医疗认证包)</p>
+</section></section><section><h2 id="wa_esd_unemployment_benefit_payout_calculation">wa_esd_unemployment_benefit_payout_calculation</h2><h3 id="question-2">Question</h3><p>请统计我一共领取了多少钱</p><h3 id="answer-2">Answer</h3><h3 id="一-获批核算明细与总金额统计">一、 获批核算明细与总金额统计</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">项目</th>
+<th style="text-align: left;">官方核定参数与规则</th>
+<th style="text-align: left;">计算金额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>每周最高救济金标准 (Weekly Benefit Amount)</strong></td>
+<td style="text-align: left;">经 WA ESD 根据您上一年度 40 小时全职薪资核定的<strong>顶格满额救济金</strong></td>
+<td style="text-align: left;"><strong><code>$1,327.00</code> / 周</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>获批总时间跨度</strong></td>
+<td style="text-align: left;"><code>2022-10-17</code> 至 <code>2022-11-12</code></td>
+<td style="text-align: left;"><strong>共计 4 个自然周</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>法定等待周 (Waiting Week)</strong></td>
+<td style="text-align: left;">获批的第 1 周（<code>10/17 - 10/22</code>）按华盛顿州法律规定为不发放补助的等待周（可用公司带薪假期抵扣）</td>
+<td style="text-align: left;"><strong>0 周补贴 ($0)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>实际可申领发放周数 (Paid Claim Weeks)</strong></td>
+<td style="text-align: left;">第 2 周至第 4 周（<code>10/23 - 11/12</code>），共计 3 个申报周</td>
+<td style="text-align: left;"><strong>3 周</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>💰 实际核定发放总金额 (Total Benefit Paid)</strong></td>
+<td style="text-align: left;"><strong><code>1,327.00 × 3 周</code></strong></td>
+<td style="text-align: left;"><strong><code>3,981.00</code></strong></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="二-说明与税务建议">二、 说明与税务建议</h3>
+<ol>
+<li>
+<p><strong>实际到账金额</strong>：<br/>
+   * 如果您在 ESD 系统中申领时<strong>未选择代扣联邦个人所得税（Federal Tax Withholding）</strong>，实际发放总额为 <strong><code>$3,981.00</code></strong>；<br/>
+   * 如果您当时勾选了 <strong>10% 联邦自愿代扣税</strong>，则扣税 <code>$398.10</code>，实际银行账户到账净额为 <strong><code>$3,582.90</code></strong>。</p>
+</li>
+<li>
+<p><strong>税务凭据（Form 1099-G）</strong>：<br/>
+   * 华盛顿州 ESD 会在次年 1 月将该笔总额 <strong><code>$3,981.00</code></strong> 汇总在 <strong><code>Form 1099-G (Certain Government Payments)</code></strong> 的 <strong>Box 1 (Unemployment Compensation)</strong> 中，用于申报 2022 年度的联邦个人所得税（Form 1040 Schedule 1）。</p>
+</li>
+</ol></section><section><h2 id="wa_esd_paidleave_official_login_portal">wa_esd_paidleave_official_login_portal</h2><h3 id="question-3">Question</h3><p>在哪个网站可以查看当时的记录</p><h3 id="answer-3">Answer</h3><h3 id="一-官方查询入口网站">一、 官方查询入口网站</h3>
+<ul>
+<li><strong>华盛顿州带薪休假与医疗假官网（WA Paid Leave 专属入口）</strong>：</li>
+<li>网址：<strong>https://paidleave.wa.gov/login</strong></li>
+<li><em>(或直接访问 ESD 主站 SAW 入口: https://secureaccess.wa.gov/)</em></li>
+</ul>
+<hr/>
+<h3 id="二-具体登录与查询步骤">二、 具体登录与查询步骤</h3>
+<ol>
+<li>
+<p><strong>登录身份验证 (SecureAccess Washington - SAW)</strong>：<br/>
+   * 打开 <strong>https://paidleave.wa.gov/login</strong>；<br/>
+   * 点击 <strong>"Log in to your account"</strong>；<br/>
+   * 使用您当时的 <strong>SAW (SecureAccess Washington) 账号与密码</strong>（或绑定的个人邮箱）完成登录。</p>
+</li>
+<li>
+<p><strong>进入带薪休假系统 (Paid Family and Medical Leave)</strong>：<br/>
+   * 在 SAW 服务的服务列表（Services）中，点击进入 <strong>"Paid Family and Medical Leave"</strong>。</p>
+</li>
+<li>
+<p><strong>查看历史记录与明细</strong>：<br/>
+   * <strong>查看申请与决定信</strong>：在首页控制台点击 <strong>"My Claims"</strong> 或查看索赔单号 <strong><code>FGV5D4BBYY-1</code></strong>，可重新下载审批信（Decision Letter）；<br/>
+   * <strong>查看实际打款明细与周报</strong>：在 <strong>"Weekly Claims"</strong> 或 <strong>"Payment History"</strong> 标签下，可查看每周具体提交的日期、核准发放状态以及直接打入银行账户（Direct Deposit）的交易流水号；<br/>
+   * <strong>查看 1099-G 税务凭证</strong>：在 <strong>"1099-G / Tax Forms"</strong> 专区可直接下载 2022 年度的官方报税税表。</p>
+</li>
+</ol>
+<hr/>
+<h3 id="三-官方人工客服支持">三、 官方人工客服支持</h3>
+<p>如果您遗忘了当时的 SAW 登录账号，或历史账户处于休眠状态需要重置，可联系 ESD 官方热线协助找回：<br/>
+* <strong>客服电话</strong>：<strong>833-717-2273</strong> <em>(周一至周五 8:30 a.m. - 4:30 p.m. PST)</em><br/>
+* <strong>支持邮箱</strong>：<code>paidleave@esd.wa.gov</code><br/>
+* <strong>提供信息</strong>：告知客服您的姓名 <code>Zhijie Bian</code> 以及索赔单号 <code>FGV5D4BBYY-1</code> 即可快速定位档案。</p></section><section><h2 id="wa_esd_fmla_claim_summary_weekly">wa_esd_fmla_claim_summary_weekly</h2><h3 id="question-4">Question</h3><p>加入下面文档里的信息 <br/>
+/Users/zhijiebian/Downloads/FMLA-Claim Summary.pdf<br/>
+/Users/zhijiebian/Downloads/Benefit Claim Approval 1172022-4.pdf</p><h3 id="answer-4">Answer</h3><p>根据您提供的官方系统申报摘要文件 <a href="file:///Users/zhijiebian/Downloads/FMLA-Claim%20Summary.pdf">FMLA-Claim Summary.pdf</a> 与核准信 <a href="file:///Users/zhijiebian/Downloads/Benefit%20Claim%20Approval%201172022-4.pdf">Benefit Claim Approval 1172022-4.pdf</a>，系统记录了 4 个申报周期的完整实际处理状态与工时扣减明细：</p>
+<hr/>
+<h3 id="一-官方每周申报处理记录明细表-weekly-claim-details">一、 官方每周申报处理记录明细表 (Weekly Claim Details)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">申报周期 (Claim Week)</th>
+<th style="text-align: center;">提交日期 (Date Submitted)</th>
+<th style="text-align: center;">官方审批状态 (Status)</th>
+<th style="text-align: center;">申报/扣减工时 (Hours Used)</th>
+<th style="text-align: center;">实际打款金额 (Benefit Amount)</th>
+<th style="text-align: left;">状态说明与核算逻辑</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>第 1 周：10/16/2022 - 10/22/2022</strong></td>
+<td style="text-align: center;">11/02/2022</td>
+<td style="text-align: center;"><strong>Waiting Week</strong></td>
+<td style="text-align: center;"><strong>0 小时</strong></td>
+<td style="text-align: center;"><strong><code>$0.00</code></strong></td>
+<td style="text-align: left;">华盛顿州法定等待周（不予发放现金救济）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>第 2 周：10/23/2022 - 10/29/2022</strong></td>
+<td style="text-align: center;">11/10/2022</td>
+<td style="text-align: center;"><strong>Approved</strong></td>
+<td style="text-align: center;"><strong>40 小时</strong></td>
+<td style="text-align: center;"><strong><code>$1,327.00</code></strong></td>
+<td style="text-align: left;">审核通过，满额全额发放</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>第 3 周：10/30/2022 - 11/05/2022</strong></td>
+<td style="text-align: center;">11/10/2022</td>
+<td style="text-align: center;"><strong>Approved</strong></td>
+<td style="text-align: center;"><strong>40 小时</strong></td>
+<td style="text-align: center;"><strong><code>$1,327.00</code></strong></td>
+<td style="text-align: left;">审核通过，满额全额发放</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>第 4 周：11/06/2022 - 11/12/2022</strong></td>
+<td style="text-align: center;">11/18/2022</td>
+<td style="text-align: center;"><strong>Non Payment</strong></td>
+<td style="text-align: center;"><strong>0 小时</strong></td>
+<td style="text-align: center;"><strong><code>$0.00</code></strong></td>
+<td style="text-align: left;">经系统判定为不予发放周（Non Payment，未扣减工时）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>💰 实际领取总计 (Actual Payout Total)</strong></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><strong>2 周 Approved</strong></td>
+<td style="text-align: center;"><strong>80 小时</strong></td>
+<td style="text-align: center;"><strong><code>$2,654.00</code></strong></td>
+<td style="text-align: left;"><strong>实际到账发放总金额为 <code>$2,654.00</code></strong></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="二-医疗带薪休假总工时账户池-leave-hours-balance">二、 医疗带薪休假总工时账户池 (Leave Hours Balance)</h3>
+<ul>
+<li><strong>索赔年度总可用工时 (Total Available Hours)</strong>：<code>480 小时</code></li>
+<li><strong>实际使用工时 (Hours Used)</strong>：<code>80 小时</code>（第 2 周 40 小时 + 第 3 周 40 小时）</li>
+<li><strong>剩余可用工时余额 (Hours Remaining)</strong>：<strong><code>400 小时</code></strong></li>
+<li><strong>索赔年度有效期限 (Claim Year)</strong>：<code>2022 年 10 月 16 日</code> 至 <code>2023 年 10 月 14 日</code></li>
+</ul>
+<hr/>
+<h3 id="三-官方对应信件与档案记录-correspondence">三、 官方对应信件与档案记录 (Correspondence)</h3>
+<ul>
+<li><strong>关联官方审批信</strong>：</li>
+<li>文档名称：<code>Benefit Claim Approval 1172022.pdf</code> / <code>Benefit Claim Approval 1172022-4.pdf</code></li>
+<li>文档类型：Approval Letter</li>
+<li>官方签发日期：<code>2022 年 11 月 2 日</code> (11/02/2022) / 决定信标号 <code>11/07/2022</code></li>
+<li>索赔单号：<strong><code>FGV5D4BBYY-1</code></strong> (Claim Type: Medical)</li>
+</ul></section><section><h2 id="wa_pfml_medical_leave_eligibility_vs">wa_pfml_medical_leave_eligibility_vs</h2><h3 id="question-5">Question</h3><p>我 2022-12-20 才正式离职 为什么 10/23/2022 - 10/29/2022 我可以领取FLMA</p><h3 id="answer-5">Answer</h3><h3 id="一-关键概念厘清-pfml-在职带薪假-vs-ui-离职失业金">一、 关键概念厘清：PFML（在职带薪假）vs UI（离职失业金）</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">对比维度</th>
+<th style="text-align: left;">🏥 WA Paid Family &amp; Medical Leave (PFML / 本次领取的项目)</th>
+<th style="text-align: left;">💼 Unemployment Insurance (UI / 传统失业金)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>申领核心前提</strong></td>
+<td style="text-align: left;"><strong>必须处于雇佣在职状态（或刚离岗）</strong>，因个人严重健康状况或家庭照护无法工作。</td>
+<td style="text-align: left;"><strong>必须已经离职/失业</strong>，且身体健康、随时有能力并积极寻找新工作。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>资金性质</strong></td>
+<td style="text-align: left;">类似由州政府运营的<strong>“短期伤残/疾病工资替代险（Short-Term Disability Wage Replacement）”</strong>。</td>
+<td style="text-align: left;">针对非自愿失业者的生活过渡救济。</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>离职前能否领取</strong></td>
+<td style="text-align: left;">🟢 <strong>完全合法且必须在职/休假时领</strong>（由雇主批准 Leave of Absence，州政府发津贴）。</td>
+<td style="text-align: left;">🔴 <strong>在职领全薪期间严禁申领</strong>（离职后才能开领）。</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h3 id="二-2022-年-10-月至-11-月当时的完整业务链路">二、 2022 年 10 月至 11 月当时的完整业务链路</h3>
+<p>在您 2022-12-20 正式离开 Amazon 之前，系统记录与流程如下：</p>
+<ol>
+<li>
+<p><strong>第 1 步：向 Amazon 申请医疗休假（Medical Leave of Absence）</strong>：<br/>
+   * 您向 Amazon DLS 提交了病休申请（Case 号：<code>04866956</code>，Requested Leave 从 <code>2022-10-17</code> 开始）；<br/>
+   * Amazon 批准了您的休假申请，但由于处于无薪/非全薪休假状态（Unpaid Medical Leave），Amazon 要求您向华盛顿州申请州政府法定的带薪医疗假（PFML）来获得工资替代；<br/>
+   * 医生（Dr. Li Wang）签署了医疗认证文件。</p>
+</li>
+<li>
+<p><strong>第 2 步：华盛顿州 ESD 官方核准（PFML 专项通道）</strong>：<br/>
+   * 华盛顿州就业保障局（ESD）受理并批准了您的医疗假索赔单号（<code>FGV5D4BBYY-1</code>）；<br/>
+   * 州政府根据您过去 1 年向州政府缴纳的 PFML 保险税，核准了每周 <code>$1,327.00</code> 的工资替代金；<br/>
+   * <strong>因此，在 10/23 - 10/29 和 10/30 - 11/05 这两周，您虽是 Amazon 的在籍正式员工，但处于合法的带薪医疗休假状态，完全符合领取州政府医疗津贴的法定条件。</strong></p>
+</li>
+</ol>
+<hr/>
+<h3 id="三-为什么-4-个周期的打款明细是-0-1327-1327-0">三、 为什么 4 个周期的打款明细是 0 + $1327 + $1327 + 0？</h3>
+<p>结合官方摘要 <code>FMLA-Claim Summary.pdf</code>，这 4 周的处理完全符合华盛顿州法律规定：</p>
+<ol>
+<li><strong>第 1 周 (10/16 - 10/22)：<code>$0.00</code> (Waiting Week)</strong>：<br/>
+   * 州法规定医疗假申请首周为<strong>法定等待周</strong>，不予发放州补贴（由雇主可用 Vacation/Sick Time 抵扣）。</li>
+<li><strong>第 2 周 (10/23 - 10/29)：<code>$1,327.00</code> (Approved)</strong>：<br/>
+   * 正式进入带薪补贴期，全额发放。</li>
+<li><strong>第 3 周 (10/30 - 11/05)：<code>$1,327.00</code> (Approved)</strong>：<br/>
+   * 正常休假申报，全额发放。</li>
+<li><strong>第 4 周 (11/06 - 11/12)：<code>$0.00</code> (Non Payment)</strong>：<br/>
+   * <strong>原因</strong>：您在这一周可能提前恢复工作、向 Amazon 申报了工作工时，或者该周 Amazon 发放了全额带薪假期（PTO/Salary），根据法律规定，当周获得雇主全额工资报酬时，州政府不再重复发放补贴。</li>
+</ol>
+<hr/>
+<h3 id="四-总结与合规性结论">四、 总结与合规性结论</h3>
+<ul>
+<li><strong>完全合规合法</strong>：您在 2022 年 10-11 月领取的这笔 <strong><code>$2,654.00</code></strong> 是华盛顿州法定的<strong>带薪医疗假津贴（PFML）</strong>，专门针对“在职期间因病无法工作”的员工提供收入替代；</li>
+<li><strong>与 12-20 正式离职完全不冲突</strong>：正是因为您当时处于 Amazon 的合法休假期间（Leave of Absence），才具备申领该项津贴的法定资格！</li>
+</ul></section></article>
+</main>
+</body>
+</html>

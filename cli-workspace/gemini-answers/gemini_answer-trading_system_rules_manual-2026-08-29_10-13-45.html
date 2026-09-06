@@ -1368,10 +1368,10 @@
   <table>
     <thead>
       <tr>
-        <th style="width: 14%;">漏斗层级</th>
-        <th style="width: 20%;">核心检验维度</th>
-        <th style="width: 20%;">触发硬性阈值</th>
-        <th style="width: 46%;">仲裁逻辑与决策意图</th>
+        <th style="width: 11%;">漏斗层级</th>
+        <th style="width: 14%;">核心检验维度</th>
+        <th style="width: 14%;">触发硬性阈值</th>
+        <th style="width: 61%;">仲裁逻辑与决策意图</th>
       </tr>
     </thead>
     <tbody>
@@ -1387,15 +1387,217 @@
         <td>严守“单次回合只持有一组双批次仓位”铁律，已有持仓未全平前，随后的 5 分钟检测微秒级跳过，坚决不加仓、不重叠开仓。</td>
       </tr>
       <tr>
-        <td><strong>目标到期日与时间窗口</strong></td>
-        <td><strong>0DTE</strong> (当天到期)<br>且时间 &lt; <strong>11:30 PST</strong></td>
-        <td>自动交易强制执行 0DTE 高速 Theta 衰减策略，并在美西 12:30 PST 强制全平，绝不过夜；11:30 PST 后禁止新开仓。</td>
+        <td><strong>目标到期日与触发架构</strong></td>
+        <td><strong>0DTE</strong> (当天到期)<br>时间 &lt; <strong>11:30 PST</strong><br>(双通道无缝调度)</td>
+        <td>
+          • <strong>0DTE 高速 Theta 衰减策略</strong>：11:30 PST 后禁止新开仓，美西 12:30 PST 强制全平不留隔夜风险。<br>
+          • <strong>双通道 100% 连续无缝触发架构</strong>：<br>
+          &nbsp;&nbsp;1. <strong>非整点周期 (如 07:05, 07:10, 07:15...)</strong>：由 5分钟订单流哨兵 (<code>order_flow_sentinel.py</code>) 轻量高速增量扫描触发；<br>
+          &nbsp;&nbsp;2. <strong>30m 整点与半点边界 (如 07:00, 07:30, 08:00...)</strong>：由 30分钟大任务 (<code>comprehensive_signals_job.py</code>) 生成完全量 AI 研判后直接无缝联动触发，彻底消除时间真空！
+        </td>
       </tr>
       <tr>
         <td rowspan="4"><strong>第二层：四维微观共振评分<br>(4-Factor Synthesis 100分制)</strong></td>
-        <td><strong>维度 1：5m 订单流微观盘口</strong><br>(权重 40分)</td>
-        <td>Delta 推进 / 吸收 / 竭尽<br>(需贡献 &gt;= 20分)</td>
-        <td>• <strong>看多</strong>：5m Delta 持续为正且主动吃单推进，或卖盘竭尽被动吸收。<br>• <strong>看空</strong>：5m Delta 持续为负且主动砸盘下挫，或买盘竭尽被动拦截。</td>
+        <td><strong>维度 1：订单流与 DOM 微观盘口</strong><br>(权重 40分)</td>
+        <td>
+          • <strong>通道 A：Ticks 成交流 (35分)</strong><br>
+          • <strong>通道 B：DOM 深度结构 (15分)</strong><br>
+          • <strong>微观陷阱一票否决</strong><br>
+          <span style="color: #047857; font-weight: 600;">(需贡献 &gt;= 20分，单项满分 40分)</span>
+        </td>
+        <td style="padding: 10px 14px;">
+          <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px;">
+            🌊 双通道融合微观动能评分矩阵 (Channel A + Channel B，满分 40分)
+          </div>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9;">
+                <th style="padding: 6px 10px; width: 22%;">评估因子与通道来源</th>
+                <th style="padding: 6px 10px; width: 39%;">🟢 看多加分项 (做多卖出 Bull Put Spread)</th>
+                <th style="padding: 6px 10px; width: 39%;">🔴 看空加分项 (做空卖出 Bear Call Spread)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  1. 主方向基准<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 A: 订单流大单与动能)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  <code>direction == 'Bullish' / 'BUY'</code><br>
+                  ➔ <strong style="color: #047857;">+20 分</strong> (入场基础门槛)
+                </td>
+                <td style="padding: 6px 10px;">
+                  <code>direction == 'Bearish' / 'SELL'</code><br>
+                  ➔ <strong style="color: #b91c1c;">+20 分</strong> (入场基础门槛)
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  2. 信号强度加权<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 A: 趋势单边推进度)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  • <code>signal_strength == 'HIGH'</code> ➔ <strong style="color: #047857;">+15 分</strong><br>
+                  • <code>signal_strength == 'MEDIUM'</code> ➔ <strong style="color: #0284c7;">+10 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  • <code>signal_strength == 'HIGH'</code> ➔ <strong style="color: #b91c1c;">+15 分</strong><br>
+                  • <code>signal_strength == 'MEDIUM'</code> ➔ <strong style="color: #0284c7;">+10 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  3. 5m 微观 Delta 推进<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 A: 5分钟净主动量)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  5m Delta 持续为正且 <strong>&gt; +300 手</strong> ➔ <strong style="color: #047857;">+5 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  5m Delta 持续为负且 <strong>&lt; -300 手</strong> ➔ <strong style="color: #b91c1c;">+5 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  4. 盘口吸收与背离形态<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 A: 研判语义解析)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  研判提示“卖盘竭尽 / 被动吸收 / 底部背离” ➔ <strong style="color: #047857;">+5 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  研判提示“买盘竭尽 / 被动拦截 / 顶部背离” ➔ <strong style="color: #b91c1c;">+5 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  5. DOM 深度加权失衡<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 B: 500ms 挂单厚度)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  <code>weighted_imbalance &gt;= +20%</code> (买盘厚重垫背) ➔ <strong style="color: #047857;">+5 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  <code>weighted_imbalance &lt;= -20%</code> (卖盘重压封顶) ➔ <strong style="color: #b91c1c;">+5 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  6. 冰山单暗盘护盘<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 B: 隐形机构承接)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  检测到买方被动冰山大单 (<code>iceberg_bull &gt; 0</code>) ➔ <strong style="color: #047857;">+5 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  检测到卖方被动冰山大单 (<code>iceberg_bear &gt; 0</code>) ➔ <strong style="color: #b91c1c;">+5 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  7. 流动性真空推力<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(通道 B: 档位空洞)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  上方 Ask 出现持续空洞 (<code>vacuum_ask &gt;= 15s</code>) ➔ <strong style="color: #047857;">+5 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  下方 Bid 出现持续空洞 (<code>vacuum_bid &gt;= 15s</code>) ➔ <strong style="color: #b91c1c;">+5 分</strong>
+                </td>
+              </tr>
+              <tr style="background: #fef2f2;">
+                <td style="padding: 6px 10px; font-weight: 700; color: #b91c1c;">
+                  🚫 虚假挂单陷阱清零<br>
+                  <span style="font-size: 0.76rem; color: #991b1b; font-weight: normal;">(通道 B: DOM 假单识别)</span>
+                </td>
+                <td style="padding: 6px 10px; color: #991b1b;" colspan="2">
+                  若 5 分钟 DOM 检测到假单撤单诱多/诱空（<code>block_bull_by_spoof</code> 或 <code>block_bear_by_spoof</code> 为 True），<strong>本维度直接 0 分清零并一票否决开仓</strong>！
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Parallel 30m Decision Table Block -->
+          <div style="font-weight: 700; color: #0369a1; margin-top: 14px; margin-bottom: 6px;">
+            ⏱️ 平行对应：30分钟整点大周期动能打分矩阵 (comprehensive_signals_job.py，满分 40分)
+          </div>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #bae6fd; background: #f8fafc;">
+            <thead>
+              <tr style="background: #e0f2fe;">
+                <th style="padding: 6px 10px; width: 22%; color: #0369a1;">30m 评估因子与数据源</th>
+                <th style="padding: 6px 10px; width: 39%; color: #0369a1;">🟢 看多加分条件 (做多卖 Put 垫背)</th>
+                <th style="padding: 6px 10px; width: 39%; color: #0369a1;">🔴 看空加分条件 (做空卖 Call 引力)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  1. 30m AI 主方向基准<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(Order Flow AI 研判)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  <code>direction == 'Bullish' / 'BUY'</code><br>
+                  ➔ <strong style="color: #047857;">+20 分</strong> (入场基础门槛)
+                </td>
+                <td style="padding: 6px 10px;">
+                  <code>direction == 'Bearish' / 'SELL'</code><br>
+                  ➔ <strong style="color: #b91c1c;">+20 分</strong> (入场基础门槛)
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  2. 30m 宏观信号强度加权<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(rth_delta 累积与单边突破)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  • <code>signal_strength == 'HIGH'</code> ➔ <strong style="color: #047857;">+15 分</strong><br>
+                  • <code>signal_strength == 'MEDIUM'</code> ➔ <strong style="color: #0284c7;">+10 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  • <code>signal_strength == 'HIGH'</code> ➔ <strong style="color: #b91c1c;">+15 分</strong><br>
+                  • <code>signal_strength == 'MEDIUM'</code> ➔ <strong style="color: #0284c7;">+10 分</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  3. 末尾 5m 收尾微观校验<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(Last-5m Filter 诱多/诱空防范)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  最后 5m Delta 持续为正且 <strong>&gt; +300 手</strong> ➔ <strong style="color: #047857;">+5 分</strong><br>
+                  <span style="color: #dc2626; font-size: 0.76rem;">(若突发 &lt; -300 手抛售则不加分防追高)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  最后 5m Delta 持续为负且 <strong>&lt; -300 手</strong> ➔ <strong style="color: #b91c1c;">+5 分</strong><br>
+                  <span style="color: #dc2626; font-size: 0.76rem;">(若突发 &gt; +300 手反弹则不加分防杀跌)</span>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  4. AI 语义微观形态确认<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(verdict 关键词智能抽取)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  研判含“被动吸收 / 卖盘竭尽 / 大单吸筹 / 底背离” ➔ <strong style="color: #047857;">+5 分</strong>
+                </td>
+                <td style="padding: 6px 10px;">
+                  研判含“被动拦截 / 买盘竭尽 / 大单砸盘 / 顶背离” ➔ <strong style="color: #b91c1c;">+5 分</strong>
+                </td>
+              </tr>
+              <tr style="background: #f0fdf4;">
+                <td style="padding: 6px 10px; font-weight: 700; color: #047857;">
+                  5. 封顶与安全兼容机制<br>
+                  <span style="font-size: 0.76rem; color: #15803d; font-weight: normal;">(单项 Cap &amp; Big Trades 兼容)</span>
+                </td>
+                <td style="padding: 6px 10px; color: #15803d;" colspan="2">
+                  • <strong>满分封顶</strong>：各项累加最高 45 分，引擎执行 <code>min(score, 40)</code> 严格封顶为 <strong>40 分满分</strong>；<br>
+                  • <strong>DOM 缺失安全兼容</strong>：整点无高频 500ms DOM 时，自动以 30m 机构大单流（Big Trades）作为深度支撑，保障评分严密性与连续性。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
       </tr>
       <tr>
         <td><strong>维度 2：SPX 0DTE Gamma 结构</strong><br>(权重 30分)</td>
@@ -1472,6 +1674,60 @@
             • <code>direction == 'Positive' / 'Bullish'</code> 辅助看多 <strong>+5分</strong>；<code>direction == 'Negative' / 'Bearish'</code> 辅助看空 <strong>+5分</strong>。<br>
             <span style="color: #64748b;">(彻底剔除对 0DTE 频繁上下翻转的 ZGL 噪音依赖，仅做顺势背景校验)。</span>
           </div>
+
+          <!-- Parallel 30m Decision Table Block for Dimension 2 -->
+          <div style="font-weight: 700; color: #0369a1; margin-top: 14px; margin-bottom: 6px;">
+            ⏱️ 平行对应：30分钟整点大周期 Gamma 决策与风控矩阵 (comprehensive_signals_job.py，满分 30分)
+          </div>
+          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #bae6fd; background: #f8fafc;">
+            <thead>
+              <tr style="background: #e0f2fe;">
+                <th style="padding: 6px 10px; width: 22%; color: #0369a1;">30m Gamma 因子与风控项</th>
+                <th style="padding: 6px 10px; width: 39%; color: #0369a1;">🟢 看多判定与规则 (做多卖 Put 垫背)</th>
+                <th style="padding: 6px 10px; width: 39%; color: #0369a1;">🔴 看空判定与规则 (做空卖 Call 引力)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  1. 全量做市商集群提取<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(分时动态自适应阈值)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  继承 30m 计算之 <code>bullish_cluster_gamma</code>：<br>
+                  • <strong>早盘 (06:30-08:00)</strong>：满分 &gt;= $5.0B / 基础 &gt;= $3.5B<br>
+                  • <strong>盘中 (08:00-11:30)</strong>：满分 &gt;= $15.0B / 基础 &gt;= $10.0B
+                </td>
+                <td style="padding: 6px 10px;">
+                  继承 30m 计算之 <code>bearish_cluster_gamma</code>：<br>
+                  • <strong>早盘 (06:30-08:00)</strong>：满分 &gt;= $5.0B / 基础 &gt;= $3.5B<br>
+                  • <strong>盘中 (08:00-11:30)</strong>：满分 &gt;= $15.0B / 基础 &gt;= $10.0B
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
+                  2. 目标位防追单安全垫<br>
+                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(Target Strike Cushion)</span>
+                </td>
+                <td style="padding: 6px 10px;">
+                  若 30m AI 判定 <strong>“已接近目标”</strong>（距离上方 Target &lt;= 12点/0.2%），<strong>禁止顶格追多</strong>，防范目标达成后做市商多头止盈平仓回踩！
+                </td>
+                <td style="padding: 6px 10px;">
+                  若 30m AI 判定 <strong>“已接近目标”</strong>（距离下方 Target &lt;= 12点/0.2%），<strong>禁止顶格追空</strong>，防范目标达成后做市商空头止盈平仓反弹！
+                </td>
+              </tr>
+              <tr style="background: #fef2f2;">
+                <td style="padding: 6px 10px; font-weight: 700; color: #b91c1c;">
+                  3. 双 AI 宏观共振否决<br>
+                  <span style="font-size: 0.76rem; color: #991b1b; font-weight: normal;">(No Divergence Veto)</span>
+                </td>
+                <td style="padding: 6px 10px; color: #991b1b;" colspan="2">
+                  <strong>宏观分歧一票否决</strong>：30m Order Flow AI 方向必须与 30m SPX Gamma AI 方向严格同向。<br>
+                  若 Order Flow 看多但 SPX Gamma AI 判定为 Bearish（或下方无 Put Wall 承接），<strong>直接一票否决，绝不开仓</strong>！
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </td>
       </tr>
       <tr>
@@ -1641,10 +1897,10 @@
         <td><strong>共振得分 55 ~ 74 分</strong><br>(命中 QuantPivot L1/H1 常规带)</td>
         <td>三维标准稳态共振，价格处于 QuantPivot L1/H1 支撑阻力带，日常行情压舱石配置，黄金兼顾高胜率与稳健时间价值收割。</td>
       </tr>
-      <tr>
-        <td><strong>🛡️ 保守型 (Conservative / 防守)</strong></td>
-        <td><strong>共振得分 40 ~ 54 分</strong></td>
-        <td>双维偏弱共振，大盘缺乏催化时退守极远端大安全垫收割平稳时间溢价（得分 &lt; 40 拒绝入场）。</td>
+      <tr style="background: #fef2f2;">
+        <td><strong style="color: #b91c1c;">🚫 动能不足拒绝开仓 (No Trade)</strong></td>
+        <td><strong style="color: #b91c1c;">共振得分 &lt; 55 分</strong></td>
+        <td style="color: #991b1b;">四维共振动能不足或缺乏做市商强力支撑垫背，系统<strong>坚决不开仓（直接阻断）</strong>，杜绝低置信度下的劣质交易，耐心等待下一个 5 分钟周期的更好形态。</td>
       </tr>
     </tbody>
   </table>

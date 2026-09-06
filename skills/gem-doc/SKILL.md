@@ -49,26 +49,38 @@ Prefer this skill when the user wants durable answer files instead of only chat 
 
 ## File Content Format
 
-For HTML reports, write them with these sections:
-- Title: `Gemini Answer`
-- Metadata row: saved timestamp and question summary
-- Table of contents is generated automatically by the Python script at the top of the 'Answer' block, you do not need to manually create one.
-- **Section Structure**: 
-  - `h2` for major Section Titles (e.g., "Institutional Flow Analysis", "Follow-up Query").
-  - `h3` for `Question` and `Answer` labels within each section.
-  - `h4` for subsections inside a major answer such as `Goal`, `Test Matrix`, `Decision Rules`.
-- Full-width layout by default; do not constrain the report to a narrow fixed content width
-- Images should be rendered with a maximum width of `1500px` and a maximum height of `1500px`
+- **Default Structure (Title & Sections)**:
+  - **By default, use Title and Sections structure**.
+  - In this default mode, **do NOT record the exact question asked; summarize it instead** into the Topic / summary metadata.
+  - The document starts with a clear, descriptive Document Title (`h1`), followed by the document content with structured sections (`h2`, `h3`, `h4`).
+  - No rigid `Question` and `Answer` blocks are created unless explicitly asked.
+- **Q/A Structure (`as Q/A`)**:
+  - **Only if specifically requested 'as Q/A'** (or passed `--as-qa`), use the explicit `Question` and `Answer` sections structure (`h2 Question` and `h2 Answer`, or sub-sections `h3 Question` / `h3 Answer`).
+- Title: Clean descriptive document title (e.g. `option_seller_and_big_order_plan` or custom title passed via `--title`)
+- Metadata row: saved timestamp and topic summary
+- Table of contents is generated automatically by the Python script at the top of the content card; you do not need to manually create one.
+- Full-width layout by default; do not constrain the report to a narrow fixed content width.
+- Images should be rendered with a maximum width of `1500px` and a maximum height of `1500px`.
 - Do not use any global page-level background color.
 - Use clear heading hierarchy:
   - The generated HTML report uses CSS counters to automatically number all headings (`h2`, `h3`, `h4`).
   - DO NOT manually number your headings in the markdown.
-  - `h2` for major Section Titles.
-  - `h3` for `Question` and `Answer` labels within those sections.
-  - `h4` for sub-subsections.
+  - `h2` for top-level Sections.
+  - `h3` for Subsections.
+  - `h4` for Sub-subsections.
+- **Clickable Headings with URL Anchor & Clipboard Copy**:
+  - Every heading at any level (`h1, h2, h3, h4, h5, h6`) in the document is clickable (`cursor: pointer` with subtle hover color transition and anchor link indicator).
+  - When any heading is clicked:
+    1. **Add anchor to URL**: Update the browser's address bar to include the heading's anchor hash (via `history.pushState` without scroll jump).
+    2. **Copy to Clipboard**: Copy the base URL and heading title in the format without anchor hash:
+       `"<base_URL> -> <Heading Text>"`
+       (Example: `file:///Users/zhijiebian/.../doc.html -> 2. 场景二：非趋势震荡日 QuantPivot 边界反向开仓 (Non-Trend Range-Bound Boundary Reversal)`)
+    3. **Visual Feedback (Toast)**: Display a clean, light-themed toast notification confirming copy success.
 
 For Markdown reports (when `--md` is used):
-- Follow the same heading hierarchy (`# Title`, `## Section Title`, `### Question` / `### Answer`).
+- Follow the same heading hierarchy (`# Title`, `## Section Title`, `### Subsection`).
+- In default mode, writes `# Title` followed directly by `## Section` blocks (without verbatim Question).
+- In `--as-qa` mode, includes `## Question` and `## Answer` blocks.
 - Preserve all formatting, math equations, code blocks, and markdown tables.
 
 ## Implementation Notes
@@ -94,10 +106,12 @@ For Markdown reports (when `--md` is used):
 ## Script
 
 Use:
-- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> [--md]`
-- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question <question> --answer-file <answer_file> [--md]`
-- `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer <answer> [--md]`
-- When appending: `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> --append-to <path_to_html> [--md]`
+- Default Title & Sections mode:
+  `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --title "<Title>" --question-file <question_file> --answer-file <answer_file> [--md]`
+- Explicit Q/A mode (only if specified 'as Q/A'):
+  `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --as-qa --summary "<summary>" --question-file <question_file> --answer-file <answer_file> [--md]`
+- When appending:
+  `python3 /Users/zhijiebian/.gemini/skills/gem-doc/scripts/save_answer_html.py --summary "<summary>" --question-file <question_file> --answer-file <answer_file> --append-to <path_to_html> [--as-qa] [--md]`
 
 The script prints the final output path(s) after writing.
 

@@ -541,7 +541,7 @@
           <h2 class="section-title">1. 系统全流程与架构拓扑</h2>
         </div>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-          5分钟订单流哨兵是日内实盘交易系统的最前哨神经元。它在 RTH 开盘时段（06:30 至 13:00，避开 30 分钟整点边界）由 <code>daily_jobs.py</code> 定时唤醒，以 0.2 秒的极速完成微观盘口扫描，在确认日内顶底异动时事件驱动唤醒 AI 并触发推送。
+          5分钟订单流哨兵是日内实盘交易系统的最前哨神经元。它在 RTH 开盘时段（06:30 至 13:00，避开 30 分钟整点并发冲突）由 <code>daily_jobs.py</code> 定时唤醒，以 0.2 秒的极速完成微观盘口扫描；而每个 30 分钟整点与半点边界（如 07:00, 07:30...）则由 <code>comprehensive_signals_job.py</code> 执行全量 AI 研判并直接无缝联动 Option Seller，两者协同实现日内 <strong>100% 全天候无缝 5 分钟连续监控与开仓仲裁</strong>。
         </p>
 
         <!-- High-Res Diagram 1 -->

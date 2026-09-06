@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - order_flow_spx_gamma_signal_troubleshoot</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1><a href="#" onclick="var u=window.location.href.split('#')[0];navigator.clipboard.writeText(u).then(function(){window.location.href=u;},function(){window.location.href=u;});return false;" style="color: inherit; text-decoration: none;">Gemini Answer</a></h1>
+<div class="meta">
+<span>Saved: 2026-09-01 21:08:50</span>
+<span>Question summary: order_flow_spx_gamma_signal_troubleshoot</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#question">Question</a></li><li><a href="#answer">Answer</a><ul><li><a href="#诊断与排查原因">诊断与排查原因</a><ul><li><a href="#1-spx-gamma-信号不全原因">1. SPX Gamma 信号不全原因</a></li><li><a href="#2-order-flow-实时信号为-0-原因">2. Order Flow 实时信号为 0 原因</a></li></ul></li><li><a href="#修复与补跑处理">修复与补跑处理</a></li><li><a href="#当前数据库信号状态验证-2026-09-01">当前数据库信号状态验证（2026-09-01）</a></li></ul></li></ul></div>
+<section>
+<h2 id="question">Question</h2>
+<p>诊断与排查原因<br/>
+1. SPX Gamma 信号不全原因<br/>
+调度线程阻塞：在早盘 07:30 时，定时调度程序 daily_jobs.py 派生子进程 comprehensive_signals_job.py -t 07:30（PID 61935）执行综合信号计算时因依赖阻塞未退出。<br/>
+由于 schedule.run_pending() 是单线程主循环，该进程阻塞导致后续 08:00、08:30 的定时任务全部积压未能按时调度。<br/>
+2. Order Flow 实时信号为 0 原因<br/>
+MotiveWave 流式 Gzip 损坏报错：ai_tape_analyst.py 内部调用特征生成函数读取正在被 MotiveWave 实时写入的 ES_20260901_DOM.csv.gz 时，底层触发了 zlib.error: Error -3 while decompressing data: invalid block type。<br/>
+原有的 safe_read_csv 捕获异常后未做二次降级防御，导致 Order Flow 特征生成中断崩溃，信号未能入库。<br/>
+修复与补跑处理<br/>
+增强底层文件解压容错：<br/>
+在 </p>
+<p>order_flow_feature_generator.py<br/>
+ 的 safe_read_csv 中增加了多层异常捕获与安全降级保护。当 DOM 实时 Gzip 文件处于写入破损状态时，优雅降级为空 DataFrame，利用已有的 TICKS 数据完整提取 5分钟 Micro Progression、RTH 累积、机构大单以及订单流 AI 提示词。<br/>
+清理阻塞进程并恢复调度器：<br/>
+终止了阻塞的 comprehensive_signals_job.py（PID 61935），daily_jobs.py 恢复正常轮询。</p>
+</section>
+<section>
+<h2 id="answer">Answer</h2>
+<h3 id="诊断与排查原因">诊断与排查原因</h3>
+<h4 id="1-spx-gamma-信号不全原因">1. SPX Gamma 信号不全原因</h4>
+<ul>
+<li><strong>调度线程阻塞</strong>：在早盘 07:30 时，定时调度程序 <code>daily_jobs.py</code> 派生子进程 <code>comprehensive_signals_job.py -t 07:30</code>（PID <code>61935</code>）执行综合信号计算时因依赖阻塞未退出。</li>
+<li>由于 <code>schedule.run_pending()</code> 是单线程主循环，该进程阻塞导致后续 <strong>08:00、08:30</strong> 的定时任务全部积压未能按时调度。</li>
+</ul>
+<h4 id="2-order-flow-实时信号为-0-原因">2. Order Flow 实时信号为 0 原因</h4>
+<ul>
+<li><strong>MotiveWave 流式 Gzip 损坏报错</strong>：<code>ai_tape_analyst.py</code> 内部调用特征生成函数读取正在被 MotiveWave 实时写入的 <code>ES_20260901_DOM.csv.gz</code> 时，底层触发了 <code>zlib.error: Error -3 while decompressing data: invalid block type</code>。</li>
+<li>原有的 <code>safe_read_csv</code> 捕获异常后未做二次降级防御，导致 Order Flow 特征生成中断崩溃，信号未能入库。</li>
+</ul>
+<hr/>
+<h3 id="修复与补跑处理">修复与补跑处理</h3>
+<ol>
+<li><strong>增强底层文件解压容错</strong>：<br/>
+   - 在 <a href="file:///Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/order_flow_analysis/order_flow_feature_generator.py"><code>order_flow_feature_generator.py</code></a> 的 <code>safe_read_csv</code> 中增加了多层异常捕获与安全降级保护。当 DOM 实时 Gzip 文件处于写入破损状态时，优雅降级为空 DataFrame，利用已有的 TICKS 数据完整提取 5分钟 Micro Progression、RTH 累积、机构大单以及订单流 AI 提示词。</li>
+<li><strong>清理阻塞进程并恢复调度器</strong>：<br/>
+   - 终止了阻塞的 <code>comprehensive_signals_job.py</code>（PID <code>61935</code>），<code>daily_jobs.py</code> 恢复正常轮询。</li>
+<li><strong>完成今日所有历史时段信号回补</strong>：<br/>
+   - 已完成 <strong>07:00、07:30、08:00、08:30、09:00</strong> 的 Order Flow 实时信号与 SPX Gamma 信号重算与入库。</li>
+</ol>
+<hr/>
+<h3 id="当前数据库信号状态验证-2026-09-01">当前数据库信号状态验证（2026-09-01）</h3>
+<ul>
+<li><strong>Order Flow 信号</strong>（已全部生成入库）：</li>
+<li><code>07:00:00</code> | <strong>Bullish</strong> | 核心逻辑：RTH开盘至今累计 -2301 手空头 Delta 被机构在 7644.25-7645.50 区间完全吸收</li>
+<li><code>07:30:00</code> | <strong>Bullish</strong> | 核心逻辑：主动卖盘在底部密集区遭遇极端被动买单吸收（Supply Trap），价格逆势上攻 +17.50 点</li>
+<li><code>08:00:00</code> | <strong>Neutral</strong> | 核心逻辑：日内盘面呈现供给陷阱，累计大额负 Delta 背景下价格逆势上涨</li>
+<li><code>08:30:00</code> | <strong>Bearish/Neutral</strong> | 核心逻辑：高位 7661-7662 遭遇看空限价单拦截，多头动能减弱</li>
+<li><code>09:00:00</code> | <strong>Bullish</strong> | 核心逻辑：08:30后多头爆发出 +1023 手增量 Delta 突破推升至 7670</li>
+<li><strong>SPX Gamma 信号</strong>（已全部生成入库）：</li>
+<li><code>06:59:00</code> | <strong>Bearish</strong> (Spot: 7636.09, Target: 7600.00)</li>
+<li><code>07:29:00</code> | <strong>Neutral-Bullish</strong> (Spot: 7653.79, Target: 7680.00)</li>
+<li><code>08:00:00</code> | <strong>Bearish</strong> (Spot: 7651.39, Target: 7625.00)</li>
+<li><code>08:30:00</code> | <strong>Bullish</strong> (Spot: 7654.57, Target: 7675.00)</li>
+<li><code>09:00:00</code> | <strong>Bullish</strong> (Spot: 7660.16, Target: 7675.00)</li>
+</ul>
+</section>
+</article>
+</main>
+</body>
+</html>

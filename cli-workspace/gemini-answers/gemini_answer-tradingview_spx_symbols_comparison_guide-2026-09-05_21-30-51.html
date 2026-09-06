@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - TradingView SPX 标普500各数据源代码对比与标准选型全指南</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">TradingView SPX 标普500各数据源代码对比与标准选型全指南</h1>
+<div class="meta">
+<span>Saved: 2026-09-05 21:30:51</span>
+<span>Topic: tradingview_spx_symbols_comparison_guide</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#结论：哪一个是标准的？">结论：哪一个是标准的？</a><ul><li><a href="#为什么-CBOE:SPX-是最标准的？">为什么 CBOE:SPX 是最标准的？</a></li></ul></li><li><a href="#第一行的-SPCFD-是什么？">第一行的 SPCFD 是什么？</a><ul><li><a href="#名字拆解与本质属性">名字拆解与本质属性</a></li><li><a href="#在-TradingView-中的作用">在 TradingView 中的作用</a></li><li><a href="#优势与局限性">优势与局限性</a></li></ul></li><li><a href="#截图中-11-类-SPX-代码全维度对比大表">截图中 11 类 SPX 代码全维度对比大表</a></li><li><a href="#实战交易与量化选型建议">实战交易与量化选型建议</a><ul><li><a href="#期权卖方与-0DTE-Gamma-策略">期权卖方与 0DTE Gamma 策略</a></li><li><a href="#零成本日常形态盯盘与画线">零成本日常形态盯盘与画线</a></li><li><a href="#微观订单流与高频先行指标">微观订单流与高频先行指标</a></li></ul></li></ul></div>
+<section class="main-content">
+<p><img alt="TradingView SPX 搜索结果列表" src="images/tradingview_spx_symbols_comparison.png"/></p>
+<p>在 TradingView 中搜索 <code>SPX</code> 时，会出现大量由不同机构、交易所和外汇经纪商提供的代码。它们最核心的本质区别在于<strong>“官方正规现货指数 (Index)”</strong>与<strong>“场外差价合约 (Index CFD)”</strong>的划分。</p>
+<h2 id="结论：哪一个是标准的？">结论：哪一个是标准的？</h2>
+<p>最标准、最权威、全球专业机构及期权交易员公认的绝对核心代码是第 5 行：<strong><code>SPX</code>（数据源为 <code>CBOE</code>，代码全称：<code>CBOE:SPX</code>）</strong>。</p>
+<h3 id="为什么-CBOE:SPX-是最标准的？">为什么 CBOE:SPX 是最标准的？</h3>
+<ul>
+<li><strong>清算与挂牌的唯一性</strong>：S&amp;P 500 现货指数期权（包括全部 0DTE 日内期权、月度期权、季度期权以及衡量市场恐慌情绪的 VIX 指数体系）均在<strong>芝加哥期权交易所（CBOE，Chicago Board Options Exchange）</strong>挂牌交易与清算。</li>
+<li><strong>做市商对冲与 Gamma 基准</strong>：CBOE 实时根据标普 500 所有 503 只成分股的最新撮合价进行高频官方指数加权计算。在进行做市商 Net Gamma 敞口、Call Wall / Put Wall、Zero Gamma Flip、波动率触发位（Vol Trigger）以及期权卖方行权价（Strike）对齐时，必须以 <code>CBOE:SPX</code> 为绝对基准。</li>
+<li><strong>备选官方标准</strong>：第 2 行 <code>SP:SPX</code>（数据源为 <code>SP</code>，即标准普尔道琼斯指数公司官方发布源），同样是官方权威真实指数，与 CBOE 走势基本一致。</li>
+</ul>
+<h2 id="第一行的-SPCFD-是什么？">第一行的 SPCFD 是什么？</h2>
+<p>搜索列表第一行的 <strong><code>SPCFD:SPX</code></strong> 是 TradingView 官方整合建立的 <strong>“标普系列差价合约”（S&amp;P Index CFDs）</strong> 聚合通道。</p>
+<h3 id="名字拆解与本质属性">名字拆解与本质属性</h3>
+<ul>
+<li><strong>SP</strong>：代表 S&amp;P（Standard &amp; Poor's，标准普尔公司）；</li>
+<li><strong>CFD</strong>：代表 Contract For Difference（差价合约）；</li>
+<li><strong>资产类型</strong>：右侧灰色文字清晰标注为 <code>index cfd</code>（而非真实交易所指数 <code>index</code>）；</li>
+<li><strong>报价原理</strong>：它<strong>不是</strong>来自交易所撮合的真实股票现货成交价，而是由场外流动性机构（Liquidity Providers）根据标普现货成分股与 CME 标普期货价格实时合成的场外衍生品报价。</li>
+</ul>
+<h3 id="在-TradingView-中的作用">在 TradingView 中的作用</h3>
+<p>TradingView 专门设立了 <code>SPCFD</code> 这一代码前缀，用来归集一整套完整的标普系列指数 CFD，方便普通用户免订阅查看：<br/>
+- <code>SPCFD:SPX</code>：标普 500 大盘指数 CFD<br/>
+- <code>SPCFD:SPF</code>：标普 500 金融板块指数 CFD<br/>
+- <code>SPCFD:S5REAS</code>：标普 500 房地产板块指数 CFD<br/>
+- <code>SPCFD:MID</code>：标普 400 中盘股指数 CFD</p>
+<h3 id="优势与局限性">优势与局限性</h3>
+<ul>
+<li><strong>主要优势</strong>：TradingView 免费用户也能直接看到实时跳动的报价，无需付费订阅；并且交易时段极长，覆盖盘前、盘后及隔夜时段；</li>
+<li><strong>主要缺陷</strong>：存在 0.5 到 2 个点的场外合成基差；无真实交易所成交量；不能作为期权行权价的绝对锚定点。</li>
+</ul>
+<h2 id="截图中-11-类-SPX-代码全维度对比大表">截图中 11 类 SPX 代码全维度对比大表</h2>
+<p>以下按照搜索结果截图中从上到下的 11 行顺序，对每一个代码的本质属性、适用场景、缺陷及推荐建议进行逐一对比说明：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">行号</th>
+<th style="text-align: left;">代码与显示名称</th>
+<th style="text-align: left;">资产类型与数据源</th>
+<th style="text-align: left;">本质属性</th>
+<th style="text-align: left;">特点与适用场景</th>
+<th style="text-align: left;">局限性 / 缺陷</th>
+<th style="text-align: left;">权威度与使用建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td style="text-align: left;"><strong><code>SPX</code></strong><br/>S&amp;P 500</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>SPCFD</strong></td>
+<td style="text-align: left;">TradingView 官方整合的<strong>标普系列场外差价合约</strong>（S&amp;P Index CFDs）归集通道。</td>
+<td style="text-align: left;">免费提供实时跳动行情；涵盖标普大盘及各行业子板块；交易时间长（覆盖盘前/盘后）；适合免费看大盘日内连续形态走势。</td>
+<td style="text-align: left;">属于做市商合成报价，非官方真实交易所撮合；与真实现货常有 0.5 到 2 点的基差；成交量为虚拟量；不能用于期权行权价精确对齐。</td>
+<td style="text-align: left;">适合日常免费看趋势、画线分析；不适合期权精确对齐。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td style="text-align: left;"><strong><code>SPX</code></strong><br/>S&amp;P 500</td>
+<td style="text-align: left;"><code>index</code><br/><strong>SP</strong></td>
+<td style="text-align: left;"><strong>标准普尔道琼斯指数公司</strong>（S&amp;P Dow Jones Indices）发布的官方现货标准指数。</td>
+<td style="text-align: left;">100% 官方正宗指数定义；全球机构与基金衡量标普 500 表现的基准；历史日线收盘数据绝对权威；适合宏观分析与长周期复盘。</td>
+<td style="text-align: left;">非期权撮合交易所；TradingView 免费用户盘中通常有 15 分钟延迟；仅在美东 9:30 - 16:00 正常交易时段跳动。</td>
+<td style="text-align: left;"><strong>官方标准之一</strong>。<br/>适合长线与宏观日线/周线复盘。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: left;"><strong><code>SPX</code></strong><br/>S&amp;P 500 Index</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>TVC</strong></td>
+<td style="text-align: left;"><strong>TradingView 官方自研聚合</strong>的标普 500 差价合约（TradingView CFD）。</td>
+<td style="text-align: left;">TradingView 平台上最普及的<strong>免费实时</strong>大盘走势源；全天候连续波动（含美股盘前/盘后）；画线、看形态、看指标非常方便。</td>
+<td style="text-align: left;">点位由 TradingView 算法基于流动性提供商合成，与官方现货存在微小基差；成交量无效；无法作为 0DTE Gamma Wall 精确判定依据。</td>
+<td style="text-align: left;">极佳的免费实时盯盘备选（如不愿订阅 CBOE 实时包）。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td style="text-align: left;"><strong><code>SPX</code></strong><br/>SPX 500, Daily</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>Spreadex</strong></td>
+<td style="text-align: left;">英国点差交易与 CFD 经纪商 Spreadex 提供的<strong>点差合约</strong>。</td>
+<td style="text-align: left;">专供在 Spreadex 开户的零售交易者进行日线（Daily）级别的点差押注交易。</td>
+<td style="text-align: left;">受 Spreadex 自家盘口点差与结算模型制约；流动性与连贯性差；高低点不准；对普通美股交易者无参考价值。</td>
+<td style="text-align: left;"><strong>不推荐</strong>。<br/>仅限该券商开户交易者使用。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: left;"><strong><code>SPX</code></strong><br/>S&amp;P 500 Index</td>
+<td style="text-align: left;"><code>index</code><br/><strong>CBOE</strong></td>
+<td style="text-align: left;"><strong>芝加哥期权交易所（CBOE）官方现货指数</strong>，所有 SPX 现货期权的母体与结算基准。</td>
+<td style="text-align: left;"><strong>业界公认最权威、最标准的绝对核心代码</strong>！SPX 0DTE 期权、做市商 Gamma 对冲、Gamma Wall（Call/Put Wall）、波动率触发位（Vol Trigger）及期权卖方结算点位的<strong>唯一官方基准</strong>。</td>
+<td style="text-align: left;">免费账户通常有 15 分钟延迟（需在 TradingView 订阅 CBOE 实时数据包，约 $2~$3/月）；仅在美东 9:30 - 16:00 开市时段更新；无盘前盘后夜盘连续走势。</td>
+<td style="text-align: left;"><strong>绝对核心标准（强力推荐）</strong>。<br/>期权量化、Gamma 研判与核心点位必须认准此代码。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>6</strong></td>
+<td style="text-align: left;"><strong><code>SPX500</code></strong><br/>US 500</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>Capital.com</strong></td>
+<td style="text-align: left;">零售差价合约券商 Capital.com 发行的<strong>场外高杠杆指数 CFD</strong>。</td>
+<td style="text-align: left;">供 Capital.com 平台散户进行 24 小时小资金加杠杆做多/做空；免费提供实时行情。</td>
+<td style="text-align: left;">包含券商加价点差（Spread）；非真实交易所订单；行情剧烈波动时容易出现脱钩或平台独有插针；成交量仅代表该券商内部。</td>
+<td style="text-align: left;"><strong>不推荐</strong>用于分析。<br/>仅作为该平台开户交易标的。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>7</strong></td>
+<td style="text-align: left;"><strong><code>SPX500</code></strong><br/>US SP 500 CFD</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>FOREXCOM</strong></td>
+<td style="text-align: left;">全球零售外汇经纪商<strong>嘉盛集团</strong>（FOREX.com）发行的标普 500 差价合约。</td>
+<td style="text-align: left;">供嘉盛外汇账户持有者进行跨市场对冲和指数保证金交易；提供 24 小时连续报价。</td>
+<td style="text-align: left;">价格由嘉盛内部做市商算法撮合；高低极值点含券商点差，与真实交易所指数存在滑点与偏差。</td>
+<td style="text-align: left;"><strong>不推荐</strong>用于专业分析。<br/>仅限嘉盛交易用户。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>8</strong></td>
+<td style="text-align: left;"><strong><code>SPX500</code></strong><br/>S&amp;P 500 Index Cash</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>FXCM</strong></td>
+<td style="text-align: left;">外汇经纪商<strong>福汇</strong>（FXCM）基于标普 500 合成的现金指数差价合约。</td>
+<td style="text-align: left;">适合在福汇交易的投资者；无交割换月周期的现金合约（Cash）；24 小时连续交易。</td>
+<td style="text-align: left;">存在点差成本摩擦；在非美股正常交易时段（如亚盘）流动性薄弱、点差会显著放大；与官方 SPX 有 1~3 点偏离。</td>
+<td style="text-align: left;"><strong>不推荐</strong>用于专业分析。<br/>仅限福汇交易用户。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>9</strong></td>
+<td style="text-align: left;"><strong><code>SPX500USD</code></strong><br/>US SPX 500</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>OANDA</strong></td>
+<td style="text-align: left;">老牌外汇券商<strong>安达</strong>（OANDA）发行的美元计价标普 500 差价合约。</td>
+<td style="text-align: left;">全球零售外汇圈使用最广泛的 CFD 之一；24 小时连续波动；常被用于在亚洲和欧洲时段快速观察美股夜盘整体多空情绪。</td>
+<td style="text-align: left;">点位被 OANDA 算法平滑，且包含点差；开收盘价及缺口经常与正规美股现货不一致；严禁作为期权行权价对齐依据。</td>
+<td style="text-align: left;">可作为夜盘情绪参考；不适合精准技术分析与量化回测。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>10</strong></td>
+<td style="text-align: left;"><strong><code>SPX500</code></strong><br/>SPX500</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>BlackBull</strong></td>
+<td style="text-align: left;">新西兰外汇经纪商 BlackBull Markets 提供的差价合约。</td>
+<td style="text-align: left;">供 BlackBull 客户在 MT4/MT5 或 TradingView 上进行杠杆保证金交易。</td>
+<td style="text-align: left;">属于较小众的经纪商通道，深度与报价稳定性依赖上游清算机构；对专业美股交易分析无独立参考价值。</td>
+<td style="text-align: left;"><strong>不推荐</strong>。<br/>仅限该券商开户交易者使用。</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>11</strong></td>
+<td style="text-align: left;"><strong><code>SPX500</code></strong><br/>US SP 500 Cash</td>
+<td style="text-align: left;"><code>index cfd</code><br/><strong>Eightcap</strong></td>
+<td style="text-align: left;">澳洲外汇经纪商易汇（Eightcap）发行的现金差价合约。</td>
+<td style="text-align: left;">常见于各种自营交易考牌（Prop Trading Firms，如 FTMO 等）指定使用的指数交易标的。</td>
+<td style="text-align: left;">做市商对手盘报价机制；点差随波动剧烈变化；高低极值点存在平台特性，无法与美股真实大盘对齐。</td>
+<td style="text-align: left;"><strong>不推荐</strong>用于美股现货/期权分析。<br/>仅限自营考牌或该平台交易使用。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="实战交易与量化选型建议">实战交易与量化选型建议</h2>
+<p>在不同的交易体系与日常盯盘需求中，推荐采取如下选型策略：</p>
+<h3 id="期权卖方与-0DTE-Gamma-策略">期权卖方与 0DTE Gamma 策略</h3>
+<ul>
+<li><strong>唯一准则</strong>：必须认准第 5 行 <strong><code>CBOE:SPX</code></strong>（类型为 <code>index</code>）。</li>
+<li><strong>原因</strong>：期权行权价（如 5700 Call、5650 Put）是绝对整数价位，一旦点位因为 CFD 的加价点差偏移 1 到 2 点，就会导致是否触碰 Call Wall 或是否跌破 Put Wall 的风控信号产生严重误判。</li>
+</ul>
+<h3 id="零成本日常形态盯盘与画线">零成本日常形态盯盘与画线</h3>
+<ul>
+<li><strong>首选代码</strong>：第 3 行 <strong><code>TVC:SPX</code></strong> 或第 1 行 <strong><code>SPCFD:SPX</code></strong>。</li>
+<li><strong>原因</strong>：TradingView 免费用户即可享有无延迟的连续实时报价，且涵盖美股盘前盘后的波动轨迹，对于技术分析形态（头肩顶底、趋势线、EMA 均线）完全足够。</li>
+</ul>
+<h3 id="微观订单流与高频先行指标">微观订单流与高频先行指标</h3>
+<ul>
+<li><strong>首选代码</strong>：<strong><code>CME:ES1!</code></strong>（E-mini 标普 500 期货连续合约）或 <strong><code>AMEX:SPY</code></strong>（标普 500 ETF 现货）。</li>
+<li><strong>原因</strong>：CFD 缺乏真实的撮合成交量和 Level 2 挂单盘口。只有在 CME 期货市场，才能提取出真正代表机构资金动向的主动买卖量（Delta）、冰山单（Iceberg）、吸收单（Absorption）与关键流动性分界线（Pivots）。</li>
+</ul>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>
