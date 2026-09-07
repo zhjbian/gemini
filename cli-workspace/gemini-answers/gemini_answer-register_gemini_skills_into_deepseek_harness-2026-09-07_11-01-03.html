@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 批量注册 Gemini CLI Skills 至 DeepSeek Harness (DSH)</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">批量注册 Gemini CLI Skills 至 DeepSeek Harness (DSH)</h1>
+<div class="meta">
+<span>Saved: 2026-09-07 11:01:03</span>
+<span>Topic: register_gemini_skills_into_deepseek_harness</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#操作目标与来源">操作目标与来源</a></li><li><a href="#最终注册结果（13/13）">最终注册结果（13/13）</a></li><li><a href="#修复项明细（仅改-DSH-副本）">修复项明细（仅改 DSH 副本）</a></li><li><a href="#过程异常与原子重建">过程异常与原子重建</a></li><li><a href="#目录刷新确认">目录刷新确认</a></li><li><a href="#使用注意">使用注意</a></li></ul></div>
+<section class="main-content">
+<h2 id="操作目标与来源">操作目标与来源</h2>
+<p>将 Gemini CLI / Antigravity 的全部自定义 agent skill 从源目录 <code>/Users/zhijiebian/.gemini/skills</code>（共 13 个）注册到 DeepSeek Harness（DSH）的 user-agents skills 体系，目标布局为 <code>~/.agents/skills/&lt;name&gt;/SKILL.md</code>（<code>$DSH_AGENTS_HOME</code> 为空时缺省 <code>~/.agents</code>）。DSH 装载器要求：每个目录内的 <code>SKILL.md</code> 必须以合法 YAML frontmatter 开头（首字符 <code>---</code>），且包含 <code>name</code>（与目录同名）与 <code>description</code> 字段。</p>
+<h2 id="最终注册结果（13/13）">最终注册结果（13/13）</h2>
+<p>以下 skill 全部注册成功，并已通过目录刷新进入 DSH 会话 skill catalog：</p>
+<ul>
+<li><code>dark-pool-analysis</code></li>
+<li><code>gem-doc</code></li>
+<li><code>options-flow-analysis</code></li>
+<li><code>order-flow-analysis</code></li>
+<li><code>report-card-analysis</code></li>
+<li><code>send-email</code></li>
+<li><code>spike-analysis</code></li>
+<li><code>spike-from-image</code></li>
+<li><code>stock-analysis</code></li>
+<li><code>stock-daily-analysis</code></li>
+<li><code>stock-daily-analysis-deprecated</code></li>
+<li><code>stock-news</code></li>
+<li><code>whale-trade-analysis</code></li>
+</ul>
+<p>落盘路径：<code>~/.agents/skills/&lt;name&gt;/SKILL.md</code>（各目录连同 <code>scripts/</code>、<code>references/</code>、<code>images/</code>、<code>agents/</code> 等附属资源一并复制）。源目录 <code>~/.gemini/skills</code> 原件未做任何修改。</p>
+<h2 id="修复项明细（仅改-DSH-副本）">修复项明细（仅改 DSH 副本）</h2>
+<ol>
+<li>
+<p><strong>4 个源文件缺少 frontmatter</strong>（内容直接从正文开始，装载器不会索引）：<code>options-flow-analysis</code>、<code>spike-analysis</code>、<code>stock-analysis</code>、<code>stock-news</code>。已在其 <code>SKILL.md</code> 头部补上 <code>---\nname: ...\ndescription: ...\n---</code>，description 依据各技能正文首段归纳。</p>
+</li>
+<li>
+<p><strong><code>stock-daily-analysis-deprecated</code> 文件头损坏</strong>：原文件第一行是 <code>[^1]---</code>（残留 footnote 标记），且 frontmatter 内 <code>name: stock-daily-analysis</code> 与活跃版 <code>stock-daily-analysis</code> 同名冲突。已剥离 <code>[^1]</code> 前缀并把 name 改为 <code>stock-daily-analysis-deprecated</code> 以对齐目录名、避免冲突。</p>
+</li>
+<li>
+<p><strong><code>dark-pool-analysis</code> 源目录没有 SKILL.md</strong>（仅有 <code>references/</code> 回测文档与 <code>scripts/</code> 脚本）。按实际内容合成一份最小 SKILL.md：description 描述其基于本地 BBTrading MySQL（<code>DarkPoolTradeAgg</code>）对暗池成交量/名义额（如 TSLA）做回测与 session conviction audit；正文列出 <code>scripts/backtest_dp_volume.py</code>、<code>scripts/backtest_dp_notional.py</code>、<code>scripts/generate_tv_dp.py</code> 及 <code>references/</code> 下回测文档的用途。若存在权威版定义，替换该文件即可。</p>
+</li>
+</ol>
+<h2 id="过程异常与原子重建">过程异常与原子重建</h2>
+<p>批量 <code>cp -R</code> 复制后出现异常：<code>~/.agents/skills</code> 下 10 个目录一度消失，而 <code>whale-trade-analysis</code> 的内容被平铺到 skills 根目录（根级出现 <code>SKILL.md</code>（name=whale-trade-analysis）、<code>.env.example</code>、<code>.venv</code>、<code>images/</code>、<code>references/</code>、<code>scripts/</code>），疑似外部同步/装载器并发干扰。处理方式：删除后一次性原子重建全部 13 个目录（单条命令完成 <code>rm -rf</code> + 重新复制 + frontmatter 规范化），最终校验 13/13 全部为规范布局（文件首行 <code>---</code>、<code>name</code> 与目录一致），无根级散落文件。</p>
+<h2 id="目录刷新确认">目录刷新确认</h2>
+<p>重建完成后，DSH 会话的 available skill catalog 完整列出全部 13 个 skill（此前只识别出 <code>gem-doc</code> 与 <code>whale-trade-analysis</code>，原因是 catalog 刷新为增量/异步，且不合规 frontmatter 的目录会被跳过）。</p>
+<h2 id="使用注意">使用注意</h2>
+<ul>
+<li>注册后即可在 DSH 会话中按技能名直接触发（如"用 whale-trade-analysis 分析"）。</li>
+<li>各 SKILL.md 正文普遍硬编码了本机绝对路径（如 <code>~/.gemini/skills/&lt;name&gt;/scripts/*.py</code>、<code>/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading</code>、<code>~/.gemini/cli-workspace/gemini-answers</code>），均为绝对路径，在本机可直接执行；换机器需同步迁移这些外部项目与路径。</li>
+<li>技能描述措辞多基于 Gemini CLI 语境（如 gem-doc 的"保存当前 Gemini 会话的回答"），在 DSH 中触发时由 agent 从当前对话重建问答内容再调用脚本，语义等价。</li>
+</ul>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>
