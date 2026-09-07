@@ -2053,7 +2053,7 @@
           • <strong>0DTE 高速 Theta 衰减策略</strong>：11:30 PST 后禁止新开仓，美西 12:30 PST 强制全平不留隔夜风险。<br>
           • <strong>双通道 100% 连续无缝触发架构</strong>：<br>
           &nbsp;&nbsp;1. <strong>非整点周期 (如 07:05, 07:10, 07:15...)</strong>：由 5分钟订单流哨兵 (<code>order_flow_sentinel.py</code>) 轻量高速增量扫描触发；<br>
-          &nbsp;&nbsp;2. <strong>30m 整点与半点边界 (如 07:00, 07:30, 08:00...)</strong>：由 30分钟大任务 (<code>comprehensive_signals_job.py</code>) 生成完全量 AI 研判后直接无缝联动触发，彻底消除时间真空！
+          &nbsp;&nbsp;2. <strong>30m 整点与半点边界 (如 07:00, 07:30, 08:00...)</strong>：由 30分钟大任务 (<code>comprehensive_signals_job.py</code>) 生成基于 5 分钟统一规则体系的完整分析后无缝联动触发，彻底消除时间真空！
         </td>
       </tr>
       <tr>
@@ -2214,62 +2214,9 @@
           <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; font-size: 0.82rem; margin-top: 6px;">
             <strong>🛡️ 赋分与无硬性单项门槛特性</strong>：<br>
             • <strong>已彻底删除单项最低分限制</strong>：系统已彻底取消“维度 2 顺势方向需贡献 &gt;= 15分”的单项硬性门槛。维度 2 得分（0分或 20~30分）直接全额计入四维微观共振总分，与其他三大维度（订单流/拍卖关键位/均线乖离）自由合成；<br>
-            • <strong>中性与逆势自然归零</strong>：当 SPX Gamma 处于 <code>Neutral:...</code>（如中枢压缩、混沌震荡、尾盘时段、天花板/地板夹逼）或与开仓方向相反时，本维度直接给 <strong>0分</strong>。系统不设置单项一票否决，若其他维度（订单流、QuantPivot 统计学反转边界等）出现极强共振并使总分达到入场线（&gt;= 55分），依然允许综合评定开仓。
+            • <strong>中性与逆势自然归零</strong>：当 SPX Gamma 处于 <code>Neutral:...</code>（如中枢压缩、混沌震荡、尾盘时段、天花板/地板夹逼）或与开仓方向相反时，本维度直接给 <strong>0分</strong>。系统不设置单项一票否决，若其他维度（订单流、QuantPivot 统计学反转边界等）出现极强共振并使总分达到入场线（&gt;= 55分），依然允许综合评定开仓；<br>
+            • <strong>统一 5 分钟规则引擎</strong>：SPX Gamma 判定已彻底移除历史 30 分钟周期与大模型 AI 分析，全面统一采用 5 分钟周期做市商结构决策树与四级顺势评级引擎。
           </div>
-
-          <!-- Parallel 30m Decision Table Block for Dimension 2 -->
-          <div style="font-weight: 700; color: #0369a1; margin-top: 14px; margin-bottom: 6px;">
-            ⏱️ 平行对应：30分钟整点大周期 Gamma 决策与风控矩阵 (comprehensive_signals_job.py，满分 30分)
-          </div>
-          <table style="margin: 6px 0 6px; font-size: 0.82rem; border: 1px solid #bae6fd; background: #f8fafc;">
-            <thead>
-              <tr style="background: #e0f2fe;">
-                <th style="padding: 6px 10px; width: 22%; color: #0369a1;">30m Gamma 因子与风控项</th>
-                <th style="padding: 6px 10px; width: 39%; color: #0369a1;">🟢 看多判定与规则 (做多卖 Put 垫背)</th>
-                <th style="padding: 6px 10px; width: 39%; color: #0369a1;">🔴 看空判定与规则 (做空卖 Call 引力)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
-                  1. 全量做市商集群提取<br>
-                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(分时动态自适应阈值)</span>
-                </td>
-                <td style="padding: 6px 10px;">
-                  继承 30m 计算之 <code>bullish_cluster_gamma</code>：<br>
-                  • <strong>早盘 (06:30-08:00)</strong>：满分 &gt;= $5.0B / 基础 &gt;= $3.5B<br>
-                  • <strong>盘中 (08:00-11:30)</strong>：满分 &gt;= $15.0B / 基础 &gt;= $10.0B
-                </td>
-                <td style="padding: 6px 10px;">
-                  继承 30m 计算之 <code>bearish_cluster_gamma</code>：<br>
-                  • <strong>早盘 (06:30-08:00)</strong>：满分 &gt;= $5.0B / 基础 &gt;= $3.5B<br>
-                  • <strong>盘中 (08:00-11:30)</strong>：满分 &gt;= $15.0B / 基础 &gt;= $10.0B
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;">
-                  2. 目标位防追单安全垫<br>
-                  <span style="font-size: 0.76rem; color: #64748b; font-weight: normal;">(Target Strike Cushion)</span>
-                </td>
-                <td style="padding: 6px 10px;">
-                  若 30m AI 判定 <strong>“已接近目标”</strong>（距离上方 Target &lt;= 12点/0.2%），<strong>禁止顶格追多</strong>，防范目标达成后做市商多头止盈平仓回踩！
-                </td>
-                <td style="padding: 6px 10px;">
-                  若 30m AI 判定 <strong>“已接近目标”</strong>（距离下方 Target &lt;= 12点/0.2%），<strong>禁止顶格追空</strong>，防范目标达成后做市商空头止盈平仓反弹！
-                </td>
-              </tr>
-              <tr style="background: #fef2f2;">
-                <td style="padding: 6px 10px; font-weight: 700; color: #b91c1c;">
-                  3. 双 AI 宏观共振否决<br>
-                  <span style="font-size: 0.76rem; color: #991b1b; font-weight: normal;">(No Divergence Veto)</span>
-                </td>
-                <td style="padding: 6px 10px; color: #991b1b;" colspan="2">
-                  <strong>宏观分歧一票否决</strong>：30m Order Flow AI 方向必须与 30m SPX Gamma AI 方向严格同向。<br>
-                  若 Order Flow 看多但 SPX Gamma AI 判定为 Bearish（或下方无 Put Wall 承接），<strong>直接一票否决，绝不开仓</strong>！
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </td>
       </tr>
       <tr>
