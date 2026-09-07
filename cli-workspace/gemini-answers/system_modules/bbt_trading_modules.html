@@ -232,7 +232,7 @@
         <h1><i class="fas fa-timeline"></i> 交易系统核心技术模块实施计划与交付总结全集</h1>
         <div class="meta">
           <span><i class="fas fa-clock"></i> 排序方式: 按时间发生先后排序 (Chronological Order)</span>
-          <span><i class="fas fa-folder-tree"></i> 涵盖模块: 32 大核心量化子系统</span>
+          <span><i class="fas fa-folder-tree"></i> 涵盖模块: 38 大核心量化子系统</span>
           <span><i class="fas fa-code-branch"></i> 架构: Java (MotiveWave) + Python (AI &amp; Rules) + MySQL + Web</span>
         </div>
       </header>
@@ -271,6 +271,14 @@
           <li><a href="#mod-30"><i class="fas fa-calendar-day"></i> [2026-09-05] 30. BBT 信号图 Order Flow 与 SPX Gamma 实时信号表格整段折叠收起交互引擎 (BBT Signals Collapsible Table Sections Engine)</a></li>
           <li><a href="#mod-31"><i class="fas fa-calendar-day"></i> [2026-09-05] 31. BBT 信号图微观时段快捷筛选按钮与全周期穿透引擎 (BBT Signals Quick Time-Range Buttons &amp; Cross-Timeframe Penetration Engine)</a></li>
           <li><a href="#mod-32"><i class="fas fa-calendar-day"></i> [2026-09-05] 32. SPX Gamma 底层现价时钟与数据源高精度分钟级对齐重构引擎 (SPX Gamma Spot Price Clock &amp; Minute-Precision Alignment Engine)</a></li>
+          <li><a href="#mod-33"><i class="fas fa-calendar-day"></i> [2026-09-05] 33. SPX Gamma 非趋势日顺势 Cushion 空间动态拓宽引擎 (SPX Gamma Non-Trend Day Cushion Expansion Engine)</a></li>
+          <li><a href="#mod-34"><i class="fas fa-calendar-day"></i> [2026-09-05] 34. 全局统一 SPY 单边强趋势日判定引擎 (Global Unified SPY Trend Day Regime Engine)</a></li>
+          <li><a href="#mod-35"><i class="fas fa-calendar-day"></i> [2026-09-05] 35. 5分钟 SPX Gamma 多空分级评级引擎 (5m SPX Gamma Graded Rating Engine)</a></li>
+          <li><a href="#mod-36"><i class="fas fa-calendar-day"></i> [2026-09-06] 36. 期权卖方 5分钟全自动开仓漏斗仲裁机制 - 维度 2 (SPX Gamma 结构) 极简重构 (Option Seller Funnel Arbitration Simplification)</a></li>
+          <li><a href="#mod-37"><i class="fas fa-calendar-day"></i> [2026-09-06] 37. 5分钟周期 Order Flow 规则化信号系统深度重构与 1~10 强度评分引擎 (5m Order Flow Two-Step Evaluation &amp; 1-10 Strength Scoring Engine)</a></li>
+          <li><a href="#mod-38"><i class="fas fa-calendar-day"></i> [2026-09-06] 38. 订单流两步法（方向准入判定与底层强度打分）展开详情卡片 UI 组件重构 (Order Flow Two-Step Evaluation UI Visualization Engine)</a></li>
+          <li><a href="#mod-39"><i class="fas fa-calendar-day"></i> [2026-09-06] 39. 全局统一 SPY 单边强趋势日判定引擎规则重构与容忍度优化 (Global Unified SPY Trend Day Regime Thresholds Refactor)</a></li>
+          <li><a href="#mod-40"><i class="fas fa-calendar-day"></i> [2026-09-06] 40. 订单流盘中分析去除 30 分钟 AI 调用全面统一 5 分钟规则引擎与全量回填 (Order Flow 5m Rule-Based Unification &amp; Backfill Engine)</a></li>
         </ul>
       </div>
       <section class="manual-body">
@@ -745,6 +753,70 @@
                   href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine/walkthrough.md"><i
                     class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
               <td style="text-align: left;">Python<br />SPX Gamma Core<br />Graded Rating L0~L3<br />Bonus Factors Engine<br />Cluster Trend Up Detection<br />DataTable Badges</td>
+            <tr>
+              <td style="text-align: center;"><strong>36</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>期权卖方 5分钟全自动开仓四层漏斗仲裁机制 - 维度 2 (SPX Gamma 结构) 极简重构 (Option Seller Funnel Arbitration Simplification)</strong></td>
+              <td style="text-align: left;">彻底简化期权卖方全自动开仓第二层四维矩阵打分中“维度 2：SPX Gamma 结构 (权重 30分)”的判定规则：废除冗长的多空集群比率阶梯打分、期权大墙物理屏障与安全垫 Cushion 比例折算等细碎计算，直接无缝对接最新的 5m SPX Gamma 多空分级评级结果：<code>Bullish_L0 / Bearish_L0</code> 得 20 分（基准顺势）；<code>L1</code> 得 24 分（单项加分强化）；<code>L2</code> 得 27 分（高确信主升/主跌浪）；<code>L3</code> 得 30 分（极强力爆发主升浪）。若评级为中性防守（<code>Neutral:...</code>）或方向相反，得 0 分，未达 15 分门槛直接一票否决顺势开仓。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller Engine<br />Arbitration Funnel Tier 2<br />SPX Gamma Graded L0-L3<br />Direct Score Mapping<br />Zero-Score Gatekeeper</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>37</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>5分钟周期 Order Flow 规则化信号系统深度重构与 1~10 强度评分引擎 (5m Order Flow Two-Step Evaluation &amp; 1-10 Strength Scoring Engine)</strong></td>
+              <td style="text-align: left;">彻底重构 5m Order Flow 规则化研判机制：（1）建立“两步判定法”：第一步通过三大看多形态 (Setup 1A/2A/3A) 与三大看空形态 (Setup 1B/2B/3B) 严格准入，强制植入反追高 (Pos &lt;= 65%)、反杀跌 (Pos &gt;= 35%) 及 DOM 虚假撤单诱捕过滤，常态输出中性防守 (Neutral，0分)；（2）第二步设立 9 大底层客观数据加分项，层层累加输出 1~10 强度分与复合代码（<code>Bullish_S1~S10</code> / <code>Bearish_S1~S10</code>）；（3）期权卖方开仓引擎维度 1 全面挂接 1~10 强度直接映射（S10 得 40 分，S8 得 34 分，S3 得 20 分，中性得 0 分）；（4）系统交易规则手册第一部分全面重写，旧版完整独立归档。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Order Flow Sentinel<br />Two-Step Evaluation<br />Setup 1/2/3 Qualifying<br />1-10 Strength Scoring<br />Anti-Chasing Veto</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>38</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>订单流两步法（方向准入判定与底层强度打分）展开详情卡片 UI 组件重构 (Order Flow Two-Step Evaluation UI Visualization Engine)</strong></td>
+              <td style="text-align: left;">依据《订单流分析规则手册》第 3 章与第 4 章，全面升级 <code>http://127.0.0.1:5005/bbt_signals</code> 订单流实时信号表格子行展开详情视图：（1）完整保留原有的 4 个基础卡片与 Adam Set 深度 DOM 微观盘口卡片；（2）追加「第一步：基本规则方向准入判定」交互卡片，包含方向徽章、触发规则指示横幅、三大前置硬性过滤红线以及 Setup 1~3 双门禁状态实时测量值与规则阈值动态比对；（3）追加「第二步：底层数据强度打分体系」交互卡片，呈现 1~10 分强度大数字徽章、多阶色彩进度条、打分公式明细（起跑分+加分项）以及 9 大客观底层特征加分项清单表；（4）严格遵循清新护眼的白底浅色主题 (Light Theme) 与纯文本公式渲染规范。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">JavaScript (ES6+)<br />HTML5 / CSS3<br />jQuery DataTable Child Rows<br />Real-time Metric Evaluator<br />Light Theme</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>39</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>全局统一 SPY 单边强趋势日判定引擎规则重构与容忍度优化 (Global Unified SPY Trend Day Regime Thresholds Refactor)</strong></td>
+              <td style="text-align: left;">彻底解决单边强趋势日（Trend Day）判定规则过于严苛导致正常趋势回踩被过早误判为震荡日的问题：（1）将现价脱离成本线基准从“RTH 开盘价”升级为“包含盘前 Pre-Market 与 RTH 在内的当日极低点（多头）/ 极高点（空头）”，解决盘前大幅拉升/下挫导致开盘基准滞后失真的问题；（2）开盘逆向破位/冲高容忍度从 <code>&lt;= 1.20点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点）；（3）高位回撤/低位反弹容忍度从 <code>&lt;= 1.50点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点），允许标的完成健康的 15m 均线带测试；（4）多空双向严格镜像对称，同步更新系统核心规则手册；（5）优化前端 Setup 2 展开面板，将“趋势日形态”与“策略时间窗 (06:30-11:00)”解耦独立展示，彻底消除时间窗未达标的视觉歧义。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Global Trend Regime<br />Pre-Market + RTH High-Low<br />Dynamic Retracement Thresholds &lt;= 2.0<br />Symmetric Dual-Directional Architecture</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>40</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>订单流盘中分析去除 30 分钟 AI 调用全面统一 5 分钟规则引擎与全量回填 (Order Flow 5m Rule-Based Unification &amp; Backfill Engine)</strong></td>
+              <td style="text-align: left;">彻底解决订单流盘中 AI 分析延迟高、Token 消耗大且与底层两步法量化规则冲突的问题：（1）废除盘中 30 分钟（整点与半点）调度 Gemini 大模型的机制，只保留盘后收盘美西时间 13:15 的唯一 Day Type AI 研判；（2）全面统一盘中所有 5 分钟周期（包含 07:00, 07:30 等整点半点）执行基于规则的订单流研判（<code>Rule-Based-5m</code>）；（3）优化哨兵底层基准动态查找算法与变量完备性，解除 HIGH 信号盘中调用大模型覆盖；（4）全面回填 2026-09-03 与 2026-09-04 历史订单流数据，完美呈现连续一致的 5m 规则化信号流。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Order Flow Sentinel<br />Comprehensive Signals Job<br />Daily Jobs Scheduler<br />Rule-Based-5m Architecture<br />Historical DB Backfill</td>
             </tr>
           </tbody>
         </table>
@@ -1243,6 +1315,76 @@
           </li>
           <li><strong>验收总结</strong>: <a
               href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-36">36. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification">期权卖方 5分钟全自动开仓四层漏斗仲裁机制 - 维度 2 (SPX Gamma 结构) 极简重构 (Option Seller Funnel Arbitration Simplification)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification</code></li>
+          <li><strong>系统职责</strong>: 彻底简化期权卖方全自动开仓第二层四维矩阵打分中“维度 2：SPX Gamma 结构 (权重 30分)”的判定规则：（1）废除原本繁琐的多空集群名义金额分时门限阶梯打分、大墙距离安全垫 Cushion 百分比折算等重复细碎计算；（2）全面直连 5m SPX Gamma 分级评级引擎输出的 <code>Bullish_L0~L3</code> / <code>Bearish_L0~L3</code> 结果；（3）顺势开仓得分标准统一为：L0 得 20 分、L1 得 24 分、L2 得 27 分、L3 得 30 分（多空双向严格对称）；（4）中性状态（<code>Neutral:...</code>）或方向相反直赋 0 分，由于第二层漏斗要求维度 2 必须 &gt;= 15 分，0 分将直接触发风控一票否决，坚决杜绝在做市商中性、震荡压缩或冲顶撞墙时盲目追单。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Engine / Arbitration Funnel Tier 2 / SPX Gamma Graded L0-L3 / Direct Score Mapping / Zero-Score Gatekeeper</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-37">37. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine">5分钟周期 Order Flow 规则化信号系统深度重构与 1~10 强度评分引擎 (5m Order Flow Two-Step Evaluation &amp; 1-10 Strength Scoring Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine</code></li>
+          <li><strong>系统职责</strong>: 彻底解决旧版 5 分钟订单流粗糙动量跟随（追涨杀跌）导致的胜率退化问题，建立严密的两步判定法（结构准入 + 9 大客观底层数据加分）：（1）备份并归档旧版规则至专用备份文件；（2）第一步「结构准入」设立三大严密 Setup：Setup 1 (反转 - 极值反向吞没 + 冰山吸收)、Setup 2 (趋势日 10m 双柱顺势 EMA13 支撑回踩)、Setup 3 (30m 突破点火顺势跟随)；（3）第二步「1~10 强度评分」基于 9 大独立底层微观数据打分（Delta 占比、Cumulative Delta 爆发、冰山被吃穿、主动大单占比等）；（4）期权卖方后台开仓漏斗「维度 1：订单流与 DOM」无缝简化对接 1~10 分直接映射（S10=40分, S9=37分, S8=34分... 中性=0分）；（5）前端信号表格与展开面板全面适配，呈现专属 5m 订单流两步分析卡片与加分明细。</li>
+          <li><strong>技术栈</strong>: Python / Order Flow Analysis / Two-Step Evaluation / 3 Setups Admission / 9 Bonus Factors / 1-10 Scoring / Option Seller Funnel Tier 1 / Light Theme UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-38">38. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization">订单流两步法（方向准入判定与底层强度打分）展开详情卡片 UI 组件重构 (Order Flow Two-Step Evaluation UI Visualization Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>38_2026-09-06_OrderFlow_Two_Step_UI_Visualization</code></li>
+          <li><strong>系统职责</strong>: 依据《订单流分析规则手册》第 3 章与第 4 章，全面升级 <code>http://127.0.0.1:5005/bbt_signals</code> 订单流实时信号表格子行展开详情视图：（1）完整保留原有的 4 个基础卡片（Recent 5-Min Micro、Recent 30-Min Metrics、RTH Cumulative、PM Metrics）与 Adam Set 深度 DOM 微观盘口卡片；（2）追加「第一步：基本规则方向准入判定」交互卡片，包含方向徽章、触发规则指示横幅、三大前置硬性过滤红线（Price Position 极值红线、Spoofing 虚假诱多诱空红线、机构大单/趋势日反向阻断护盾）以及 Setup 1~3 双门禁状态实时测量值与规则阈值动态比对；（3）追加「第二步：底层数据强度打分体系」交互卡片，呈现 1~10 分强度大数字徽章、多阶色彩进度条、打分公式明细（起跑分+加分项）以及 9 大客观底层特征加分项清单表（Delta 占比、Cumulative Delta 爆发、反向冰山吃穿、主动大单占比等）；（4）严格遵循清新护眼的白底浅色主题 (Light Theme) 与纯文本公式渲染规范。</li>
+          <li><strong>技术栈</strong>: JavaScript (ES6+) / HTML5 / CSS3 (Light Theme) / jQuery DataTable Child Rows / Real-time Metric Evaluator / Dynamic DOM Rendering</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-39">39. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor">全局统一 SPY 单边强趋势日判定引擎规则重构与容忍度优化 (Global Unified SPY Trend Day Regime Thresholds Refactor)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor</code></li>
+          <li><strong>系统职责</strong>: 彻底解决单边强趋势日（Trend Day）判定规则过于严苛导致正常趋势回踩被过早误判为震荡日的问题：（1）将现价脱离成本线基准从“RTH 开盘价”升级为“包含盘前 Pre-Market 与 RTH 在内的当日极低点（多头）/ 极高点（空头）”，解决盘前大幅拉升/下挫导致开盘基准滞后失真的问题；（2）开盘逆向破位/冲高容忍度从 <code>&lt;= 1.20点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点）；（3）高位回撤/低位反弹容忍度从 <code>&lt;= 1.50点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点），允许标的完成健康的 15m 均线带测试；（4）多空双向严格镜像对称，同步更新系统核心规则手册；（5）优化前端 Setup 2 展开面板，将“趋势日形态”与“策略时间窗 (06:30-11:00)”解耦独立展示，彻底消除时间窗未达标的视觉歧义。</li>
+          <li><strong>技术栈</strong>: Python / Global Trend Regime Engine / Pre-Market + RTH High-Low / Dynamic Retracement Thresholds &lt;= 2.0 / Symmetric Dual-Directional Architecture / Manual Documentation</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-40">40. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill">订单流盘中分析去除 30 分钟 AI 调用全面统一 5 分钟规则引擎与全量回填 (Order Flow 5m Rule-Based Unification &amp; Backfill Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill</code></li>
+          <li><strong>系统职责</strong>: 彻底解决订单流盘中 AI 分析延迟高、Token 消耗大且与底层两步法量化规则冲突的问题：（1）废除盘中 30 分钟（整点与半点）调度 Gemini 大模型的机制，只保留盘后收盘美西时间 13:15 的唯一 Day Type AI 研判；（2）全面统一盘中所有 5 分钟周期（包含 07:00, 07:30 等整点半点）执行基于规则的订单流研判（<code>Rule-Based-5m</code>）；（3）优化哨兵底层基准动态查找算法与变量完备性，解除 HIGH 信号盘中调用大模型覆盖；（4）全面回填 2026-09-03 与 2026-09-04 历史订单流数据，完美呈现连续一致的 5m 规则化信号流。</li>
+          <li><strong>技术栈</strong>: Python / Order Flow Sentinel / Comprehensive Signals Job / Daily Jobs Scheduler / Rule-Based-5m Architecture / Historical DB Backfill</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/walkthrough.md">walkthrough.md</a>
           </li>
         </ul>
       </section>
