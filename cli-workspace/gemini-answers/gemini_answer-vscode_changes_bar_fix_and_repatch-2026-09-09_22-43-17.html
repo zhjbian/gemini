@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - VS Code 扩展 changes-bar 卡片修复与一键重打补丁脚本</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">VS Code 扩展 changes-bar 卡片修复与一键重打补丁脚本</h1>
+<div class="meta">
+<span>Saved: 2026-09-09 22:43:17</span>
+<span>Topic: vscode_changes_bar_fix_and_repatch</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#修复-1：点击「1-files-edited」无法折叠文件列表（真-bug）">修复 1：点击「1 files edited」无法折叠文件列表（真 bug）</a><ul><li><a href="#根因（从压缩后的-kl()-函数读出）">根因（从压缩后的 kl() 函数读出）</a></li><li><a href="#修复（1-处、净增-32-字符）">修复（1 处、净增 32 字符）</a></li></ul></li><li><a href="#修复-2：注入-CSS-隐藏整张卡片">修复 2：注入 CSS 隐藏整张卡片</a><ul><li><a href="#已核实补丁确实会生效">已核实补丁确实会生效</a></li></ul></li><li><a href="#⚠️-两者的关系">⚠️ 两者的关系</a></li><li><a href="#备份与还原">备份与还原</a></li><li><a href="#生效方式">生效方式</a></li><li><a href="#风险提示（你已确认接受）">风险提示（你已确认接受）</a></li><li><a href="#特性">特性</a></li><li><a href="#用法">用法</a></li><li><a href="#实测输出（本机验证）">实测输出（本机验证）</a></li><li><a href="#补丁逻辑（脚本核心）">补丁逻辑（脚本核心）</a></li><li><a href="#恢复清单（升级后）">恢复清单（升级后）</a></li></ul></div>
+<section class="main-content">
+<h2 id="修复-1：点击「1-files-edited」无法折叠文件列表（真-bug）">修复 1：点击「1 files edited」无法折叠文件列表（真 bug）</h2>
+<h3 id="根因（从压缩后的-kl()-函数读出）">根因（从压缩后的 <code>kl()</code> 函数读出）</h3>
+<pre><code class="language-js">let S = Me(e.document,"div","changes-detail");
+S.append(header);
+let x = r ? n.files : n.files.slice(0,3);   // ← r 只控制"显示几个"
+for (let C of x) S.append(Hg(e,C));
+if (!r &amp;&amp; n.files.length &gt; 3) { ...显示 "Show N files" 按钮... }
+t.append(S)                                  // ← 列表**永远被 append**
+</code></pre>
+<p><strong><code>changes-detail</code> 无论展开还是折叠都会被渲染</strong>，<code>r</code>（展开态）只决定"显示前 3 个还是全部"。所以：</p>
+<ul>
+<li><strong>文件数 ≤ 3 时</strong>（例如 <code>1 files edited</code>）：<code>slice(0,3)</code> 和全部<strong>结果相同</strong>，且 <code>1 &gt; 3</code> 不成立（没有 Show more 按钮）→ <strong>点击摘要行完全没有任何可见变化</strong>。这就是 bug 本身。</li>
+<li>文件数 &gt; 3 时才有可见效果（3 个 ↔ 全部）。</li>
+</ul>
+<h3 id="修复（1-处、净增-32-字符）">修复（1 处、净增 32 字符）</h3>
+<pre><code class="language-diff">- }t.append(S)};return{update:c=&gt;{
++ }S.classList.toggle("hidden",!r),t.append(S)};return{update:c=&gt;{
+</code></pre>
+<p>利用扩展自带的 <code>.hidden { display: none !important; }</code>（<code>chat.css:55</code>）：</p>
+<ul>
+<li><strong>折叠（<code>r=false</code>）→ 整个文件列表隐藏</strong> ✓</li>
+<li><strong>展开（<code>r=true</code>）→ 显示全部文件</strong> ✓</li>
+</ul>
+<p>现在<strong>点击摘要行在任意文件数下都有实际效果</strong>（1 个文件也能收起/展开）。</p>
+<blockquote>
+<p>附带行为变化：折叠时连 "Show N files" 按钮一起隐藏了 —— 但摘要行本身就能展开全部，所以这个按钮变得多余。<code>node --check</code> 通过。</p>
+</blockquote>
+<h2 id="修复-2：注入-CSS-隐藏整张卡片">修复 2：注入 CSS 隐藏整张卡片</h2>
+<p><code>media/chat.css</code> 末尾追加：</p>
+<pre><code class="language-css">/* ===== BBT local patch (start) =====
+ * 隐藏 "N files edited" 变更卡片。
+ * 这是对第三方扩展本体的临时补丁, **扩展升级会被覆盖**。
+ * 想恢复: 删除本段, 或执行 `mv media/chat.css.bbt-bak media/chat.css`
+ */
+.changes-bar { display: none !important; }
+/* ===== BBT local patch (end) ===== */
+</code></pre>
+<h3 id="已核实补丁确实会生效">已核实补丁确实会生效</h3>
+<ul>
+<li>扩展宿主通过 <code>asWebviewUri(... media/chat.css)</code> 加载该 CSS（<code>dist/extension.cjs</code> 的 <code>html()</code>），<code>chat.js</code> 同理来自 <code>dist/webview/chat.js</code> ✓</li>
+<li>CSS <strong>未内联</strong>在 <code>extension.cjs</code>（那里只有 <code>&lt;div id="changes-bar" class="changes-bar hidden"&gt;</code> 模板），<code>.changes-bar {</code> 规则只存在于 <code>media/chat.css</code> ✓</li>
+<li>CSP 为 <code>style-src ${cspSource} 'nonce-...'</code>，放行该外部样式表 ✓</li>
+</ul>
+<h2 id="⚠️-两者的关系">⚠️ 两者的关系</h2>
+<p><strong>修复 2 会盖过修复 1 的视觉效果</strong> —— 卡片被整体隐藏后，折叠与否都看不见了。之所以两个都做：</p>
+<ul>
+<li>你现在<strong>彻底看不到</strong>那张卡片（诉求）；</li>
+<li>若哪天想恢复（例如想用里面的 Undo / Review），<strong>只要删掉 CSS 那段</strong>，卡片回来时<strong>折叠功能也是好的</strong>（修复 1 生效）。</li>
+</ul>
+<h2 id="备份与还原">备份与还原</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>备份</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dist/webview/chat.js</code></td>
+<td><code>dist/webview/chat.js.bbt-bak</code></td>
+</tr>
+<tr>
+<td><code>media/chat.css</code></td>
+<td><code>media/chat.css.bbt-bak</code></td>
+</tr>
+</tbody>
+</table>
+<p>手动一键还原：</p>
+<pre><code class="language-bash">cd ~/.vscode/extensions/skymecode.deepseek-harness-for-vscode-0.5.8
+mv dist/webview/chat.js.bbt-bak dist/webview/chat.js
+mv media/chat.css.bbt-bak media/chat.css
+</code></pre>
+<h2 id="生效方式">生效方式</h2>
+<p><strong>需要重载窗口</strong>：<code>Cmd+Shift+P</code> → <strong>Developer: Reload Window</strong>（webview 资源会被缓存，光关面板可能不够）。若仍不生效，完全退出并重启 VS Code。</p>
+<h2 id="风险提示（你已确认接受）">风险提示（你已确认接受）</h2>
+<ol>
+<li><strong>扩展升级会覆盖</strong>这两个补丁（升级后需重打 → 用下面的脚本）。</li>
+<li>修改的是第三方扩展本体，<strong>VS Code 可能提示扩展已被修改</strong>。</li>
+<li>长期方案是向作者提 feature：加一个 <code>deepseekHarness.showChangesBar</code> 配置项 —— 这样就不用打补丁了。</li>
+</ol>
+<hr/>
+<h1 id="一键重打补丁脚本">一键重打补丁脚本</h1>
+<p>扩展升级会把文件替换回原始版本，所以补丁需要重打。脚本已放在项目里，升级后执行一次即可。</p>
+<p><strong>路径</strong>：<code>scripts/repatch_vscode_changes_bar.py</code></p>
+<h2 id="特性">特性</h2>
+<ul>
+<li><strong>幂等</strong>：已打过就跳过，不会重复注入（重复打补丁不会破坏文件）。</li>
+<li><strong>版本自适应</strong>：自动从 <code>aria-expanded",String(&lt;VAR&gt;)</code> 与 <code>let &lt;VAR&gt;=Me(e.document,"div","changes-detail")</code> 抓取变量名，<strong>抗压缩改名</strong>；不像硬编码字符串那样一升级就失效。</li>
+<li><strong>自动备份</strong>：仅在文件<strong>尚未打补丁</strong>时创建 <code>.bbt-bak</code>（备份里始终是原始版本）。</li>
+<li><strong>自动校验</strong>：打完用 <code>node --check</code> 验语法，并回读确认两处补丁确实生效。</li>
+<li><strong>可还原</strong>：<code>--revert</code> 从备份恢复。</li>
+<li><strong>可只修折叠</strong>：<code>--no-hide</code> 保留卡片可见但修复折叠 bug。</li>
+</ul>
+<h2 id="用法">用法</h2>
+<pre><code class="language-bash"># 打补丁（幂等；扩展升级后执行这一条即可）
+python3 scripts/repatch_vscode_changes_bar.py
+
+# 只检查不改动
+python3 scripts/repatch_vscode_changes_bar.py --dry-run
+
+# 只修折叠 bug，保留卡片可见
+python3 scripts/repatch_vscode_changes_bar.py --no-hide
+
+# 从 .bbt-bak 还原原始文件
+python3 scripts/repatch_vscode_changes_bar.py --revert
+
+# 补丁全部版本目录（默认只打最新版）
+python3 scripts/repatch_vscode_changes_bar.py --all
+</code></pre>
+<h2 id="实测输出（本机验证）">实测输出（本机验证）</h2>
+<pre><code>=== 扩展目录: skymecode.deepseek-harness-for-vscode-0.5.8 ===
+  [补丁1] 折叠修复: 已打过, 跳过 ✓
+  [补丁2] 隐藏卡片: 应用中 | 复用已有备份
+  [校验] node --check chat.js: ok
+  [校验] 补丁1 生效: 是 ✓ | 补丁2 生效: 是 ✓
+
+✅ 补丁完成。请重载窗口: Cmd+Shift+P -&gt; Developer: Reload Window
+   提示: 卡片已被 CSS 隐藏；若想让它回来但保留折叠修复, 用 --no-hide 重跑。
+</code></pre>
+<p>完整链路已测试通过：<strong>dry-run（识别已打）→ revert（还原原始）→ 重新打补丁（两处生效 + node --check ok）→ --no-hide（只应用补丁1）→ 恢复全量补丁</strong>。</p>
+<h2 id="补丁逻辑（脚本核心）">补丁逻辑（脚本核心）</h2>
+<pre><code class="language-python">ALREADY_JS_RE = re.compile(r'\w+\.classList\.toggle\("hidden",!\w+\),t\.append\(')
+
+def patch_js(text: str):
+    if ALREADY_JS_RE.search(text):
+        return text, "already"
+    # 文件列表容器变量：let &lt;VAR&gt;=Me(e.document,"div","changes-detail")
+    m = re.search(r'let\s+(\w+)\s*=\s*Me\(\s*e\.document\s*,\s*"div"\s*,\s*"changes-detail"\s*\)', text)
+    if not m:
+        return text, "anchor-missing"
+    list_var = m.group(1)
+    # 展开态变量：aria-expanded",String(&lt;VAR&gt;)
+    mr = re.search(r'aria-expanded"\s*,\s*String\((\w+)\)', text)
+    expand_var = mr.group(1)
+    # 在该容器首次出现之后，找到 `t.append(&lt;LIST_VAR&gt;)`
+    ma = re.compile(r'([;},])t\.append\(\s*' + re.escape(list_var) + r'\s*\)').search(text, m.end())
+    insert_at = ma.start() + 1
+    injected = f'{list_var}.classList.toggle("hidden",!{expand_var}),'
+    return text[:insert_at] + injected + text[insert_at:], "patched"
+
+
+def patch_css(text: str):
+    if "BBT local patch (start)" in text:
+        return text, "already"
+    return text.rstrip("\n") + "\n" + CSS_BLOCK, "patched"
+</code></pre>
+<h2 id="恢复清单（升级后）">恢复清单（升级后）</h2>
+<p>扩展升级后，只需：</p>
+<pre><code class="language-bash">python3 scripts/repatch_vscode_changes_bar.py
+</code></pre>
+<p>然后 <code>Cmd+Shift+P</code> → <strong>Developer: Reload Window</strong>。</p>
+<p>如果脚本报 <code>[补丁1] ✗ 锚点未找到</code>，说明扩展内部结构变了 —— 需要人工查看新版 <code>dist/webview/chat.js</code> 里的 <code>changes-detail</code> 构建逻辑，按同样思路（折叠时给列表加 <code>hidden</code>）调整正则锚点。</p>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - ES 2026-09-10 · 7590 吸收墙解析：Adam Set 强支撑判断的数据复现</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">ES 2026-09-10 · 7590 吸收墙解析：Adam Set 强支撑判断的数据复现</h1>
+<div class="meta">
+<span>Saved: 2026-09-10 11:53:11</span>
+<span>Topic: es_7590_absorption_support_analysis</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#一句话结论">一句话结论</a></li><li><a href="#数据源与方法">数据源与方法</a></li><li><a href="#证据-1：7590-上有一个-4.3-倍于常量的买单，且在开盘时被加厚">证据 1：7590 上有一个 4.3 倍于常量的买单，且在开盘时被加厚</a></li><li><a href="#证据-2：被反复吃掉又补回-——-this-Buyer-最硬的证据">证据 2：被反复吃掉又补回 —— "this Buyer" 最硬的证据</a></li><li><a href="#证据-3：价格未能击穿-7590">证据 3：价格未能击穿 7590</a></li><li><a href="#证据-4：他说的-Strong-Recovery-真的发生了（发帖后-10-分钟内）">证据 4：他说的 "Strong Recovery" 真的发生了（发帖后 10 分钟内）</a></li><li><a href="#为什么说-I-seem-to-be-a-Day-Early：反弹没守住">为什么说 "I seem to be a Day Early"：反弹没守住</a></li><li><a href="#与现有系统的对照（对策略最有价值的部分）">与现有系统的对照（对策略最有价值的部分）</a></li><li><a href="#后续可做：基于现有-DOM-的「吸收墙」检测器">后续可做：基于现有 DOM 的「吸收墙」检测器</a></li><li><a href="#附：本次分析所用的原始命令（可复现）">附：本次分析所用的原始命令（可复现）</a></li></ul></div>
+<section class="main-content">
+<h2 id="一句话结论">一句话结论</h2>
+<p>Adam 看到的<strong>不是"成交量大单"，而是订单簿上 7590 那个持续被吃掉、又不断被补回的挂单</strong> —— 这属于 <strong>absorption（吸收）</strong> 信号，不是主动成交方向信号。所以他这条 edge 完全落在另一个数据维度上：我们的 <code>SingleTickBigTrade</code> 检测器今天第一小时<strong>什么都没抓到</strong>（ES 全天只有 05:09、05:34 两笔 PM 卖单）。</p>
+<h2 id="数据源与方法">数据源与方法</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Tick 数据</strong></td>
+<td><code>~/Documents/MyDoc/Finance/Current/MotiveWave_OrderFlow_Data/Raw/ES_20260910_TICKS.csv</code> — 867,977 行，列 <code>Timestamp(epoch ms), Price, Size, Side, Contract</code>；<code>Side=ASK</code> 记为主动买，<code>BID</code> 记为主动卖</td>
+</tr>
+<tr>
+<td><strong>DOM 数据</strong></td>
+<td><code>.../Raw/ES_20260910_DOM.csv.gz</code> — 76.7 MB，列 <code>Timestamp, Type(BID/ASK), Level, Price, Size, Contract</code></td>
+</tr>
+<tr>
+<td><strong>DOM 深度</strong></td>
+<td>每侧 <strong>200 档 ≈ 50 点</strong>（<code>Level</code> 0–199）→ 价格高于 7590 十几点时，7590 仍在可见档位内，这是能做此分析的前提</td>
+</tr>
+<tr>
+<td><strong>分析窗口</strong></td>
+<td>06:25–07:25 PT（Adam 发帖 07:14:21 前后）</td>
+</tr>
+<tr>
+<td><strong>时区</strong></td>
+<td>全部时间为 <strong>PT（Seattle / America/Los_Angeles, UTC-7）</strong></td>
+</tr>
+<tr>
+<td><strong>大单口径（对照）</strong></td>
+<td>技能 <code>order-flow-analysis</code>：ES 门槛 <code>singleTickBigTradeVolThresholds["ES"]=285</code> 手；<code>minTradeSizeThresholds["ES"]=150</code>（画图门槛）</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="证据-1：7590-上有一个-4.3-倍于常量的买单，且在开盘时被加厚">证据 1：7590 上有一个 4.3 倍于常量的买单，且在<strong>开盘时被加厚</strong></h2>
+<p>扫描 06:25–07:25 的 <strong>3,778 个 DOM 快照</strong>，7590 买挂单量（中位）：</p>
+<table>
+<thead>
+<tr>
+<th>时间 (PT)</th>
+<th>7590 买单量（中位）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>06:25（开盘前）</td>
+<td>108</td>
+</tr>
+<tr>
+<td>06:30（<strong>开盘</strong>）</td>
+<td>117</td>
+</tr>
+<tr>
+<td>06:31</td>
+<td>127</td>
+</tr>
+<tr>
+<td><strong>06:35</strong></td>
+<td><strong>131（峰值 142）</strong></td>
+</tr>
+<tr>
+<td>06:40–06:54</td>
+<td>115–127（稳定维持）</td>
+</tr>
+<tr>
+<td>06:57</td>
+<td>44（已被大量消耗）</td>
+</tr>
+<tr>
+<td>07:03–07:05</td>
+<td>82–87</td>
+</tr>
+<tr>
+<td>07:14（<strong>他发帖时</strong>）</td>
+<td>58–63（仍在）</td>
+</tr>
+<tr>
+<td>07:21–07:24</td>
+<td>38–47</td>
+</tr>
+</tbody>
+</table>
+<p><strong>对照基线（同期全部 BID 档位，同一窗口）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中位数</td>
+<td><strong>27</strong> 手</td>
+</tr>
+<tr>
+<td>p90</td>
+<td>56 手</td>
+</tr>
+<tr>
+<td>p99</td>
+<td><strong>109</strong> 手</td>
+</tr>
+<tr>
+<td>最大</td>
+<td>215 手</td>
+</tr>
+</tbody>
+</table>
+<p>→ 7590 那个买单的<strong>中位 116 手高于同期的 99 分位（109）</strong>，是档位常量的 <strong>4.3 倍</strong>。</p>
+<p><strong>DOM 阶梯快照（一眼可见：20–50 手的邻居中间夹着一个百手墙）：</strong></p>
+<pre><code>06:30:00  7590.25:49   7590.00:115   7589.75:29
+06:39:59  7590.25:52   7590.00:127   7589.75:41
+06:50:59  7590.25:50   7590.00:117   7589.75:37
+06:54:48  7590.25:54   7590.00:125   7589.75:40
+</code></pre>
+<p>这就是 <strong>"Shows Strong Support at Open"</strong> 的字面来源：<strong>开盘前它就挂着 108 手，开盘后 5 分钟被加厚到 142 手</strong> —— 即"开盘那一刻这个买墙已经就位、并在加厚"。</p>
+<hr/>
+<h2 id="证据-2：被反复吃掉又补回-——-this-Buyer-最硬的证据">证据 2：被反复吃掉又补回 —— "this Buyer" 最硬的证据</h2>
+<p>检测到 <strong>15 次显著的"打掉 → 补回"</strong>（变化 ≥15 手）：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>变化</th>
+<th>解读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>06:57:19</td>
+<td>125 → <strong>16</strong></td>
+<td>被卖单吃掉</td>
+</tr>
+<tr>
+<td>06:57:23</td>
+<td>16 → 39</td>
+<td>4 秒后补单</td>
+</tr>
+<tr>
+<td>06:57:27</td>
+<td>29 → 45</td>
+<td>继续增厚</td>
+</tr>
+<tr>
+<td>06:57:34</td>
+<td>26 → 47</td>
+<td>继续增厚</td>
+</tr>
+<tr>
+<td>06:57:53</td>
+<td>57 → 29</td>
+<td>再次被吃</td>
+</tr>
+<tr>
+<td>06:57:58</td>
+<td>42 → 18</td>
+<td>再次被吃</td>
+</tr>
+<tr>
+<td>07:00:18</td>
+<td>25 → <strong>9</strong></td>
+<td>又一次被吃</td>
+</tr>
+<tr>
+<td>07:00:27</td>
+<td>9 → <strong>50</strong></td>
+<td>9 秒后补回</td>
+</tr>
+<tr>
+<td>07:06:20</td>
+<td>84 → 65</td>
+<td>被消耗</td>
+</tr>
+<tr>
+<td>07:07:06</td>
+<td>59 → 38</td>
+<td>被消耗</td>
+</tr>
+<tr>
+<td>07:07:20</td>
+<td>18 → 38</td>
+<td>补回</td>
+</tr>
+<tr>
+<td>07:07:22</td>
+<td>49 → 67</td>
+<td>增厚</td>
+</tr>
+<tr>
+<td>07:07:53</td>
+<td>52 → <strong>4</strong></td>
+<td>被吃光</td>
+</tr>
+<tr>
+<td>07:07:53</td>
+<td>4 → <strong>47</strong></td>
+<td><strong>同一秒</strong>补回</td>
+</tr>
+</tbody>
+</table>
+<p><strong>同期 7590 区间的成交结构（7589.75–7590.50）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>总成交</td>
+<td>8,897 手</td>
+</tr>
+<tr>
+<td>主动卖（BID）</td>
+<td><strong>4,553 手</strong></td>
+</tr>
+<tr>
+<td>主动买（ASK）</td>
+<td>4,344 手</td>
+</tr>
+<tr>
+<td>净额</td>
+<td><strong>−209</strong></td>
+</tr>
+<tr>
+<td>买方占比</td>
+<td><strong>48.8%</strong></td>
+</tr>
+<tr>
+<td>区间最大单笔（买）</td>
+<td>25 手</td>
+</tr>
+<tr>
+<td>区间最大单笔（卖）</td>
+<td>46 手</td>
+</tr>
+<tr>
+<td>触及次数（按分钟聚合）</td>
+<td>11 次：06:55, 06:57, 06:58, 07:00, 07:01, 07:05, 07:06, 07:07, 07:10, 07:11, 07:15</td>
+</tr>
+</tbody>
+</table>
+<p><strong>卖方主动性占优（4,553 : 4,344）、价格却跌不动、挂单量还维持在 90–140 手</strong> —— 这正是"被动买方吸收主动抛压"的定义，也是他称之为 <strong>"this Buyer"</strong> 的依据。100 手 ES ≈ 3,800 万美元名义价值（ES 乘数 $50、点位 7600），且<strong>持续一小时不断回补</strong>，符合单一参与者 / 冰山单（iceberg）的行为特征。</p>
+<hr/>
+<h2 id="证据-3：价格未能击穿-7590">证据 3：价格未能击穿 7590</h2>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一小时低点</td>
+<td><strong>7585.50 @ 07:09:21</strong></td>
+</tr>
+<tr>
+<td>低于 7590 的幅度</td>
+<td>仅 <strong>4.5 点</strong></td>
+</tr>
+<tr>
+<td>07:11 / 07:12 / 07:13 分钟净额</td>
+<td><strong>+593 / +534 / +390 = +1,517</strong></td>
+</tr>
+<tr>
+<td>他发帖时（07:14:21）价格</td>
+<td><strong>7592–7593</strong>（07:14 收 7593.00，低 7592.00）</td>
+</tr>
+<tr>
+<td>第一小时合计</td>
+<td>244,670 tick，买 156,513 / 卖 157,083，净 <strong>−570</strong>，区间 <strong>7585.50–7620.00</strong></td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="证据-4：他说的-Strong-Recovery-真的发生了（发帖后-10-分钟内）">证据 4：他说的 "Strong Recovery" 真的发生了（发帖后 10 分钟内）</h2>
+<table>
+<thead>
+<tr>
+<th>时段 (PT)</th>
+<th>低</th>
+<th>高</th>
+<th>量</th>
+<th>Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>07:00–07:15</td>
+<td><strong>7585.50</strong></td>
+<td>7597.00</td>
+<td>67,795</td>
+<td><strong>+1,661</strong></td>
+</tr>
+<tr>
+<td><strong>07:24 那一分钟</strong></td>
+<td>7601.50</td>
+<td><strong>7620.00</strong></td>
+<td><strong>22,221</strong></td>
+<td><strong>+2,073</strong></td>
+</tr>
+</tbody>
+</table>
+<p>从低点 <strong>7585.50 → 7620.00 = +34.5 点（+0.45%），用时 15 分钟</strong>。他的反转判断在<strong>发帖后 10 分钟</strong>即被验证。</p>
+<p>（07:24 那根爆量分钟的最大单笔：ASK 59 @7613.50、ASK 46 @7610.25、ASK 35 @7610.00 —— 是主动买盘向上打穿卖单，不是被动成交。）</p>
+<hr/>
+<h2 id="为什么说-I-seem-to-be-a-Day-Early：反弹没守住">为什么说 "I seem to be a Day Early"：反弹没守住</h2>
+<p>06:30 起按 15 分钟分档（PT）：</p>
+<table>
+<thead>
+<tr>
+<th>时段</th>
+<th>开</th>
+<th>高</th>
+<th>低</th>
+<th>收</th>
+<th>量</th>
+<th>Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>06:30-06:45</td>
+<td>7599.00</td>
+<td>7606.75</td>
+<td>7593.75</td>
+<td>7600.25</td>
+<td>98,274</td>
+<td><strong>−1,910</strong></td>
+</tr>
+<tr>
+<td>06:45-07:00</td>
+<td>7600.25</td>
+<td>7609.00</td>
+<td>7586.00</td>
+<td>7586.75</td>
+<td>69,418</td>
+<td>−728</td>
+</tr>
+<tr>
+<td>07:00-07:15</td>
+<td>7586.75</td>
+<td>7597.00</td>
+<td><strong>7585.50</strong></td>
+<td>7593.00</td>
+<td>67,795</td>
+<td><strong>+1,661</strong></td>
+</tr>
+<tr>
+<td>07:15-07:30</td>
+<td>7592.75</td>
+<td><strong>7620.00</strong></td>
+<td>7590.50</td>
+<td>7606.25</td>
+<td>78,109</td>
+<td>+407</td>
+</tr>
+<tr>
+<td>07:30-07:45</td>
+<td>7606.25</td>
+<td>7615.50</td>
+<td>7605.50</td>
+<td>7607.75</td>
+<td>50,527</td>
+<td>−1,955</td>
+</tr>
+<tr>
+<td>07:45-08:00</td>
+<td>7607.75</td>
+<td>7614.50</td>
+<td>7603.75</td>
+<td>7613.50</td>
+<td>44,474</td>
+<td>+664</td>
+</tr>
+<tr>
+<td>08:00-08:15</td>
+<td>7613.25</td>
+<td>7614.00</td>
+<td>7604.75</td>
+<td>7609.75</td>
+<td>43,970</td>
+<td>−958</td>
+</tr>
+<tr>
+<td>08:15-08:30</td>
+<td>7609.75</td>
+<td>7615.00</td>
+<td>7605.75</td>
+<td>7611.25</td>
+<td>35,851</td>
+<td>+1,543</td>
+</tr>
+<tr>
+<td>08:30-08:45</td>
+<td>7611.50</td>
+<td>7619.25</td>
+<td>7609.25</td>
+<td>7613.25</td>
+<td>38,203</td>
+<td>−337</td>
+</tr>
+<tr>
+<td>08:45-09:00</td>
+<td>7613.50</td>
+<td>7614.75</td>
+<td>7601.25</td>
+<td>7604.75</td>
+<td>39,130</td>
+<td>−1,404</td>
+</tr>
+<tr>
+<td>09:00-09:15</td>
+<td>7605.00</td>
+<td>7610.25</td>
+<td>7597.50</td>
+<td>7600.50</td>
+<td>38,155</td>
+<td>−179</td>
+</tr>
+<tr>
+<td>09:15-09:30</td>
+<td>7600.25</td>
+<td>7603.75</td>
+<td>7597.00</td>
+<td>7600.25</td>
+<td>27,828</td>
+<td>+546</td>
+</tr>
+<tr>
+<td>09:30-09:45</td>
+<td>7600.00</td>
+<td>7608.50</td>
+<td>7591.50</td>
+<td>7607.25</td>
+<td>48,981</td>
+<td>+1,591</td>
+</tr>
+<tr>
+<td>09:45-10:00</td>
+<td>7607.25</td>
+<td>7613.00</td>
+<td>7606.25</td>
+<td>7611.50</td>
+<td>35,731</td>
+<td>+401</td>
+</tr>
+<tr>
+<td>10:00-10:15</td>
+<td>7611.25</td>
+<td>7617.75</td>
+<td>7607.00</td>
+<td>7609.50</td>
+<td>41,236</td>
+<td>+924</td>
+</tr>
+<tr>
+<td>10:15-10:30</td>
+<td>7609.50</td>
+<td>7611.25</td>
+<td>7604.25</td>
+<td>7605.25</td>
+<td>23,364</td>
+<td>−878</td>
+</tr>
+<tr>
+<td>10:30-10:45</td>
+<td>7605.00</td>
+<td>7607.25</td>
+<td>7599.50</td>
+<td>7603.50</td>
+<td>26,155</td>
+<td>−439</td>
+</tr>
+<tr>
+<td>10:45-11:00</td>
+<td>7603.75</td>
+<td>7605.00</td>
+<td>7601.25</td>
+<td>7602.25</td>
+<td>19,581</td>
+<td>+275</td>
+</tr>
+<tr>
+<td>11:15-11:30</td>
+<td>7594.75</td>
+<td>7600.00</td>
+<td>7594.00</td>
+<td>7596.75</td>
+<td>16,625</td>
+<td>+899</td>
+</tr>
+<tr>
+<td>11:30-11:45</td>
+<td>7596.50</td>
+<td>7598.75</td>
+<td><strong>7591.75</strong></td>
+<td>7597.75</td>
+<td>21,661</td>
+<td>+427</td>
+</tr>
+</tbody>
+</table>
+<p><strong>07:30 之后全天在 7591.50–7619.25 之间来回震荡</strong>，尾段又回到 <strong>7591–7598</strong>。全天最大涨幅约 <strong>+0.45%</strong>，<strong>未达 0.75%</strong> 的"命中"门槛（<code>order-flow-analysis</code> 技能的判定基准）—— 他预期的是<strong>持续反转</strong>，而今天只给了一个盘中反弹，所以他说"我好像早了一天"。</p>
+<hr/>
+<h2 id="与现有系统的对照（对策略最有价值的部分）">与现有系统的对照（对策略最有价值的部分）</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>系统现有</th>
+<th>Adam</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>依据</td>
+<td><code>SingleTickBigTrade</code>：<strong>主动成交</strong>大单，ES 门槛 <strong>285 手</strong></td>
+<td><strong>订单簿挂单</strong>：被动吸收 + 反复补单</td>
+</tr>
+<tr>
+<td>今日第一小时</td>
+<td><strong>零信号</strong>（7590 区间<strong>最大单笔仅 46 手</strong>，远低于 285）</td>
+<td>"7590 强支撑 + this Buyer"</td>
+</tr>
+<tr>
+<td>今日全天 ES 信号（技能口径）</td>
+<td><strong>PM / Tier 2 / Bearish / es_equiv_volume=960 / 2 笔 / 05:09:40 起</strong></td>
+<td>低位反手看多</td>
+</tr>
+<tr>
+<td>06:30 前</td>
+<td>大单检测器阈值：画图 150 手、入库 285 手</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>两者并不矛盾</strong>：PM 的看跌信号是<strong>对的</strong>（7629.50 → 7585.50，−44 点）；<strong>空头腿正是在 7590 的买单处完成</strong>，之后才有反弹。也就是说 Adam 抓的是<strong>"空头动能衰竭 + 支撑吸收"的反手点</strong>，而系统只描述了前半段。</p>
+<p><strong>缺口</strong>：我们已有 <strong>200 档 DOM 数据</strong>（<code>extract_5m_dom_metrics</code> 已在读取），但<strong>没有检测"某价位挂单异常持续 + 反复补单 + 价格未击穿"</strong>这类吸收模式。</p>
+<hr/>
+<h2 id="后续可做：基于现有-DOM-的「吸收墙」检测器">后续可做：基于现有 DOM 的「吸收墙」检测器</h2>
+<p>与现有大单信号<strong>正交</strong>，判定条件（全部来自今天的实证阈值）：</p>
+<ol>
+<li>某价位同侧挂单量 <strong>≥ 同期档位 p95</strong>（今天 7590 的 116 手 &gt; p99 的 109 手 ✓）</li>
+<li>且<strong>持续 ≥ 15 分钟</strong>（今天 06:25 → 07:24 ✓）</li>
+<li>且期间发生 <strong>≥ K 次"打掉 → 补回"</strong>（今天 15 次 ✓）</li>
+<li>且<strong>价格未被击穿超过 X 点</strong>（今天 4.5 点 ✓）</li>
+</ol>
+<p><strong>输出</strong>：吸收位（价格）+ 买方/卖方强度 + 首次出现时刻；并在「价格接近该位」或「该位被有效击穿」时提示。可直接接入现有 <code>dom_metrics</code> 管线（<code>order_flow_signals</code> 已有 DOM 字段），不改动原有大单逻辑。</p>
+<hr/>
+<h2 id="附：本次分析所用的原始命令（可复现）">附：本次分析所用的原始命令（可复现）</h2>
+<pre><code class="language-bash"># 1) 第一小时 tick 概览（逐分钟 OHLC / 买卖量 / 净额 / 低高点）
+python3 /tmp/es_rth1.py
+
+# 2) 7590 区间成交结构与发帖前最大单笔
+python3 /tmp/es_7590.py
+
+# 3) 7590 买挂单时间序列 + "打掉→补回"事件 + 关键时点 BID 梯度
+python3 /tmp/dom2.py
+
+# 4) 全天 15 分钟分档（判定反弹是否守住）
+python3 /tmp/day_path.py
+
+# 5) 7590~7604 的 ASK 卖压厚度（下探期间逐分钟中位）
+python3 /tmp/dom_ask2.py
+</code></pre>
+<p>关键常量：DOM 每侧 200 档；<code>singleTickBigTradeVolThresholds["ES"]=285</code>；<code>minTradeSizeThresholds["ES"]=150</code>；技能命中基准 0.75% / 3 天；<code>expected_sources</code> 心跳口径与本次分析无关。</p>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

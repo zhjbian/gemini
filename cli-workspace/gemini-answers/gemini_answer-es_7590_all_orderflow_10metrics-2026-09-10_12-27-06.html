@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - ES 2026-09-10 · Adam Set 7590 全量 Order Flow 十项指标复盘</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">ES 2026-09-10 · Adam Set 7590 全量 Order Flow 十项指标复盘</h1>
+<div class="meta">
+<span>Saved: 2026-09-10 12:27:06</span>
+<span>Topic: es_7590_all_orderflow_10metrics</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#报告口径：这次不再以-SingleTickBigTrade-为主轴">报告口径：这次不再以 SingleTickBigTrade 为主轴</a><ul><li><a href="#数据来源与规模">数据来源与规模</a></li></ul></li><li><a href="#Adam-的时刻与点位">Adam 的时刻与点位</a></li><li><a href="#十项核心指标逐项复盘（@-07:14:21-/-7590）">十项核心指标逐项复盘（@ 07:14:21 / 7590）</a><ul><li><a href="#01-量价背离/衰竭（4-窗口）">01 量价背离/衰竭（4 窗口）</a></li><li><a href="#02-盘口买卖大翻转">02 盘口买卖大翻转</a></li><li><a href="#03-密集冰山托/压单">03 密集冰山托/压单</a></li><li><a href="#04-2h-机构大单净流">04 2h 机构大单净流</a></li><li><a href="#05-Order-Wall-净深度累积曲线">05 Order Wall 净深度累积曲线</a></li><li><a href="#06-Delta-足迹（Footprint）">06 Delta 足迹（Footprint）</a></li><li><a href="#07-Cancel-to-Trade-Ratio">07 Cancel-to-Trade Ratio</a></li><li><a href="#08-DOM-加权失衡-+-动量">08 DOM 加权失衡 + 动量</a></li><li><a href="#09-Spoofing-撤单陷阱">09 Spoofing 撤单陷阱</a></li><li><a href="#10-洗盘反转（大单砸低点后净买）">10 洗盘反转（大单砸低点后净买）</a></li><li><a href="#其他（辅助项）">其他（辅助项）</a></li></ul></li><li><a href="#Adam-判断的结果验证（事实清单）">Adam 判断的结果验证（事实清单）</a></li><li><a href="#系统为什么全程沉默（定义错位，不是数据缺失）">系统为什么全程沉默（定义错位，不是数据缺失）</a></li><li><a href="#数据质量问题与修复清单">数据质量问题与修复清单</a></li><li><a href="#复核脚本与可复现命令">复核脚本与可复现命令</a></li><li><a href="#一句话总结">一句话总结</a></li><li><a href="#engine_fix_iceberg_wall_wiring_phase11">engine_fix_iceberg_wall_wiring_phase11</a></li><li><a href="#引擎修复-+-前端/打分接线（phase11-回归验证）">引擎修复 + 前端/打分接线（phase11 回归验证）</a><ul><li><a href="#修复的两个根因（都不是阈值问题）">修复的两个根因（都不是阈值问题）</a></li><li><a href="#改动文件">改动文件</a></li><li><a href="#挂单墙强度判据（打分用）">挂单墙强度判据（打分用）</a></li><li><a href="#回归验证（改前-=-库中存值，改后-=-引擎重跑今天数据）">回归验证（改前 = 库中存值，改后 = 引擎重跑今天数据）</a></li><li><a href="#自检与边界">自检与边界</a></li></ul></li></ul></div>
+<section class="main-content">
+<h2 id="报告口径：这次不再以-SingleTickBigTrade-为主轴">报告口径：这次不再以 SingleTickBigTrade 为主轴</h2>
+<p>上一份报告把"机构大单"当成主要证据链，结论建立在 <code>SingleTickBigTrade</code> 检测器上。<strong>今天这个通道在 RTH 时段是空的</strong>，所以它结构上不可能回答 Adam 的问题：</p>
+<table>
+<thead>
+<tr>
+<th>事实</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>今天 ES 大单（单笔 ≥285 手送库阈值）</td>
+<td>全天只有 2 笔，且都在 <strong>PM</strong> 时段</td>
+</tr>
+<tr>
+<td>— 05:09:40</td>
+<td>493 手 @7629.50，Side=BID（主动卖）</td>
+</tr>
+<tr>
+<td>— 05:34:24</td>
+<td>467 手 @7610.50，Side=BID（主动卖）</td>
+</tr>
+<tr>
+<td><code>quantitative_metrics.big_trade_net_2h</code></td>
+<td>07:00 – 12:15 <strong>所有 5 分钟窗口 = 0</strong></td>
+</tr>
+<tr>
+<td><code>order_flow_big_trade_signals</code> 今天</td>
+<td><strong>0 行</strong>（全表 178 行）</td>
+</tr>
+<tr>
+<td>06:30–07:30 单笔最大 / ≥150 手笔数</td>
+<td><strong>121 手</strong> / <strong>0 笔</strong></td>
+</tr>
+</tbody>
+</table>
+<p>因此本报告改用<strong>我们现在全部可用的 orderflow 数据</strong>，按你给的 10 项核心指标逐项复盘，并对每一项做"系统存值 vs 原始数据复核"的对照。</p>
+<h3 id="数据来源与规模">数据来源与规模</h3>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>规模</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bb_trade.order_flow_signals</code> 今天</td>
+<td>69 条（06:35–12:15，每 5 分钟一条），每条含 52 项 <code>quantitative_metrics</code> + 35 项 <code>dom_metrics</code></td>
+<td>系统每 5 分钟的正式结论与全部量化指标</td>
+</tr>
+<tr>
+<td><code>ES_20260910_TICKS.csv</code></td>
+<td>32 MB，06:00–08:00 段 354,975 笔</td>
+<td>重算量价背离、足迹、最大单笔、事后路径</td>
+</tr>
+<tr>
+<td><code>ES_20260910_DOM.csv.gz</code></td>
+<td>81 MB，流式扫描 9,702,223 行，06:20–07:40 段 <strong>5,617 个快照（实测采样间隔 ≈854 ms）</strong></td>
+<td>重算冰山、分层失衡、Order Wall、挂单墙、撤单/回补</td>
+</tr>
+<tr>
+<td>原始目录</td>
+<td><code>/Users/zhijiebian/Documents/MyDoc/Finance/Current/MotiveWave_OrderFlow_Data/Raw/</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Adam-的时刻与点位">Adam 的时刻与点位</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>发帖时间</td>
+<td><strong>2026-09-10 07:14:21 PT</strong></td>
+</tr>
+<tr>
+<td>点位</td>
+<td><strong>7590</strong>（订单簿上的持续托单被吃掉又被回补 → absorption / 强支撑）</td>
+</tr>
+<tr>
+<td>当时的价</td>
+<td>07:14 分钟收盘 7593.00；07:15 引擎快照价 7593.00，日内位置 <strong>32.9%</strong></td>
+</tr>
+<tr>
+<td>此前 5 分钟</td>
+<td>07:09:21 打出当日（当时）低点 <strong>7585.50</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="十项核心指标逐项复盘（@-07:14:21-/-7590）">十项核心指标逐项复盘（@ 07:14:21 / 7590）</h2>
+<h3 id="01-量价背离/衰竭（4-窗口）">01 量价背离/衰竭（4 窗口）</h3>
+<p>系统存值（07:15 行）：<code>delta_ratio_5m = +0.069</code>、<code>delta_ratio_10m = +0.014</code>、最新5mDelta = +1488、10mDelta = +586、30mDelta = <strong>+933</strong>。</p>
+<p>用 tick 复算（窗口严格截至 07:14:21）：</p>
+<table>
+<thead>
+<tr>
+<th>窗口</th>
+<th>净 Delta</th>
+<th>成交量</th>
+<th>delta_ratio</th>
+<th>起 → 止</th>
+<th>价格位移</th>
+<th>窗口振幅</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5m</td>
+<td><strong>+1,651</strong></td>
+<td>21,467</td>
+<td><strong>+0.077</strong></td>
+<td>7585.75 → 7594.50</td>
+<td><strong>+8.75</strong></td>
+<td>11.50</td>
+</tr>
+<tr>
+<td>10m</td>
+<td>+677</td>
+<td>40,205</td>
+<td>+0.017</td>
+<td>7593.25 → 7594.50</td>
+<td>+1.25</td>
+<td>11.50</td>
+</tr>
+<tr>
+<td>15m</td>
+<td>+1,582</td>
+<td>66,982</td>
+<td>+0.024</td>
+<td>7587.75 → 7594.50</td>
+<td>+6.75</td>
+<td>11.50</td>
+</tr>
+<tr>
+<td>30m</td>
+<td>+443</td>
+<td>138,265</td>
+<td>+0.003</td>
+<td>7604.50 → 7594.50</td>
+<td><strong>−10.00</strong></td>
+<td>23.50</td>
+</tr>
+</tbody>
+</table>
+<p><strong>读数（分两层，互不矛盾）</strong>：</p>
+<ul>
+<li><strong>5m / 15m：卖压衰竭</strong>。07:09:21 低点前后 5 分钟净 delta 是 −902（07:10 那一格），到 07:14:21 的 5 分钟窗口已翻成 <strong>+1,651 净买且价格 +8.75 点</strong> —— 主动卖盘被吃光、买盘接管。</li>
+<li><strong>30m：买盘被吸收</strong>。30 分钟净买 +443，价格却从 7604.50 跌到 7594.50（−10 点，振幅 23.50）→ 上方 7600–7605 有持续供给压制。</li>
+</ul>
+<h3 id="02-盘口买卖大翻转">02 盘口买卖大翻转</h3>
+<p>系统存值：<code>dom_metrics.book_flip_bull = 0</code>、<code>book_flip_bear = 0</code>（<strong>未触发</strong>，阈值未达）。</p>
+<p>原始 DOM 复核（全簿 BID/ASK 挂单量比，BID/ASK = 1.00 为均衡）：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>07:05</th>
+<th>07:07</th>
+<th>07:08</th>
+<th>07:09</th>
+<th><strong>07:10</strong></th>
+<th>07:13</th>
+<th>07:14</th>
+<th>07:18</th>
+<th><strong>07:21</strong></th>
+<th><strong>07:22</strong></th>
+<th>07:23</th>
+<th>07:24</th>
+<th>07:25</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全簿 BID/ASK</td>
+<td>0.95</td>
+<td>0.93</td>
+<td><strong>0.85</strong></td>
+<td><strong>0.85</strong></td>
+<td><strong>0.90</strong></td>
+<td>1.04</td>
+<td>1.05</td>
+<td>1.05</td>
+<td><strong>1.16</strong></td>
+<td><strong>1.19</strong></td>
+<td>1.12</td>
+<td>1.15</td>
+<td>1.15</td>
+</tr>
+</tbody>
+</table>
+<p><strong>读数：翻转成立，且翻转点精确落在 Adam 发帖前后</strong>（07:08–07:10 卖压最重 0.85 → 07:14 起转正 → 07:21–07:24 买盘 1.16–1.19）。引擎的 <code>book_flip</code> 计数器今天没报，属于<strong>阈值问题而非事实问题</strong>。</p>
+<h3 id="03-密集冰山托/压单">03 密集冰山托/压单</h3>
+<p>系统存值：<code>iceberg_bull = 0</code>、<code>iceberg_bear = 0</code>、<code>iceberg_extreme_* = 0</code>、<code>iceberg_refill_detail = []</code>（<strong>整段 Adam 窗口全空</strong>）。</p>
+<p>原始 DOM 复核（06:20–07:40）：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>样本数</th>
+<th>中位</th>
+<th>均值</th>
+<th>p90</th>
+<th>最大</th>
+<th>存在区间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>7590.00 BID</strong></td>
+<td>5,126</td>
+<td><strong>109 手</strong></td>
+<td>88</td>
+<td>129</td>
+<td><strong>142</strong></td>
+<td>06:20:00 – 07:39:59（全程在）</td>
+</tr>
+<tr>
+<td>对照 7590.25 ASK</td>
+<td>510</td>
+<td>55 手</td>
+<td>54</td>
+<td>—</td>
+<td>74</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>7590 的托单<strong>厚度是上方卖单的约 2 倍</strong>，且全天时段内持续存在、间或增厚到 142 手。</li>
+<li>扫描回补事件（挂单被打到 &lt;10 手、且 5 秒内回到 ≥40 手）：实测 <strong>1 次</strong> —— <code>07:07:53 掉到 4 手 → 同秒回补到 47 手</code>。</li>
+</ul>
+<p><strong>读数：冰山托单真实存在，但被引擎阈值过滤掉了。</strong> 引擎要求 <code>iceberg_min_refills ≥ 3</code>、<code>iceberg_max_cv ≤ 0.35</code>、<code>iceberg_min_peak ≥ 100</code>；而 7590 的每一次回补峰值只有 <strong>40–52 手</strong>（&lt; 100），且 854 ms 采样把"瞬间掉到 4 手"这种形态几乎全漏（真实发生 15 次量级、样本内只捕获 1 次）。</p>
+<h3 id="04-2h-机构大单净流">04 2h 机构大单净流</h3>
+<p>系统存值：<code>big_trade_net_2h = 0</code>（07:00 – 12:15 每一格都是 0）。</p>
+<p><strong>读数：该指标在 Adam 时刻无信息量</strong>。今天唯一的两笔大单在 05:09 与 05:34（PM 时段、均为主动卖），距 07:14 已超出/接近 2h 窗口且方向与"支撑"无关。Adam 的 edge 落在<strong>挂单簿维度</strong>，本指标天生看不见。</p>
+<h3 id="05-Order-Wall-净深度累积曲线">05 Order Wall 净深度累积曲线</h3>
+<p>系统存值（<code>order_wall_summary.total_net_depth</code>，正=买侧净深度）：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>06:55</th>
+<th><strong>07:00</strong></th>
+<th>07:05</th>
+<th><strong>07:10</strong></th>
+<th><strong>07:15</strong></th>
+<th>07:20</th>
+<th><strong>07:25</strong></th>
+<th>07:30</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>净深度</td>
+<td>0</td>
+<td><strong>−814</strong></td>
+<td>−214</td>
+<td><strong>−820</strong></td>
+<td><strong>+364</strong></td>
+<td>+425</td>
+<td><strong>+873</strong></td>
+<td>−24</td>
+</tr>
+<tr>
+<td>peak_cum_net</td>
+<td>0</td>
+<td>−814</td>
+<td>−280</td>
+<td>−820</td>
+<td>+364</td>
+<td>+425</td>
+<td>+881</td>
+<td>−499</td>
+</tr>
+</tbody>
+</table>
+<p><strong>读数：这是全部 10 项里唯一精准抓到 07:10→07:25 翻转的指标</strong>（−820 卖侧净深度 → +364 → +425 → +873 买侧净深度）。</p>
+<p>⚠️ 但要注意字段语义：<code>peak_level</code> 是<strong>档位索引</strong>（0–199），<strong>不是价格</strong>。今天它给出的 199 / 157 / 195 / 51 / 103 / 140 / 149 / 69 都不能当价位读，UI 上直接展示会误导。</p>
+<h3 id="06-Delta-足迹（Footprint）">06 Delta 足迹（Footprint）</h3>
+<p>系统存值：<code>dom_metrics.delta_footprint</code> 在 <strong>5 / 6 个窗口是空的</strong> —— 07:00、07:05、07:10、07:20 的 <code>trade_bins = 0</code>，于是 <code>active_buy_bins = 0</code>、<code>active_sell_bins = 0</code>、<code>net_delta_bins = 0</code>、<code>delta_bias = "Neutral"</code>（07:15 有 580 bins、07:25 有 443 bins，勉强可用）。</p>
+<p><strong>读数：本指标今天基本是哑的（属于待修的缺陷，见文末修复清单）。</strong> 我用 tick 重算 7590.00 这一档：</p>
+<table>
+<thead>
+<tr>
+<th>价位（06:30–07:30）</th>
+<th>总量</th>
+<th>主动买</th>
+<th>主动卖</th>
+<th>净 Delta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>7590.00</strong></td>
+<td><strong>2,376</strong></td>
+<td>1,017</td>
+<td><strong>1,359</strong></td>
+<td><strong>−342</strong></td>
+</tr>
+</tbody>
+</table>
+<p>即：<strong>2,376 手在 7590 成交，净卖出 342 手，价格却没有被击穿</strong> —— 这正是 Adam 所说的吸收（盘口承接），是最直接的证据。</p>
+<p>补充：06:30–07:30 全窗口成交量 Top 价位是 <strong>7602–7603 一带</strong>（7603.00 5,809 手 净 +233；7602.75 5,565 手 净 −227；7602.50 5,095 手 净 −311；7602.25 4,967 手 净 −313；7603.25 4,732 手 净 +218），净/总比绝对值都 ≤0.063 —— 那是隔夜/RTH 早段的<strong>两段均衡价值区</strong>，不是吸收点位。</p>
+<h3 id="07-Cancel-to-Trade-Ratio">07 Cancel-to-Trade Ratio</h3>
+<p>系统存值：<strong>恒为 0.00</strong>（<code>cancel_trade_ratio = 0.0</code>，且 <code>reliability</code> 仍打印"可信(成交为主)"）。原因同 ⑥：<code>total_trade_bins = 0</code> 时该比值退化为 0，07:15 为 0.0、07:25 为 0.005、其余全 0。</p>
+<p><strong>读数：该指标今天不可用，不能拿来做可信度校验或者否证。</strong> 撤单侧原始计数本身也极小：<code>spoof_bid/spoof_ask</code> 在 07:00–07:30 各窗口为 0–7 次。</p>
+<h3 id="08-DOM-加权失衡-+-动量">08 DOM 加权失衡 + 动量</h3>
+<p>系统存值（07:15 行）：<code>weighted_imbalance = −0.042</code>、<code>imb_momentum = +0.04</code>。</p>
+<p>原始 DOM 逐分钟复核（4 层加权：近端 0–5 档 0.50 / 中端 6–20 档 0.35 / 深层 21–120 档 0.10 / 远端 121+ 档 0.05）：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>07:07</th>
+<th>07:08</th>
+<th>07:09</th>
+<th><strong>07:10</strong></th>
+<th>07:13</th>
+<th><strong>07:14</strong></th>
+<th>07:18</th>
+<th><strong>07:21</strong></th>
+<th>07:22</th>
+<th>07:23</th>
+<th>07:24</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加权失衡</td>
+<td>−0.013</td>
+<td>−0.042</td>
+<td>−0.044</td>
+<td><strong>−0.064</strong></td>
+<td>−0.017</td>
+<td><strong>+0.003</strong></td>
+<td>+0.026</td>
+<td><strong>+0.050</strong></td>
+<td>+0.049</td>
+<td>+0.029</td>
+<td>+0.022</td>
+</tr>
+<tr>
+<td>近 5 档 BID/ASK</td>
+<td>1.06</td>
+<td>1.03</td>
+<td>1.00</td>
+<td><strong>0.86</strong></td>
+<td>0.92</td>
+<td>1.04</td>
+<td>1.07</td>
+<td>0.98</td>
+<td>1.02</td>
+<td>1.02</td>
+<td>0.96</td>
+</tr>
+</tbody>
+</table>
+<p><strong>读数：失衡在 07:10 达到最卖压（−0.064 / 近端比 0.86），随后于 07:14 转正、07:21 达到 +0.050。</strong> 引擎存的 −0.042 是 07:10–07:15 五格均值，与本复核一致（不是矛盾）。</p>
+<h3 id="09-Spoofing-撤单陷阱">09 Spoofing 撤单陷阱</h3>
+<p>系统存值：<strong>Adam 时刻没有触发</strong>。07:00–07:30 的 <code>spoof_bid/spoof_ask</code> 为 0–7 次、无 <code>has_far_bid_wall</code> / <code>has_far_ask_wall</code>。</p>
+<p>今天真正出现的 Spoof-Trap 在<strong>下午前的后半段</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>引擎方向</th>
+<th>spoof_bid / spoof_ask</th>
+<th>墙净深</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10:25</td>
+<td>Neutral:Spoof-Trap</td>
+<td>2 / 8</td>
+<td>−1020</td>
+<td>诱空/诱多撤单规避 → HOLD</td>
+</tr>
+<tr>
+<td>11:15</td>
+<td><strong>Bullish_S1</strong>（唯一方向单，强度 1/10 Low）</td>
+<td>1 / 1</td>
+<td>+554</td>
+<td>量价背离/翻转/冰山/机构大单 加权看多</td>
+</tr>
+<tr>
+<td>11:25</td>
+<td>Neutral:Spoof-Trap</td>
+<td>3 / 8</td>
+<td>−1063</td>
+<td>HOLD</td>
+</tr>
+<tr>
+<td>11:35</td>
+<td>Neutral:Spoof-Trap</td>
+<td>8 / 3</td>
+<td>−743</td>
+<td>HOLD</td>
+</tr>
+<tr>
+<td>11:45</td>
+<td>Neutral:Spoof-Trap</td>
+<td>3 / 9</td>
+<td>−570</td>
+<td>HOLD</td>
+</tr>
+</tbody>
+</table>
+<p><strong>读数：Adam 那一刻不存在撤单陷阱</strong>（价格是靠真实成交与厚托单守住的，不是靠假单撑出来的）。</p>
+<h3 id="10-洗盘反转（大单砸低点后净买）">10 洗盘反转（大单砸低点后净买）</h3>
+<p>系统存值：<code>washout_bull = False</code>、<code>washout_bear = False</code>、<code>washout_dump_* = {found: False}</code>。</p>
+<p><strong>读数：不仅未触发，而且在今天这段里"物理上不可能触发"。</strong> 该模式要求<strong>单笔 ≥500 手</strong>的砸盘大单（<code>washout_dump_single_min_volume = 500</code>）。实测 06:30–07:30：</p>
+<table>
+<thead>
+<tr>
+<th>单笔规模门槛</th>
+<th>命中笔数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≥500 手</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>≥285 手</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>≥150 手</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>该窗口最大单笔</td>
+<td><strong>121 手</strong>（07:26:05 @7614.25 BID）</td>
+</tr>
+</tbody>
+</table>
+<p>Top10 单笔：121、86、85、66、60、60、59、50、50、50 手 —— <strong>7585.50 那个低点是"磨"出来的（连续小单抛压），不是大单砸出来的</strong>，因此"大单砸低点后净买"这一类反转形态在本例中并不存在。</p>
+<h3 id="其他（辅助项）">其他（辅助项）</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日内位置（07:15）</td>
+<td>32.9%</td>
+<td>处于 RTH 下半部</td>
+</tr>
+<tr>
+<td>RTH 低 / 高（该时刻）</td>
+<td>7586.75 / 7605.75</td>
+<td>低点随后被 7585.50 刷新</td>
+</tr>
+<tr>
+<td>真空（Vacuum）</td>
+<td>Ask 0.0s / Bid 0.0s</td>
+<td>无真空急动</td>
+</tr>
+<tr>
+<td>远端大墙</td>
+<td><code>has_far_bid_wall=False</code> / <code>has_far_ask_wall=False</code></td>
+<td>无 121+ 档 ≥800 手大墙</td>
+</tr>
+<tr>
+<td>Stack（近端堆叠）</td>
+<td>bid 1–18 / ask 1–31</td>
+<td>量级很小</td>
+</tr>
+<tr>
+<td><code>recent_micro_5m</code>（07:15 行）</td>
+<td>(7600.25→7605.5, 25,084手, +1,576) / (7605.75→7592.25, 25,427, −779) / (7592.25→7586.75, 18,907, −1,525) / (7586.75→7592.0, 27,085, +1,075) / (7592.0→7587.5, 19,082, −902) / (7587.5→7593.0, 21,628, <strong>+1,488</strong>)</td>
+<td>最后一段即 Adam 发帖那一刻</td>
+</tr>
+<tr>
+<td>引擎规则版本</td>
+<td><code>2026-09-09-phase10</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Adam-判断的结果验证（事实清单）">Adam 判断的结果验证（事实清单）</h2>
+<p>从 07:14:21 之后到今天最新（12:25）的 RTH 数据：</p>
+<table>
+<thead>
+<tr>
+<th>检验项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7590.00 ± 0.25 <strong>是否再次成交</strong></td>
+<td><strong>0 次</strong>（发帖之后该价位从未被回踩）</td>
+</tr>
+<tr>
+<td>发帖后 RTH 最低点</td>
+<td><strong>7590.50 @07:15:20</strong>（比他发帖晚 59 秒，就在他点位上方 0.5 点）</td>
+</tr>
+<tr>
+<td>随后的高点</td>
+<td><strong>7620.00 @07:24:40</strong>（自低点 <strong>+29.5 点</strong>）</td>
+</tr>
+<tr>
+<td>07:24 那一分钟</td>
+<td>成交量 22,221 手、净 delta <strong>+2,073</strong>（空头回补/追多共振）</td>
+</tr>
+<tr>
+<td>首小时低点 7585.50 是否被破</td>
+<td><strong>否</strong></td>
+</tr>
+<tr>
+<td>最新价（12:25:00）</td>
+<td>7596.50（距 7620 高点 <strong>−23.50 点</strong>，回到 7590–7600 区间但未触及 7590）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论：Adam 的点位判断精确正确</strong> —— 7590 守住、且从此再未被测试，随后走出 29.5 点反弹。但<strong>上攻并不持续</strong>（一小时级别回吐到 7596.50），所以"守得住"成立、"涨得远"不成立，与先前"Day Early"的判定一致。</p>
+<h2 id="系统为什么全程沉默（定义错位，不是数据缺失）">系统为什么全程沉默（定义错位，不是数据缺失）</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>引擎 base_rule / 方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>07:00 / 07:10</td>
+<td>日内低位极值防守（≤25%）<strong>禁杀跌</strong></td>
+<td>位置红线拦住了做空，不是看多信号</td>
+</tr>
+<tr>
+<td>07:15 / 07:20</td>
+<td>价值中枢无序震荡 / 动能胶着 → Neutral，强度 0/10</td>
+<td>Adam 的翻转点被判为"无结构"</td>
+</tr>
+<tr>
+<td>07:25</td>
+<td>日内高位极值防守（≥75%）<strong>禁追高</strong></td>
+<td>反弹已到位，不许追</td>
+</tr>
+<tr>
+<td>11:15</td>
+<td>唯一方向单 Bullish_S1，强度 <strong>1/10（Low）</strong></td>
+<td>全天唯一开仓许可，且弱</td>
+</tr>
+</tbody>
+</table>
+<p>根因：引擎的"吸收"判据是<strong>成交维度</strong>——单 bin 内 <code>|net delta| ≥ 800</code> 且 <code>|价格位移| ≤ 3 点</code>；而 Adam 看的是<strong>订单簿维度</strong>——7590 那一档挂单被吃掉又立刻回补（回补峰值仅 40–52 手）。<strong>两者不是同一个量</strong>，所以引擎结构性地看不见这类 edge，无论大单通道是否为空。</p>
+<h2 id="数据质量问题与修复清单">数据质量问题与修复清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>问题</th>
+<th>证据</th>
+<th>建议修复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>⑥ Delta 足迹 / ⑦ Cancel-to-Trade <strong>退化</strong></td>
+<td>07:00 / 07:05 / 07:10 / 07:20 的 <code>trade_bins = 0</code> → 足迹恒 Neutral、CT 比恒 0.00（却仍标注"可信"）</td>
+<td>用 tick 的 <code>Price + Side</code> 去匹配快照生成成交标记，不要依赖快照内的 <code>had_buy / had_sell</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>③ 冰山阈值对 ES 过严 + 采样过粗</td>
+<td>要求 <code>min_peak ≥ 100</code>，实测回补峰值仅 40–52；854 ms 采样对"瞬间掉到 4 手"几乎全漏（真 15 次量级仅捕获 1 次）</td>
+<td>阈值改为"该档流动性分位自适应"；采样加密到 ≤200 ms</td>
+</tr>
+<tr>
+<td>3</td>
+<td>⑤ <code>peak_level</code> 语义误导</td>
+<td>值域 0–199，是<strong>档位索引</strong>不是价格（今天出现 199/195/157 等）</td>
+<td>UI/报告不要当价位展示；或直接换算成价格</td>
+</tr>
+<tr>
+<td>4</td>
+<td>吸收计数字段为 NULL</td>
+<td>07:15 行 <code>rth_absorption_freq</code>、<code>rth_absorption_vol</code>、<code>recent_30m_absorption_freq</code>、<code>recent_30m_absorption_vol</code> 全为 <code>NULL</code></td>
+<td>补写入链路（字段存在但未落值）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>缺少"静态挂单墙强度"这一维</td>
+<td>Adam 的 edge = 单档挂单中位 109 手（对照上方同侧 55 手，约 2 倍）；10 项指标里没有这一项</td>
+<td>新增指标：单档挂单中位 / 全簿同侧分位，并把"净深度由负翻正（−820 → +873）"纳入打分确认项</td>
+</tr>
+</tbody>
+</table>
+<h2 id="复核脚本与可复现命令">复核脚本与可复现命令</h2>
+<table>
+<thead>
+<tr>
+<th>脚本</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/of_tick.py</code></td>
+<td>从 <code>ES_20260910_TICKS.csv</code> 复算：每分钟主动买卖/Delta、截至 07:14:21 的 4 窗口背离、首小时高低点、7587.50–7592.50 足迹、成交量 Top8 价位、Top10 单笔、单笔门槛计数</td>
+</tr>
+<tr>
+<td><code>/tmp/of_dom.py</code></td>
+<td>流式扫描 <code>ES_20260910_DOM.csv.gz</code>（9.70 M 行）：7590/7590.25 挂单序列与回补事件、逐分钟 4 层加权失衡与全簿 BID/ASK 比</td>
+</tr>
+</tbody>
+</table>
+<p>引擎指标直接查询：</p>
+<pre><code class="language-sql">SELECT id, signal_time, direction, signal_strength, quantitative_metrics, dom_metrics, verdict
+FROM bb_trade.order_flow_signals
+WHERE signal_date = '2026-09-10'
+ORDER BY signal_time;
+-- 共 69 条，06:35–12:15 每 5 分钟一条
+</code></pre>
+<h2 id="一句话总结">一句话总结</h2>
+<p>Adam 在 07:14:21 说 7590 有吸收支撑——<strong>10 项指标里真正能验证它的只有 ⑤ Order Wall 净深度（−820 → +873）和我用原始数据补算的 ⑥ 足迹（7590 档 2,376 手成交、净卖 342 手而价不破）+ 逐档挂单（7590 托单中位 109 手、约为上方卖单 2 倍）</strong>；而 ① 提供的是"5m 卖压衰竭 / 30m 买盘被吸收"的双层结构，② 与 ⑧ 同步给出盘口由卖压（0.85）转买盘（1.19）的翻转；④⑨⑩ 在那一刻<strong>无信息量或物理上不可能触发</strong>（RTH 大单为 0、无撤单陷阱、无 ≥500 手砸盘）。系统沉默的原因不是数据缺失，而是<strong>判据定义错位</strong>（成交维度 vs 订单簿维度）。</p>
+</section>
+<section><h2 id="engine_fix_iceberg_wall_wiring_phase11">engine_fix_iceberg_wall_wiring_phase11</h2><h2 id="引擎修复-+-前端/打分接线（phase11-回归验证）">引擎修复 + 前端/打分接线（phase11 回归验证）</h2>
+<p>在上一版"十项指标复盘"的基础上，把"系统为什么看不见 Adam 的 edge"落实到代码修复，并用 2026-09-10 的原始数据做了回归验证。本节 = 修复说明 + 改前/改后对照 + 验证证据。</p>
+<h3 id="修复的两个根因（都不是阈值问题）">修复的两个根因（都不是阈值问题）</h3>
+<p><strong>根因 1（⑥⑦ 退化）</strong>：<code>dom_sentinel_evaluator</code> 的成交标记 <code>had_buy/had_sell</code> 只在调用方显式传 <code>tick_trades</code> 时才填充（<code>if tick_trades:</code>）。MW 健康检查发现 <code>dom_metrics</code> 为 NULL 后会调 <code>mw_dom_recover_and_recompute.recompute_dom()</code>，而那个函数调 <code>extract_5m_dom_metrics(dom_date, hhmm, window_mins=5)</code> <strong>不传</strong> <code>tick_trades</code> → <code>had_buy/had_sell</code> 全 False → ⑥足迹恒 Neutral/0、⑦撤单比恒 0.00（却仍标注"可信(成交为主)"），并且 <code>~sell_near</code> 恒真把<strong>任何</strong>深度下降都记成 spoof（虚增幌骗、误封方向准入）。</p>
+<p><strong>根因 2（③ 漏检）</strong>：MW 导出的 <code>Level</code> 是<strong>相对盘口的档位偏移</strong>（level 0 = 最优价，随盘口移动）。实测同一价位在不同时刻落在不同 Level 上（20 秒内每个 Level 出现过 6 个不同价格）。原冰山检测按 Level 分桶，会把"固定价位的持续性挂单墙"切碎进不同桶 → refill 计数与峰值厚度全部失真。同一 7590 墙：按价格分桶 = 中位 <strong>116 手 / refill 144 次</strong>；按档位索引分桶只剩中位 45–58 手 / refill 48–103 次。</p>
+<h3 id="改动文件">改动文件</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>order_flow_config.py</code></td>
+<td><code>iceberg_min_peak</code> 100→<strong>50</strong>；新增 <code>iceberg_peak_rel_mult=1.5</code>、<code>iceberg_scan_points=12</code>、<code>iceberg_lookback_min=30</code>、<code>iceberg_min_samples_pct=0.3</code>、<code>dom_absorb_delta_ratio/floor</code>；<code>RULES_VERSION</code> → <strong>2026-09-10-phase11</strong></td>
+</tr>
+<tr>
+<td><code>dom_sentinel_evaluator.py</code></td>
+<td>①冰山改<strong>按绝对价格分桶</strong> + 30 分钟回看 + 自适应厚度阈值 + 深砸确认；②<code>load_tick_trades()</code> 自加载兜底（修根因1）；③spoof 成交门控；④足迹补成交量维度（<code>active_buy/sell_vol</code>、<code>net_delta_vol</code>、<code>vol_delta_ratio</code>、<code>top_traded_prices</code>）；⑤<code>order_wall_summary.peak_price</code> 修正（<code>peak_level</code> 标注为档位索引）；⑥新增 <code>iceberg_walls</code>（每堵墙的 price/median/peak/refills/min_size/deep_sweeps + 该价位 30m 成交的 buy/sell 量）、<code>trade_data_ok</code>、<code>trade_data_source</code></td>
+</tr>
+<tr>
+<td><code>order_flow_sentinel.py</code></td>
+<td>传出 <code>(ts, side, price, size)</code>，给足迹量的维度</td>
+</tr>
+<tr>
+<td><code>mw_dom_recover_and_recompute.py</code></td>
+<td>新增 <code>--force-recompute</code>（回刷已有行，默认仍只补 NULL 行）</td>
+</tr>
+<tr>
+<td><code>order_flow_rules_optimizer.py</code></td>
+<td>打分接线：<code>_wall_strength()</code> 从 <code>iceberg_walls</code> 提炼"真实承接墙"强度；b3/b3b（of 方向与 Setup1 准入两处）并入 <code>wall_support_strong</code>/<code>wall_resistance_strong</code>；<code>metrics_dict</code> 新增 <code>iceberg_wall_support</code>/<code>iceberg_wall_resistance</code>/<code>iceberg_walls</code></td>
+</tr>
+<tr>
+<td><code>bbt_data_web/static/js/bbt_signals.js</code></td>
+<td>前端 ③ 卡片直接展示挂单墙明细（托/压、价位、中位厚度、回补次数、被动承接量）；新增"强墙支撑/压盘 xN"徽标；版本 <code>?v=1.2.70</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="挂单墙强度判据（打分用）">挂单墙强度判据（打分用）</h3>
+<p>单档墙即可命中，不必依赖 <code>iceberg_bull/bear</code> 的计数比较，三项各 +1：</p>
+<ul>
+<li>+1 中位厚度 ≥ 80 手</li>
+<li>+1 真的被打过（<code>deep_sweeps ≥ 2</code> 或被打到 <code>min_size ≤ 10</code> 手）</li>
+<li>+1 有真实被动承接成交（BID 墙吃卖单 / ASK 墙吃买单 ≥ 150 手，按 30 分钟回看累计）</li>
+</ul>
+<p><code>iceberg_wall_support/resistance = 三项之和</code>（0–3），≥2 视为"强墙"。</p>
+<h3 id="回归验证（改前-=-库中存值，改后-=-引擎重跑今天数据）">回归验证（改前 = 库中存值，改后 = 引擎重跑今天数据）</h3>
+<table>
+<thead>
+<tr>
+<th>窗口</th>
+<th>iceberg 多/空 改前→改后</th>
+<th>trade_bins 改前→改后</th>
+<th>足迹净量 改前→改后</th>
+<th>撤单比 改前→改后</th>
+<th>spoof 改前→改后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>07:00</td>
+<td>0/0 → 1/5</td>
+<td>0 → 483</td>
+<td>— → −1,525</td>
+<td>0.0 → 0.002</td>
+<td>3/2 → 1/0</td>
+</tr>
+<tr>
+<td>07:05</td>
+<td>0/0 → 2/7</td>
+<td>0 → 585</td>
+<td>— → +1,075</td>
+<td>0.0 → 0.0</td>
+<td>7/4 → 0/0</td>
+</tr>
+<tr>
+<td>07:10</td>
+<td>0/0 → 3/1</td>
+<td>0 → 565</td>
+<td>— → −902</td>
+<td>0.0 → 0.0</td>
+<td>7/2 → 0/0</td>
+</tr>
+<tr>
+<td>07:15</td>
+<td>0/0 → 2/0</td>
+<td>580 → 580</td>
+<td>— → <strong>+1,488</strong></td>
+<td>0.0 → 0.0</td>
+<td>0/0 → 0/0</td>
+</tr>
+<tr>
+<td>07:20</td>
+<td>0/0 → 3/0</td>
+<td>0 → 133</td>
+<td>— → +83</td>
+<td>0.0 → 0.0</td>
+<td>0/0 → 0/0</td>
+</tr>
+<tr>
+<td>07:25</td>
+<td>0/0 → 2/2</td>
+<td>443 → 443</td>
+<td>— → +2,712</td>
+<td>0.005 → 0.007</td>
+<td>0/2 → 0/3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7590 墙在 07:00–07:20 六个窗口全部被检出</strong>：中位 81–125 手、refill <strong>124–144 次</strong>、最深被砸到 <strong>4 手</strong>、深砸 13–23 次（07:25 价格已到 7613，超出 ±12 点扫描带 → 正确地不再报它）。30 分钟回看下该墙的被动承接量 = <strong>吃卖单 1,359 手 / 吃买单 1,017 手</strong>——与独立用 tick 复算的 7590.00 足迹（卖 1,359 / 买 1,017，净 −342）完全一致。</p>
+<p>足迹净量与独立 tick 复算逐一对上（+1,488 / −902 / +2,712）。规则层在 07:15 触发 <code>DOM 5m真实冰山护盘 (IcebergBull=2, Extreme=2)</code>、DOM 共识 <code>Bullish</code>，加权准入 <strong>b3（吸收/冰山）分支点亮</strong>；<code>iceberg_wall_support = 3</code>（强墙）。副产物：还检出了 <strong>ASK@7610–7611 中位 138–169 手的卖方墙</strong>（refill 56–97 次）——正是后来把反弹压在 7620 的天花板。</p>
+<h3 id="自检与边界">自检与边界</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>调用方 4 元组 vs 自加载</td>
+<td>结果完全一致 ✓</td>
+</tr>
+<tr>
+<td>旧调用方只传 <code>(ts,side)</code></td>
+<td>自动降级为自加载（避免把"笔数"当成交量）✓</td>
+</tr>
+<tr>
+<td><code>dry_run</code> 不写库</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>语法/导入（4 文件 + 优化器 + JS）</td>
+<td>全 ok ✓</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>6.6s → 8.5s/次（+1.9s，5 分钟节奏无压力）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>做不到的（说清楚）</strong>：①采样加密做不到——DOM 快照实测 <strong>854ms</strong> 一个，是录制端固有限制，评估器改不了，改为让回补检测适配真实节奏；②DOM 吸收计数器（成交维度）今天仍不触发（5 分钟 bin 的价格位移都 &gt;3 点），只改成"只放宽、不收紧"（随 bin 量自适应，上限锁 800），没有为了让条件成立而伪造——Adam 的 edge 由 ③ 冰山 + ⑤ 墙净深承接。</p>
+<p><strong>历史行回刷</strong>（不擅自改历史，需要时执行）：</p>
+<pre><code class="language-bash">python3 PyTools/jobs/mw_dom_recover_and_recompute.py --date 20260910 --recompute-only --force-recompute
+</code></pre>
+<p>⚠️ 该作业只重写 <code>dom_metrics</code>；<code>quantitative_metrics</code>/<code>verdict</code> 仍是旧口径（要一并刷新需重跑整条 sentinel）。</p></section></article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

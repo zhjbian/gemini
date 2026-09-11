@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - DSH VS Code 扩展本地补丁报告（变更卡片 / 最终结果分割线 / 历史列表点击）</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">DSH VS Code 扩展本地补丁报告（变更卡片 / 最终结果分割线 / 历史列表点击）</h1>
+<div class="meta">
+<span>Saved: 2026-09-10 13:53:35</span>
+<span>Topic: dsh_vscode_extension_three_local_patches</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#总览">总览</a><ul><li><a href="#统一的注入机制（三条约定）">统一的注入机制（三条约定）</a></li><li><a href="#生效方式（三个补丁通用）">生效方式（三个补丁通用）</a></li></ul></li><li><a href="#项一-·-变更卡片（补丁1-+-补丁2）">项一 · 变更卡片（补丁1 + 补丁2）</a><ul><li><a href="#问题是什么">问题是什么</a></li><li><a href="#怎么修复">怎么修复</a></li><li><a href="#控制与回退">控制与回退</a></li></ul></li><li><a href="#项二-·-最终结果分割线（补丁3）">项二 · "最终结果"分割线（补丁3）</a><ul><li><a href="#问题是什么-2">问题是什么</a></li><li><a href="#DOM-依据（读-dist/webview/chat.js-后确认）">DOM 依据（读 dist/webview/chat.js 后确认）</a></li><li><a href="#怎么修复-2">怎么修复</a></li><li><a href="#验证">验证</a></li><li><a href="#控制与回退-2">控制与回退</a></li></ul></li><li><a href="#项三-·-聊天历史列表点不动（补丁4）">项三 · 聊天历史列表"点不动"（补丁4）</a><ul><li><a href="#问题是什么-3">问题是什么</a></li><li><a href="#根因（代码证据）">根因（代码证据）</a></li><li><a href="#怎么修复（三层，全部带超时自愈）">怎么修复（三层，全部带超时自愈）</a></li><li><a href="#验证（headless-Chrome，注入的就是补丁脚本将写出的同一段代码）">验证（headless Chrome，注入的就是补丁脚本将写出的同一段代码）</a></li><li><a href="#残余风险（已知边界）">残余风险（已知边界）</a></li><li><a href="#控制与回退-3">控制与回退</a></li></ul></li><li><a href="#统一控制与回退（命令速查）">统一控制与回退（命令速查）</a></li><li><a href="#生效方式与扩展升级后怎么办">生效方式与"扩展升级后怎么办"</a></li><li><a href="#自检证据汇总">自检证据汇总</a></li></ul></div>
+<section class="main-content">
+<h2 id="总览">总览</h2>
+<p>给 VS Code 扩展 <code>skymecode.deepseek-harness-for-vscode</code> 打的是<strong>本地补丁</strong>：直接改扩展包内的成品文件（<code>dist/webview/chat.js</code>、<code>media/chat.css</code>）。扩展每次升级都会覆盖这些文件，所以补丁用一个幂等脚本统一重打：<code>python3 scripts/repatch_vscode_changes_bar.py</code>。</p>
+<p>按功能分 <strong>3 个项</strong>，共 <strong>4 条编号补丁</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>补丁</th>
+<th>目标文件</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>项一 变更卡片</td>
+<td>补丁1（真 bug 修复）+ 补丁2（彻底隐藏）</td>
+<td><code>dist/webview/chat.js</code> / <code>media/chat.css</code></td>
+<td>"N files edited" 卡片折叠失效，干脆修好并隐藏</td>
+</tr>
+<tr>
+<td>项二 最终结果分割线</td>
+<td>补丁3</td>
+<td><code>media/chat.css</code></td>
+<td>在"分析步骤"与"最终结果"之间加醒目分割线，末尾补橙色收尾线</td>
+</tr>
+<tr>
+<td>项三 历史列表点击</td>
+<td>补丁4</td>
+<td><code>dist/webview/chat.js</code></td>
+<td>聊天历史列表"点不动、要多点几次"，重渲染竞态导致 click 丢失</td>
+</tr>
+</tbody>
+</table>
+<h3 id="统一的注入机制（三条约定）">统一的注入机制（三条约定）</h3>
+<ol>
+<li><strong>标记块</strong>：每段注入内容都带 <code>/* ===== BBT local patch: ... (start) ===== */ ... (end) */</code>，脚本靠标记判幂等，重复执行输出"已打过 ✓"。</li>
+<li><strong>原始备份</strong>：首次打补丁时把原始文件复制成 <code>*.bbt-bak</code>（<strong>只创建一次，永不被后续补丁覆盖</strong>），所以 <code>.bbt-bak</code> 永远是最原始的版本，<code>--revert</code> 能一键还原。</li>
+<li><strong>语法校验</strong>：每次写盘后对 <code>chat.js</code> 跑 <code>node --check</code>，并回读文件确认各补丁标记都在。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>当前大小</th>
+<th>原始备份 <code>*.bbt-bak</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dist/webview/chat.js</code></td>
+<td>376,852 B</td>
+<td>373,517 B</td>
+</tr>
+<tr>
+<td><code>media/chat.css</code></td>
+<td>116,736 B</td>
+<td>112,966 B</td>
+</tr>
+</tbody>
+</table>
+<h3 id="生效方式（三个补丁通用）">生效方式（三个补丁通用）</h3>
+<p><strong>Cmd+Shift+P → Developer: Reload Window</strong>。webview 资源有缓存，只关闭/重开面板往往不够。</p>
+<h2 id="项一-·-变更卡片（补丁1-+-补丁2）">项一 · 变更卡片（补丁1 + 补丁2）</h2>
+<h3 id="问题是什么">问题是什么</h3>
+<p>聊天面板底部的 "N files edited"（changes-bar）卡片有两个问题：</p>
+<ul>
+<li><strong>折叠失效（真 bug）</strong>：压缩后的 <code>kl()</code> 里，文件列表容器 <code>changes-detail</code> <strong>无论展开与否都会被 <code>t.append(...)</code> 追加</strong>；变量 <code>r</code>（展开态）只控制"显示前 3 个"还是"全部"。而 "Show N files" 按钮仅在 <code>!r &amp;&amp; files.length &gt; 3</code> 时才出现 —— 于是<strong>文件数 ≤ 3 时（例如 "1 files edited"）点击摘要行没有任何可见变化</strong>，看起来像坏了。</li>
+<li><strong>卡片本身不需要</strong>：日常使用中它占位且无信息量。</li>
+</ul>
+<h3 id="怎么修复">怎么修复</h3>
+<ul>
+<li><strong>补丁1（JS，变量名自适应、抗压缩改名）</strong>：在 <code>changes-detail</code> 容器被 append 之前，按同一个展开态变量切换 <code>hidden</code> 类（扩展自带 <code>.hidden{display:none!important}</code>）：</li>
+</ul>
+<p><code>js
+  // 注入形式（脚本按锚点定位并插入，变量名从原文抽取）
+  &lt;listVar&gt;.classList.toggle("hidden",!&lt;expandVar&gt;),</code></p>
+<p>锚点：<code>let &lt;VAR&gt; = Me(e.document,"div","changes-detail")</code> 找容器变量、<code>aria-expanded",String(&lt;VAR&gt;)</code> 找展开态变量，再定位其后第一处 <code>t.append(&lt;LIST_VAR&gt;)</code> 插入。幂等判据：正则 <code>\w+\.classList\.toggle\("hidden",!\w+\),t\.append\(</code>。</p>
+<ul>
+<li><strong>补丁2（CSS）</strong>：向 <code>media/chat.css</code> 追加</li>
+</ul>
+<p><code>css
+  /* ===== BBT local patch (start) =====
+   * 隐藏 "N files edited" 变更卡片。
+   * 想保留卡片可见但修复折叠 bug: 用 --no-hide 重跑，或直接删除本段。
+   */
+  .changes-bar { display: none !important; }
+  /* ===== BBT local patch (end) ===== */</code></p>
+<h3 id="控制与回退">控制与回退</h3>
+<table>
+<thead>
+<tr>
+<th>目的</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只修折叠 bug、让卡片重新可见</td>
+<td><code>python3 scripts/repatch_vscode_changes_bar.py --no-hide</code></td>
+</tr>
+<tr>
+<td>全部还原成未打补丁的原始文件</td>
+<td><code>python3 scripts/repatch_vscode_changes_bar.py --revert</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="项二-·-最终结果分割线（补丁3）">项二 · "最终结果"分割线（补丁3）</h2>
+<h3 id="问题是什么-2">问题是什么</h3>
+<p>聊天记录里，"上面的分析步骤"（<code>Thought for Xs</code> 折叠块、<code>Bash</code> 工具卡片）与"最终结果"之间<strong>几乎没有视觉分界</strong>，长回答里很难一眼定位结论。</p>
+<p>排查发现：扩展<strong>本来就有</strong>这条分割线，只是弱到看不见 —— <code>media/chat.css</code> 里两条规则都只有 <code>1px solid</code> + <code>widget-border 65%</code>：</p>
+<pre><code class="language-css">.message:has(.message-copy-footer):not(:has(.reasoning-block)) { ... border-top: 1px solid color-mix(... 65% ...); }
+.message:has(.message-copy-footer) .message-body &gt; .reasoning-block + .content-block { ... border-top: 1px solid ...; }
+</code></pre>
+<p>所以这项不是"新增"，而是<strong>把它做成醒目</strong>。</p>
+<h3 id="DOM-依据（读-dist/webview/chat.js-后确认）">DOM 依据（读 <code>dist/webview/chat.js</code> 后确认）</h3>
+<p><code>.messages</code> 下是<strong>扁平</strong>条目列表：<code>.message</code>（内部 <code>div.message-body</code>，子元素依次是 <code>details.reasoning-block</code> / <code>div.content-block.text.markdown-body</code>）与 <code>div.tool-item</code>、<code>div.notice</code> 是<strong>兄弟</strong>；<code>button.message-copy-footer</code> 只挂在"最后一条有结论的 assistant 消息"上。因此分两种情形：</p>
+<ul>
+<li><strong>情形A（最常见）</strong>：结论消息自带 thinking → 线画在 <code>reasoning-block + content-block</code> 之间</li>
+<li><strong>情形B</strong>：结论消息没有 thinking → 线落在答案文字上方，隔开上面的工具卡片</li>
+</ul>
+<h3 id="怎么修复-2">怎么修复</h3>
+<p>覆盖为<strong>实心 magenta 3px（无渐变）</strong> + 居中发光"最终结果"标签；并在<strong>答案结束处</strong>补一条同风格<strong>实心橙线</strong>，把本轮与后续内容分开（"最终结果"被紫线/橙线夹成闭环）。</p>
+<p>关键 CSS（<code>media/chat.css</code> 末尾，标记块内）：</p>
+<pre><code class="language-css">/* 线与标签的公共外观：两段实心 magenta 横线（同色渐变 == 纯色填充，无过渡），中段让给标签 */
+:is(
+    .message.assistant:not(:has(+ :is(.tool-item, .notice)))
+      .message-body &gt; .reasoning-block + .content-block.text:last-child,
+    .message.assistant:not(:has(+ :is(.tool-item, .notice))):not(:has(.reasoning-block))
+      .message-body
+  )::before {
+  content: "\6700\7EC8\7ED3\679C";          /* 最终结果 */
+  display: block; margin: 0 0 18px;
+  font-size: 11px; font-weight: 700; line-height: 1;
+  letter-spacing: 0.2em; text-indent: 0.2em; text-align: center;
+  color: #ff00ff;
+  text-shadow: 0 0 6px rgba(255, 0, 255, 0.55);
+  background-image: linear-gradient(#ff00ff, #ff00ff), linear-gradient(#ff00ff, #ff00ff);
+  background-size: calc(50% - 5em) 3px, calc(50% - 5em) 3px;
+  background-position: left center, right center; background-repeat: no-repeat;
+}
+/* 情形A 间距 + 清掉扩展自带 1px 灰线 */
+.message.assistant:not(:has(+ :is(.tool-item, .notice)))
+  .message-body &gt; .reasoning-block + .content-block.text:last-child {
+  margin-top: 4px; padding-top: 0; border-top: 0;
+}
+/* 情形B */
+.message.assistant:not(:has(+ :is(.tool-item, .notice))):not(:has(.reasoning-block)) {
+  margin-top: 22px; padding-top: 0; border-top: 0;
+}
+/* 收尾橙线：整条消息底部（copy 按钮之下） */
+.message.assistant:not(:has(+ :is(.tool-item, .notice))):has(
+    .message-body &gt; .content-block.text:last-child
+  )::after {
+  content: ""; display: block; height: 3px; margin-top: 12px; background: #ffa500;
+}
+</code></pre>
+<p>设计取舍（迭代过程）：先做成主题蓝 <code>#4c8cff</code> 渐变淡出 → 实测"不够醒目" → 改为<strong>实心 magenta、无渐变</strong>；随后按要求补橙色收尾线。<strong>每一轮回答</strong>都带线（不只整段对话最后一次）：判据是"该 assistant 消息后面不再跟 <code>.tool-item</code> / <code>.notice</code>"（即本轮收尾的回答），而不是扩展自带的 copy-footer 判据（后者只存在于最后一次回答）。</p>
+<p>橙色收尾线是最终确认的版本。若只想保留线条、不要标签：删掉 <code>::before</code> 的 <code>content</code> 行；想换色：改两处 <code>#ff00ff</code> / <code>#ffa500</code>。</p>
+<h3 id="验证">验证</h3>
+<p>用 headless Chrome 加载<strong>扩展真实的 <code>chat.css</code></strong> 渲染复现页（<code>/tmp/dsh_div/t2.html</code>），逐情形核对：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>历史轮次（无 copy-footer）</td>
+<td>带 magenta 线 ✓</td>
+</tr>
+<tr>
+<td>本轮思考段（无文字）</td>
+<td>不带线 ✓；本轮收尾回答 → 带线 + 橙线 ✓</td>
+</tr>
+<tr>
+<td>中途叙述（后面还跟工具卡片）</td>
+<td>不带线 ✓（无误伤）</td>
+</tr>
+<tr>
+<td>本轮回答没有 thinking（情形B）</td>
+<td>带线 + 橙线 ✓</td>
+</tr>
+<tr>
+<td>用户消息</td>
+<td>不带线 ✓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="控制与回退-2">控制与回退</h3>
+<table>
+<thead>
+<tr>
+<th>目的</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不要这条分割线</td>
+<td><code>python3 scripts/repatch_vscode_changes_bar.py --no-divider</code></td>
+</tr>
+<tr>
+<td>微调样式后热更新</td>
+<td>改脚本里的 <code>DIVIDER_BLOCK</code> 再重跑；脚本检测到内容变化会输出 <code>更新中(样式有变)</code> 并<strong>原地替换</strong>（不会叠出 <code>/* ===== /* =====</code>）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="项三-·-聊天历史列表点不动（补丁4）">项三 · 聊天历史列表"点不动"（补丁4）</h2>
+<h3 id="问题是什么-3">问题是什么</h3>
+<p>Chat history 列表里的会话项<strong>大部分时候点不动</strong>：点击后没有反应，要反复点好几次、偶然才切换成功。有会话正在运行时（列表项右上角有蓝点）尤其明显。</p>
+<h3 id="根因（代码证据）">根因（代码证据）</h3>
+<p>行本身是有监听器的按钮：</p>
+<pre><code class="language-js">// 真正干活的监听器
+button.session-row  →  addEventListener("click", () =&gt; U("selectSession", { sessionId: s.id }))
+
+// 但列表在任何状态更新时都**整体重建**：
+g.historyPanel.classList.contains("hidden") || pt()      // pt() 重建全部 session-row 节点
+</code></pre>
+<p>只要<strong>按下与抬起之间节点被替换</strong>，浏览器就不再派发 <code>click</code>（click 要求 mousedown/mouseup 命中同一节点或共同祖先；重建后共同祖先变成没有监听器的容器）→ <code>selectSession</code> 永不触发。会话在跑时状态更新最密集，所以最难切换。<strong>这不是热区/层级问题</strong>（<code>.session-row-actions</code> 悬停时 <code>pointer-events:auto</code> 只覆盖右上角一小块）。</p>
+<h3 id="怎么修复（三层，全部带超时自愈）">怎么修复（三层，全部带超时自愈）</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 治本</td>
+<td><code>pt()</code> 加守卫 <code>if(!z||(window.__bbtRowPressUntil||0)&gt;Date.now())return</code> —— <strong>按下期间冻结列表重建</strong>，让原生 click 正常落地</td>
+</tr>
+<tr>
+<td>② 兜底</td>
+<td>delegated <code>pointerup</code>：若行节点已被替换或未命中按钮，对<strong>保留的元素引用</strong>补一次 <code>.click()</code>（元素即使已脱离 DOM，其监听器仍会执行 → <code>selectSession</code> 照常工作）</td>
+</tr>
+<tr>
+<td>③ 死区</td>
+<td><code>.session-row-wrap</code> 内、按钮之外的区域（含 <code>session-row-actions</code> 的空隙）点击代打按钮</td>
+</tr>
+</tbody>
+</table>
+<p>注入内容（<code>dist/webview/chat.js</code>，两处改动）：</p>
+<pre><code class="language-js">// 改动一：pt() 重建守卫（唯一锚点，命中 1 次）
+function pt(){if(!z||(window.__bbtRowPressUntil||0)&gt;Date.now())return;let e=g.historySearch.value.trim()
+
+// 改动二：文件末尾追加 delegated 兜底（完整块）
+(function () {
+  if (window.__bbtHistRowFix) { return; }
+  window.__bbtHistRowFix = true;
+  var WRAP = ".session-row-wrap", ROW = ".session-row",
+      ACT = ".session-row-actions, .session-worktree-action";
+  var press = null;
+  function closest(el, sel) { return (el &amp;&amp; el.closest) ? el.closest(sel) : null; }
+  function isAction(el) { return !!closest(el, ACT); }
+  function freeze(ms) { window.__bbtRowPressUntil = Date.now() + ms; }
+  document.addEventListener("pointerdown", function (ev) {
+    press = null;
+    if (ev.button !== 0) { return; }
+    var t = ev.target, wrap = closest(t, WRAP);
+    if (!wrap) { return; }
+    freeze(1500);                       /* 按下即冻结列表重建（含操作按钮） */
+    if (isAction(t)) { return; }        /* 操作按钮只冻结，不代打（否则会误切会话） */
+    var row = closest(t, ROW) || wrap.querySelector(ROW);
+    if (!row) { return; }
+    press = { row: row, x: ev.clientX, y: ev.clientY, t: Date.now() };
+  }, true);
+  document.addEventListener("pointerup", function (ev) {
+    var p = press; press = null;
+    if ((window.__bbtRowPressUntil || 0) &gt; Date.now()) { freeze(300); }  /* 覆盖紧随其后的 click */
+    if (!p || Date.now() - p.t &gt; 1200) { return; }
+    if (Math.abs(ev.clientX - p.x) &gt; 6 || Math.abs(ev.clientY - p.y) &gt; 6) { return; } /* 拖动/滚动不算点击 */
+    var t = ev.target;
+    if (closest(t, ROW) === p.row &amp;&amp; p.row.isConnected) { return; }     /* 原生 click 会送达 */
+    try { p.row.click(); } catch (e) {}                                 /* 节点被换掉/命中死区 → 补一次 */
+  }, true);
+  document.addEventListener("pointercancel", function () { press = null; freeze(0); }, true);
+  document.addEventListener("click", function (ev) {
+    var t = ev.target, wrap = closest(t, WRAP);
+    if (!wrap || isAction(t) || closest(t, ROW)) { return; }
+    var row = wrap.querySelector(ROW);
+    if (row) { ev.preventDefault(); ev.stopPropagation(); row.click(); }
+  }, true);
+})();
+</code></pre>
+<p>边界处理：操作按钮（pin / 标签 / 归档 / worktree）<strong>只冻结不代打</strong>，避免把"归档"点成"切换会话"；位移 &gt; 6px 视为拖动/滚动不算点击；节点完好时不重复触发；冻结用<strong>时间戳而非布尔标志</strong>，即使 pointerup 丢失也会 1.5 秒后自愈，不会永久冻结列表。</p>
+<h3 id="验证（headless-Chrome，注入的就是补丁脚本将写出的同一段代码）">验证（headless Chrome，注入的就是补丁脚本将写出的同一段代码）</h3>
+<pre><code>PASS  T1  按下期间冻结重建        [renderCount 1-&gt;1]
+PASS  T1b 超时自愈后可重建        [renderCount=2]
+PASS  T2  前置: 原节点已脱离
+PASS  T2  兜底补触发一次          [["A"]]      ← 竞态下仍精确切到按下的那个会话
+PASS  T3  完好节点不重复          [["B"]]      ← 不会双触发
+PASS  T4  操作按钮不误切会话      [["ACTION"]]
+PASS  T5  拖动不算点击            [[]]
+</code></pre>
+<p>实测反馈：<strong>用户已实际使用确认"非常好"</strong>。</p>
+<h3 id="残余风险（已知边界）">残余风险（已知边界）</h3>
+<p>宿主侧还有一条静默失败路径：</p>
+<pre><code class="language-js">selectSession(e){ if(this.summaries.has(e)||await this.refreshSessionList(), !this.summaries.has(e)) throw new Error("Session not found.") }
+</code></pre>
+<p>若会话不在 <code>summaries</code> 且刷新后仍没有，会<strong>抛异常而 UI 无提示</strong>。若重载后仍偶发"点了没反应"，问题在这条（而非点击丢失），建议给它加重试 + 可见提示。</p>
+<h3 id="控制与回退-3">控制与回退</h3>
+<table>
+<thead>
+<tr>
+<th>目的</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不要这次的历史列表加固</td>
+<td><code>python3 scripts/repatch_vscode_changes_bar.py --no-history-fix</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="统一控制与回退（命令速查）">统一控制与回退（命令速查）</h2>
+<pre><code class="language-bash"># 打全部补丁（幂等；扩展升级后重跑这一条即可）
+python3 scripts/repatch_vscode_changes_bar.py
+
+# 只检查/预览，不写盘
+python3 scripts/repatch_vscode_changes_bar.py --dry-run
+
+# 逐项跳过
+python3 scripts/repatch_vscode_changes_bar.py --no-hide          # 补丁1 保留，补丁2 不隐藏卡片
+python3 scripts/repatch_vscode_changes_bar.py --no-divider       # 跳过补丁3（不要最终结果分割线）
+python3 scripts/repatch_vscode_changes_bar.py --no-history-fix   # 跳过补丁4（历史列表点击加固）
+
+# 还原成原始文件（四条补丁全撤，从 *.bbt-bak 恢复）
+python3 scripts/repatch_vscode_changes_bar.py --revert
+
+# 其它
+python3 scripts/repatch_vscode_changes_bar.py --all              # 补丁全部版本目录（默认只打最新）
+python3 scripts/repatch_vscode_changes_bar.py --ext-root &lt;dir&gt;   # 指定扩展根目录（默认 ~/.vscode/extensions）
+</code></pre>
+<p>脚本位置：<code>/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/scripts/repatch_vscode_changes_bar.py</code></p>
+<p>脚本每次执行都会打印逐补丁状态 + 校验结果，例如：</p>
+<pre><code>=== 扩展目录: skymecode.deepseek-harness-for-vscode-0.5.8 ===
+  [补丁1] 折叠修复: 已打过, 跳过 ✓
+  [补丁2] 隐藏卡片: 已打过, 跳过 ✓
+  [补丁3] 最终结果分割线: 已打过, 跳过 ✓
+  [补丁4] 历史列表点击加固: 已打过, 跳过 ✓
+  [校验] node --check chat.js: ok
+  [校验] 补丁1 生效: 是 ✓ | 补丁2 生效: 是 ✓ | 补丁3 生效: 是 ✓ | 补丁4 生效: 是 ✓
+</code></pre>
+<h2 id="生效方式与扩展升级后怎么办">生效方式与"扩展升级后怎么办"</h2>
+<ol>
+<li>打完补丁后 <strong>Cmd+Shift+P → Developer: Reload Window</strong>（webview 资源有缓存）。</li>
+<li>扩展升级会<strong>整目录替换</strong>，补丁与 <code>*.bbt-bak</code> 一并消失 —— 重新执行 <code>python3 scripts/repatch_vscode_changes_bar.py</code> 即可（它会重新备份新版本的原始文件并重打四条补丁）。</li>
+<li>若脚本报 <code>✗ 锚点未找到</code>，说明扩展内部结构变了（大概率是压缩变量名或函数名改动），需人工核对后更新脚本里的锚点；脚本会明确指出是哪个补丁、哪个文件。</li>
+</ol>
+<h2 id="自检证据汇总">自检证据汇总</h2>
+<table>
+<thead>
+<tr>
+<th>检查</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>node --check chat.js</code>（脚本每次自动执行）</td>
+<td>ok</td>
+</tr>
+<tr>
+<td>四条补丁标记回读</td>
+<td>补丁1 生效 ✓ / 补丁2 ✓ / 补丁3 ✓ / 补丁4 ✓</td>
+</tr>
+<tr>
+<td>幂等复跑</td>
+<td>全部输出 <code>已打过, 跳过 ✓</code></td>
+</tr>
+<tr>
+<td>备份完整性</td>
+<td><code>chat.js.bbt-bak</code> 373,517 B、<code>chat.css.bbt-bak</code> 112,966 B（均为原始版，未被后续补丁覆盖）</td>
+</tr>
+<tr>
+<td>补丁3 渲染验证</td>
+<td>headless Chrome + 扩展真实 CSS，5 种情形逐条核对通过</td>
+</tr>
+<tr>
+<td>补丁4 逻辑验证</td>
+<td>headless Chrome 7 项断言全 PASS（含竞态、双触发、误差点击、拖动）</td>
+</tr>
+<tr>
+<td>补丁3 样式热更新</td>
+<td>检测到 <code>DIVIDER_BLOCK</code> 变化 → <code>更新中(样式有变)</code> 原地替换；修复了早期"重复叠加 <code>/* =====</code> 前缀"的缺陷</td>
+</tr>
+<tr>
+<td>补丁4 实测</td>
+<td>用户确认"非常好"</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

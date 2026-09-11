@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - SPX 0DTE Gamma 规则深入评估</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">SPX 0DTE Gamma 规则深入评估</h1>
+<div class="meta">
+<span>Saved: 2026-09-07 21:29:56</span>
+<span>Topic: spx_0dte_gamma</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#(1)-理论框架是否合理-——-总体合理，是业界成熟范式的正确落地">(1) 理论框架是否合理 —— 总体合理，是业界成熟范式的正确落地</a></li><li><a href="#(2)-哪些地方有错误-——-3-处真实不一致-+-若干措辞隐患">(2) 哪些地方有错误 —— 3 处真实不一致 + 若干措辞隐患</a><ul><li><a href="#错误大（会误导人）">错误大（会误导人）</a></li><li><a href="#中等问题">中等问题</a></li><li><a href="#措辞/逻辑隐患（非崩溃，但影响可读性）">措辞/逻辑隐患（非崩溃，但影响可读性）</a></li></ul></li><li><a href="#(3)-哪些地方可以改进-——-5-个高价值建议">(3) 哪些地方可以改进 —— 5 个高价值建议</a><ul><li><a href="#建议A：趋势日判定应由SPY-点位换算改为SPX-直接用">建议A：趋势日判定应由"SPY 点位换算"改为"SPX 直接用"</a></li><li><a href="#建议B：把是否落在正/负-Gamma-区（in_positive_regime）纳入决策树">建议B：把"是否落在正/负 Gamma 区"（in_positive_regime）纳入决策树</a></li><li><a href="#建议C：澄清Pos-触及-90%/10%与极值禁区-8点的优先级">建议C：澄清"Pos 触及 90%/10%"与"极值禁区 8点"的优先级</a></li><li><a href="#建议D：imbalance_score-分母对-0-的处理应更稳健">建议D：imbalance_score 分母对 0 的处理应更稳健</a></li><li><a href="#建议E：把-L0-L3-与实际历史胜率/盈亏比挂钩">建议E：把 L0-L3 与"实际历史胜率/盈亏比"挂钩</a></li></ul></li><li><a href="#(4)-还缺少什么重要的东西-——-4-个关键缺口">(4) 还缺少什么重要的东西 —— 4 个关键缺口</a><ul><li><a href="#缺口1：缺少Gamma-数据置信度/时效校验">缺口1：缺少"Gamma 数据置信度/时效校验"</a></li><li><a href="#缺口2：缺少正/负-Gamma-区(regime)-与-Wall-属性的强绑定（同建议B）">缺口2：缺少"正/负 Gamma 区(regime) 与 Wall 属性的强绑定"（同建议B）</a></li><li><a href="#缺口3：缺少用实时/回测验证正向样本的验证层">缺口3：缺少"用实时/回测验证正向样本"的验证层</a></li><li><a href="#缺口4：缺少IV/张数等多维输入与尾盘-Theta-爆发的显式模型">缺口4：缺少"IV/张数等多维输入"与"尾盘 Theta 爆发的显式模型"</a></li></ul></li><li><a href="#总结判定">总结判定</a></li></ul></div>
+<section class="main-content">
+<p>第二部分：SPX 0DTE Gamma 规则 —— 深入评估</p>
+<p>对照基准：文档 gemini_answer-trading_system_rules_manual...html L1521-1768；引擎实现 PyTools/quantdata/spx_gamma_analyst.py（analyze_spx_gamma 决策树 + resolve_call_wall/put_wall）、PyTools/py_lib/gamma_structure_detector.py（纯净度/优势检测）、PyTools/quantdata/trend_regime.py（趋势日+集群趋势）。</p>
+<h2 id="(1)-理论框架是否合理-——-总体合理，是业界成熟范式的正确落地">(1) 理论框架是否合理 —— 总体合理，是业界成熟范式的正确落地</h2>
+<p>这套框架以做市商 Delta 中性对冲为核心，方向研判正确、自洽：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>文档与实现是否一致</th>
+<th>评价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>正/负 Gamma 两大 regime</td>
+<td>一致</td>
+<td>正 Gamma=逆势对冲导致波动收敛/锚定；负 Gamma=顺势对冲导致磁吸/爆仓，符合 GEX 学术与实务标准</td>
+</tr>
+<tr>
+<td>水位体系（Call/Put Wall、Gamma Flip）</td>
+<td>一致</td>
+<td>与 SpotGamma/GEX 通用定义吻合</td>
+</tr>
+<tr>
+<td>三阶梯决策树（时间闸门到纯净度到优势到空间）</td>
+<td>一致</td>
+<td>多条件硬性过滤符合"先证中性、再谈顺势"的正确哲学，避免顺势臆测</td>
+</tr>
+<tr>
+<td>极值禁区一票否决（8点撞墙）</td>
+<td>一致</td>
+<td>正确规避了"到顶还追多"的卖方爆仓场景</td>
+</tr>
+<tr>
+<td>趋势日自适应 Cushion（15/23点）</td>
+<td>一致</td>
+<td>用 evaluate_intraday_trend_regime 区分趋势/非趋势，逻辑严谨</td>
+</tr>
+<tr>
+<td>L0-L3 分级加分</td>
+<td>一致</td>
+<td>基础基准 + 3 项独立加分，可解释性强</td>
+</tr>
+</tbody>
+</table>
+<p>结论：理论地基合格，无根本性方向错误。</p>
+<h2 id="(2)-哪些地方有错误-——-3-处真实不一致-+-若干措辞隐患">(2) 哪些地方有错误 —— 3 处真实不一致 + 若干措辞隐患</h2>
+<h3 id="错误大（会误导人）">错误大（会误导人）</h3>
+<p>【E1】趋势日判定的"0.80 点/8.0点"文档与代码不一致（最严重）<br/>
+- 文档 L1640/L57 写：SPY 现价大幅脱离当日内极值 &gt;= 0.80 点 (对应 SPX 8.0点)<br/>
+- 代码 trend_regime.py：docstring 写 + 0.80 点 (对应 SPX 8.0点)，但逻辑体（L124/129、L136/141）实际用 + 1.00 点 (对应 SPX 10点)<br/>
+- 影响：&gt;= 0.80 与 &gt;= 1.00 阈值相差 25%。在 SPY 恰好偏离 0.80~1.00 点的边界区，文档说"是趋势日（宽松15点门槛）"，代码却判"非趋势日（收紧23点门槛）"。文档比代码更宽松，会让人误判趋势日，从而导致该位置该被拦截却放行。这是要把文档同步到代码、还是把代码改到文档，需定夺（建议统一，且趋势日判定本应更保守）。</p>
+<h3 id="中等问题">中等问题</h3>
+<p>【E2】"741 组样本、$4.8B/$15B 绝对金额门限"只在文档，代码未实现<br/>
+- 文档 Note（L1596-1598）给出 早盘中位数$4.8B 到 门限$5.0B/$3.5B、盘中$15B 到 $15.0B/$10.0B<br/>
+- 代码中 grep 不到任何对应常量或逻辑——这是"未来规划"（文档自己也写了"系统后续版本可能加入"），但现在作为已生效规则写进了文档，读者会误以为当前就会按绝对金额拦截。<br/>
+- 这是文档与现状的偏差：要么标注"（规划中，未实现）"，要么补实现。</p>
+<p>【E3】docstring 自相矛盾（次要但确凿）<br/>
+- 同一文件里 trend_regime.py 的注释头写 0.80、逻辑用 1.00，且注释还写"对应 SPX 8.0 点"（1.00 应对应 10 点）。属注释与代码打架的纯粹笔误。</p>
+<h3 id="措辞/逻辑隐患（非崩溃，但影响可读性）">措辞/逻辑隐患（非崩溃，但影响可读性）</h3>
+<ul>
+<li>【E4】"最大Gamma柱在ATM&lt;10点到向外层找80%峰值"：文档与 resolve_call_wall 一致。但注意 resolve_call_wall 若找不到 OTM 候选，会回落到全局最大正柱（可能是平价柱）——此时"杜绝假撞墙误报"的初衷落空，文档没说明这个回落路径。</li>
+<li>【E5】height_ratio 与 imbalance_score 双口径：文档 L1584/1585 说优势判定 = Ratio&gt;=2.0 或 最大柱高&gt;=2.0倍。实现（L660/661）用 imbalance_score&gt;=2.0 OR (dom_dir==BULLISH and round(height_ratio,1)&gt;=2.0)。两者口径不同（集群比率 vs 单柱高），文档把两者并列但没说清是"或"关系及各自触发边界，读者易混淆。</li>
+</ul>
+<h2 id="(3)-哪些地方可以改进-——-5-个高价值建议">(3) 哪些地方可以改进 —— 5 个高价值建议</h2>
+<h3 id="建议A：趋势日判定应由SPY-点位换算改为SPX-直接用">建议A：趋势日判定应由"SPY 点位换算"改为"SPX 直接用"</h3>
+<ul>
+<li>现状：趋势日用 SPY（trend_regime.py L79 注释"一律用 SPY 判定"）。文档 L1638 也写"以 SPY 判定"。</li>
+<li>问题：Gamma 决策树所有 Cushion、Wall 都用 SPX 点位（$7450 级），而趋势日换算用 SPY 的 0.8/2.0 点（代偿 SPX 8/20 点）。两个标的涨跌不完全同步。</li>
+<li>建议：SPX 数据已由 fetch_spx_price_from_tos 可得，趋势日的"脱离极值/回撤"可直接用 SPX 点位，消除换算误差。</li>
+</ul>
+<h3 id="建议B：把是否落在正/负-Gamma-区（in_positive_regime）纳入决策树">建议B：把"是否落在正/负 Gamma 区"（in_positive_regime）纳入决策树</h3>
+<ul>
+<li>代码已算 in_positive_regime = spx_price &gt; zero_gamma_level（L573），但决策树里没用它！</li>
+<li>理论上：Call Wall 只有在正 Gamma 区才是"天花板"，Put Wall 只有在负 Gamma 区才是"磁吸"。若现价已越过 Gamma Flip，某个 Wall 的方向属性会失效。</li>
+<li>建议：在第三层（是否进 Bullish/Bearish 通道）前，先检查 spx_price 相对 zero_gamma_level 的位置，与 is_bull_dom/is_bear_dom 交叉验证，可显著减少"反向 wall 误判"。</li>
+</ul>
+<h3 id="建议C：澄清Pos-触及-90%/10%与极值禁区-8点的优先级">建议C：澄清"Pos 触及 90%/10%"与"极值禁区 8点"的优先级</h3>
+<ul>
+<li>文档 L1648：8.0 &lt;= Cushion &lt; 动态门限 或 Pos &gt;= 90% / &lt;= 10% 到 Compression。</li>
+<li>但代码（L698/L723）：只有 call_cushion &gt;= req &amp;&amp; pos &lt; 0.90 才进 Bullish；若 pos &gt;= 0.90 会落进 else 到 Compression。逻辑一致。但文档没说明 Pos 的 0.90/0.10 边界是与 8 点禁区并存还是被覆盖。建议在文档补齐：Pos&gt;=90% 走 Compression-Top（即使 Cushion 充盈），Cushion&lt;8 优先走 Exhaustion-Top。</li>
+</ul>
+<h3 id="建议D：imbalance_score-分母对-0-的处理应更稳健">建议D：imbalance_score 分母对 0 的处理应更稳健</h3>
+<ul>
+<li>代码 L560-562：abs_bear = max(abs(bearish_cluster_gamma), 1.0) 防除零。但当 bear cluster 极小（如 $0.5B）时，imbalance_score 会被人为放大到虚高（如 &gt;=100），cond1_ratio(&gt;=3) 恒真，虚增 L 级。</li>
+<li>建议：给 imbalance_score 设上限（如 cap 到 5.0）或要求分母 &gt;= 某绝对量级，防止"分母过小到假高信心"。</li>
+</ul>
+<h3 id="建议E：把-L0-L3-与实际历史胜率/盈亏比挂钩">建议E：把 L0-L3 与"实际历史胜率/盈亏比"挂钩</h3>
+<ul>
+<li>文档 L0-L3 优先级判断合理，但无回测证据支撑"3项加分=胜率更高"。</li>
+<li>建议：用历史样本回填，输出每个 L 级对应的实际命中率，反哺门槛（哪个加分项最有效、哪个是噪点）。</li>
+</ul>
+<h2 id="(4)-还缺少什么重要的东西-——-4-个关键缺口">(4) 还缺少什么重要的东西 —— 4 个关键缺口</h2>
+<h3 id="缺口1：缺少Gamma-数据置信度/时效校验">缺口1：缺少"Gamma 数据置信度/时效校验"</h3>
+<ul>
+<li>代码依赖 fetch_spx_price_from_tos 实时价、_ensure_yf_spx_df 历史价、qd_gamma 表。但未校验这些数据的新鲜度一致性（如 qd_gamma 若是 T-1 旧数据，而价是实时价，会出现"价-new 墙-old"错配）。文档也未提数据源质量保障。这和第一部分 Part 1 缺数据校验是同类问题。</li>
+</ul>
+<h3 id="缺口2：缺少正/负-Gamma-区(regime)-与-Wall-属性的强绑定（同建议B）">缺口2：缺少"正/负 Gamma 区(regime) 与 Wall 属性的强绑定"（同建议B）</h3>
+<ul>
+<li>文档通篇把 Call Wall 默认"顶部天花板"、Put Wall 默认"底部磁吸"，但没说明这个属性只在对应 Gamma 区成立。若现价已穿越 Gamma Flip，文档给出的推论会失真。这是理论缺环，不止是改进。</li>
+</ul>
+<h3 id="缺口3：缺少用实时/回测验证正向样本的验证层">缺口3：缺少"用实时/回测验证正向样本"的验证层</h3>
+<ul>
+<li>决策树产出 Bullish_L0~L3 / Bearish_L0~L3，但没有对应的"方向命中率热力图"或"按时间/墙距分桶的实证"。文档大量引用"基于逻辑判断"，缺实证闭环（第一部分就暴露过"over-suppress 到 0 牛市"这类校准问题）。</li>
+</ul>
+<h3 id="缺口4：缺少IV/张数等多维输入与尾盘-Theta-爆发的显式模型">缺口4：缺少"IV/张数等多维输入"与"尾盘 Theta 爆发的显式模型"</h3>
+<ul>
+<li>0DTE 的 Gamma 强度不只取决于 strike 距离，还取决于 IV 与时间衰减。当前只用"行权价距离 + 集群金额"抽象，未把 IV 曲线/剩余时间纳入 Gamma 权重。尾盘 ATM Gamma 爆炸（文档 L1562 提到）没有显式的 gamma 正比于 1/(sigma*sqrt(t)) 修正，只在时间闸门层面一刀切（11:00 截断）。</li>
+</ul>
+<h2 id="总结判定">总结判定</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>理论框架</td>
+<td>合理，业界标准做市商对冲范式，无方向性硬伤</td>
+</tr>
+<tr>
+<td>错误</td>
+<td>1 处严重（趋势日 0.80/1.00 不一致，会误判边界场景）+ 1 处中等（741样本绝对金额门限"文档有、代码无"）+ 若干 docstring/措辞</td>
+</tr>
+<tr>
+<td>可改进</td>
+<td>正/负 Gamma 区绑定 Wall 属性、SPX 直判趋势日、分母稳健、L级实证</td>
+</tr>
+<tr>
+<td>缺失</td>
+<td>数据时效校验、regime与Wall 强绑定、实证回测闭环、IV/theta 显式建模</td>
+</tr>
+</tbody>
+</table>
+<p>最重要的一步：先解决 E1（0.80 vs 1.00）和 E2（741样本门限未实现却写成已生效）——这两个是"文档与代码/现状不一致"，和第一部分遇到的问题是同一类，属于必须修正的范畴。</p>
+<p>需要我：<br/>
+1. 把这份评估固化成一个 HTML 评估报告（像上次 Order Flow 评估那样存档到 gemini-answers/）？<br/>
+2. 还是先着手同步修正手册第二部分（优先 E1、E2，套用第一部分同样的替换+校验流程）？</p>
+<p>请告诉我优先哪一项，或两者都做。</p>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

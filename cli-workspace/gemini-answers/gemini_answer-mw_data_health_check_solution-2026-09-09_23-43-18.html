@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - MotiveWave tick/DOM 数据文件完整性巡检与损坏报警方案</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">MotiveWave tick/DOM 数据文件完整性巡检与损坏报警方案</h1>
+<div class="meta">
+<span>Saved: 2026-09-09 23:43:18</span>
+<span>Topic: mw_data_health_check_solution</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#🚨-首先：巡检立刻查出的真实状况">🚨 首先：巡检立刻查出的真实状况</a></li><li><a href="#一、巡检脚本-PyTools/jobs/mw_data_health_check.py">一、巡检脚本 PyTools/jobs/mw_data_health_check.py</a><ul><li><a href="#五层判定">五层判定</a></li><li><a href="#鲁棒性">鲁棒性</a></li><li><a href="#报警">报警</a></li></ul></li><li><a href="#二、调度接入（已安装）">二、调度接入（已安装）</a></li><li><a href="#⚠️-三、需要做一步手动授权（macOS-TCC）">⚠️ 三、需要做一步手动授权（macOS TCC）</a></li><li><a href="#四、建议的下一步">四、建议的下一步</a><ul><li><a href="#产出文件">产出文件</a></li></ul></li><li><a href="#1.-DOM-文件损坏的独立复核">1. DOM 文件损坏的独立复核</a></li><li><a href="#2.-全量校验成本实测">2. 全量校验成本实测</a></li><li><a href="#3.-体积分布实测（说明为何禁用体积比值判定）">3. 体积分布实测（说明为何禁用体积比值判定）</a></li><li><a href="#4.-macOS-TCC-边界实测">4. macOS TCC 边界实测</a></li><li><a href="#5.-脚本自检通过项">5. 脚本自检通过项</a></li><li><a href="#6.-DB-表结构-mw_data_file_health">6. DB 表结构 mw_data_file_health</a></li></ul></div>
+<section class="main-content">
+<h2 id="🚨-首先：巡检立刻查出的真实状况">🚨 首先：巡检立刻查出的真实状况</h2>
+<p><strong>DOM 文件已连续损坏 6 个交易日（08-31 起），完全无法用于盘口指标计算：</strong></p>
+<table>
+<thead>
+<tr>
+<th>数据日</th>
+<th>损坏标的</th>
+<th>信号影响面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-31</td>
+<td>ES, NQ</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2026-09-01</td>
+<td>ES</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2026-09-02</td>
+<td>ES</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2026-09-03</td>
+<td>ES, NQ</td>
+<td><strong>77/78 (99%)</strong></td>
+</tr>
+<tr>
+<td>2026-09-08</td>
+<td>ES, NQ</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>2026-09-09</strong></td>
+<td>ES, NQ</td>
+<td><strong>78/79 (99%)</strong>（用户提问的那天）</td>
+</tr>
+<tr>
+<td>2026-09-07</td>
+<td>ES, NQ</td>
+<td><strong>77/77 (100%)</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>根因</strong>：gzip 头 <code>1f8b0800</code> 有效，但流中途 <code>invalid block type</code> → <strong>导出写入被中断/截断</strong>（非文件缺失）。09-04 是唯一完好的近期文件。</p>
+<hr/>
+<h2 id="一、巡检脚本-PyTools/jobs/mw_data_health_check.py">一、巡检脚本 <code>PyTools/jobs/mw_data_health_check.py</code></h2>
+<h3 id="五层判定">五层判定</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>检查</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 存在性</td>
+<td>交易日应有文件是否存在</td>
+<td><code>MISSING</code></td>
+</tr>
+<tr>
+<td><strong>L2 完整性</strong></td>
+<td><strong>全流解压校验</strong>（权威判定）</td>
+<td><code>CORRUPT</code></td>
+</tr>
+<tr>
+<td>L3 体积</td>
+<td>默认只判退化(&lt;1MB)；<code>--strict-size</code> 才启用比值</td>
+<td><code>EMPTY</code>/<code>SUSPECT</code></td>
+</tr>
+<tr>
+<td>L4 时效</td>
+<td>生成滞后 &gt; 30h（仅最近 3 个交易日）</td>
+<td><code>STALE</code></td>
+</tr>
+<tr>
+<td>L5 内容</td>
+<td><code>--lines</code> 时检查 TICKS 行数</td>
+<td><code>SUSPECT</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键设计决策（实测驱动）</strong>：</p>
+<ul>
+<li>实测全量 gzip 校验只要 <strong>0.47s / 100MB</strong> → 可以对每个文件做<strong>完整</strong>校验，<strong>不需要抽样</strong>，判定 100% 可靠。</li>
+<li>实测 DOM 合法体积跨度 <strong>7MB ~ 798MB（100 倍）</strong> → 体积启发式误报严重，故<strong>默认关闭比值判定</strong>，只保留"退化体积"兜底。这是第一版踩的坑，已修正。</li>
+</ul>
+<h3 id="鲁棒性">鲁棒性</h3>
+<ul>
+<li>单文件独立 <code>try/except</code>，任何异常都收敛为"状态"而非中断整体</li>
+<li><strong>TCC 前置检查</strong>：目录不可读时<strong>直接退出（码 3）</strong>，绝不把全部文件误报为 MISSING</li>
+<li>幂等 UPSERT（唯一键 <code>ticker+kind+data_date</code>）</li>
+<li><strong>报警去重</strong>：同文件同状态<strong>当天只报一次</strong>（实测二次运行 → "无新增异常 ✓"）</li>
+<li>只读，绝不改动源文件</li>
+<li>退出码：<code>0</code>=全健康、<code>1</code>=有异常、<code>2</code>=目录错、<code>3</code>=权限错</li>
+</ul>
+<h3 id="报警">报警</h3>
+<ul>
+<li>落库 <code>bb_trade.mw_data_file_health</code>（49 条，可直接做 Web 看板）</li>
+<li><code>--email</code> 发 HTML 汇总邮件，含<strong>异常明细表 + 信号影响面表 + 需重导清单</strong></li>
+</ul>
+<h2 id="二、调度接入（已安装）">二、调度接入（已安装）</h2>
+<ul>
+<li><code>PyTools/jobs/com.bbt.mw-data-health.plist</code> → 已 load 到 launchd（每交易日 <strong>06:00 / 22:00</strong>）</li>
+<li><code>PyTools/jobs/mw_data_health_check.sh</code> — 手动/cron 用的包装脚本（带日志滚动、退出码透传）</li>
+</ul>
+<h2 id="⚠️-三、需要做一步手动授权（macOS-TCC）">⚠️ 三、需要做一步手动授权（macOS TCC）</h2>
+<p>实测确认：<strong>launchd 进程完全读不到 <code>~/Documents</code></strong>（脚本和 MW 数据都在里面）：</p>
+<pre><code>/bin/bash: .../mw_data_health_check.sh: Operation not permitted
+ls: .../MotiveWave_OrderFlow_Data/Raw: Operation not permitted
+</code></pre>
+<p>（当前终端能跑，是因为 Terminal 已有权限。）</p>
+<p><strong>请授权一次</strong>（GUI 操作，无法脚本授予）：</p>
+<pre><code>系统设置 → 隐私与安全性 → 完全磁盘访问权限 → 「+」
+  Cmd+Shift+G 输入：
+  /Library/Frameworks/Python.framework/Versions/3.11/Resources/Python.app/Contents/MacOS/Python
+  添加并打开开关
+</code></pre>
+<blockquote>
+<p>plist 特意改成<strong>直接调用 Python、不经 bash</strong>，并把日志放到 <code>~/Library/Logs/bbt-mw-health.log</code>（非受保护目录）—— 这样<strong>只需给这一个 Python 授权</strong>，不用给 <code>/bin/bash</code>（权限面更窄）。</p>
+</blockquote>
+<p>授权后验证：<code>launchctl start com.bbt.mw-data-health</code> 然后看 <code>~/Library/Logs/bbt-mw-health.log</code>。</p>
+<h2 id="四、建议的下一步">四、建议的下一步</h2>
+<ol>
+<li><strong>从 MotiveWave 重新导出</strong> 上表 6 个交易日的 DOM 文件（ES/NQ）——这是修复盘口指标的唯一途径。</li>
+<li>授权 FDA，让巡检开始自动跑。</li>
+<li>需要的话可再补：<strong>DOM 健康度的 Web 看板</strong>（读 <code>mw_data_file_health</code>），或<strong>导出失败自动重试</strong>。</li>
+</ol>
+<h3 id="产出文件">产出文件</h3>
+<ul>
+<li><code>PyTools/jobs/mw_data_health_check.py</code>（主巡检脚本，新增）</li>
+<li><code>PyTools/jobs/mw_data_health_check.sh</code>（调度包装，新增）</li>
+<li><code>PyTools/jobs/com.bbt.mw-data-health.plist</code>（launchd 任务，新增并已安装）</li>
+<li>DB 表 <code>bb_trade.mw_data_file_health</code>（新增）</li>
+</ul>
+<hr/>
+<h1 id="附：技术验证记录（实测证据）">附：技术验证记录（实测证据）</h1>
+<h2 id="1.-DOM-文件损坏的独立复核">1. DOM 文件损坏的独立复核</h2>
+<pre><code>ES_20260831_DOM.csv.gz       CORRUPT
+NQ_20260831_DOM.csv.gz       CORRUPT
+ES_20260902_DOM.csv.gz       CORRUPT
+NQ_20260901_DOM.csv.gz       CORRUPT
+ES_20260906_DOM.csv.gz       CORRUPT
+ES_20260907_DOM.csv.gz       CORRUPT
+</code></pre>
+<p>交叉验证文件头尾字节（证明是流中途截断，而非文件缺失）：</p>
+<pre><code>ES_20260831_DOM.csv.gz   前4字节=1f8b0800  后4字节=f8d6021c
+ES_20260907_DOM.csv.gz   前4字节=1f8b0800  后4字节=15ac661e
+</code></pre>
+<h2 id="2.-全量校验成本实测">2. 全量校验成本实测</h2>
+<pre><code>ES_20260904_DOM.csv.gz   101.5MB  解压 1025.5MB  耗时 0.47s  OK
+NQ_20260909_DOM.csv.gz    28.1MB  解压    0.0MB  耗时 0.00s  ERR: invalid block type
+ES_20260909_DOM.csv.gz   162.3MB  解压    0.0MB  耗时 0.00s  ERR: invalid block type
+</code></pre>
+<h2 id="3.-体积分布实测（说明为何禁用体积比值判定）">3. 体积分布实测（说明为何禁用体积比值判定）</h2>
+<p>TICKS 体积分布：</p>
+<pre><code>20260830      2.6MB
+20260831     24.3MB
+20260901     32.5MB
+20260902     25.9MB
+20260903     27.5MB
+20260904     28.2MB
+20260906      0.9MB
+20260907      4.4MB
+20260908     32.0MB
+20260909     32.1MB
+</code></pre>
+<p>DOM 体积分布：</p>
+<pre><code>20260909    162.5MB
+20260908    157.5MB
+20260907    118.4MB
+20260906     37.8MB
+20260904    101.5MB
+20260903    798.4MB
+20260902    634.8MB
+20260901    365.9MB
+20260831    199.4MB
+20260830     71.0MB
+20260828      7.0MB
+20260827      8.8MB
+20260826     10.8MB
+20260825      9.8MB
+20260824     13.4MB
+</code></pre>
+<h2 id="4.-macOS-TCC-边界实测">4. macOS TCC 边界实测</h2>
+<p>launchd 进程探测结果：</p>
+<pre><code>--- probe Wed Sep  9 23:34:20 PDT 2026 ---
+id: zhijiebian
+read script in Documents:
+head: .../mw_data_health_check.sh: Operation not permitted
+list MW Raw dir:
+ls: .../MotiveWave_OrderFlow_Data/Raw: Operation not permitted
+</code></pre>
+<p>对照 —— 当前 shell（已有权限）：</p>
+<pre><code>--- probe Wed Sep  9 23:34:24 PDT 2026 ---
+id: zhijiebian
+read script in Documents:
+#!/bin/bash
+# =============================================================================
+list MW Raw dir:
+ES_20260816_TICKS.csv.gz
+ES_20260817_DOM.csv.gz
+</code></pre>
+<h2 id="5.-脚本自检通过项">5. 脚本自检通过项</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>期望</th>
+<th>实测</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有异常</td>
+<td>退出码 1</td>
+<td>✅ 1</td>
+</tr>
+<tr>
+<td>全健康</td>
+<td>退出码 0</td>
+<td>✅ 0</td>
+</tr>
+<tr>
+<td>目录不可读（TCC）</td>
+<td>明确 FATAL、不误报、不写库</td>
+<td>✅ 退出码 3</td>
+</tr>
+<tr>
+<td>目录不存在</td>
+<td>明确 FATAL</td>
+<td>✅ 退出码 3</td>
+</tr>
+<tr>
+<td>二次运行</td>
+<td>报警去重、无新增</td>
+<td>✅ "无新增异常 ✓"</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6.-DB-表结构-mw_data_file_health">6. DB 表结构 <code>mw_data_file_health</code></h2>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_date</code> / <code>ticker</code> / <code>kind</code></td>
+<td>唯一键（数据日 / ES·NQ / DOM·TICKS）</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>OK / MISSING / CORRUPT / SUSPECT / STALE / EMPTY</td>
+</tr>
+<tr>
+<td><code>exists_flag</code> / <code>size_bytes</code> / <code>size_ratio</code></td>
+<td>存在性与体积</td>
+</tr>
+<tr>
+<td><code>decompressed_bytes</code> / <code>line_count</code></td>
+<td>解压后字节数与行数</td>
+</tr>
+<tr>
+<td><code>mtime</code> / <code>gen_lag_hours</code></td>
+<td>生成时间与滞后小时</td>
+</tr>
+<tr>
+<td><code>error_detail</code></td>
+<td>失败详情</td>
+</tr>
+<tr>
+<td><code>checked_at</code> / <code>last_alert_at</code></td>
+<td>巡检时间与报警去重时间戳</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

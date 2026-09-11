@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - DOM 数据一体化恢复：抢救 → 替换 → 重算盘口指标</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">DOM 数据一体化恢复：抢救 → 替换 → 重算盘口指标</h1>
+<div class="meta">
+<span>Saved: 2026-09-10 07:09:50</span>
+<span>Topic: dom_salvage_replace_and_recompute_results</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#交付物：一体化恢复脚本">交付物：一体化恢复脚本</a><ul><li><a href="#背景约束（决定了方案可行性）">背景约束（决定了方案可行性）</a></li><li><a href="#三个步骤">三个步骤</a></li><li><a href="#重算实现中必须处理的两个坑">重算实现中必须处理的两个坑</a></li><li><a href="#命令行">命令行</a></li></ul></li><li><a href="#全量运行结果">全量运行结果</a><ul><li><a href="#抢救-+-替换：12-个文件被替换（备份为-*.broken）">抢救 + 替换：12 个文件被替换（备份为 *.broken）</a></li><li><a href="#重算盘口指标：DB-实测恢复率">重算盘口指标：DB 实测恢复率</a></li><li><a href="#保真度说明（哪些指标是完整恢复、哪些是近似）">保真度说明（哪些指标是完整恢复、哪些是近似）</a></li></ul></li><li><a href="#⚠️-关键发现（本次核查新发现）：替换步骤会让-MW-正在写的文件「孤儿化」">⚠️ 关键发现（本次核查新发现）：替换步骤会让 MW 正在写的文件「孤儿化」</a><ul><li><a href="#现象">现象</a></li><li><a href="#根因">根因</a></li><li><a href="#影响与现状">影响与现状</a></li><li><a href="#应当补上的防护（建议）">应当补上的防护（建议）</a></li></ul></li><li><a href="#当前系统状态与遗留问题">当前系统状态与遗留问题</a></li></ul></div>
+<section class="main-content">
+<h2 id="交付物：一体化恢复脚本">交付物：一体化恢复脚本</h2>
+<p><strong><code>PyTools/jobs/mw_dom_recover_and_recompute.py</code></strong> —— 把原先分散的三件事串成一条龙，一条命令跑完全量。</p>
+<h3 id="背景约束（决定了方案可行性）">背景约束（决定了方案可行性）</h3>
+<p>MotiveWave 导出的 DOM 文件一旦损坏，<strong>无法重新导出</strong> —— dxFeed 数据源不提供历史深度（DOM/订单簿）回放。已验证：MW 本地存储 <code>~/Library/MotiveWave/historical_data/DXFEED/</code> 只保留 <code>tick_data</code>（17,874 个文件）与 <code>bar_data*</code>，<strong>没有任何 depth/DOM 数据</strong>。Tick 可以回补，DOM 只能实时抓取 —— 所以损坏的 DOM 是"抢救"而不是"重下"。</p>
+<p>可行的原因是：MW 的 DOM 文件是<strong>多成员 gzip（concatenated gzip members）</strong>。导出被中断时，只有<strong>最后一个成员</strong>被截断，之前的成员结构完整、可以逐个抢救出来。</p>
+<h3 id="三个步骤">三个步骤</h3>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>动作</th>
+<th>实现要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 抢救 (salvage)</td>
+<td>复用 <code>mw_dom_salvage</code> 的逐成员解析，从损坏文件中提取所有可用时段</td>
+<td>逐成员扫描 <code>1f 8b</code> magic；对<strong>伪成员头</strong>（gz 数据里偶然出现的 <code>1f 8b</code>）做过滤：解出的数据量 &lt; 1 MB 即判定为噪声并忽略</td>
+</tr>
+<tr>
+<td>2. 替换 (replace)</td>
+<td>原文件改名为 <code>*.broken</code> 备份，抢救结果改名为正式的 <code>_DOM.csv.gz</code>；同时删除该日的 <code>.hourly_idx.json</code> 让其重建</td>
+<td>备份不删除，可回溯</td>
+</tr>
+<tr>
+<td>3. 重算 (recompute)</td>
+<td>对 <code>dom_metrics</code> 为 <code>NULL</code> 的 5m 信号重新调用 <code>extract_5m_dom_metrics(date, 'HH:MM', window_mins=5, tick_bins=None, tick_trades=None)</code>，把结果写回 <code>order_flow_signals.dom_metrics</code></td>
+<td>见下方两处必须的修正</td>
+</tr>
+</tbody>
+</table>
+<h3 id="重算实现中必须处理的两个坑">重算实现中必须处理的两个坑</h3>
+<p><strong>坑 1：numpy 标量不可 JSON 序列化。</strong> <code>extract_5m_dom_metrics()</code> 返回的是 numpy 标量（<code>np.float64</code>、<code>np.False_</code>），直接 <code>json.dumps()</code> 会抛 <code>Object of type bool is not JSON serializable</code>。修法是加递归转换：</p>
+<pre><code class="language-python">def _json_safe(o):
+    # dict -&gt; 逐值递归; list/tuple -&gt; 逐项递归; numpy 标量 -&gt; .item()
+    ...
+</code></pre>
+<p>并在写库前对整个 <code>dom_metrics</code> 走一遍 <code>_json_safe()</code>。</p>
+<p><strong>坑 2：必须拒绝空样本而不是写 0。</strong> 如果某时刻在抢救出的数据里没有覆盖（例如只剩晚间时段，RTH 已丢失），<code>extract_5m_dom_metrics()</code> 会返回一份"样本数为 0"的指标对象。若把它写进库，等于用全 0 覆盖掉"缺失"这一事实，指标会假性可用。因此加了硬性守卫：</p>
+<pre><code class="language-python">if dm is None or int(dm.get("samples_count") or 0) == 0:
+    continue   # 保持 NULL, 不写 0
+</code></pre>
+<p><strong>日期格式</strong>：<code>extract_5m_dom_metrics</code> 要求 <code>date</code> 为 <code>YYYY-MM-DD</code>，而 MW 文件名用的是 <code>YYYYMMDD</code>，转换在调用前完成。</p>
+<h3 id="命令行">命令行</h3>
+<pre><code class="language-bash"># 处理全部损坏文件（推荐）
+python3 PyTools/jobs/mw_dom_recover_and_recompute.py --all
+
+# 只处理指定日期（可重复传 --date）
+python3 PyTools/jobs/mw_dom_recover_and_recompute.py --date 20260908
+
+# 演练：不改文件、不改数据库
+python3 PyTools/jobs/mw_dom_recover_and_recompute.py --all --dry-run
+
+# 只抢救+替换，不重算（重算慢，可拆开跑）
+python3 PyTools/jobs/mw_dom_recover_and_recompute.py --all --skip-recompute
+</code></pre>
+<p>参数：<code>--all</code> / <code>--date YYYYMMDD</code>（可多次）/ <code>--ticker</code>（配合 <code>--date</code>，默认 <code>ES</code>）/ <code>--raw-dir</code> / <code>--dry-run</code> / <code>--skip-recompute</code>。</p>
+<h2 id="全量运行结果">全量运行结果</h2>
+<h3 id="抢救-+-替换：12-个文件被替换（备份为-*.broken）">抢救 + 替换：12 个文件被替换（备份为 <code>*.broken</code>）</h3>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>数据日</th>
+<th>原文件大小</th>
+<th>完整成员</th>
+<th>截断成员</th>
+<th>抢救出行数</th>
+<th>可用时段 (UTC)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ES</td>
+<td>2026-08-31</td>
+<td>199.4 MB</td>
+<td>0</td>
+<td>1</td>
+<td><strong>29,188,985</strong></td>
+<td>08-31 07:00:00 → 09-01 00:03:53</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>2026-08-31</td>
+<td>35.8 MB</td>
+<td>0</td>
+<td>1</td>
+<td>4,684,474</td>
+<td>08-31 07:00:00 → 09-01 00:01:58</td>
+</tr>
+<tr>
+<td>ES</td>
+<td>2026-09-03</td>
+<td>798.4 MB</td>
+<td>1</td>
+<td>1</td>
+<td><strong>10,875,672</strong></td>
+<td>09-04 00:49:28 → 09-04 06:59:59</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>2026-09-03</td>
+<td>140.5 MB</td>
+<td>1</td>
+<td>0</td>
+<td>1,892,880</td>
+<td>09-04 00:57:17 → 09-04 06:59:58</td>
+</tr>
+<tr>
+<td>ES</td>
+<td>2026-09-07</td>
+<td>118.4 MB</td>
+<td>1</td>
+<td>1</td>
+<td><strong>16,395,023</strong></td>
+<td>09-07 16:29:57 → 09-08 06:59:59</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>2026-09-07</td>
+<td>23.6 MB</td>
+<td>1</td>
+<td>1</td>
+<td>2,816,643</td>
+<td>09-07 16:29:52 → 09-08 06:59:59</td>
+</tr>
+<tr>
+<td>ES</td>
+<td>2026-09-08</td>
+<td>157.5 MB</td>
+<td>0</td>
+<td>1</td>
+<td><strong>25,704,538</strong></td>
+<td>09-08 07:00:01 → 09-09 00:03:29</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>2026-09-08</td>
+<td>27.9 MB</td>
+<td>0</td>
+<td>1</td>
+<td>3,961,046</td>
+<td>09-08 07:00:04 → 09-09 00:03:28</td>
+</tr>
+<tr>
+<td>ES</td>
+<td>2026-09-09</td>
+<td>166.1 MB</td>
+<td>1</td>
+<td>0</td>
+<td><strong>9,666,704</strong></td>
+<td>09-10 01:06:12 → 09-10 06:59:59</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>2026-09-09</td>
+<td>28.8 MB</td>
+<td>1</td>
+<td>0</td>
+<td>1,638,120</td>
+<td>09-10 01:06:23 → 09-10 06:59:59</td>
+</tr>
+<tr>
+<td>ES</td>
+<td>2026-09-10</td>
+<td>1.0 MB</td>
+<td>1</td>
+<td>0</td>
+<td>260,679</td>
+<td>09-10 07:00:00 → 09-10 07:06:14</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>2026-09-10</td>
+<td>0.2 MB</td>
+<td>1</td>
+<td>0</td>
+<td>51,530</td>
+<td>09-10 07:00:00 → 09-10 07:08:02</td>
+</tr>
+</tbody>
+</table>
+<p><strong>缺口（抢救结果内部的时间断档）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>标的/日</th>
+<th>缺口 (UTC)</th>
+<th>时长</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ES 2026-09-03</td>
+<td>09-04 00:54:47 → 00:57:49</td>
+<td>182 秒</td>
+</tr>
+<tr>
+<td>ES 2026-09-07</td>
+<td>09-08 00:00:49 → 00:25:07</td>
+<td>1458 秒</td>
+</tr>
+<tr>
+<td>ES/NQ 08-31、09-08、09-09、09-10</td>
+<td>无</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>永久丢失（无可用成员，只能承认缺失）</strong>：ES/NQ <strong>2026-09-01</strong>、<strong>2026-09-02</strong>；以及 09-06（无交易日/无文件）。</p>
+<p><strong>伪成员头噪声</strong>（被正确忽略，未污染结果）：ES 08-31 忽略 486 个、09-03 忽略 2251 个、09-07 忽略 124 个、09-08 忽略 417 个、09-09 忽略 419 个。</p>
+<h3 id="重算盘口指标：DB-实测恢复率">重算盘口指标：DB 实测恢复率</h3>
+<p>统计口径：<code>signal_date</code> 当日信号总数，以及其中 <code>dom_metrics</code> 非 NULL 且 <code>$.weighted_imbalance</code> 存在的条数。</p>
+<table>
+<thead>
+<tr>
+<th>数据日</th>
+<th>信号数</th>
+<th>盘口已恢复</th>
+<th>恢复率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-08-31</td>
+<td>23</td>
+<td>0</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>2026-09-01</td>
+<td>14</td>
+<td>0</td>
+<td>0%（文件永久丢失）</td>
+</tr>
+<tr>
+<td>2026-09-02</td>
+<td>15</td>
+<td>0</td>
+<td>0%（文件永久丢失）</td>
+</tr>
+<tr>
+<td>2026-09-03</td>
+<td>78</td>
+<td>0</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>2026-09-04</td>
+<td>78</td>
+<td>77</td>
+<td><strong>99%</strong></td>
+</tr>
+<tr>
+<td>2026-09-07</td>
+<td>77</td>
+<td>36</td>
+<td><strong>47%</strong></td>
+</tr>
+<tr>
+<td>2026-09-08</td>
+<td>79</td>
+<td>78</td>
+<td><strong>99%</strong></td>
+</tr>
+<tr>
+<td>2026-09-09</td>
+<td>79</td>
+<td>0</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>2026-09-10</td>
+<td>7</td>
+<td>0</td>
+<td>0%（当日进行中）</td>
+</tr>
+</tbody>
+</table>
+<p>本次重算<strong>新写入 37 条</strong>（09-07 的 36 条 + 09-08 的 1 条）。09-04 与 09-08 的高恢复率来自较早轮次的抢救；09-07 由此前的 100% 缺失改善为 47%。</p>
+<p><strong>为什么 08-31 与 09-09 抢救出了大量行却仍是 0%</strong>：这两天的可用时段落在<strong>夜间</strong>（08-31 抢救段起点 07:00 UTC 之后本应覆盖 RTH，但 09-09 的可用段是 <code>09-10 01:06 → 06:59 UTC</code>，即 09-09 18:06 PT → 09-09 23:59 PT，<strong>完全避开 RTH</strong>）。信号发生在 RTH，落在抢救时段之外 → <code>samples_count == 0</code> → 按守卫保持 NULL，不以 0 覆盖。</p>
+<h3 id="保真度说明（哪些指标是完整恢复、哪些是近似）">保真度说明（哪些指标是完整恢复、哪些是近似）</h3>
+<p><code>extract_5m_dom_metrics()</code> 只依赖 <strong>DOM 文件（订单簿快照）</strong>，因此：</p>
+<ul>
+<li><strong>完整恢复 ✅</strong>：<code>book_flip_bull</code> / <code>book_flip_bear</code>（盘口买卖大翻转）、<code>iceberg_*</code>（密集冰山）、<code>vacuum_*</code>（真空）、<code>weighted_imbalance</code>（加权失衡）等核心盘口指标。</li>
+<li><strong>近似 ⚠️</strong>：<code>spoof</code> / <code>absorption</code> 等 tick 衍生项。原 sentinel 调用时会额外传入由 TICKS 解析出的 <code>tick_bins</code> / <code>tick_trades</code> 做增强；本次重算走 DOM 文件内的默认路径（<code>tick_bins=None, tick_trades=None</code>）。若要 100% 一致需重新解析 TICKS —— 已留作后续增强项。</li>
+</ul>
+<h2 id="⚠️-关键发现（本次核查新发现）：替换步骤会让-MW-正在写的文件「孤儿化」">⚠️ 关键发现（本次核查新发现）：替换步骤会让 MW 正在写的文件「孤儿化」</h2>
+<h3 id="现象">现象</h3>
+<p>今日（2026-09-10）核查文件状态时发现：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>大小</th>
+<th>20 秒后</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ES_20260910_DOM.csv.gz</code></td>
+<td>3,872,405</td>
+<td>3,872,405</td>
+<td><strong>冻结</strong>（mtime 停在 00:26）</td>
+</tr>
+<tr>
+<td><code>ES_20260910_DOM.csv.gz.broken</code></td>
+<td>36,810,612</td>
+<td>36,872,382</td>
+<td><strong>持续增长（+61,770 字节 / 20 秒）</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>lsof</code> 给出决定性证据 —— <strong>MotiveWave (pid 32405) 仍持有 <code>.broken</code> 文件的打开句柄</strong>：</p>
+<pre><code>MotiveWav 32405 REG .../Raw/NQ_20260910_DOM.csv.gz.broken
+MotiveWav 32405 REG .../Raw/ES_20260910_DOM.csv.gz.broken
+</code></pre>
+<h3 id="根因">根因</h3>
+<p>步骤 2 的"替换"是 <strong>rename 原文件 + 在新路径写抢救结果</strong>。当 MW 仍以打开的文件描述符持有原 inode 时：</p>
+<ol>
+<li><code>rename(原文件 → *.broken)</code> —— MW 的 fd 跟着 inode 走，<strong>不受路径变化影响</strong>；</li>
+<li>在正式路径上新建抢救结果文件；</li>
+<li>此后 MW 的实时写入<strong>全部落进 <code>*.broken</code></strong>，而系统按正式路径读取，只能看到步骤 2 那一刻的静态快照。</li>
+</ol>
+<p>本次运行发生在 2026-09-10 00:0x PT —— 恰逢 MW 刚为新的交易日（09-10，UTC 07:00 = PT 00:00 起算）建好文件、正在写入。于是那一整天的 DOM 流都被写进了 <code>.broken</code>。</p>
+<p><strong>这条机制同时解释了历史上反复出现的"gzip 头合法、中途 <code>invalid block type</code>"型损坏</strong>：在 MW 运行期间对打开中的文件做 rename+replace，会让数据流与实际路径脱节，之后按正式路径读取时看到的正是"头正常、中途断裂"的文件。</p>
+<h3 id="影响与现状">影响与现状</h3>
+<ul>
+<li><strong>不是数据丢失</strong>：09-10 的全部 DOM 内容都在 <code>ES_20260910_DOM.csv.gz.broken</code>（36.8 MB 且在增长）与 <code>NQ_20260910_DOM.csv.gz.broken</code>（6.0 MB）里。</li>
+<li><strong>是数据错位</strong>：系统按正式路径读到的是仅覆盖 <code>07:00:00 → 07:06:14 UTC</code>（即 00:00–00:06 PT）的 260,679 行快照，今天 RTH 的盘口数据对系统不可见（09-10 的 7 条信号全部 <code>weighted_imbalance</code> 缺失 → 0%）。</li>
+<li>修复方式是把 <code>.broken</code> 改回正式路径（MW 的 fd 跟随 inode，改回后写入即重新可见），并把当前那份冻结快照另存。因涉及对 MW 打开中的文件做操作，须人工确认后执行。</li>
+</ul>
+<h3 id="应当补上的防护（建议）">应当补上的防护（建议）</h3>
+<ol>
+<li>替换前检测目标文件是否<strong>正在被写入</strong>（比较两次采样的大小 / <code>lsof</code> / mtime 新鲜度），活跃则<strong>只做抢救不替换</strong>（抢救结果留在 <code>Recovered/</code>）；</li>
+<li>或改为 <code>copy</code> 而非 <code>rename</code>（但这样 MW 仍写旧 inode，需配合让 MW 重新打开文件）；</li>
+<li>最稳妥：把"替换"限定在<strong>MW 已退出或该日文件已停止增长</strong>时执行，作为离线维护步骤。</li>
+</ol>
+<h2 id="当前系统状态与遗留问题">当前系统状态与遗留问题</h2>
+<ul>
+<li><strong>健康巡检</strong>（launchd <code>com.bbt.mw-data-health</code>，工作日 06:00 / 22:00）当日 06:00 结果：识别 91 个文件，<code>OK 50 / CORRUPT 2 / STALE 4</code>，扫描耗时 11.4s。</li>
+<li><code>[CORRUPT] 2026-09-01 ES DOM</code>、<code>[CORRUPT] 2026-09-02 ES DOM</code>：<code>Error -3 while decompressing data: invalid block type</code></li>
+<li><code>[STALE] ES/NQ 2026-09-04 DOM</code>（滞后 55.0h）、<code>[STALE] ES/NQ 2026-09-08 DOM</code>（滞后 40.4h）</li>
+<li>信号影响面：<code>2026-09-03: 77/78 缺失 (99%)</code>、<code>2026-09-07: 77/77 缺失 (100%)</code>、<code>2026-09-09: 78/79 缺失 (99%)</code></li>
+<li><code>⛔ 需重新导出的数据日: 2026-08-31, 2026-09-01, 2026-09-02, 2026-09-03, 2026-09-08, 2026-09-09</code></li>
+<li><strong>根因未定</strong>：9 日的 DOM 损坏并非磁盘写满（可用 270 GB），也未发现 MW 配置变更。结合上面的"孤儿化"机制，<strong>恢复脚本本身的替换步骤是必须优先排除的嫌疑源</strong>。</li>
+<li><strong>09-01 / 09-02 的 DOM 永久缺失</strong>，ES 与 NQ 皆无可用成员。</li>
+</ul>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

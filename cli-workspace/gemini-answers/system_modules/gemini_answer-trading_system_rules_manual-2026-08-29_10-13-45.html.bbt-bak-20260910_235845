@@ -1492,11 +1492,11 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>量价底背离与推进衰竭</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(DPER &amp; Delta Exhaustion)</span></td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">
                 • <strong>15m 微观底背离</strong>: <code>delta_ratio_15m &lt;= -12% (净卖占成交≥12%)</code> 且 <code>price_change_atr_15m &gt;= -0.6 (跌幅&lt;0.6 ATR)</code>；<br/>
-<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 吸收</strong>: <code>delta_ratio_30m &lt;= -12%</code> 且 <code>price_change_atr_30m &gt;= -0.6</code><br/>
+<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 吸收</strong>: <code>delta_ratio_30m &lt;= -15%</code> 且 <code>price_change_atr_30m &gt;= -0.6</code><br/>
 <strong>四象限背离统一检测</strong>（<span style="color:#b45309;font-weight:700;">2026-09-08 起</span>，背离判据不再限于"被动吸收"，含"主动承接"）：
 <ul style="margin: 4px 0 0 4px; padding-left: 16px; font-size: 0.78rem;">
-<li><strong>象限 I 被动吸收底背离</strong>（净卖被墙吃掉）: <code>delta_ratio &lt;= -12%</code> 且 <code>price_change_atr &gt;= -0.6</code>；</li>
-<li><strong>象限 II 主动承接底背离</strong>（跌中净买，主力主动吸筹）: <code>delta_ratio &gt;= +12%</code> 且 <code>price_change_atr &lt;= -0.5</code>；</li>
+<li><strong>象限 I 被动吸收底背离</strong>（净卖被墙吃掉）: <code>delta_ratio &lt;= -15%</code> 且 <code>price_change_atr &gt;= -0.6</code>；</li>
+<li><strong>象限 II 主动承接底背离</strong>（跌中净买，主力主动吸筹）: <code>delta_ratio &gt;= +15%</code> 且 <code>price_change_atr &lt;= -0.5</code>；</li>
 <li>两者互斥（符号相反），任一命中即认底背离。</li>
 </ul>
 </td>
@@ -1589,12 +1589,12 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #b91c1c; background: #fef2f2;">分支 1</td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>量价顶背离与推升受阻</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(DPER &amp; Buying Exhaustion)</span></td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">
-                • <strong>15m 微观顶背离</strong>: <code>delta_ratio_15m &gt;= +12%</code> 且 <code>price_change_atr_15m &lt;= +0.6</code>；<br/>
-<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 滞涨</strong>: <code>delta_ratio_30m &gt;= +12%</code> 且 <code>price_change_atr_30m &lt;= +0.6</code><br/>
+                • <strong>15m 微观顶背离</strong>: <code>delta_ratio_15m &gt;= +15%</code> 且 <code>price_change_atr_15m &lt;= +0.6</code>；<br/>
+<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 滞涨</strong>: <code>delta_ratio_30m &gt;= +15%</code> 且 <code>price_change_atr_30m &lt;= +0.6</code><br/>
 <strong>四象限背离统一检测</strong>（<span style="color:#b45309;font-weight:700;">2026-09-08 起</span>）：
 <ul style="margin: 4px 0 0 4px; padding-left: 16px; font-size: 0.78rem;">
-<li><strong>象限 III 被动拦截顶背离</strong>（净买被墙拦截）: <code>delta_ratio &gt;= +12%</code> 且 <code>price_change_atr &lt;= +0.6</code>；</li>
-<li><strong>象限 IV 主动压制顶背离</strong>（涨中净卖，主力主动派发）: <code>delta_ratio &lt;= -12%</code> 且 <code>price_change_atr &gt;= +0.5</code>；</li>
+<li><strong>象限 III 被动拦截顶背离</strong>（净买被墙拦截）: <code>delta_ratio &gt;= +15%</code> 且 <code>price_change_atr &lt;= +0.6</code>；</li>
+<li><strong>象限 IV 主动压制顶背离</strong>（涨中净卖，主力主动派发）: <code>delta_ratio &lt;= -15%</code> 且 <code>price_change_atr &gt;= +0.5</code>；</li>
 <li>两者互斥，任一命中即认顶背离。</li>
 </ul>
 </td>

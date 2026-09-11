@@ -915,531 +915,17 @@
       <br/>撤单次数（<code>spoof_bid+spoof_ask</code>）÷ 主动成交次数。比值 <code>&lt; 0.5</code> = 成交为主（信号可信）；<code>0.5~1.0</code> = 虚单偏多（存疑）；<code>&gt; 1.0</code> = 幌骗高（不可信）。用于校验方向信号可信度。
     </li>
 </ul>
-<h4 class="rule-heading rule-calc">7. DOM 5m 微观指标全量字段索引（600×500ms / 366 快照 · 来源：2026-09-08 07:05–07:10 实测报告 §1.1）</h4>
-<ul>
-<li><strong>口径与定位</strong>:
-      本节把 5m DOM 盘口报告（<code>dom_metrics</code>）在实际研判中输出的<strong>全部指标名 + 计算模型 + 判读含义</strong>集中成一张索引表，便于拿日志/JSON 字段名反查定义。各族的完整建模见本章对应小节：<code>imb_*</code> / <code>weighted_imbalance</code> / <code>imb_momentum</code> 见「5.」，<code>book_flip_*</code> 见「2.」，冰山与吸收见「3.」，流动性真空见「4.」，<code>spoof_*</code> 撤单诱骗见「6.」。
-      <br/><span style="font-size: 0.75rem; color: #64748b;">采样口径：5 分钟窗口内建立 600 个 500ms 离散时间网格（<code>sample_interval_ms = 500</code>），实测累计 366 个有效 DOM 快照。本表只收录<strong>指标名与定义/判读</strong>；该次实测的具体数值（计算值/当场结论）不进入手册，以保证手册只沉淀规则。</span>
-    </li>
-<li><strong>指标全量对照表</strong>:
-      <table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
-        <thead>
-          <tr style="background: #f1f5f9; color: #334155;">
-            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 15%;">字段（指标名）</th>
-            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 47%;">计算模型 / 定义</th>
-            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">含义与判读</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>imb_near</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">(Bid0_5 - Ask0_5) / (Bid0_5 + Ask0_5)</code><br/><span style="font-size: 0.75rem; color: #64748b;">近端 Top 0-5 档，加权时权重 50%</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近端 5 档挂单失衡：<strong>正值=买盘厚</strong>（瞬时承接强），负值=卖盘厚（瞬时阻力强）；多空临界易翻转</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>imb_mid</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">同 <code>imb_near</code> 口径，取 <code>Level 6-20</code> 档<br/><span style="font-size: 0.75rem; color: #64748b;">加权时权重 35%</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">中端失衡：代表日内核心作战波段的挂单缓冲，决定回踩/反弹的可持续性</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>imb_deep</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">同口径，取 <code>Level 21-120</code> 档<br/><span style="font-size: 0.75rem; color: #64748b;">加权时权重 10%</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">深层失衡：上下约 30 点的核心深层战略护城河，反映机构战略级托底/压顶</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>weighted_imbalance</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">imb_near*0.50 + imb_mid*0.35 + imb_deep*0.10 + imb_far*0.05</code><br/><span style="font-size: 0.75rem; color: #64748b;">范围 [-1.0, +1.0]；<code>imb_far</code> = Level 121-200 档底色</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">多梯队深度加权失衡度（整体多空底色）：<code>&gt;= +0.20</code> 买盘厚重托底；<code>&lt;= -0.20</code> 卖盘重压封顶</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>early_w_imb</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">窗口<strong>前半段</strong>（前 2.5 分钟）<code>w_imb_500ms</code> 均值</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">前半段攻防底色：偏负=卖压主导，偏正=买盘主导</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>late_w_imb</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">窗口<strong>后半段</strong>（后 2.5 分钟）<code>w_imb_500ms</code> 均值</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">后半段攻防底色：用于与前半段对比，看攻防是否在窗口内易手</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>imb_momentum</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">late_w_imb - early_w_imb</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">失衡微观动量（攻防加速度）：<code>&gt; +0.04</code> 买方防线快速增厚抢筹；<code>&lt; -0.04</code> 买盘撤单溃退、卖压加速集结</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>early_book_ratio</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">mean(Near_Bids_前半) / mean(Near_Asks_前半)</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">前半段近端挂单买卖比率（1.00 = 平衡）：&lt;1 卖方占优，&gt;1 买方占优</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>late_book_ratio</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">mean(Near_Bids_后半) / mean(Near_Asks_后半)</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">后半段近端挂单买卖比率：与上半段比较即可度量"翻盘/塌方"的剧烈程度</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>book_flip_bull</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">(early &lt; 0.85 且 late &gt; 1.40) 或 (late &gt; early*1.8 且 late &gt; 1.2)</code><br/><span style="font-size: 0.75rem; color: #64748b;">翻转标志仅由比率侧决定；激活 Setup 1A 另需 <code>price_position_pct &lt;= 40%</code>（见本章 2.）</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">底部多头大翻转：前半段被空头压制、后半段买盘猛烈翻盘夺回近端主导权</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>book_flip_bear</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">(early &gt; 1.15 且 late &lt; 0.70) 或 (late &lt; early*0.55 且 late &lt; 0.8)</code><br/><span style="font-size: 0.75rem; color: #64748b;">激活 Setup 1B 另需 <code>price_position_pct &gt;= 60%</code></span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">顶部空头大翻转：后半段卖方极速筑墙锁死天花板，强制激活顶部派发准入</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>spoof_bid</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">相邻 500ms 近端买盘深度净减 <code>diff_bids &lt; -50 手</code> <strong>且同侧无主动卖成交</strong>（<code>had_sell</code> 取反）计 1 次；无成交数据时保守记 0</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">买方<strong>真实撤单</strong>次数（假托单疑点）：撤单占比 <code>&gt;= 70%</code> 且 <code>spoof_bid &gt; 2*spoof_ask</code> → 假托单诱多，<strong>一票否决</strong></td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>spoof_ask</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">与 <code>spoof_bid</code> 对称：<code>diff_asks &lt; -50 手</code> 且同侧无主动买成交（<code>had_buy</code> 取反）计 1 次</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">卖方<strong>真实撤单</strong>次数：撤单占比 <code>&gt;= 70%</code> 且 <code>spoof_ask &gt; 2*spoof_bid</code> → 假压单诱空，一票否决</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>stack_bid</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">相邻 500ms 近端买盘深度净增 <code>diff_bids &gt; +50 手</code> 的步长计数（加单/堆单）</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">买方堆单防线厚度：计数越高=护盘挂单持续加厚（与 spoof 互斥语义）</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>stack_ask</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">相邻 500ms 近端卖盘深度净增 <code>diff_asks &gt; +50 手</code> 的步长计数</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">卖方堆单防线厚度：计数越高=上方封顶挂单持续加厚</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>absorption_bull</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">|price_change| &lt;= 3.0 点 且 (volume &gt; 2500 或 |delta| &gt;= d_thr) 且 delta &lt;= -d_thr</code><br/><span style="font-size: 0.75rem; color: #64748b;"><code>d_thr = max(250, min(800, 0.10 * bin_volume))</code>（随成交量自适应）</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">被动<strong>买盘吸收</strong>计数：净抛压砸下来但价格几乎不动 → 主力限价/冰山在接货（底部吸收核心证据）</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>absorption_bear</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">同条件但 <code>delta &gt;= +d_thr</code>（净买被吃掉）</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">被动<strong>卖盘吸收</strong>计数：净买盘打上去但价格滞涨 → 上方限价卖单墙在派发（顶部拦截证据）</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>absorption_extreme_*</code><br/><span style="font-size: 0.75rem; color: #64748b;">(<code>_bull</code> / <code>_bear</code>)</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">与上两条同条件，但收紧到 <code>|price_change| &lt;= 1.0 点</code>（极致死守）</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">极致被动吸收：单 5m Bar 内 Delta 冲击上千手而价格位移 ≤1.0 点；<strong>出现 1 次即可最高置信度确认死守</strong></td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>iceberg_bull</code> / <code>iceberg_bear</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">DOM 快照逐档追踪隐藏单 <code>down→up</code> 价量回补（真实冰山补充），非"高成交低位移"启发式</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>iceberg_bull &gt;= 1</code> 买方冰山托盘护盘；<code>iceberg_bear &gt;= 1</code> 卖方冰山压盘封顶</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>iceberg_refill_detail</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">逐档回补明细数组，需同时满足 <code>refills &gt;= 3</code>、<code>cv &lt;= 0.35</code>（回补节奏稳定）、<code>min_size &gt; 0</code>、<code>mean_peak &gt;= 100 手</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">用于排除偶然挂撤单：只有稳定、成规模的隐藏量回补才算<strong>真冰山</strong>；空数组 = 无真实回补</td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>dper_low_count</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">5m 内满足 <code>|delta| &gt;= 1000 手</code> 且 <code>|price_change| &lt;= 1.5 点</code> 的 bin 计数</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">DPER 极低（高成交、价格几乎不位移）出现次数：数值越大=推进越无效，吸收/僵持越明显</td>
-          </tr>
-          <tr style="background: #f8fafc;">
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>vacuum_bid_sec</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code class="code-formula">(挂单量 &lt; 10 手的 500ms 步长数) * 0.5 秒</code><br/><span style="font-size: 0.75rem; color: #64748b;">下方买盘侧</span></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">买方流动性真空持续秒数：支撑档挂单极度空虚，市价抛单易瞬间击穿引发跳水；第二步加分项要求 <code>&gt;= 20.0s</code></td>
-          </tr>
-          <tr>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>vacuum_ask_sec</code></td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">同上口径，统计上方卖盘侧断档步长</td>
-            <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">卖方流动性真空持续秒数：阻力稀薄，小买盘即可向上横扫逼空；第二步加分项要求 <code>&gt;= 20.0s</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </li>
-<li><strong>三类字段的语义分组（判读纪律）</strong>:
-      <ul>
-<li><strong>① 静态挂单底色</strong>（<code>imb_near</code> / <code>imb_mid</code> / <code>imb_deep</code> / <code>weighted_imbalance</code> / <code>early_w_imb</code> / <code>late_w_imb</code> / <code>imb_momentum</code> / <code>early_book_ratio</code> / <code>late_book_ratio</code>）：描述"当前挂单有多厚、倾斜向哪边"，是方向准入的空间底座；</li>
-<li><strong>② 500ms 动态行为</strong>（<code>spoof_bid</code> / <code>spoof_ask</code> / <code>stack_bid</code> / <code>stack_ask</code> / <code>vacuum_bid_sec</code> / <code>vacuum_ask_sec</code> / <code>book_flip_bull</code> / <code>book_flip_bear</code>）：描述"挂单在动什么"——是<b>真撤单</b>（撤单诱骗）、<b>真加单</b>（堆单筑墙）还是<b>整档消失</b>（流动性真空）；<code>spoof_*</code> 命中可一票否决方向准入；</li>
-<li><strong>③ 吸收与隐藏量证据</strong>（<code>absorption_bull</code> / <code>absorption_bear</code> / <code>absorption_extreme_*</code> / <code>iceberg_bull</code> / <code>iceberg_bear</code> / <code>iceberg_refill_detail</code> / <code>dper_low_count</code>）：描述"大额成交有没有推动价格"，是底部吸收 / 顶部派发判定的核心反证；</li>
-      </ul>
-    </li>
-</ul>
 <hr/>
 </article>
-<!-- ===== BBT manual insert: 13 metrics + DOM microstructure (start) ===== -->
-<article class="rule-card" id="card-chapter-2c">
-<h3 class="chapter-heading" id="chapter-2c">2c. Order Flow 核心指标元数据 (13 项 · 按重要性排序)</h3>
-<p>本节与信号页面「<strong>微观结构信号快览</strong>」网格一一对应（页面标题即 <code>Order Flow 核心指标元数据 (13 项)</code>）。
-第 1~10 项是引擎最初的核心元数据；第 <strong>11~13 项为 2026-09-10 (phase14) 新增</strong>，用于把"定价挂单墙 → 逐价吸收 → 击穿收复"这条链量化。
-所有阈值集中在 <code>PyTools/order_flow_analysis/order_flow_config.py</code>，规则版本记录在 <code>RULES_VERSION</code>。</p>
-
-<h4 class="rule-heading rule-calc">方向准入的加权算术（所有指标最终如何合成方向）</h4>
-<table>
-<thead><tr><th>分支</th><th>含义</th><th>权重</th></tr></thead>
-<tbody>
-<tr><td><strong>b1</strong> 量价背离/衰竭</td><td>第 1 项（15m/30m 主窗口为主，5m/10m 仅预警）</td><td><strong>3</strong></td></tr>
-<tr><td><strong>b2</strong> 盘口买卖大翻转</td><td>第 2 项</td><td>1</td></tr>
-<tr><td><strong>b3</strong> 密集冰山托/压单</td><td>第 3 项（含第 11 项墙强度）</td><td>1</td></tr>
-<tr><td><strong>b4</strong> 机构大单净流</td><td>第 4 项</td><td>1</td></tr>
-</tbody>
-</table>
-<p>同向分支权重之和 <code>&gt;= 2</code>（<code>setup1_branch_min_score=2</code>）即点亮"加权看多（或看空）"；即 <strong>b1 单独成立即可准入，b2/b3/b4 需两项同向</strong>。
-准入后还要过"第一道门"（空间/位置门槛）才输出 <code>OPEN_LONG/OPEN_SHORT</code>，否则 <code>HOLD</code>；最后再过数据充分性闸门（见 2b）。
-另有<strong>一票否决</strong>：幌骗陷阱与机构大单净流反向超阈值会直接封杀该方向。</p>
-
-<h4 class="rule-heading rule-calc">01 量价背离/衰竭 (4 窗口)　<span style="font-weight:400;">权重 3 · 核心</span></h4>
-<ul>
-<li><strong>计算</strong>：把窗口内成交按 5 分钟切片，得每片 <code>delta</code>(主动买−主动卖)、<code>volume</code>、<code>price_start/price_end</code>。
-    净额占比 <code>delta_ratio = Σdelta / Σvolume</code>；价格位移用平均单 bar 振幅归一：<code>price_change_atr = price_change / ATR</code>，
-    <code>ATR = mean(|每片 price_change|)</code>，并设 <code>0.05</code> 地板防除零。四窗口：5m / 10m / 15m / 30m。</li>
-<li><strong>看多（被动承接）</strong>：<code>delta_ratio_15m &lt;= -0.12</code> 且 <code>price_change_atr_15m &gt;= -0.6</code>（<strong>卖压很大但价格不跌</strong>）；30m 同式。或<strong>主动吸筹</strong>：<code>delta_ratio &gt;= +0.12</code> 且 <code>price_change_atr &lt;= -0.5</code>（买盘猛但价格被压）。</li>
-<li><strong>看空</strong>：严格对称（<code>delta_ratio_15m &gt;= +0.12</code> 且价格未涨，或 <code>&lt;= -0.12</code> 且价格未跌）。</li>
-<li><strong>关键防误判（phase12）</strong>：窗口净额绝对值必须 <code>&gt;= div_min_abs_delta = 200 手</code> 才参与判定。
-    <strong>原因（实测）</strong>：2026-09-10 11:15 的 15 分钟窗口只有 <strong>21 手</strong>成交，<code>delta_ratio = -21/21 = -1.000</code>，0.12 的门槛形同虚设 → 假 Bullish + OPEN_LONG。
-    窗口越稀薄，比值越会被放大到 ±1.0。</li>
-<li><strong>5m/10m 早期预警</strong>：门槛降到 <code>±0.08</code>（<code>early_divergence_delta_ratio</code>），<strong>只作加分/预警，不单独准入</strong>（主准入由 15m/30m 把守）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">02 盘口买卖大翻转 (Book Flip)　<span style="font-weight:400;">权重 1 · 核心</span></h4>
-<ul>
-<li><strong>计算</strong>：把 5 分钟窗口切成前半段/后半段，分别求买卖盘厚度比
-    <code>ratio = Σ(买盘深度) / Σ(卖盘深度)</code>，得到 <code>early_book_ratio</code> 与 <code>late_book_ratio</code>。</li>
-<li><strong>看多（翻转向上）</strong>：前半段买方明显薄（<code>early &lt; 0.85</code>）而<strong>后半段买方骤然变厚</strong>（<code>late &gt; 1.40</code>）——即盘口在 5 分钟内被大额买单重构。</li>
-<li><strong>看空</strong>：严格对称（<code>early &gt; 1.18</code> 且 <code>late &lt; 0.71</code>）。</li>
-<li><strong>使用</strong>：b2 分支（权重 1）；同时进入"突发高确信形态横幅警报"（见 2d 第 6 模块）。
-    <strong>实测提醒</strong>：2026-09-10 07:14 的比率是 <code>0.85→1.19</code>，属于"真实翻转但未达阈值"，因此 b2 没亮——这类"差一点"的翻转应由 b1/b3 补齐。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">03 密集冰山托/压单 (Iceberg)　<span style="font-weight:400;">权重 1 · 核心</span></h4>
-<ul>
-<li><strong>计算</strong>：按<strong>绝对价格</strong>分桶（<code>tick_size=0.25</code>，<code>iceberg_scan_points=12.0</code> 点范围，回看 <code>iceberg_lookback_min=30</code> 分钟）
-    检测"被打掉 → 自动回补"循环：同一价位出现 <code>峰值 &gt;= iceberg_min_peak=50 手</code>、且落点相对该价位自身的
-    <code>peak_rel_mult=1.5</code> 倍活跃水平反复回补，即判定为隐藏量在补单。
-    <strong>为什么必须按价格而不是档位</strong>：厂商导出里的"档位"是相对盘口的偏移，盘口一动同一价格就换桶，固定价位的墙会被切碎。</li>
-<li><strong>看多</strong>：买侧冰山数 <code>iceberg_bull &gt;= 1</code> 且 <code>iceberg_bull &gt; iceberg_bear</code>（托单密集）；看空对称。</li>
-<li><strong>使用</strong>：b3 分支（权重 1）；并与"挂单墙强度"（第 11 项）联用——<strong>单纯数回补次数会命中几十个价位</strong>，
-    加上"相对同带厚度 ≥2×"后通常只剩 4~5 个，这才是真正的墙。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">04 2h 机构大单净流　<span style="font-weight:400;">权重 1 · 核心</span></h4>
-<ul>
-<li><strong>计算</strong>：取大单通道（单笔 ≥ 阈值成交）近 2 小时的<strong>净额</strong> <code>big_trade_net_2h = Σ(主动买) − Σ(主动卖)</code>。</li>
-<li><strong>看多/看空</strong>：净额为正偏多、为负偏空；达到加分门槛（±1500 手量级）进入加分项。</li>
-<li><strong>一票否决</strong>：<code>|big_trade_net_2h| &gt;= big_trade_block_net = 3000 手</code> 时，<strong>封杀反向方向</strong>（机构大单净流是硬约束）。</li>
-<li><strong>实测提醒</strong>：2026-09-10 RTH 大单为 <strong>0</strong>（全天仅 2 笔盘前大单）——<strong>0 是事实，不是"指标没算"</strong>；
-    但要注意区分"确实没有大单"与"大单通道没数据"（后者目前只在页面用手数据流心跳体现，见 2b 的取舍说明）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">05 Order Wall 净深度累积曲线　<span style="font-weight:400;">辅助</span></h4>
-<ul>
-<li><strong>计算</strong>：从盘口现价向外逐档累加 <code>(买盘量 − 卖盘量)</code>，得到累积曲线；取<strong>峰值累积</strong> <code>peak_cum_net</code> 与其所在
-    <strong>价格</strong> <code>peak_price</code>（<em>必须是价格而非档位索引</em>——档位会随盘口移动，历史上曾因此把"峰档 199"误当价位）。</li>
-<li><strong>看多</strong>：峰值表现为"买方重墙托底"（累积净深显著为正）；看空对称（卖方封顶）。</li>
-<li><strong>使用</strong>：辅助确认 + 供期权卖家选"离硬墙最远的行权价"；其强度（<code>wall_support_strong/wall_resistance_strong</code>）会喂给 b3。</li>
-<li><strong>实测</strong>：2026-09-10 Adam 时刻该曲线从 <strong>−820（卖压）翻到 +873（买托）</strong>，是当时最早转向的指标之一。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">06 Delta 足迹 (Footprint)　<span style="font-weight:400;">辅助</span></h4>
-<ul>
-<li><strong>计算</strong>：以 500ms 网格统计"该格内是否出现主动买/主动卖"，得 <code>active_buy_bins</code>/<code>active_sell_bins</code>/<code>net_delta_bins</code>；
-    <strong>phase14 起</strong>再输出<strong>逐价</strong>买卖量（见第 12 项）。</li>
-<li><strong>看多</strong>：主动买聚集价位的净额显著为正；看空为负。</li>
-<li><strong>历史坑</strong>：只数 bin 个数会与方向脱钩（bin 计数与量无关），所以现在以逐价量为主、bin 计数为辅。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">07 Cancel-to-Trade Ratio　<span style="font-weight:400;">辅助</span></h4>
-<ul>
-<li><strong>计算</strong>：<code>cancel_trade_ratio = (spoof_bid + spoof_ask) 撤单次数 / 主动成交 bin 数</code>。</li>
-<li><strong>可信度分档</strong>：<code>&lt; 0.5</code> 成交为主（可信）；<code>0.5 ~ 1.0</code> 虚单偏多（存疑）；<code>&gt; 1.0</code> 幌骗高（不可信）。</li>
-<li><strong>分母为 0 时</strong>（成交流缺失）必须显示"<strong>不可用（无成交数据）</strong>"，<strong>不能</strong>显示成 <code>0.00（可信）</code> —— 这是 2026-09-10 修掉的一个真实误导。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">08 DOM 加权失衡 + 动量　<span style="font-weight:400;">衍生/风控</span></h4>
-<ul>
-<li><strong>计算</strong>：按距盘口远近分三梯队（近端 0–5 档 / 中端 6–20 档 / 深层 21–120 档），各梯队给不同权重，
-    <code>weighted_imbalance = Σ w<sub>i</sub> · (买 <sub>i</sub> − 卖 <sub>i</sub>) / (买 <sub>i</sub> + 卖 <sub>i</sub>)</code>；
-    <code>imb_momentum = 后半段 − 前半段</code>（失衡的变化率）。</li>
-<li><strong>看多</strong>：加权失衡为正且动量为正（买盘越堆越厚）；看空：为负且动量为负。</li>
-<li><strong>使用</strong>：风控/加减分；也用于"书内方向是否与订单流同向"的一致性检查。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">09 Spoofing 撤单陷阱　<span style="font-weight:400;">衍生/风控 · 可一票否决</span></h4>
-<ul>
-<li><strong>计算</strong>：逐价位检测"快速挂出 → 快速撤掉"的闪烁串（<code>spoof_bid</code>/<code>spoof_ask</code>），并与该价位的<strong>持续性</strong>对比；
-    结合买卖占比判断是"诱多假单"还是"诱空假单"。</li>
-<li><strong>判定</strong>：出现诱多陷阱 → <strong>封杀看多</strong>；诱空陷阱 → 封杀看空（<code>block_bull_by_spoof</code>/<code>block_bear_by_spoof</code>）。</li>
-<li><strong>实测</strong>：2026-09-10 Adam 时刻 spoo/stack 为"撤单(买1/卖1) / 堆单(买2/卖1)"——<strong>不构成陷阱</strong>；
-    而当天的 Spoof-Trap 信号出现在 10:25/11:25 等<strong>远离关键时点</strong>的地方，说明该指标确实在捕捉别的东西。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">10 洗盘反转 (大单砸低点后净买)　<span style="font-weight:400;">核心</span></h4>
-<ul>
-<li><strong>计算</strong>：检测"机构级大额<strong>卖出</strong>把价格快速砸到局部低点 → 随后转为<strong>净买入</strong>"的组合；看空为对称的"拉高后净卖"。</li>
-<li><strong>看多</strong>：<code>washout_bull</code> 成立（洗盘结束、筹码换手完成）；看空 <code>washout_bear</code>。</li>
-<li><strong>使用</strong>：核心加分项，与 b1 背离同时出现时置信度最高。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">11 定价挂单墙 PAW (Price-Anchored Wall)　<span style="font-weight:400;">核心 · phase14 新增</span></h4>
-<ul>
-<li><strong>计算</strong>（逐<strong>价格</strong>，非档位；窗口 30 分钟）：
-    <code>presence_ratio</code>（该价位挂单量 ≥ <code>min_size=30 手</code> 的快照占比）、
-    <code>median_size</code>（中位挂单量）、
-    <strong><code>rel_thickness</code> = 该价位中位挂单 ÷ 同带（±2.5 点）中位挂单</strong>（自适应判据）、
-    <code>distance_ticks</code>（距盘口中位距离）、<code>refills</code>（回补次数）、<code>min_size</code>（被砸到的最低量）。</li>
-<li><strong>评分 <code>paw_score</code> (0~5)</strong>：在场率 ≥0.60、相对同带 ≥2.0×、中位挂单 ≥80 手、距盘口 4~40 tick、回补 ≥3 且从未清零 —— 每满足一项 1 分；
-    <code>&gt;= score_min=3</code> 才进入墙地图（最多保留 <code>top_n=5</code> 堵）。</li>
-<li><strong>看多/看空</strong>：<strong>买墙（BID）→ 看多倾向</strong>；<strong>卖墙（ASK）→ 看空倾向</strong>。距离远的墙代表"更深处的机构意愿"。</li>
-<li><strong>阈值依据（实测）</strong>：2026-09-10 06:20–07:30 的 7590 买墙 —— 在场率 <strong>0.90</strong>、中位 <strong>113 手</strong>、
-    距盘口中位 <strong>−58 tick(−14.5 点)</strong>、<strong>相对同带 3.97×</strong> ⇒ 满分 5/5。</li>
-<li><strong>重要提醒（事件研究结论）</strong>：3 个交易日 136 个"墙被测过"样本中，30 分钟内<strong>不破率仅 20.6%</strong>
-    （即 79% 的墙会被破）。<strong>墙厚 ≠ 墙会守住</strong>；其边际价值在"朝墙方向的反弹尾部"（30 分钟命中率 8.1% vs 随机基准 1.7%，p≈0.02）。</li>
-<li><strong>当前用法</strong>：<strong>只展示与观察，尚未接入方向准入</strong>（按设计先做事件研究验证）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">12 逐价吸收足迹 (Price-Level Absorption)　<span style="font-weight:400;">核心 · phase14 新增</span></h4>
-<ul>
-<li><strong>计算</strong>（窗口 30 分钟，逐价格）：<code>buy_vol</code>/<code>sell_vol</code>（主动买/卖成交量）、
-    <code>net_at_price</code>（买墙取 买−卖；卖墙取 卖−买，正数表示该侧被动承接强）、<code>traded_volume</code>；
-    以及 <code>price_held</code>（该价位<strong>外侧</strong>在窗口内是否完全没成交）。</li>
-<li><strong>吸收成立（absorbing）</strong>：<code>traded_volume &gt;= 500 手</code> <strong>且</strong> <code>|net_at_price| &gt;= 300 手</code>
-    <strong>且</strong>（价格未破 <strong>或</strong> 已被收复）。吸收手数 <code>absorbed_lots</code> 即被吃掉的单边量。</li>
-<li><strong>看多</strong>：<strong>买墙</strong>上出现大额<strong>卖</strong>成交被吃掉而价格不破（<code>net_at_price &lt; 0</code> 且 <code>absorbing</code>）；看空为卖墙对称。</li>
-<li><strong>实测</strong>：7590 买墙在 30 分钟内主动买 1017 手 / 主动卖 <strong>1359 手</strong>（净 <strong>−342</strong>）、总成交 2376 手
-    → <strong>吸收 342 手</strong>。这就是"卖压在某一价位被吃掉、价格不破"的可计算版本。</li>
-<li><strong>稀缺性</strong>：3 个交易日里"墙+吸收"只出现 <strong>1 次</strong>（就是上面这一例）→ 属于罕见高价值形态。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">13 击穿-收复状态机 (Breach &amp; Reclaim)　<span style="font-weight:400;">核心 · phase14 新增</span></h4>
-<ul>
-<li><strong>计算</strong>：以该墙<strong>最深击穿点</strong>为锚（<em>不能用"第一次击穿"</em>——价格常在墙位徘徊，会把噪声当事件）：
-    <code>breach_depth_ticks</code>（向下穿破 &gt; <code>breach_ticks=2</code> tick 的深度）、
-    <code>reclaim_minutes</code>（从最深点回到墙位耗时）、
-    <code>post_reclaim_touches</code>（收复后<strong>再次</strong>回到墙位附近 ±1 tick 的"段"数，两段间隔 ≥120 秒才算新一次）。</li>
-<li><strong>五种状态</strong>：
-    <code>INTACT</code> 未被击穿；
-    <code>RECLAIMED</code> 已收复但未定级；
-    <code>LEVEL_CONFIRMED</code> <strong>收复确认</strong>（≤<code>reclaim_minutes_max=10</code> 分钟收复 <strong>且</strong>回踩 0 次）；
-    <code>LEVEL_WEAKENED</code> 支撑弱化（收复 &gt;10 分钟 或 回踩 ≥<code>weak_touches=3</code> 次）；
-    <code>BREACHED_NO_RECLAIM</code> 破位未收复。</li>
-<li><strong>看多</strong>：买墙 <code>LEVEL_CONFIRMED</code> 或 <code>INTACT</code>；<strong>看空/失效</strong>：<code>BREACHED_NO_RECLAIM</code> 或 <code>LEVEL_WEAKENED</code>。</li>
-<li><strong>实测</strong>：7590 买墙击穿 <strong>17 tick（4.25 点）→ 2.4 分钟收复 → 回踩 0 次</strong> = <code>LEVEL_CONFIRMED</code>；
-    此后该价位再未被成交触及 ⇒ <strong>"Adam 那一刻"的可计算版本</strong>。
-    （同日 7597 买墙为 <code>BREACHED_NO_RECLAIM</code>，语义与事实一致。）</li>
-<li><strong>修复过的两个语义坑</strong>：① 吸收判定曾要求"价格未破"，导致"破位后收复"的墙不算吸收 → 已改为"未破 <strong>或</strong> 已收复"；
-    ② 回踩曾按"逐秒在墙位附近"计数，把"价格在墙位徘徊"数成 28 次 → 已改为按锚定最深点 + 事件式计数（结果 0 次，与事实一致）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">附：数据充分性（元数据，非指标）</h4>
-<p>以上 13 项都可能因数据缺失而失真，因此每条信号都带一个质量等级（<code>OK / DEGRADED / INSUFFICIENT</code>）与理由；
-<code>INSUFFICIENT</code> 时<strong>禁止开仓</strong>。定义与阈值见下一节 2b。</p>
-<hr/>
-</article>
-
-<article class="rule-card" id="card-chapter-2d">
-<h3 class="chapter-heading" id="chapter-2d">2d. DOM 盘口微观结构与底层指标 (500ms 网格 · 上游微结构)</h3>
-<p>本节对应信号页面「<strong>第四位：DOM 盘口微观结构与底层指标详情</strong>」卡片。数据来源是厂商导出的 200 档盘口快照，
-被重采样成 <strong>500ms 离散网格 · 600 步长点</strong>；卡片头部显示采样步长、网格步长点、<strong>底层快照总数</strong>与<strong>采样覆盖率</strong>，
-以及<strong>微观综合研判</strong>徽标（上游 4 大微结构模块的投票：<code>DOM 综合多 N/4 空 M/4</code>）与<strong>数据质量徽标</strong>。
-第 7~9 模块为 2026-09-10 (phase14) 新增，细节见 2c 的第 11~13 项。</p>
-
-<h4 class="rule-heading rule-calc">模块 1：采样与网格基础遥测 (Grid Telemetry)</h4>
-<ul>
-<li><strong>计算</strong>：把窗口内所有快照按 500ms 落格，<code>600 点 = 5 分钟</code>；覆盖率 = 实际读到快照数 ÷ 理论应有快照数。</li>
-<li><strong>用途</strong>：<strong>先看这里再信任何结论</strong>——覆盖不足时其余模块都在噪声上计算。快照数、最大间断、来源回退（重读）都会记录并参与数据充分性分级。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">模块 2：多梯队失衡与微观动量</h4>
-<ul>
-<li><strong>计算</strong>：近端（<code>imb_near</code>，0–5 档，权重最高）、中端（<code>imb_mid</code>，6–20 档）、深层核心（<code>imb_deep</code>，21–120 档）；
-    合成 <code>weighted_imbalance</code>；<code>imb_momentum = 后半段 − 前半段</code>（另给 2.5 分钟子窗口的 <code>+0.018 / −0.037</code> 对比）。</li>
-<li><strong>看多</strong>：加权失衡为正（买盘堆积）且动量为正；<strong>看空</strong>：为负且动量为负（卖压堆积）。</li>
-<li><strong>实测（07:15）</strong>：近端 <code>+0.032</code>、中端 <code>−0.048</code>、深层 <code>−0.058</code> → 净 <code>−0.010</code>、动量 <code>−0.055</code> ⇒ 当时<strong>上游盘口仍偏空</strong>，
-    真正的转向来自订单流与墙（这正是"上游 vs 订单流"要分开看的原因）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">模块 3：虚假撤单与一票否决 (Spoofing Trap Filter)</h4>
-<ul>
-<li><strong>计算</strong>：Buy/Sell 撤单闪烁次数与占比（<code>spoof_bid</code>/<code>spoof_ask</code>，括号内为占该侧总量比例）；
-    <strong>诱多假单陷阱 / 诱空假单陷阱</strong>各自的诊断结果；买卖占比条。</li>
-<li><strong>判定</strong>：诊断出诱多陷阱 → <strong>看多被一票否决</strong>；诱空陷阱 → 看空被否决；显示"未触发（安全）/ 撤单闪烁均衡"即为无陷阱。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">模块 4：堆单防御与堡垒加固 (Stacking Defense)</h4>
-<ul>
-<li><strong>计算</strong>：Buy/Sell 的<strong>加单</strong>串（<code>stack_bid</code>/<code>stack_ask</code>）与占该侧总量比例；
-    "多头筑基防守判定"= 买侧加单次数显著多于卖侧（如 ≥8 次且 ≥2× 卖侧）；"强堆堡垒加固"= 双向都在加固。</li>
-<li><strong>看多</strong>：买方持续<strong>加</strong>单（不是撤单）形成堡垒；<strong>看空</strong>：卖侧对称。</li>
-<li><strong>与模块 3 的区别</strong>：撤单=虚（陷阱），加单=实（防御）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">模块 5：梯级冰山与流动性断层</h4>
-<ul>
-<li><strong>计算</strong>：主波段冰山（<code>a3.0pt</code> 分层）与极致死守冰山（<code>a1.0pt</code>，最核心档位）的多/空计数；
-    <strong>流动性真空持续秒数</strong> <code>vacuum_bid_sec</code>/<code>vacuum_ask_sec</code>（某侧挂单被吃空且长时间不补的秒数）；
-    极低 DPER 漂移/裸跌检测（价格几乎无阻力下滑）；主流冰山多/空占比。</li>
-<li><strong>看多</strong>：多头冰山死守吸筹 + 卖方真空横行（<strong>往上没有阻力</strong>）；<strong>看空</strong>：空头冰山压顶 + 买方真空。</li>
-<li><strong>实测（07:15）</strong>：主流波段冰山 <strong>多 3 / 空 1</strong>、极致死守 <strong>多 3 / 空 1</strong> ⇒ 看多；但真空均为 0 秒（当时盘口并未真空）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">模块 6：突发高确信形态横幅警报 (High-Conviction Alert Banners)</h4>
-<ul>
-<li><strong>触发</strong>：① 盘口买卖比率极速大翻转（Book Flip，含 `前半段 → 后半段` 比率参考，如 <code>1.11 → 1.02</code>）；
-    ② 30 点外深水区突发出现 ≥800 手的<strong>远端战略阻力墙</strong>（动态上调远端权重）。</li>
-<li><strong>判定</strong>：横幅出现即为"高确信形态"；无横幅会明确显示"盘口秩序平稳"（<strong>不是没算</strong>）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">模块 7~9：挂单墙地图 / 逐价吸收 / 击穿-收复（phase14 新增）</h4>
-<ul>
-<li>对应 2c 的第 11/12/13 项，卡片内直接列出<strong>墙地图表</strong>（价位/评分/在场率/中位挂单/相对同带/距盘口/最低被打到/回补）、
-    <strong>逐价吸收表</strong>（主动买/主动卖/净额/总量/价格是否被破/吸收手数）与<strong>状态机表</strong>（状态/击穿深度/收复耗时/回踩次数）。</li>
-<li><strong>历史行说明</strong>：写入于 phase14 之前的信号不含该数据，卡片会明确显示"<strong>该行未包含挂单墙地图数据</strong>"，
-    而不会伪装成"已算过但没有墙"（两种情形在 UI 上措辞不同）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">DOM 侧到方向的速查表</h4>
-<table>
-<thead><tr><th>模块读数</th><th>看多</th><th>看空</th><th>性质</th></tr></thead>
-<tbody>
-<tr><td>加权失衡 + 动量</td><td>为正且动量为正</td><td>为负且动量为负</td><td>基础倾向（风控）</td></tr>
-<tr><td>买卖大翻转</td><td>前半薄 → 后半厚</td><td>前半厚 → 后半薄</td><td>准入分支 b2（权重 1）</td></tr>
-<tr><td>冰山托/压</td><td>多头冰山 ≥1 且多于空头</td><td>对称</td><td>准入分支 b3（权重 1）</td></tr>
-<tr><td>堆单防御</td><td>买侧加单形成堡垒</td><td>卖侧对称</td><td>确认</td></tr>
-<tr><td>盘口真空</td><td>卖方真空（上方无阻力）</td><td>买方真空</td><td>确认/加速</td></tr>
-<tr><td>幌骗陷阱</td><td>无诱多陷阱</td><td>无诱空陷阱</td><td><strong>一票否决</strong></td></tr>
-<tr><td>挂单墙 PAW</td><td>买墙（BID）</td><td>卖墙（ASK）</td><td>倾向（暂未准入）</td></tr>
-<tr><td>逐价吸收</td><td>买墙上卖压被吸收</td><td>卖墙上买盘被吸收</td><td>高确信（罕见）</td></tr>
-<tr><td>击穿-收复</td><td>买墙收复确认</td><td>买墙破位未收复 / 卖墙收复确认</td><td>支撑有效性判定</td></tr>
-</tbody>
-</table>
-<p><strong>使用顺序建议</strong>：先看模块 1（数据够不够）→ 模块 3（有没有陷阱，可否决）→ 模块 2/4/5（基础倾向与确认）→ 模块 6（有没有高确信形态）
-→ 模块 7~9（关键价位与吸收/收复）。<strong>上游盘口与订单流不一致时，以订单流（2c）为准，但必须标注分歧</strong>——实测 07:15 就是"盘口偏空 + 订单流转向"的组合。</p>
-<hr/>
-</article>
-<!-- ===== BBT manual insert: 13 metrics + DOM microstructure (end) ===== -->
-
-<!-- ===== BBT manual insert: data sufficiency (start) ===== -->
-<article class="rule-card" id="card-chapter-2b">
-<h3 class="chapter-heading" id="chapter-2b">2b. 数据充分性分级与闸门 (Data Sufficiency Tiering &amp; Gates)</h3>
-<p>本节定义<strong>「数据够不够格下结论」</strong>这条贯穿性规则：任何方向/开仓结论都必须先通过数据充分性判定。
-起因是 2026-09-10 的一次实测误判 —— <strong>11:15 输出了 Bullish + OPEN_LONG，而该时段成交流已经中断</strong>。</p>
-
-<h4 class="rule-heading rule-calc">(1) 三类失败模式（实测）</h4>
-<table>
-<thead><tr><th>失败模式</th><th>实测证据（2026-09-10 ES）</th><th>后果</th></tr></thead>
-<tbody>
-<tr><td><strong>F1 比值在近零样本上退化</strong></td>
-<td>11:15 的 15 分钟窗口仅 <code>21 手</code> 成交 → <code>delta_ratio = -21/21 = -1.000</code>（阈值 ±0.12）；价格未动（<code>pcatr≈0 ≥ -0.6</code>）→ 判为"卖压被吸收"</td>
-<td>背离分支 b1（权重 3）单独过线（门槛 2）→ <strong>假 Bullish + OPEN_LONG</strong></td></tr>
-<tr><td><strong>F2 窗口内部分缺失被当作完整窗口</strong></td>
-<td>11:05–11:15 成交流中断，但 15m/30m 窗口"有数据"（来自窗口前段）</td>
-<td>比值/ATR 由极小样本归一化 → 极值 → 方向可被放大或反转</td></tr>
-<tr><td><strong>F3 证据缺失被当成"没有反向证据"</strong></td>
-<td>DOM 盘口缺失时 <code>dom_metrics=None</code> → 盘口翻转/冰山分支静默为 False，<strong>幌骗否决（block_*_by_spoof）也一并失效</strong></td>
-<td>该拦的没拦；"没有证据"被误读为"没有风险"</td></tr>
-</tbody>
-</table>
-
-<h4 class="rule-heading rule-calc">(2) 分级定义与阈值（<code>order_flow_config.DATA_QUALITY</code>）</h4>
-<p>对每个评估窗口（5m/10m/15m/30m）计算 4 组事实：<strong>tick 连续性</strong>（空桶数）、<strong>tick 量能</strong>（成交量）、
-<strong>DOM 连续性</strong>（窗口内快照数与最大间断）、<strong>时效</strong>（最后一个 5 分钟桶距目标时刻的分钟数）。
-输入全部来自已有数据（sentinel 的 5 分钟 bins + DOM 评估器的快照连续性），<strong>不额外读盘</strong>。</p>
-<table>
-<thead><tr><th>等级</th><th>触发条件（任一）</th><th>方向标签</th><th>开仓</th></tr></thead>
-<tbody>
-<tr><td><code>OK</code></td><td>全部通过</td><td>正常</td><td>正常</td></tr>
-<tr><td><code>DEGRADED</code></td>
-<td>15 分钟成交量 &lt; <code>min_volume_15m=500</code> 手；或 30 分钟窗口出现空桶；或 DOM 快照最大间断 &gt; <code>dom_max_gap_degraded_sec=30s</code></td>
-<td>保留（标注）</td><td>默认仍允许（可配置收紧，见下）</td></tr>
-<tr><td><code>INSUFFICIENT</code></td>
-<td>15 分钟窗口出现空桶（成交流中断）；或 15 分钟零成交；或成交流滞后 &gt; <code>stale_min=10</code> 分钟（陈旧 STALE 归入本级）；或 DOM 缺失；或关键窗口快照 &lt; <code>dom_min_snapshots=30</code> 个</td>
-<td><strong>保留但禁止开仓</strong>（<code>trade_decision=HOLD</code>）</td><td><strong>禁止</strong></td></tr>
-</tbody>
-</table>
-<p><strong>阈值校准依据</strong>（2026-09-10 ES 全天 198 个 5 分钟窗口实测）：DOM 窗口内相邻快照最大间断
-<code>p50=3.4s / p75=10.8s / p90=19.1s</code>；<code>&gt;30s</code> 占 7%、<code>&gt;60s</code> 占 4%、<code>&gt;120s</code> 仅 1 个；
-窗口内快照数 <code>p10=56 / p50=382</code>，而成交流中断的 11:00–11:15 只有 <code>4~5</code> 个。
-因此：<strong>「间断」只代表录制有停顿（数据仍可用→降级）；「快照太少/缺失」才代表不可用（→不足）</strong>。</p>
-
-<h4 class="rule-heading rule-calc">(3) 三道闸门</h4>
-<table>
-<thead><tr><th>闸门</th><th>位置</th><th>规则</th></tr></thead>
-<tbody>
-<tr><td><strong>A 充分性判定</strong></td><td><code>order_flow_rules_optimizer.assess_data_quality()</code>（打分前）</td>
-<td>产出 <code>quality_tier</code> + <code>quality_reasons[]</code> + <code>coverage{}</code>，落库（Phase 1）</td></tr>
-<tr><td><strong>B 分支输入充分性</strong></td><td>各分支的最低证据</td>
-<td>b1 量价背离：<code>abs(窗口净Δ) ≥ div_min_abs_delta=200</code> 且窗口量能达标（否则比值退化）；
-b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有数据。<strong>窗口净额过小 → 不参与背离判定</strong></td></tr>
-<tr><td><strong>C 开仓总闸</strong></td><td><code>trade_decision</code> 收敛处</td>
-<td><code>block_open_tiers</code>（默认 <code>["INSUFFICIENT"]</code>）内的等级一律 <code>HOLD</code>，verdict 写明理由（Phase 2）</td></tr>
-</tbody>
-</table>
-<p><strong>配置项</strong>：<code>DATA_QUALITY.block_open_tiers</code> —— 想更严就把 <code>"DEGRADED"</code> 也加进去（无需改代码）。</p>
-
-<h4 class="rule-heading rule-calc">(4) 落库字段与可观测</h4>
-<table>
-<thead><tr><th>字段</th><th>表</th><th>含义</th></tr></thead>
-<tbody>
-<tr><td><code>quality_tier</code></td><td><code>quantitative_metrics</code></td><td><code>OK</code> / <code>DEGRADED</code> / <code>INSUFFICIENT</code></td></tr>
-<tr><td><code>quality_reasons[]</code></td><td><code>quantitative_metrics</code></td><td>人类可读理由（如"15 分钟窗口内 2 个 5 分钟桶无成交"）</td></tr>
-<tr><td><code>coverage{}</code></td><td><code>quantitative_metrics</code></td><td>tick 5m/15m/30m 的空桶数与成交量、DOM 快照数/最大间断、滞后分钟数</td></tr>
-<tr><td><code>gate_c_blocked_open</code></td><td><code>quantitative_metrics</code></td><td>本行是否被开仓总闸拦下</td></tr>
-<tr><td><code>dom_snapshots</code> / <code>dom_max_gap_sec</code></td><td><code>dom_metrics</code></td><td>DOM 侧连续性事实（供分级与 UI）</td></tr>
-<tr><td><code>data_quality</code></td><td><code>dom_metrics</code> / <code>quantitative_metrics</code></td><td>兼容字段：<code>NO_TICK_FLOW</code> 表示成交流缺失</td></tr>
-</tbody>
-</table>
-<p>verdict 末尾固定附一行：<code>【数据质量】INSUFFICIENT（…理由…）→ 禁止开仓，结论仅供参考</code> 或 <code>【数据质量】DEGRADED（…）→ 方向可用，数据完整度下降</code>。</p>
-
-<h4 class="rule-heading rule-calc">(5) 与既有规则的关系 / 版本</h4>
-<ul>
-<li><code>RULES_VERSION = 2026-09-10-phase13</code>（本节）；其上一步 <code>phase12</code> 已含两处止血：背离窗口 <code>div_min_abs_delta=200</code>、成交流缺失时禁止开仓。</li>
-<li>与<b>数据巡检</b>联动：<code>mw_data_health_check</code> 产出 5 分钟桶缺失区间（<code>coverage_json</code>），
-    页面「MW 数据健康 → 明细 → 时段覆盖」可点开缺口查看**受影响信号清单**（缺口内 / 窗口含缺口两种原因）。</li>
-<li>历史口径重算：<code>PyTools/jobs/recompute_order_flow_signals.py --date YYYY-MM-DD [--apply]</code>
-    （输入取自行内 <code>recent_micro_5m</code>，只换规则版本；自动快照 + 跳过日型定性行）。</li>
-</ul>
-
-<h4 class="rule-heading rule-calc">(6) 取舍与后续</h4>
-<ul>
-<li><strong>代价</strong>：稀薄时段（夜盘）本就地量小，阈值会拦掉一部分合法背离 —— 取舍原则是<b>宁可少做，也不在没数据上下注</b>；阈值用历史分布 + 后验收益继续校准。</li>
-<li><strong>未启用（Phase 3）</strong>：目前 <code>INSUFFICIENT</code> <b>保留方向标签</b>、只禁开仓；下一步可把方向也强制为 <code>Neutral</code>（需配套历史重算，工具已就绪）。</li>
-</ul>
-<hr/>
-</article>
-<!-- ===== BBT manual insert: data sufficiency (end) ===== -->
-
 <article class="rule-card" id="card-chapter-3">
 <h3 class="chapter-heading" id="chapter-3">3. 第一步：基本规则方向准入判定 (Direction Qualifying Rules)</h3>
-<p>任何 5 分钟节点默认 <strong>Neutral（中性）</strong>。必须先过<strong>全局约束</strong>，再命中 <strong>Setup 1~4 之一</strong>（每个 Setup 的看多/看空规则各自独立、严格对称），
-最后经<strong>数据充分性闸门</strong>（见 2b）才输出方向；方向成立后还要过"第一道门"才输出 <code>OPEN_LONG/OPEN_SHORT</code>，否则 <code>HOLD</code>。
-本节按 <strong>Setup 分子章节</strong>组织，每个 Setup 内分 🟢 看多 / 🔴 看空；阈值全部与代码（<code>order_flow_config.THRESHOLDS</code>）对齐，规则版本 <code>RULES_VERSION=2026-09-10-phase14</code>。</p>
-
-<h4 class="rule-heading rule-calc">全局约束（一票否决，任何 Setup 都要先过）· Setup 总览 · 加权准入</h4>
-<table>
-<thead><tr><th style="white-space:nowrap;">Setup</th><th>名称</th><th>看多（🟢）空间条件</th><th>看空（🔴）空间条件</th><th>代码位置</th></tr></thead>
-<tbody>
-<tr><td style="white-space:nowrap;"><strong>1</strong></td><td>大级别被动吸收反转<br/>Major Absorption Reversal</td><td>低位/支撑：三途径任一（见 3.1）</td><td>高位/阻力：三途径镜像</td><td><code>s1a_gate1 / s1b_gate1</code></td></tr>
-<tr><td style="white-space:nowrap;"><strong>2</strong></td><td>趋势日顺势（回踩/反弹）</td><td>趋势日看多 <strong>且</strong> <code>pos &lt;= setup2_pos_cap(65.0)</code></td><td>趋势日看空 <strong>且</strong> <code>pos &gt;= setup2_pos_floor(35.0)</code></td><td><code>gate_setup2_bull/bear</code></td></tr>
-<tr><td style="white-space:nowrap;"><strong>3</strong></td><td>区间边缘蓄势反转</td><td><code>setup3_bull_low(45.0) &lt;= pos &lt;= setup3_bull_high(68.0)</code></td><td><code>setup3_bear_low(32.0) &lt;= pos &lt;= setup3_bear_high(55.0)</code></td><td><code>gate_setup3_bull/bear</code></td></tr>
-<tr><td style="white-space:nowrap;"><strong>4</strong></td><td>大单卖出后反转<br/>Washout Reversal</td><td>近 15 分钟有 ≥500 手<strong>卖出</strong>大单 + 反转确认（见 3.4）</td><td>近 15 分钟有 ≥500 手<strong>买入</strong>大单 + 反转确认</td><td><code>washout_bull/bear</code></td></tr>
-<tr><td style="white-space:nowrap;"><strong>5</strong></td><td><strong>WALL_BOUNDARY_SELL</strong><br/>墙位边界卖方（期权卖家）</td><td>买墙（BID）→ 卖 put（墙下缓冲外）</td><td>卖墙（ASK）→ 卖 call（墙上缓冲外）</td><td><strong>设计中</strong>（参数待累积统计校准，见 3.5）</td></tr>
-</tbody>
-</table>
-<p><strong>全局约束（一票否决，任何 Setup 都要先过）</strong>：</p>
-<table>
-<thead><tr><th style="white-space:nowrap;">约束</th><th>规则</th><th>阈值/字段</th></tr></thead>
-<tbody>
-<tr><td style="white-space:nowrap;">幌骗陷阱</td><td>诊断出诱多假单 → <strong>封杀看多</strong>；诱空假单 → 封杀看空</td><td><code>block_bull_by_spoof / block_bear_by_spoof</code></td></tr>
-<tr><td style="white-space:nowrap;">反追高/杀跌刚性红线</td><td>禁止在过度延伸处顺势开仓</td><td><code>pos_redline_high=75.0 / pos_redline_low=25.0</code>（过度区 <code>65/35</code>）</td></tr>
-<tr><td style="white-space:nowrap;">机构大单反向</td><td>|2h 机构大单净流| 超阈值 → 封杀反向</td><td><code>big_trade_block_net=3000</code> 手</td></tr>
-<tr><td style="white-space:nowrap;">数据充分性</td><td><code>INSUFFICIENT / STALE</code> → 禁止开仓（方向标签保留）</td><td><code>quality_tier</code> / <code>gate_c_blocked_open</code></td></tr>
-<tr><td style="white-space:nowrap;">接飞刀过滤</td><td>看多须"近端柱未创新低"，看空须"未创新高"</td><td><code>not_falling_knife_bull/bear</code></td></tr>
-</tbody>
-</table>
-
-<h4 class="rule-heading rule-calc">Setup 1：大级别底部或顶部被动吸收反转 (Major Absorption / Distribution Reversal)</h4>
-<div style="font-size:0.86rem;font-weight:800;color:#0369a1;margin:12px 0 5px;padding-left:9px;border-left:3px solid #0284c7;">代码校准对照 · 2026-09-10-phase14</div>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">规则项</th><th>当前代码取值</th></tr></thead>
-<tbody><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">第一道门 途径A</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>price_position_pct &lt;= pos_overextended_low = 35.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">途径B</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>|price−S1/S2| &lt;= 5.0 点(ES)</code> 或 <code>price &lt;= S1</code>，且 <code>pos &lt;= accum_pos_low = 45.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">途径C</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>|price−L1/L2| &lt;= 0.5 点(SPY)</code> 或 <code>price &lt;= L1</code>，且 <code>pos &lt;= accum_pos_low = 45.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">第二道门 背离阈值</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>absorb_delta_ratio = 0.12</code>（15m/30m 被动吸收）、<code>absorb_price_atr = 0.6</code>；主动承接 <code>active_absorb_delta_ratio = 0.12</code>、<code>active_absorb_price_atr = 0.5</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">第二道门 量能门槛<br/>(phase12 新增)</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><b>窗口 |净Δ| &gt;= div_min_abs_delta = 200 手</b> 才参与背离判定 —— 防"近零成交窗口把 delta_ratio 放大到 ±1.0"（实测 11:15 仅 21 手 → 假 Bullish）</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">5m/10m 早期预警</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>early_divergence_delta_ratio = 0.08</code>，仅作加分，不单独准入</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">加权准入</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">b1 量价背离 = <b>3</b>；b2 大翻转 / b3 冰山·挂单墙 / b4 机构大单 各 <b>1</b>；<b>洗盘 = 3</b>；准入线 <code>setup1_branch_min_score = 2</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">分支阈值</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">b2 <code>book_flip</code>：前半 <code>&lt;0.85</code> → 后半 <code>&gt;1.40</code>（空头镜像 <code>&gt;1.18</code> → <code>&lt;0.71</code>）；b3 <code>iceberg_min_peak=50</code>、<code>iceberg_peak_rel_mult=1.5</code>、回看 <code>30</code> 分钟、<code>tick=0.25</code>；b4 <code>big_trade_block_net=3000</code> 手一票否决</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">全局否决</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">幌骗 <code>block_bull_by_spoof / block_bear_by_spoof</code>；红线 <code>pos_redline_high=75.0 / pos_redline_low=25.0</code>（过度区 <code>65/35</code>）；数据充分性 <code>INSUFFICIENT/STALE</code> → 禁开仓</td></tr></tbody>
-</table>
-<div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><p style="font-size:0.86rem;color:#475569;margin:4px 0 8px;">基础强度起跑分 = 1（未越过任何 Setup 门槛时为 Neutral，强度值 0）</p>
+<p>任何 5 分钟节点默认状态均为 <strong>Neutral（中性）</strong>。必须首先跨越严格的微观结构门槛，且未触发反追单过滤器与虚假撤单陷阱，方可确立单边方向：</p>
+<h4 class="rule-heading rule-bull">🟢 判定为看多 (Direction = Bullish，基础强度起跑分 = 1)</h4>
 <p>必须同时通过<strong>反追高刚性约束</strong>（现价处于日内健康相对区间 <code>price_position_pct &lt;= 65.0%</code>，实盘严格禁止在 <code>&gt;= 75.0%</code> 顶部顺势报多）以及<strong>虚假撤单过滤</strong>（<code>block_bull_by_spoof == False</code>），并满足以下三大高确信结构之一：</p>
-<ul style="margin:0;padding:0;list-style:none;"><li style="list-style:none;margin:0;padding:0;"><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 1A (大级别底部被动吸收反转 - Major Absorption Reversal):</div>
+<ul>
+<li><strong>Setup 1A (大级别底部被动吸收反转 - Major Absorption Reversal)</strong>:
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #0369a1;">
 <span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
           物理位置准入门槛 (满足以下 3 大并列超卖途径<strong>之一 (任一命中即可过关)</strong>)：
         </div>
@@ -1473,11 +959,11 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </tr>
 </tbody>
 </table>
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #047857;">
 <span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
           微观吸收确认判据 (须 非接飞刀[近端柱未创新低]；<strong style="color:#b45309;">加权准入</strong>：量价背离为<strong style="color:#dc2626;">核心</strong>(权重3，单独即通过)，辅助(大翻转/冰山/机构大单)各权重1，<strong>加权总分≥2</strong>方可激活准入)：
         </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
 <thead>
 <tr style="background: #f1f5f9; color: #334155;">
 <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">并列分支</th>
@@ -1491,12 +977,12 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">分支 1</td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>量价底背离与推进衰竭</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(DPER &amp; Delta Exhaustion)</span></td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">
-                • <strong>15m 微观底背离</strong>: <code>delta_ratio_15m &lt;= -12% (净卖占成交≥12%)</code> 且 <code>price_change_atr_15m &gt;= -0.6 (跌幅&lt;0.6 ATR)</code>；<br/>
-<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 吸收</strong>: <code>delta_ratio_30m &lt;= -12%</code> 且 <code>price_change_atr_30m &gt;= -0.6</code><br/>
+                • <strong>15m 微观底背离</strong>: <code>delta_ratio_15m &lt;= -15% (净卖占成交≥15%)</code> 且 <code>price_change_atr_15m &gt;= -0.6 (跌幅&lt;0.6 ATR)</code>；<br/>
+<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 吸收</strong>: <code>delta_ratio_30m &lt;= -15%</code> 且 <code>price_change_atr_30m &gt;= -0.6</code><br/>
 <strong>四象限背离统一检测</strong>（<span style="color:#b45309;font-weight:700;">2026-09-08 起</span>，背离判据不再限于"被动吸收"，含"主动承接"）：
 <ul style="margin: 4px 0 0 4px; padding-left: 16px; font-size: 0.78rem;">
-<li><strong>象限 I 被动吸收底背离</strong>（净卖被墙吃掉）: <code>delta_ratio &lt;= -12%</code> 且 <code>price_change_atr &gt;= -0.6</code>；</li>
-<li><strong>象限 II 主动承接底背离</strong>（跌中净买，主力主动吸筹）: <code>delta_ratio &gt;= +12%</code> 且 <code>price_change_atr &lt;= -0.5</code>；</li>
+<li><strong>象限 I 被动吸收底背离</strong>（净卖被墙吃掉）: <code>delta_ratio &lt;= -15%</code> 且 <code>price_change_atr &gt;= -0.6</code>；</li>
+<li><strong>象限 II 主动承接底背离</strong>（跌中净买，主力主动吸筹）: <code>delta_ratio &gt;= +15%</code> 且 <code>price_change_atr &lt;= -0.5</code>；</li>
 <li>两者互斥（符号相反），任一命中即认底背离。</li>
 </ul>
 </td>
@@ -1533,11 +1019,157 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </table>
 </div>
 </li>
-<li><strong><div style="font-weight:800;color:#b91c1c;background:#fef2f2;border-left:4px solid #ef4444;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🔴 Bearish（看空）规则详解</div><p style="font-size:0.86rem;color:#475569;margin:4px 0 8px;">基础强度起跑分 = 1（与看多严格双向对称）</p>
-<p>必须同时通过<strong>反杀跌刚性约束</strong>（现价处于日内健康相对区间 <code>price_position_pct &gt;= 35.0%</code>，实盘严格禁止在 <code>&lt;= 25.0%</code> 地板顺势报空）以及<strong>虚假撤单过滤</strong>（<code>block_bear_by_spoof == False</code>），并满足以下三大高确信结构之一：</p>
-<ul style="margin:0;padding:0;list-style:none;"><li style="list-style:none;margin:0;padding:0;"><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 1B (大级别顶部被动派发反转 - Major Distribution Reversal):</div>
+<li><strong>Setup 2A (趋势日 10m 双柱回踩重燃 - Trend Day Pullback &amp; Resumption)</strong>:
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #0369a1;">
+<span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
+          物理前提准入门槛 (需同时满足以下 3 大宏观与空间条件):
+        </div>
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<thead>
+<tr style="background: #f1f5f9; color: #334155;">
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">门槛条件</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">宏观空间考核维度</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">风控与环境内涵</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 1</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>SPY 全局统一趋势日多头</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Trend Day Engine)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>is_bullish_trend_day == True</code><br/>(SPY 判定，现价脱离当日低点(含盘前与RTH) &gt;= 1.00点，开盘无深幅回撤 &lt;= 2.00点，高位回撤 &lt;= 2.00点，且 5m bar 破均线 &lt;= 1次)</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">确立全天高确信单边顺势大格局主基调</td>
+</tr>
+<tr style="background: #f8fafc;">
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 2</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>趋势交易黄金时间窗口</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Time Window)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">美西时间 <code>06:30 - 11:00</code> 之间</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">早盘与盘中流动性主浪潮，尾盘震荡规避</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 3</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>健康回调空间安全垫</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Pullback Health Cushion)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">现价 <code>price_position_pct &lt;= 65.0%</code><br/>(<strong>红线: 严禁在 &gt;= 75% 极高位顺势追多</strong>)</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">确保买入点处于健康回调蓄能区，而非冲顶接盘</td>
+</tr>
+</tbody>
+</table>
+<div style="margin-bottom: 6px; font-weight: 700; color: #047857;">
+<span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
+          微观回踩点火共振判据 (需同时满足以下三维要素协同共振):
+        </div>
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<thead>
+<tr style="background: #f1f5f9; color: #334155;">
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">验证要素</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">微观考核维度</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">市场微观机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 1</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>15m 均线带防守承接</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(EMA Band Support)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">价格回踩测试 15 分钟均线带 (EMA 13/21)，现价稳于 <code>EMA13 - 3.0 点</code> 之上企稳受承接</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">强趋势日动态均线防波堤有效，未发生深幅破位</td>
+</tr>
+<tr style="background: #f8fafc;">
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 2</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>10m 双柱复合动能回补</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Dual-Bar Momentum)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近 10 分钟复合买盘 <code>last_10m_delta &gt;= +600 手</code> (或复合 <code>&gt;= 400</code> 且单柱 <code>&gt;= 200</code>)</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">两根 5m 柱连续呈现净主动买盘，确认回调洗盘结束</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 3</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>最新 5m 单柱放量点火</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Last-5m Trigger)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">最新 5 分钟主动买盘放量确认 <code>Delta &gt;= +300 手</code></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">右侧实质性买单点火推升，拒绝缩量无力假反弹</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+<li><strong>Setup 3A (30m 价值区蓄势突破点火 - 30m Value Area Breakout &amp; Ignition)</strong>:
+      <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #0369a1;">
+<span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
+          物理前提准入门槛 (需同时满足以下 3 大蓄势突破空间条件):
+        </div>
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<thead>
+<tr style="background: #f1f5f9; color: #334155;">
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">门槛条件</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">中枢空间考核维度</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">突破结构内涵</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 1</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>中周期密集筹码中枢盘整</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Balance Consolidation)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">突破前经历至少 <code>30 分钟</code> 密集价值区横盘蓄势</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">换手充分沉淀筹码，蓄积强单边爆发动能</td>
+</tr>
+<tr style="background: #f8fafc;">
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 2</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>黄金突破空间启动区间</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Optimal Breakout Zone)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">现价处于 <code>price_position_pct: 45.0% ~ 68.0%</code><br/>(<strong>拒绝在 &gt;= 75% 极高位追突破</strong>)</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">脱离中枢起跑点，具备丰厚的向上盈亏比空间</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 3</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>无撤单诱多陷阱认证</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Non-Spoofing Authenticity)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>block_bull_by_spoof == False</code><br/>(DOM 买方无大额虚假托单撤单)</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">排除做市商假突破诱多诱捕陷阱</td>
+</tr>
+</tbody>
+</table>
+<div style="margin-bottom: 6px; font-weight: 700; color: #047857;">
+<span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
+          微观爆发破位共振判据 (需同时满足以下三维要素协同共振):
+        </div>
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<thead>
+<tr style="background: #f1f5f9; color: #334155;">
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">验证要素</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">微观考核维度</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
+<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">市场微观机制说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 1</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>30m 中周期大单边放量</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(30m Major Impulse)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近 30 分钟累计净买盘 <code>net_delta_30m &gt;= +4500 手</code></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">中周期主动买盘大举进场，打破筹码平衡区引爆单边推力</td>
+</tr>
+<tr style="background: #f8fafc;">
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 2</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>10m 双柱加速推进</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Dual-Bar Acceleration)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近 10 分钟双柱加速 <code>last_10m_delta &gt;= +1000 手</code> 且最新 5m <code>Delta &gt;= +400 手</code></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">短周期主动量持续递增，呈现强单边脉冲加速度</td>
+</tr>
+<tr>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 3</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>DOM 盘口势能点火</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Book Ignition)</span></td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">上方出现 Ask 档位流动性真空 (<code>vacuum_ask_sec &gt;= 15.0s</code>) 或加权失衡偏多 (<code>weighted_imbalance &gt;= +15%</code>)</td>
+<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">上方卖单断层或买盘加固，极易引发逼空式主升浪</td>
+</tr>
+</tbody>
+</table>
+</div>
+</li>
+</ul>
+<h4 class="rule-heading rule-bear">🔴 判定为看空 (Direction = Bearish，基础强度起跑分 = 1，严格双向对称)</h4>
+<p>必须同时通过<strong>反杀跌刚性约束</strong>（现价处于日内健康相对区间 <code>price_position_pct &gt;= 35.0%</code>，实盘严格禁止在 <code>&lt;= 25.0%</code> 地板顺势报空）以及<strong>虚假撤单过滤</strong>（<code>block_bear_by_spoof == False</code>），并满足以下三大高确信结构之一：</p>
+<ul>
+<li><strong>Setup 1B (大级别顶部被动派发反转 - Major Distribution Reversal)</strong>:
+      <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #991b1b;">
 <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
           物理位置准入门槛 (满足以下 3 大并列超买途径<strong>之一 (任一命中即可过关)</strong>)：
         </div>
@@ -1571,11 +1203,11 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </tr>
 </tbody>
 </table>
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #b91c1c;">
 <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
           微观派发确认判据 (须 非接飞刀[近端柱未创新高]；<strong style="color:#b45309;">加权准入</strong>：量价背离为<strong style="color:#dc2626;">核心</strong>(权重3，单独即通过)，辅助(大翻转/冰山/机构大单)各权重1，<strong>加权总分≥2</strong>方可激活准入)：
         </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
 <thead>
 <tr style="background: #f1f5f9; color: #334155;">
 <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">并列分支</th>
@@ -1589,12 +1221,12 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #b91c1c; background: #fef2f2;">分支 1</td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>量价顶背离与推升受阻</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(DPER &amp; Buying Exhaustion)</span></td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">
-                • <strong>15m 微观顶背离</strong>: <code>delta_ratio_15m &gt;= +12%</code> 且 <code>price_change_atr_15m &lt;= +0.6</code>；<br/>
-<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 滞涨</strong>: <code>delta_ratio_30m &gt;= +12%</code> 且 <code>price_change_atr_30m &lt;= +0.6</code><br/>
+                • <strong>15m 微观顶背离</strong>: <code>delta_ratio_15m &gt;= +15%</code> 且 <code>price_change_atr_15m &lt;= +0.6</code>；<br/>
+<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 滞涨</strong>: <code>delta_ratio_30m &gt;= +15%</code> 且 <code>price_change_atr_30m &lt;= +0.6</code><br/>
 <strong>四象限背离统一检测</strong>（<span style="color:#b45309;font-weight:700;">2026-09-08 起</span>）：
 <ul style="margin: 4px 0 0 4px; padding-left: 16px; font-size: 0.78rem;">
-<li><strong>象限 III 被动拦截顶背离</strong>（净买被墙拦截）: <code>delta_ratio &gt;= +12%</code> 且 <code>price_change_atr &lt;= +0.6</code>；</li>
-<li><strong>象限 IV 主动压制顶背离</strong>（涨中净卖，主力主动派发）: <code>delta_ratio &lt;= -12%</code> 且 <code>price_change_atr &gt;= +0.5</code>；</li>
+<li><strong>象限 III 被动拦截顶背离</strong>（净买被墙拦截）: <code>delta_ratio &gt;= +15%</code> 且 <code>price_change_atr &lt;= +0.6</code>；</li>
+<li><strong>象限 IV 主动压制顶背离</strong>（涨中净卖，主力主动派发）: <code>delta_ratio &lt;= -15%</code> 且 <code>price_change_atr &gt;= +0.5</code>；</li>
 <li>两者互斥，任一命中即认顶背离。</li>
 </ul>
 </td>
@@ -1631,87 +1263,9 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </table>
 </div>
 </li>
-<li><strong><h4 class="rule-heading rule-calc">Setup 2：趋势日顺势（回踩/反弹）(Trend Day Pullback / Rebound)</h4>
-<div style="font-size:0.86rem;font-weight:800;color:#0369a1;margin:12px 0 5px;padding-left:9px;border-left:3px solid #0284c7;">代码校准对照 · 2026-09-10-phase14</div>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">规则项</th><th>当前代码取值</th></tr></thead>
-<tbody><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看多门槛</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>is_bullish_trend_day == True</code> 且 <code>price_position_pct &lt;= setup2_pos_cap = 65.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看空门槛</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>is_bearish_trend_day == True</code> 且 <code>price_position_pct &gt;= setup2_pos_floor = 35.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">趋势日判定要素</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">EMA 带 <code>trend_ema_band = 3.0</code>；动量 <code>trend_mom_5m = 200</code>、<code>trend_mom_10m = 400</code>（备用档 <code>600</code>）</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">代码位置</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>gate_setup2_bull / gate_setup2_bear</code>（<code>order_flow_rules_optimizer.py</code>）</td></tr></tbody>
-</table>
-<div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 2A (趋势日 10m 双柱回踩重燃 - Trend Day Pullback &amp; Resumption):</div>
+<li><strong>Setup 2B (趋势日 10m 双柱回抽再跌 - Trend Day Rebound &amp; Breakdown)</strong>:
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
-<span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
-          物理前提准入门槛 (需同时满足以下 3 大宏观与空间条件):
-        </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
-<thead>
-<tr style="background: #f1f5f9; color: #334155;">
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">门槛条件</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">宏观空间考核维度</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">风控与环境内涵</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 1</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>SPY 全局统一趋势日多头</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Trend Day Engine)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>is_bullish_trend_day == True</code><br/>(SPY 判定，现价脱离当日低点(含盘前与RTH) &gt;= 1.00点，开盘无深幅回撤 &lt;= 2.00点，高位回撤 &lt;= 2.00点，且 5m bar 破均线 &lt;= 1次)</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">确立全天高确信单边顺势大格局主基调</td>
-</tr>
-<tr style="background: #f8fafc;">
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 2</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>趋势交易黄金时间窗口</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Time Window)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">美西时间 <code>06:30 - 11:00</code> 之间</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">早盘与盘中流动性主浪潮，尾盘震荡规避</td>
-</tr>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 3</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>健康回调空间安全垫</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Pullback Health Cushion)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">现价 <code>price_position_pct &lt;= 65.0%</code><br/>(<strong>红线: 严禁在 &gt;= 75% 极高位顺势追多</strong>)</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">确保买入点处于健康回调蓄能区，而非冲顶接盘</td>
-</tr>
-</tbody>
-</table>
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
-<span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
-          微观回踩点火共振判据 (需同时满足以下三维要素协同共振):
-        </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
-<thead>
-<tr style="background: #f1f5f9; color: #334155;">
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">验证要素</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">微观考核维度</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">市场微观机制说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 1</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>15m 均线带防守承接</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(EMA Band Support)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">价格回踩测试 15 分钟均线带 (EMA 13/21)，现价稳于 <code>EMA13 - 3.0 点</code> 之上企稳受承接</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">强趋势日动态均线防波堤有效，未发生深幅破位</td>
-</tr>
-<tr style="background: #f8fafc;">
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 2</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>10m 双柱复合动能回补</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Dual-Bar Momentum)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近 10 分钟复合买盘 <code>last_10m_delta &gt;= +600 手</code> (或复合 <code>&gt;= 400</code> 且单柱 <code>&gt;= 200</code>)</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">两根 5m 柱连续呈现净主动买盘，确认回调洗盘结束</td>
-</tr>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 3</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>最新 5m 单柱放量点火</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Last-5m Trigger)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">最新 5 分钟主动买盘放量确认 <code>Delta &gt;= +300 手</code></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">右侧实质性买单点火推升，拒绝缩量无力假反弹</td>
-</tr>
-</tbody>
-</table>
-</div>
-</li>
-<li><strong><div style="font-weight:800;color:#b91c1c;background:#fef2f2;border-left:4px solid #ef4444;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🔴 Bearish（看空）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 2B (趋势日 10m 双柱回抽再跌 - Trend Day Rebound &amp; Breakdown):</div>
-      <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #991b1b;">
 <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
           物理前提准入门槛 (需同时满足以下 3 大宏观与空间条件):
         </div>
@@ -1745,11 +1299,11 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </tr>
 </tbody>
 </table>
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #b91c1c;">
 <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
           微观承压砸盘共振判据 (需同时满足以下三维要素协同共振):
         </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
 <thead>
 <tr style="background: #f1f5f9; color: #334155;">
 <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">验证要素</th>
@@ -1781,88 +1335,9 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </table>
 </div>
 </li>
-<li><strong><h4 class="rule-heading rule-calc">Setup 3：区间边缘蓄势反转 (Range / Value-Area Breakout & Breakdown)</h4>
-<div style="font-size:0.86rem;font-weight:800;color:#0369a1;margin:12px 0 5px;padding-left:9px;border-left:3px solid #0284c7;">代码校准对照 · 2026-09-10-phase14</div>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">规则项</th><th>当前代码取值</th></tr></thead>
-<tbody><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看多区间</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>setup3_bull_low = 45.0 &lt;= price_position_pct &lt;= setup3_bull_high = 68.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看空区间</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>setup3_bear_low = 32.0 &lt;= price_position_pct &lt;= setup3_bear_high = 55.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">附加否决</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">突破/破位当日仍受幌骗否决（<code>block_bull_by_spoof / block_bear_by_spoof</code>）与数据充分性闸门约束</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">代码位置</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>gate_setup3_bull / gate_setup3_bear</code>（<code>order_flow_rules_optimizer.py</code>）</td></tr></tbody>
-</table>
-<div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 3A (30m 价值区蓄势突破点火 - 30m Value Area Breakout &amp; Ignition):</div>
+<li><strong>Setup 3B (30m 价值区破位下杀点火 - 30m Value Area Breakdown &amp; Ignition)</strong>:
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
-<span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
-          物理前提准入门槛 (需同时满足以下 3 大蓄势突破空间条件):
-        </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
-<thead>
-<tr style="background: #f1f5f9; color: #334155;">
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">门槛条件</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">中枢空间考核维度</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">突破结构内涵</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 1</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>中周期密集筹码中枢盘整</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Balance Consolidation)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">突破前经历至少 <code>30 分钟</code> 密集价值区横盘蓄势</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">换手充分沉淀筹码，蓄积强单边爆发动能</td>
-</tr>
-<tr style="background: #f8fafc;">
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 2</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>黄金突破空间启动区间</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Optimal Breakout Zone)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">现价处于 <code>price_position_pct: 45.0% ~ 68.0%</code><br/>(<strong>拒绝在 &gt;= 75% 极高位追突破</strong>)</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">脱离中枢起跑点，具备丰厚的向上盈亏比空间</td>
-</tr>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #0284c7; background: #f0f9ff;">条件 3</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>无撤单诱多陷阱认证</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Non-Spoofing Authenticity)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><code>block_bull_by_spoof == False</code><br/>(DOM 买方无大额虚假托单撤单)</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">排除做市商假突破诱多诱捕陷阱</td>
-</tr>
-</tbody>
-</table>
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
-<span style="background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
-          微观爆发破位共振判据 (需同时满足以下三维要素协同共振):
-        </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
-<thead>
-<tr style="background: #f1f5f9; color: #334155;">
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">验证要素</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">微观考核维度</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 38%;">量化触发硬性判据</th>
-<th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 22%;">市场微观机制说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 1</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>30m 中周期大单边放量</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(30m Major Impulse)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近 30 分钟累计净买盘 <code>net_delta_30m &gt;= +4500 手</code></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">中周期主动买盘大举进场，打破筹码平衡区引爆单边推力</td>
-</tr>
-<tr style="background: #f8fafc;">
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 2</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>10m 双柱加速推进</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Dual-Bar Acceleration)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">近 10 分钟双柱加速 <code>last_10m_delta &gt;= +1000 手</code> 且最新 5m <code>Delta &gt;= +400 手</code></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">短周期主动量持续递增，呈现强单边脉冲加速度</td>
-</tr>
-<tr>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">要素 3</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>DOM 盘口势能点火</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(Book Ignition)</span></td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1;">上方出现 Ask 档位流动性真空 (<code>vacuum_ask_sec &gt;= 15.0s</code>) 或加权失衡偏多 (<code>weighted_imbalance &gt;= +15%</code>)</td>
-<td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #64748b;">上方卖单断层或买盘加固，极易引发逼空式主升浪</td>
-</tr>
-</tbody>
-</table>
-</div>
-</li>
-</ul>
-<div style="font-weight:800;color:#b91c1c;background:#fef2f2;border-left:4px solid #ef4444;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🔴 Bearish（看空）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 3B (30m 价值区破位下杀点火 - 30m Value Area Breakdown &amp; Ignition):</div>
-      <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #991b1b;">
 <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
           物理前提准入门槛 (需同时满足以下 3 大破位下杀空间条件):
         </div>
@@ -1896,11 +1371,11 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </tr>
 </tbody>
 </table>
-<div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
+<div style="margin-bottom: 6px; font-weight: 700; color: #b91c1c;">
 <span style="background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第二道门</span>
           微观击穿下杀共振判据 (需同时满足以下三维要素协同共振):
         </div>
-<table style="width: 100%; border-collapse: collapse; margin: 4px 0 10px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
+<table style="width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 0.82rem; background: #ffffff; border: 1px solid #cbd5e1;">
 <thead>
 <tr style="background: #f1f5f9; color: #334155;">
 <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 14%; text-align: center;">验证要素</th>
@@ -1933,92 +1408,8 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </div>
 </li>
 </ul>
-<h4 class="rule-heading rule-calc">Setup 4：大单卖出后反转（Washout Reversal）</h4>
-<p><strong>🟢 看多</strong>（"大单砸低点后净买"）：</p>
-<table>
-<thead><tr><th style="white-space:nowrap;">阶段</th><th>判据</th><th>阈值</th></tr></thead>
-<tbody>
-<tr><td style="white-space:nowrap;">① 砸盘</td><td>近 <code>washout_dump_lookback_min=15</code> 分钟内出现单笔<strong>卖出</strong>大单</td><td>单笔量 <code>&gt;= washout_dump_single_min_volume=500</code> 手（<code>washout_dump_single_pct=0.0</code>）</td></tr>
-<tr><td style="white-space:nowrap;">② 位置</td><td>砸盘发生在低位（避免高位接刀）</td><td><code>pos &lt;= washout_low_pos_cap=55.0</code></td></tr>
-<tr><td style="white-space:nowrap;">③ 反转确认</td><td>价格自低点回升 + 净额转正</td><td><code>price_change_atr_5m &gt;= washout_reversal_price_atr_min=0.5</code>；<code>5m 净Δ &gt;= washout_reversal_delta_5m=300</code> 手 或 <code>delta_ratio_5m &gt;= washout_reversal_delta_ratio=0.05</code>；反弹 <code>&gt;= washout_rebound_pts=2.0</code> 点</td></tr>
-<tr><td style="white-space:nowrap;">权重</td><td>与 b1 同级</td><td><code>washout_branch_weight=3</code>（可单独准入）</td></tr>
-</tbody>
-</table>
-<p><strong>🔴 看空</strong>：严格对称 —— 近 15 分钟出现单笔 ≥500 手<strong>买入</strong>大单拉高 → 高位（<code>pos &gt;= 45.0</code>）→ 转为净卖出确认（<code>price_change_atr_5m &lt;= -0.5</code>、5m 净Δ ≤ −300 手或占比 ≤ −5%、回落 ≥2.0 点），权重同为 3。</p>
-
-<h4 class="rule-heading rule-calc">Setup 5：WALL_BOUNDARY_SELL（墙位边界卖方 · 期权卖家专用）</h4>
-<p><span style="background:#fff7ed;border:1px solid #fed7aa;border-radius:5px;padding:2px 8px;font-weight:700;color:#9a3412;">状态：规则已定义 · 参数待累积统计校准 · 尚未接入自动开仓</span>
-　依据：2c 的第 11~13 项（PAW 挂单墙 / 逐价吸收 / 击穿-收复状态机）与盘后累积统计任务（<code>PyTools/jobs/order_flow_paw_daily_stats.py</code>）。</p>
-<table>
-<thead><tr><th style="white-space:nowrap;">环节</th><th>规则</th><th>依据</th></tr></thead>
-<tbody>
-<tr><td style="white-space:nowrap;">候选墙</td><td><code>paw_score &gt;= 3</code>，且 <code>absorbing=True</code>（E2）或 <code>level_state=LEVEL_CONFIRMED</code>（E3）</td><td><code>paw_walls</code></td></tr>
-<tr><td style="white-space:nowrap;">方向映射</td><td><strong>买墙(BID) → 卖 put</strong>（行权价在墙<strong>下方</strong>）；<strong>卖墙(ASK) → 卖 call</strong>（行权价在墙<strong>上方</strong>）</td><td>墙=边界</td></tr>
-<tr><td style="white-space:nowrap;">行权价</td><td>墙外缓冲 = <code>max(经验 p95 击穿深度, k×ATR(窗口))</code> —— <strong>缓冲必须来自累积统计</strong>，不得写死</td><td>每日任务产出的击穿深度分位数</td></tr>
-<tr><td style="white-space:nowrap;">持有期</td><td>按持稳概率曲线选择（统计给出 15/30/60 分钟未击穿概率）</td><td>同上</td></tr>
-<tr><td style="white-space:nowrap;">仓位</td><td>按档位与强度分档：<code>tier(E3&gt;E2&gt;E1) × paw_score × absorbed_lots</code></td><td>分层样本量与持稳概率</td></tr>
-<tr><td style="white-space:nowrap;">止损/离场</td><td>墙失效即离场：① 中位挂单 &lt;20% 且持续 5 分钟（墙消失）② <code>BREACHED_NO_RECLAIM</code> ③ 越过 p99 击穿深度；再叠加既有<strong>三重退出</strong>与 <strong>12:30 强制时间止损</strong></td><td><code>min_size / level_state</code> + 第三部分风控</td></tr>
-<tr><td style="white-space:nowrap;">风控继承</td><td>定义风险（价差/宽腿）、合约选型、双批次阶梯、幌骗否决、数据充分性闸门</td><td>第三部分 Option Seller 规则</td></tr>
-</tbody>
-</table>
-<p><strong>启用验收门槛（代码化判断，见累积报告的"结论可用性"）</strong>：</p>
+<h4 class="rule-heading" style="background: #f1f5f9; color: #475569; border-left-color: #94a3b8;">⚪ 判定为中性 (Direction = Neutral，强度值 = 0)</h4>
 <ul>
-<li><strong>样本</strong>：E2/E3 ≥ <strong>30</strong> 事件 且 ≥ <strong>10</strong> 个可用交易日（当前 3 天 1 例 → 未达门槛）</li>
-<li><strong>持稳</strong>：在选定缓冲下、目标持有期的未击穿概率 ≥ 目标值（建议 ≥90%）</li>
-<li><strong>尾部</strong>：p99 击穿深度对应幅度在可承受范围（决定价差宽度）</li>
-<li><strong>稳健</strong>：留出日验证 + leave-one-day-out + 分层（趋势日/震荡日、RTH/夜盘）不反向</li>
-<li><strong>期权侧</strong>：用真实期权链回测/纸面跟踪的 P&amp;L 为正且回撤可控（价格 MFE ≠ 期权盈亏）</li>
-<li><strong>防多重检验</strong>：预先指定主指标（建议 E2/E3 × 30 分钟不破率），其余仅参考</li>
-</ul>
-<p><strong>已知风险</strong>：① E2/E3 极罕见（3 个交易日仅 1 例），交易频率低，不可作主力；② 墙厚 ≠ 墙会守（历史 30 分钟不破率仅 23.4%），必须"确认过的墙 + 缓冲在 p95 之外"；③ 末日合约 IV crush / gamma 可能改变结论。</p>
-
-<div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:16px 0 6px;padding-left:10px;border-left:3px solid #0284c7;">
-本 Setup 的每日自动检测（盘后）与启用判定规则</div>
-<p style="font-size:0.86rem;color:#475569;">Setup 5 的参数<b>不写死</b>，全部来自每个交易日收盘后自动执行的「墙-吸收-收复」事件检测与累积统计；本段为<b>决策性规则</b>（何时可启用、参数如何取值、何时必须降级），运行与查看方式从简。</p>
-<h5 style="font-size:0.86rem;font-weight:800;color:#0f172a;margin:12px 0 4px;">A. 每日检测产出（每交易日收盘后自动）</h5>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">产出</th><th>含义与用法</th></tr></thead>
-<tbody>
-<tr><td style="white-space:nowrap;">三档事件计数</td><td>E1 墙被测过（30 分钟内该价位真实成交 ≥500 手）⊇ E2 吸收成立（单边净额 ≥300 手且未破或已收复）⊇ E3 击穿后收复确认（LEVEL_CONFIRMED）</td></tr>
-<tr><td style="white-space:nowrap;">前向表现</td><td>各档 × 持有期（15/30/60/120 分钟）的 命中率（朝墙方向 ≥0.15%）、不破率、MFE/MAE 中位</td></tr>
-<tr><td style="white-space:nowrap;">越墙深度分位数</td><td>p50 / p90 / <b>p95</b> / p99（tick）—— 价格越过墙位的经验分布</td></tr>
-<tr><td style="white-space:nowrap;">持稳概率曲线</td><td>P(未越墙超过 X tick)，X = 2/4/8/16/32/64 tick —— 由「离墙距离」映射到「不被击穿概率」</td></tr>
-<tr><td style="white-space:nowrap;"><b>推荐缓冲</b></td><td>达到目标持稳概率（默认 <b>90%</b>）所需的<b>最小离墙距离</b>（tick），按 tier × 方向 × 持有期分别给出</td></tr>
-<tr><td style="white-space:nowrap;">随机基准对照</td><td>同日其它时点做多/做空命中率，用于判断事件是否具备超越随机的边际</td></tr>
-</tbody>
-</table>
-<h5 style="font-size:0.86rem;font-weight:800;color:#0f172a;margin:12px 0 4px;">B. 启用判定（Setup 5 总闸，未达标不得开仓）</h5>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">判定项</th><th>门槛</th><th>不满足时的动作</th></tr></thead>
-<tbody>
-<tr><td style="white-space:nowrap;">样本量</td><td><b>E2/E3 事件 ≥ 30 例</b> 且 <b>可用交易日 ≥ 10 天</b></td><td>保持“设计中”：仅展示与观察，不接入自动开仓</td></tr>
-<tr><td style="white-space:nowrap;">持稳概率</td><td>选定缓冲下、目标持有期的未击穿概率 <b>≥ 90%</b>（可配置）</td><td>加大缓冲或缩短持有期直至满足</td></tr>
-<tr><td style="white-space:nowrap;">尾部风险</td><td>p99 越墙深度对应的不利幅度在可承受范围内（决定价差宽度）</td><td>收窄价差或放弃该 tier</td></tr>
-<tr><td style="white-space:nowrap;">主指标</td><td><b>预注册为「E2/E3 × 30 分钟不破率」</b>，其余组合仅作参考</td><td>—（防多重检验）</td></tr>
-<tr><td style="white-space:nowrap;">稳健性</td><td>留出日验证 + 逐日剔除 + 分层（趋势日/震荡日、RTH/夜盘）不反向</td><td>不得启用</td></tr>
-</tbody>
-</table>
-<h5 style="font-size:0.86rem;font-weight:800;color:#0f172a;margin:12px 0 4px;">C. 参数取值规则（由每日检测结果驱动）</h5>
-<ul style="padding-left:18px;margin:0;">
-<li><b>方向与侧别分别取用</b>：<b>买墙（BID）→ 卖 put</b>，取 BID 侧推荐缓冲；<b>卖墙（ASK）→ 卖 call</b>，取 ASK 侧缓冲。<b>禁止两侧混用同一缓冲</b>（实测差异显著）。</li>
-<li><b>行权价距离</b> = <code>max(推荐缓冲(tier, 方向, 持有期), k × ATR(窗口))</code>：缓冲来自经验分位数，ATR 提供跨时段自适应，取较大者。</li>
-<li><b>持有期</b>按持稳曲线择优：期限越长所需缓冲越大；不愿放大价差则选较短持有期。</li>
-<li><b>仓位分档</b>按 <code>tier(E3 &gt; E2 &gt; E1) × paw_score × 吸收手数</code>；样本不足的 tier <b>不得给参数</b>（宁可不做）。</li>
-<li><b>离场绑定墙失效</b>：① 该价位中位挂单跌破 20% 且持续 5 分钟 ② <code>BREACHED_NO_RECLAIM</code> ③ 越墙深度达到该 tier 的 p99；再叠加既有<b>三重退出</b>与 <b>12:30 强制时间止损</b>。</li>
-</ul>
-<h5 style="font-size:0.86rem;font-weight:800;color:#0f172a;margin:12px 0 4px;">D. 检测失效与降级（防止拿旧参数在坏数据上开仓）</h5>
-<ul style="padding-left:18px;margin:0;">
-<li><b>统计超期</b>：累积统计超过 <b>26 小时</b>未更新 → 视为「当日检测未运行」，Setup 5 参数<b>冻结</b>（沿用上次校准，<b>不得</b>因数据缺失而调参），并告警。</li>
-<li><b>覆盖恶化</b>：数据不可用日不计入样本；可用交易日连续下降时<b>不得启用</b>或需重新校准。</li>
-<li><b>单条信号</b>仍受全局数据充分性闸门约束（<code>INSUFFICIENT / STALE</code> → 禁止开仓）。</li>
-<li><b>两侧独立达标</b>：BID 与 ASK 各自满足门槛；仅一侧达标时只允许该侧开仓。</li>
-</ul>
-<h5 style="font-size:0.86rem;font-weight:800;color:#0f172a;margin:12px 0 4px;">E. 运行与查看（从简）</h5>
-<ul style="padding-left:18px;margin:0;">
-<li>每日结论以邮件「<b>BBT DOM Wall反转每日统计</b>」送达；信号页「数据健康」处的累积统计卡片展示门槛进度与推荐缓冲。</li>
-<li>校准结果以机器可读形式供线上读取（行权轴缓冲 / 持稳曲线 / 门槛状态）；线上不内置常量。</li>
-</ul>
-<h4 class="rule-heading rule-calc">附：中性判定 (Neutral) —— 未跨越任何 Setup 门槛时的默认状态</h4><ul>
 <li>凡不满足上述看多或看空基本规则（如处于无序震荡中枢、买卖多空胶着）；</li>
 <li>或触发<strong>高位防守禁追高</strong>（<code>price_position_pct &gt;= 75.0%</code> 且处于顺势推进，强制输出 <code>Neutral:High-Boundary</code>）；</li>
 <li>或触发<strong>低位防守禁杀跌</strong>（<code>price_position_pct &lt;= 25.0%</code> 且处于顺势打压，强制输出 <code>Neutral:Low-Boundary</code>）；</li>

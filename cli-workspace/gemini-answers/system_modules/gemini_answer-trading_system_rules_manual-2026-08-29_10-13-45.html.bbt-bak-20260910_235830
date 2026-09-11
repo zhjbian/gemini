@@ -1429,13 +1429,7 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </tbody>
 </table>
 
-<h4 class="rule-heading rule-calc">Setup 1：大级别底部或顶部被动吸收反转 (Major Absorption / Distribution Reversal)</h4>
-<div style="font-size:0.86rem;font-weight:800;color:#0369a1;margin:12px 0 5px;padding-left:9px;border-left:3px solid #0284c7;">代码校准对照 · 2026-09-10-phase14</div>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">规则项</th><th>当前代码取值</th></tr></thead>
-<tbody><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">第一道门 途径A</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>price_position_pct &lt;= pos_overextended_low = 35.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">途径B</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>|price−S1/S2| &lt;= 5.0 点(ES)</code> 或 <code>price &lt;= S1</code>，且 <code>pos &lt;= accum_pos_low = 45.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">途径C</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>|price−L1/L2| &lt;= 0.5 点(SPY)</code> 或 <code>price &lt;= L1</code>，且 <code>pos &lt;= accum_pos_low = 45.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">第二道门 背离阈值</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>absorb_delta_ratio = 0.12</code>（15m/30m 被动吸收）、<code>absorb_price_atr = 0.6</code>；主动承接 <code>active_absorb_delta_ratio = 0.12</code>、<code>active_absorb_price_atr = 0.5</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">第二道门 量能门槛<br/>(phase12 新增)</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><b>窗口 |净Δ| &gt;= div_min_abs_delta = 200 手</b> 才参与背离判定 —— 防"近零成交窗口把 delta_ratio 放大到 ±1.0"（实测 11:15 仅 21 手 → 假 Bullish）</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">5m/10m 早期预警</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>early_divergence_delta_ratio = 0.08</code>，仅作加分，不单独准入</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">加权准入</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">b1 量价背离 = <b>3</b>；b2 大翻转 / b3 冰山·挂单墙 / b4 机构大单 各 <b>1</b>；<b>洗盘 = 3</b>；准入线 <code>setup1_branch_min_score = 2</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">分支阈值</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">b2 <code>book_flip</code>：前半 <code>&lt;0.85</code> → 后半 <code>&gt;1.40</code>（空头镜像 <code>&gt;1.18</code> → <code>&lt;0.71</code>）；b3 <code>iceberg_min_peak=50</code>、<code>iceberg_peak_rel_mult=1.5</code>、回看 <code>30</code> 分钟、<code>tick=0.25</code>；b4 <code>big_trade_block_net=3000</code> 手一票否决</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">全局否决</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">幌骗 <code>block_bull_by_spoof / block_bear_by_spoof</code>；红线 <code>pos_redline_high=75.0 / pos_redline_low=25.0</code>（过度区 <code>65/35</code>）；数据充分性 <code>INSUFFICIENT/STALE</code> → 禁开仓</td></tr></tbody>
-</table>
-<div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><p style="font-size:0.86rem;color:#475569;margin:4px 0 8px;">基础强度起跑分 = 1（未越过任何 Setup 门槛时为 Neutral，强度值 0）</p>
+<h4 class="rule-heading rule-calc">Setup 1：大级别底部或顶部被动吸收反转 (Major Absorption / Distribution Reversal)</h4><div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><p style="font-size:0.86rem;color:#475569;margin:4px 0 8px;">基础强度起跑分 = 1（未越过任何 Setup 门槛时为 Neutral，强度值 0）</p>
 <p>必须同时通过<strong>反追高刚性约束</strong>（现价处于日内健康相对区间 <code>price_position_pct &lt;= 65.0%</code>，实盘严格禁止在 <code>&gt;= 75.0%</code> 顶部顺势报多）以及<strong>虚假撤单过滤</strong>（<code>block_bull_by_spoof == False</code>），并满足以下三大高确信结构之一：</p>
 <ul style="margin:0;padding:0;list-style:none;"><li style="list-style:none;margin:0;padding:0;"><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 1A (大级别底部被动吸收反转 - Major Absorption Reversal):</div>
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
@@ -1491,12 +1485,12 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #047857; background: #f0fdf4;">分支 1</td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>量价底背离与推进衰竭</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(DPER &amp; Delta Exhaustion)</span></td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">
-                • <strong>15m 微观底背离</strong>: <code>delta_ratio_15m &lt;= -12% (净卖占成交≥12%)</code> 且 <code>price_change_atr_15m &gt;= -0.6 (跌幅&lt;0.6 ATR)</code>；<br/>
-<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 吸收</strong>: <code>delta_ratio_30m &lt;= -12%</code> 且 <code>price_change_atr_30m &gt;= -0.6</code><br/>
+                • <strong>15m 微观底背离</strong>: <code>delta_ratio_15m &lt;= -15% (净卖占成交≥15%)</code> 且 <code>price_change_atr_15m &gt;= -0.6 (跌幅&lt;0.6 ATR)</code>；<br/>
+<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 吸收</strong>: <code>delta_ratio_30m &lt;= -15%</code> 且 <code>price_change_atr_30m &gt;= -0.6</code><br/>
 <strong>四象限背离统一检测</strong>（<span style="color:#b45309;font-weight:700;">2026-09-08 起</span>，背离判据不再限于"被动吸收"，含"主动承接"）：
 <ul style="margin: 4px 0 0 4px; padding-left: 16px; font-size: 0.78rem;">
-<li><strong>象限 I 被动吸收底背离</strong>（净卖被墙吃掉）: <code>delta_ratio &lt;= -12%</code> 且 <code>price_change_atr &gt;= -0.6</code>；</li>
-<li><strong>象限 II 主动承接底背离</strong>（跌中净买，主力主动吸筹）: <code>delta_ratio &gt;= +12%</code> 且 <code>price_change_atr &lt;= -0.5</code>；</li>
+<li><strong>象限 I 被动吸收底背离</strong>（净卖被墙吃掉）: <code>delta_ratio &lt;= -15%</code> 且 <code>price_change_atr &gt;= -0.6</code>；</li>
+<li><strong>象限 II 主动承接底背离</strong>（跌中净买，主力主动吸筹）: <code>delta_ratio &gt;= +15%</code> 且 <code>price_change_atr &lt;= -0.5</code>；</li>
 <li>两者互斥（符号相反），任一命中即认底背离。</li>
 </ul>
 </td>
@@ -1589,12 +1583,12 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #b91c1c; background: #fef2f2;">分支 1</td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;"><strong>量价顶背离与推升受阻</strong><br/><span style="font-size: 0.75rem; color: #64748b;">(DPER &amp; Buying Exhaustion)</span></td>
 <td style="padding: 6px 8px; border: 1px solid #cbd5e1;">
-                • <strong>15m 微观顶背离</strong>: <code>delta_ratio_15m &gt;= +12%</code> 且 <code>price_change_atr_15m &lt;= +0.6</code>；<br/>
-<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 滞涨</strong>: <code>delta_ratio_30m &gt;= +12%</code> 且 <code>price_change_atr_30m &lt;= +0.6</code><br/>
+                • <strong>15m 微观顶背离</strong>: <code>delta_ratio_15m &gt;= +15%</code> 且 <code>price_change_atr_15m &lt;= +0.6</code>；<br/>
+<span style="color: #64748b; font-weight: 600;">或</span> <strong>30m DPER 滞涨</strong>: <code>delta_ratio_30m &gt;= +15%</code> 且 <code>price_change_atr_30m &lt;= +0.6</code><br/>
 <strong>四象限背离统一检测</strong>（<span style="color:#b45309;font-weight:700;">2026-09-08 起</span>）：
 <ul style="margin: 4px 0 0 4px; padding-left: 16px; font-size: 0.78rem;">
-<li><strong>象限 III 被动拦截顶背离</strong>（净买被墙拦截）: <code>delta_ratio &gt;= +12%</code> 且 <code>price_change_atr &lt;= +0.6</code>；</li>
-<li><strong>象限 IV 主动压制顶背离</strong>（涨中净卖，主力主动派发）: <code>delta_ratio &lt;= -12%</code> 且 <code>price_change_atr &gt;= +0.5</code>；</li>
+<li><strong>象限 III 被动拦截顶背离</strong>（净买被墙拦截）: <code>delta_ratio &gt;= +15%</code> 且 <code>price_change_atr &lt;= +0.6</code>；</li>
+<li><strong>象限 IV 主动压制顶背离</strong>（涨中净卖，主力主动派发）: <code>delta_ratio &lt;= -15%</code> 且 <code>price_change_atr &gt;= +0.5</code>；</li>
 <li>两者互斥，任一命中即认顶背离。</li>
 </ul>
 </td>
@@ -1631,13 +1625,7 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </table>
 </div>
 </li>
-<li><strong><h4 class="rule-heading rule-calc">Setup 2：趋势日顺势（回踩/反弹）(Trend Day Pullback / Rebound)</h4>
-<div style="font-size:0.86rem;font-weight:800;color:#0369a1;margin:12px 0 5px;padding-left:9px;border-left:3px solid #0284c7;">代码校准对照 · 2026-09-10-phase14</div>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">规则项</th><th>当前代码取值</th></tr></thead>
-<tbody><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看多门槛</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>is_bullish_trend_day == True</code> 且 <code>price_position_pct &lt;= setup2_pos_cap = 65.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看空门槛</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>is_bearish_trend_day == True</code> 且 <code>price_position_pct &gt;= setup2_pos_floor = 35.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">趋势日判定要素</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">EMA 带 <code>trend_ema_band = 3.0</code>；动量 <code>trend_mom_5m = 200</code>、<code>trend_mom_10m = 400</code>（备用档 <code>600</code>）</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">代码位置</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>gate_setup2_bull / gate_setup2_bear</code>（<code>order_flow_rules_optimizer.py</code>）</td></tr></tbody>
-</table>
-<div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 2A (趋势日 10m 双柱回踩重燃 - Trend Day Pullback &amp; Resumption):</div>
+<li><strong><h4 class="rule-heading rule-calc">Setup 2：趋势日顺势（回踩/反弹）(Trend Day Pullback / Rebound)</h4><div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 2A (趋势日 10m 双柱回踩重燃 - Trend Day Pullback &amp; Resumption):</div>
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
 <div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
 <span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>
@@ -1781,13 +1769,7 @@ b3 冰山：盘口快照数与连续性达标；b4 机构大单：大单源有�
 </table>
 </div>
 </li>
-<li><strong><h4 class="rule-heading rule-calc">Setup 3：区间边缘蓄势反转 (Range / Value-Area Breakout & Breakdown)</h4>
-<div style="font-size:0.86rem;font-weight:800;color:#0369a1;margin:12px 0 5px;padding-left:9px;border-left:3px solid #0284c7;">代码校准对照 · 2026-09-10-phase14</div>
-<table style="width:100%;">
-<thead><tr><th style="white-space:nowrap;">规则项</th><th>当前代码取值</th></tr></thead>
-<tbody><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看多区间</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>setup3_bull_low = 45.0 &lt;= price_position_pct &lt;= setup3_bull_high = 68.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">看空区间</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>setup3_bear_low = 32.0 &lt;= price_position_pct &lt;= setup3_bear_high = 55.0</code></td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">附加否决</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;">突破/破位当日仍受幌骗否决（<code>block_bull_by_spoof / block_bear_by_spoof</code>）与数据充分性闸门约束</td></tr><tr><td style="white-space:nowrap;padding:4px 8px;border-bottom:1px solid #f1f5f9;">代码位置</td><td style="padding:4px 8px;border-bottom:1px solid #f1f5f9;"><code>gate_setup3_bull / gate_setup3_bear</code>（<code>order_flow_rules_optimizer.py</code>）</td></tr></tbody>
-</table>
-<div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 3A (30m 价值区蓄势突破点火 - 30m Value Area Breakout &amp; Ignition):</div>
+<li><strong><h4 class="rule-heading rule-calc">Setup 3：区间边缘蓄势反转 (Range / Value-Area Breakout & Breakdown)</h4><div style="font-weight:800;color:#0f766e;background:#ecfdf5;border-left:4px solid #10b981;padding:5px 10px;margin:14px 0 8px;font-size:0.92rem;">🟢 Bullish（看多）规则详解</div><div style="font-weight:800;font-size:0.92rem;color:#0f172a;margin:12px 0 6px;padding-left:10px;border-left:3px solid #cbd5e1;">Setup 3A (30m 价值区蓄势突破点火 - 30m Value Area Breakout &amp; Ignition):</div>
       <div style="margin: 6px 0 10px 10px; font-size: 0.84rem; color: #334155; line-height: 1.6;">
 <div style="font-weight:700;color:#0f172a;background:#f8fafc;border-left:3px solid #94a3b8;padding:3px 8px;margin:10px 0 4px;font-size:0.84rem;">
 <span style="background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.78rem;">第一道门</span>

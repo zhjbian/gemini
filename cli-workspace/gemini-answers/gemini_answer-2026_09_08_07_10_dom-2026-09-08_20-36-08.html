@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 2026-09-08 07:10 Order Flow DOM 微观投票明细深度剖析</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">2026-09-08 07:10 Order Flow DOM 微观投票明细深度剖析</h1>
+<div class="meta">
+<span>Saved: 2026-09-08 20:36:08</span>
+<span>Topic: 2026_09_08_07_10_dom</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#part1-node-panorama">一、07:10 节点数据全景</a><ul><li><a href="#part1-dom-metrics">1.1 DOM 5m 微观指标全量</a></li><li><a href="#part1-consensus">1.2 DOM Consensus 投票拆解</a></li><li><a href="#part1-ab-div">1.3 A+B 归一化背离判据</a></li><li><a href="#part1-fall-knife">1.4 非接飞刀判定</a></li><li><a href="#part1-others">1.5 其它分支</a></li><li><a href="#part1-summary">1.6 看多信号总结</a><ul><li><a href="#part1-sum-bull">1.6.1 真实的偏多信号</a></li><li><a href="#part1-sum-bear">1.6.2 反向/压制信号</a></li><li><a href="#part1-sum-why">1.6.3 为什么引擎最终判 Neutral</a></li><li><a href="#part1-sum-concl">1.6.4 结论</a></li></ul></li></ul></li><li><a href="#part2-divergence">二、背离类型学与检测方法</a><ul><li><a href="#part2-essence">2.1 背离的本质</a></li><li><a href="#part2-quadrant">2.2 4 象限背离矩阵</a></li><li><a href="#part2-why-13">2.3 为什么只实现了 I/III</a></li><li><a href="#part2-quad2">2.4 象限 II 为什么没被识别</a></li><li><a href="#part2-detect">2.5 如何检测和使用象限 II/IV</a><ul><li><a href="#part2-detect-method">2.5.1 检测（对称化判据）</a></li><li><a href="#part2-detect-diff">2.5.2 与象限 I/III 的本质区别</a></li><li><a href="#part2-detect-use">2.5.3 使用建议</a></li></ul></li><li><a href="#part2-code">2.6 落地到检测代码</a></li><li><a href="#part2-diagnosis">2.7 07:10 完整诊断</a></li></ul></li><li><a href="#part3-m5m10">三、5m/10m 短窗量价背离诊断</a><ul><li><a href="#part3-price">3.1 价格与 Delta 还原</a></li><li><a href="#part3-windows">3.2 各窗口 A+B 量价背离</a><ul><li><a href="#part3-w710">3.2.1 07:10（局部最低点）</a></li><li><a href="#part3-w715">3.2.2 07:15（拉起后）</a></li><li><a href="#part3-w705">3.2.3 07:05 / 07:00</a></li></ul></li><li><a href="#part3-concl">3.3 结论：未达标</a></li><li><a href="#part3-why">3.4 为什么拉长窗口会中和</a></li></ul></li><li><a href="#part4-threshold">四、Δ占比阈值统计依据</a><ul><li><a href="#part4-src">4.1 两个阈值来源</a></li><li><a href="#part4-stats">4.2 21 交易日实测统计</a></li><li><a href="#part4-meaning">4.3 分布说明</a><ul><li><a href="#part4-m20">4.3.1 20% 是极端事件门槛</a></li><li><a href="#part4-m12">4.3.2 12% 是预警线</a></li><li><a href="#part4-mwhy">4.3.3 为什么 20% 而非 10%/15%</a></li></ul></li><li><a href="#part4-check">4.4 用数据检验 07:10</a></li><li><a href="#part4-advice">4.5 结论与建议</a></li><li><a href="#part4-summary">4.6 总结</a></li></ul></li><li><a href="#part5-derived">五、可推导的正统 Orderflow 指标</a><ul><li><a href="#part5-aggregate">5.1 从已算聚合值推导</a><ul><li><a href="#part5-ag1">5.1.1 买卖压力比</a></li><li><a href="#part5-ag2">5.1.2 不平衡斜率</a></li><li><a href="#part5-ag3">5.1.3 被动单占比</a></li><li><a href="#part5-ag4">5.1.4 微观流动性深度</a></li></ul></li><li><a href="#part5-snapshots">5.2 需返回 snapshots 数据</a><ul><li><a href="#part5-sn1">5.2.1 价格-深度曲线</a></li><li><a href="#part5-sn2">5.2.2 足迹图</a></li><li><a href="#part5-sn3">5.2.3 买单/卖单墙检测</a></li><li><a href="#part5-sn4">5.2.4 撤单/吸筹再平衡</a></li></ul></li><li><a href="#part5-recommend">5.3 最有价值推荐</a></li></ul></li><li><a href="#part5-guide">六、三大 Orderflow 指标使用指南</a><ul><li><a href="#part6-wall">6.1 Order Wall 净深度累积曲线</a><ul><li><a href="#part6-wall-what">6.1.1 是什么</a></li><li><a href="#part6-wall-how">6.1.2 怎么算</a></li><li><a href="#part6-wall-read">6.1.3 07:10 实测解读</a></li><li><a href="#part6-wall-use">6.1.4 怎么用</a></li></ul></li><li><a href="#part6-footprint">6.2 Delta 足迹</a><ul><li><a href="#part6-fp-what">6.2.1 是什么</a></li><li><a href="#part6-fp-how">6.2.2 怎么算</a></li><li><a href="#part6-fp-read">6.2.3 07:10 实测解读</a></li><li><a href="#part6-fp-use">6.2.4 怎么用</a></li></ul></li><li><a href="#part6-cancel">6.3 Cancel-to-Trade Ratio</a><ul><li><a href="#part6-ct-what">6.3.1 是什么</a></li><li><a href="#part6-ct-how">6.3.2 怎么算</a></li><li><a href="#part6-ct-read">6.3.3 07:10 实测解读</a></li><li><a href="#part6-ct-use">6.3.4 怎么用</a></li></ul></li><li><a href="#part6-flow">6.4 三指标组合决策流程</a></li><li><a href="#part6-example">6.5 07:10 综合示例</a></li></ul></li></ul></div>
+<section class="main-content">
+<p>2026-09-08 07:10 深度微观数据剖析（局部底部核心节点）</p>
+<h2 id="part1-node-panorama">一、07:10 节点数据全景</h2>
+<ul>
+<li>当前价：日内最低位附近，Pos = 0.0%（全天最低点，值域下沿）</li>
+<li>该 5m bar（07:05–07:10）：Δ=+668、PC=-5.50（价格再创新低，但 Delta 净流入）</li>
+<li>全局结论：Neutral:Low-Boundary，Setup 1A 看多未触发</li>
+</ul>
+<h3 id="part1-dom-metrics">1.1 DOM 5m 微观指标全量（07:05–07:10，600×500ms，366 快照）</h3>
+<table>
+<thead>
+<tr>
+<th>手册指标</th>
+<th>计算值</th>
+<th>手册定义对照</th>
+<th>方向解读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>imb_near</td>
+<td>+0.023</td>
+<td>(Bid0_5-Ask0_5)/(Bid0_5+Ask0_5)</td>
+<td>近端5档偏多（买&gt;卖）</td>
+</tr>
+<tr>
+<td>imb_mid</td>
+<td>-0.023</td>
+<td>Level 6-20</td>
+<td>中端偏空</td>
+</tr>
+<tr>
+<td>imb_deep</td>
+<td>-0.150</td>
+<td>Level 21-120</td>
+<td>深层偏空（权重10%）</td>
+</tr>
+<tr>
+<td>weighted_imbalance</td>
+<td>-0.021</td>
+<td>(near×.5+mid×.35+deep×.10+far×.05)</td>
+<td>整体微偏空，但近端着多空临界</td>
+</tr>
+<tr>
+<td>early_w_imb</td>
+<td>-0.045</td>
+<td>前半段2.5m</td>
+<td>前半段偏空（卖压）</td>
+</tr>
+<tr>
+<td>late_w_imb</td>
+<td>+0.003</td>
+<td>后半段2.5m</td>
+<td>后半段转多（买盘回补）</td>
+</tr>
+<tr>
+<td>imb_momentum</td>
+<td>+0.047</td>
+<td>late - early</td>
+<td>正向跃升 +0.047，买方防线在窗口内快速增厚</td>
+</tr>
+<tr>
+<td>early_book_ratio</td>
+<td>0.95</td>
+<td>前半段 Near_Bids/Asks</td>
+<td>前半段买卖约平衡（偏空略）</td>
+</tr>
+<tr>
+<td>late_book_ratio</td>
+<td>1.21</td>
+<td>后半段</td>
+<td>后半段买方挂单占优</td>
+</tr>
+<tr>
+<td>book_flip_bull</td>
+<td>False</td>
+<td>early&lt;0.85 &amp; late&gt;1.40</td>
+<td>未触发（late 只到 1.21&lt;1.40）</td>
+</tr>
+<tr>
+<td>book_flip_bear</td>
+<td>False</td>
+<td>—</td>
+<td>未触发</td>
+</tr>
+<tr>
+<td>spoof_bid</td>
+<td>22</td>
+<td>撤单判别</td>
+<td>买方频繁撤单（假托单疑点高）</td>
+</tr>
+<tr>
+<td>spoof_ask</td>
+<td>4</td>
+<td>—</td>
+<td>卖方撤单少</td>
+</tr>
+<tr>
+<td>stack_bid</td>
+<td>22</td>
+<td>堆单防线</td>
+<td>买堆单较厚</td>
+</tr>
+<tr>
+<td>stack_ask</td>
+<td>3</td>
+<td>—</td>
+<td>卖堆单薄</td>
+</tr>
+<tr>
+<td>absorption_bull</td>
+<td>0</td>
+<td>高低位被动吸收</td>
+<td>无买吸收</td>
+</tr>
+<tr>
+<td>absorption_bear</td>
+<td>0</td>
+<td>—</td>
+<td>无卖吸收</td>
+</tr>
+<tr>
+<td>absorption_extreme_*</td>
+<td>0/0</td>
+<td>≤1.0点极致</td>
+<td>无</td>
+</tr>
+<tr>
+<td>iceberg_bull/bear</td>
+<td>0/0</td>
+<td>冰山护盘/压盘</td>
+<td>无冰山</td>
+</tr>
+<tr>
+<td>iceberg_refill_detail</td>
+<td>[]</td>
+<td>refills≥3,cv≤0.35</td>
+<td>无真实回补</td>
+</tr>
+<tr>
+<td>dper_low_count</td>
+<td>0</td>
+<td>—</td>
+<td>无 DPER 低值</td>
+</tr>
+<tr>
+<td>vacuum_bid_sec</td>
+<td>0.0</td>
+<td>&lt;10手步长×0.5s</td>
+<td>无买方真空</td>
+</tr>
+<tr>
+<td>vacuum_ask_sec</td>
+<td>0.0</td>
+<td>—</td>
+<td>无卖方真空</td>
+</tr>
+</tbody>
+</table>
+<h3 id="part1-consensus">1.2 DOM Consensus 投票拆解（4 分量 → 2-1 Bullish）</h3>
+<table>
+<thead>
+<tr>
+<th>投票分量</th>
+<th>判据</th>
+<th>07:10 实际</th>
+<th>票向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>失衡/动量</td>
+<td>w_imb&gt;0.001 或 moment&gt;0.01</td>
+<td>moment=+0.047 ✅</td>
+<td>Bull 1票</td>
+</tr>
+<tr>
+<td>虚假撤单</td>
+<td>spoof_ask&gt;spoof_bid → Bull</td>
+<td>spoof_bid=22&gt;spoof_ask=4</td>
+<td>Bear 1票（买方假支撑撤单）</td>
+</tr>
+<tr>
+<td>堆单</td>
+<td>stack_bid&gt;stack_ask → Bull</td>
+<td>22&gt;3 ✅</td>
+<td>Bull 1票</td>
+</tr>
+<tr>
+<td>吸收</td>
+<td>absorption_bull&gt;bear → Bull</td>
+<td>0=0</td>
+<td>无票</td>
+</tr>
+<tr>
+<td>合计</td>
+<td></td>
+<td></td>
+<td>Bull 2 : Bear 1 -&gt; "Bullish"</td>
+</tr>
+</tbody>
+</table>
+<p>注意：这 2:1 的 Bullish 是表面偏多：靠 momentum 转正 + 堆单占优撑起，但被 spoof（买方假撤单/诱多）拖了 1 票 Bear，且深层失衡仍偏空。属"争夺中的偏多"，不是干净的多头压倒。</p>
+<h3 id="part1-ab-div">1.3 A+B 归一化背离判据（方向准入分支 1）</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>15m (06:55–07:10)</th>
+<th>30m (06:40–07:10)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>净 Delta</td>
+<td>+2355</td>
+<td>+3228</td>
+</tr>
+<tr>
+<td>成交量</td>
+<td>68671</td>
+<td>137522</td>
+</tr>
+<tr>
+<td>delta_ratio</td>
+<td>+3.43%</td>
+<td>+2.35%</td>
+</tr>
+<tr>
+<td>价格变化</td>
+<td>-9.50</td>
+<td>-17.50</td>
+</tr>
+<tr>
+<td>ATR</td>
+<td>3.83</td>
+<td>4.63</td>
+</tr>
+<tr>
+<td>price_change_atr</td>
+<td>-2.48</td>
+<td>-3.78</td>
+</tr>
+</tbody>
+</table>
+<p>背离判据：delta_ratio &lt;= -20% 且 price_change_atr &gt;= -0.5<br/>
+- 07:10 的 delta_ratio 为 +3.43% / +2.35%（净买），而判据要求 &lt;= -20%（净卖压≥20%）<br/>
+- 背离分支（_b1）= False</p>
+<h3 id="part1-fall-knife">1.4 非接飞刀判定</h3>
+<ul>
+<li>07:05–07:10 bar：PC = -5.50（价格创新低）</li>
+<li>_lows[-1] &lt; _lows[-2]（近端柱仍创新低）</li>
+<li>not_falling_knife_bull = False（认定为"接飞刀"）</li>
+</ul>
+<h3 id="part1-others">1.5 其它分支</h3>
+<table>
+<thead>
+<tr>
+<th>分支</th>
+<th>判据</th>
+<th>07:10 实际</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>_b2 book_flip</td>
+<td>book_flip_bull</td>
+<td>False</td>
+<td>否</td>
+</tr>
+<tr>
+<td>_b3 吸收/冰山</td>
+<td>absorption_bull≥1 或 iceberg_bull&gt;bear 且 last5mΔ≥-300</td>
+<td>全 0；last5mΔ=+668</td>
+<td>否</td>
+</tr>
+<tr>
+<td>_b4 大单吸筹</td>
+<td>big_trade_net_2h≥3000</td>
+<td>0（无 ≥500手大单）</td>
+<td>否</td>
+</tr>
+<tr>
+<td>分支合计</td>
+<td>需 ≥2 + 非接飞刀</td>
+<td>0 分支</td>
+<td>否 Setup 1A 不触发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="part1-summary">1.6 看多信号总结（07:10）</h3>
+<h4 id="part1-sum-bull">1.6.1 真实的偏多信号（微观级别）</h4>
+<ol>
+<li>价量强势底背离：价格 07:05–07:10 创新低（-5.50），但 Delta = +668 净流入 —— 下跌无卖压，反而有买盘承接（最强看多线索）</li>
+<li>imb_momentum = +0.047（显著&gt;+0.04）：窗口后半段买方挂单防线快速增厚</li>
+<li>late_book_ratio = 1.21（&gt;1.0）：后半段近端买盘占优</li>
+<li>late_w_imb 由负转正（-0.045→+0.003）：盘口由卖压转向买盘回补</li>
+<li>stack_bid=22 &gt; stack_ask=3：买堆单明显厚于卖堆单</li>
+</ol>
+<h4 id="part1-sum-bear">1.6.2 反向/压制信号</h4>
+<ul>
+<li>weighted_imbalance = -0.021（整体仍微偏空，因深层 imb_deep=-0.15 拖累）</li>
+<li>spoof_bid=22 &gt; spoof_ask=4：买方高位频繁撤单，有"假托单/诱多"嫌疑（触发 Bear 投票 + 若占比≥70% 会一票否决）</li>
+<li>imb_deep=-0.150：深层挂单仍偏空，非干净底部</li>
+</ul>
+<h4 id="part1-sum-why">1.6.3 为什么引擎最终判 Neutral</h4>
+<ul>
+<li>背离分支不匹配：引擎把背离严格定义为"净卖压被吸收"（delta_ratio&lt;=-20%），而这里是"净买承接"（delta_ratio 为正）—— 语义相反，故分支1不触发</li>
+<li>非接飞刀否决：07:10 价格仍在创新低（-5.50）→ 判为"接飞刀"，一票否决看多</li>
+<li>分支全部落空：吸收/冰山/大单翻转/2h大单吸筹 全为 0</li>
+<li>big_trade_net_2h=0：无 ≥500 手机构大单吸筹</li>
+</ul>
+<h4 id="part1-sum-concl">1.6.4 结论</h4>
+<p>07:10 的真实微观信号是"下跌末端出现买盘承接 + 盘口转多"（momentum 转正、late ratio&gt;1、delta 净流入），这是右侧止跌的前兆（07:15 价格果然 +0.50 止跌回升）。但引擎的保守 2-of-4 严格门 + 非接飞刀一票否决设计，使它拒绝在下跌途中（仍在创新低的 bar）判定看多，宁可输出 Neutral 等右侧（07:15 以后）确认。这与 09-04 的"宁缺毋滥、0 bulls"哲学完全一致。</p>
+</section>
+<section><h2 id="part2-divergence">二、背离 (Divergence) 类型学与检测方法</h2>
+<h3 id="part2-essence">2.1 背离的本质：两个变量方向打架</h3>
+<p>订单流背离的核心是 Delta（主动买卖净额）与价格两个变量出现方向不一致。当前引擎的 A+B 归一化把这两者标准化为可比较的量纲：</p>
+<ul>
+<li>X 轴 (价)：price_change_atr = 价格变化 ÷ ATR（归一化"价格移动了多少倍波动"）</li>
+<li>Y 轴 (量)：delta_ratio = 净 Delta ÷ 成交量（归一化"每单位成交中净主动买卖占比"）</li>
+</ul>
+<p>关键：delta_ratio 的符号用于判断主动方向（+ = 净买，- = 净卖），价格方向用 price_change_atr 的符号判断。</p>
+<h3 id="part2-quadrant">2.2 4 象限背离矩阵（核心框架）</h3>
+<p>把价格方向与 Delta 方向组合成 4 种情景，引擎的 A+B 判据只覆盖了其中 1 种：</p>
+<table>
+<thead>
+<tr>
+<th>象限</th>
+<th>价格方向</th>
+<th>Delta 方向</th>
+<th>delta_ratio</th>
+<th>price_change_atr</th>
+<th>背离性质</th>
+<th>引擎策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I</td>
+<td>跌</td>
+<td>净卖</td>
+<td>&lt;= -0.20</td>
+<td>但不深跌(&gt;= -0.5)</td>
+<td>卖方被吸收（底背离，抛压撞墙）</td>
+<td>已实现 (底背离)</td>
+</tr>
+<tr>
+<td>II</td>
+<td>跌</td>
+<td>净买</td>
+<td>&gt; 0</td>
+<td>负</td>
+<td>净买承接（买盘接下跌）</td>
+<td>未检测（07:10 场景）</td>
+</tr>
+<tr>
+<td>III</td>
+<td>涨</td>
+<td>净买</td>
+<td>&gt;= +0.20</td>
+<td>但不深涨(&lt;= +0.5)</td>
+<td>买方被拦截（顶背离，涨势遇阻）</td>
+<td>已实现 (顶背离)</td>
+</tr>
+<tr>
+<td>IV</td>
+<td>涨</td>
+<td>净卖</td>
+<td>&lt; 0</td>
+<td>正</td>
+<td>净卖压制（卖盘压上涨）</td>
+<td>未检测</td>
+</tr>
+</tbody>
+</table>
+<p>本质上：<br/>
+- I/III 象限 = 被动吸收型背离：主动方（卖/买）猛攻，但主力被动单把它吞掉，价格不动。这是"主力用隐藏单（冰山/吸收）对抗散户主动单"，方向跟随主动方的反向（卖被吸收→看多）。<br/>
+- II/IV 象限 = 主动承接/压制型背离：价格走某方向，但主动单却流向反向。这是"主力主动单先行、价格随后跟上"，方向跟随主动单方向（净买承接下跌→看多）。</p>
+<h3 id="part2-why-13">2.3 为什么引擎只实现了 I/III（被动吸收型）</h3>
+<p>引擎的 A+B 判据精确对应 I/III：</p>
+<pre><code>delta_ratio &lt;= -20% (净卖占比高)  AND  price_change_atr &gt;= -0.5 (价格没跌透)
+    = 卖方猛攻但价格跌不动 -&gt; 买盘被动吸收 -&gt; 看多 (底背离)
+</code></pre>
+<p>这背后的哲学是 MotiveWave 做市商对冲视野：逆势被动单是"墙"，抗住了散户顺势单就是反转信号。它相信"卖压被吸收"比"买盘主动进场"更可靠——因为被动大单是主力真实意图，主动单可能是散户/算法噪音。</p>
+<h3 id="part2-quad2">2.4 象限 II（净买承接）为什么 07:10 没被识别</h3>
+<p>07:10 的数据：<br/>
+- 价格：07:05–07:10 = -5.50（跌）<br/>
+- Delta：+668（净买）<br/>
+- delta_ratio = +3.43%（正，净买占比）<br/>
+- price_change_atr = 负</p>
+<p>这是象限 II（净买承接）：价格跌，但主动单是净买入。引擎判据要求 delta_ratio &lt;= -20%（净卖），所以方向条件不匹配 → 不触发。</p>
+<h3 id="part2-detect">2.5 如何检测和使用象限 II/IV</h3>
+<h4 id="part2-detect-method">2.5.1 检测（对称化判据）</h4>
+<p>净买承接型底背离（象限 II）：</p>
+<pre><code>delta_ratio &gt;= +20% (净买占比高)  且  price_change_atr &lt;= -0.5 (价格明显下跌)
+    = 价格跌但主动单净买 -&gt; 主力主动吸筹 -&gt; 看多
+</code></pre>
+<p>净卖压制型顶背离（象限 IV）：</p>
+<pre><code>delta_ratio &lt;= -20% (净卖占比高)  且  price_change_atr &gt;= +0.5 (价格明显上涨)
+    = 价格涨但主动单净卖 -&gt; 主力主动派发 -&gt; 看空
+</code></pre>
+<h4 id="part2-detect-diff">2.5.2 与象限 I/III 的本质区别</h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>I (被动吸收)</th>
+<th>II (主动承接)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Delta 符号</td>
+<td>负（净卖）</td>
+<td>正（净买）</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>跌但跌不动</td>
+<td>明显下跌</td>
+</tr>
+<tr>
+<td>看多机制</td>
+<td>卖压被墙吃掉</td>
+<td>主力主动买盘在跌中进场</td>
+</tr>
+<tr>
+<td>置信度</td>
+<td>高（被动大单=主力真意图）</td>
+<td>中（需确认买盘持续）</td>
+</tr>
+<tr>
+<td>风险</td>
+<td>墙可能被击穿</td>
+<td>可能是"接飞刀"</td>
+</tr>
+</tbody>
+</table>
+<h4 id="part2-detect-use">2.5.3 使用建议（引擎取舍）</h4>
+<ol>
+<li>象限 II 作为 Setup 1A 的补充分支，但降低优先级：它本质是"跌中接盘"，有接飞刀风险。建议：<br/>
+   - 单独标记为 Setup 1A-divergence-active-buy（主动承接型），与"被动吸收型"区别<br/>
+   - 必须叠加非接飞刀过滤（not_falling_knife）——07:10 恰好 _lows[-1] &lt; _lows[-2] 仍创新低，所以即使检测到也被拦<br/>
+   - 配合 book_flip 或 DOM 动量转正（07:10 有 imb_momentum=+0.047）做确认，避免单纯 delta 正就进</li>
+<li>象限 II 更适合作为"加分项"而非"准入分支"：因为它是"强动能承接"，用在第二部打分里加强度分更合理（比如"价格跌但 Delta 净买 &gt; 3000 手"给额外分），而不是单独准入。</li>
+<li>象限 I 保持主准入：被动吸收型背离是主力隐藏单对抗散户，置信度最高、最可靠。</li>
+</ol>
+<h3 id="part2-code">2.6 落地到检测代码的具体方案</h3>
+<p>在 Setup 1A 的第二道门，新增一个"主动承接"分支（与现有分支 b1 并列但独立标记）：</p>
+<pre><code class="language-python"># 现有 b1: 被动吸收型背离 (delta_ratio 为负)
+delta_div_bull = (delta_ratio_15m &lt;= -0.20 and price_change_atr_15m &gt;= -0.5) or (delta_ratio_30m &lt;= -0.20 and price_change_atr_30m &gt;= -0.5)
+
+# 新增: 主动承接型背离 (delta_ratio 为正, 象限 II)
+active_absorb_bull = (delta_ratio_15m &gt;= +0.20 and price_change_atr_15m &lt;= -0.5) or (delta_ratio_30m &gt;= +0.20 and price_change_atr_30m &lt;= -0.5)
+</code></pre>
+<p>但强烈建议把它当作需额外确认的加分/辅助信号：</p>
+<pre><code class="language-python"># 建议用法: 主动承接背离 仅作为加分确认, 不单独作为准入分支
+if active_absorb_bull and not_falling_knife_bull:
+    bonus_items.append("主动承接背离(跌中净买)")
+</code></pre>
+<h3 id="part2-diagnosis">2.7 07:10 的完整诊断（新框架重看）</h3>
+<p>07:10 处于象限 II（净买承接）：<br/>
+- 检测到：delta_ratio=+3.43%、价格跌 -5.50<br/>
+- 有确认信号：imb_momentum=+0.047、DOM 偏多投票<br/>
+- 被接飞刀过滤拦下：_lows[-1] &lt; _lows[-2]（仍创新低）<br/>
+- 结果：主动承接型背离成立但未过接飞刀闸门 → 正确输出 Neutral:Low-Boundary</p>
+<p>这正是引擎"宁可错过、不接飞刀"的保守哲学。07:15 价格 +0.50 止跌后，象限 II 的更右侧确认才可能出现真正看多信号。</p></section><section><h2 id="part3-m5m10">三、5m/10m 短窗量价背离诊断（07:00–07:15）</h2>
+<h3 id="part3-price">3.1 价格与 Delta 还原（确认拉起时刻）</h3>
+<table>
+<thead>
+<tr>
+<th>5m bar</th>
+<th>开盘关闭</th>
+<th>Delta</th>
+<th>Volume</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>06:55-07:00</td>
+<td>7694.0→7695.0</td>
+<td>+1572</td>
+<td>21288</td>
+<td>微涨</td>
+</tr>
+<tr>
+<td>07:00-07:05</td>
+<td>7695.0→7690.0</td>
+<td>+115</td>
+<td>27135</td>
+<td>跌 -5.00</td>
+</tr>
+<tr>
+<td>07:05-07:10</td>
+<td>7690.0→7684.5</td>
+<td>+668</td>
+<td>20248</td>
+<td>跌 -5.50（最低点）</td>
+</tr>
+<tr>
+<td>07:10-07:15</td>
+<td>7684.5→7685.0</td>
+<td>+772</td>
+<td>24590</td>
+<td>止跌 +0.50（那根"拉起"）</td>
+</tr>
+</tbody>
+</table>
+<p>关键澄清：07:05-07:10 那根 PC=-5.50（还在跌到最低 7684.5），真正走平/拉起的是 07:10-07:15 那根（+0.50）。低点在 07:10。</p>
+<h3 id="part3-windows">3.2 各窗口 A+B 量价背离（看多方向）</h3>
+<h4 id="part3-w710">3.2.1 07:10（局部最低点）</h4>
+<table>
+<thead>
+<tr>
+<th>窗口</th>
+<th>Delta占比</th>
+<th>价/ATR</th>
+<th>象限I(被动吸收)</th>
+<th>象限II(主动承接)</th>
+<th>衰竭</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5m</td>
+<td>+3.30%</td>
+<td>-1.00</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+<tr>
+<td>10m</td>
+<td>+1.65%</td>
+<td>-2.00</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+<tr>
+<td>15m</td>
+<td>+3.43%</td>
+<td>-2.48</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+<tr>
+<td>30m</td>
+<td>+2.35%</td>
+<td>-3.78</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+</tbody>
+</table>
+<h4 id="part3-w715">3.2.2 07:15（拉起后）</h4>
+<table>
+<thead>
+<tr>
+<th>窗口</th>
+<th>Delta占比</th>
+<th>价/ATR</th>
+<th>象限I</th>
+<th>象限II</th>
+<th>衰竭</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5m</td>
+<td>+3.14%</td>
+<td>+1.00</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+<tr>
+<td>10m</td>
+<td>+3.21%</td>
+<td>-1.67</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+<tr>
+<td>15m</td>
+<td>+2.16%</td>
+<td>-2.73</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+<tr>
+<td>30m</td>
+<td>+3.08%</td>
+<td>-2.58</td>
+<td>未达</td>
+<td>未达</td>
+<td>未达</td>
+</tr>
+</tbody>
+</table>
+<h4 id="part3-w705">3.2.3 07:05 / 07:00（更早）</h4>
+<table>
+<thead>
+<tr>
+<th>时点</th>
+<th>5m Delta占比</th>
+<th>10m Delta占比</th>
+<th>5m 价/ATR</th>
+<th>10m 价/ATR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>07:00</td>
+<td>+7.38%（最高）</td>
+<td>+5.75%</td>
+<td>+1.00</td>
+<td>-1.11</td>
+</tr>
+<tr>
+<td>07:05</td>
+<td>+0.42%</td>
+<td>+3.48%</td>
+<td>-1.00</td>
+<td>-1.33</td>
+</tr>
+</tbody>
+</table>
+<h3 id="part3-concl">3.3 结论：5m/10m 依然未达标</h3>
+<p>即使缩短到 5 分钟和 10 分钟窗口，delta_ratio 依旧只在 +0.42%~+7.38% 之间，没有一个时点达到 ±20% 的强背离门槛。</p>
+<p>观察到的"价格跌、delta 为正"（象限 II 主动承接）方向正确、但强度远远不足——它是温和的净买承接（买方略占优），不到"主力主动吸筹 20%+"的程度。</p>
+<p>具体到各时点：<br/>
+- 07:00 的 5m、10m：Delta占比最高（+7.38%/+5.75%），是附近最强迹象，但仍只有门槛的 1/3。<br/>
+- 07:05-07:10（大跌中）：Delta占比反而走低（5m +0.42%），价格在跌、买盘不明显放大——这里的 +delta 主要来自"跌深后的被动接盘"，不是主动抢筹。<br/>
+- 07:15（拉起）：5m Delta占比 +3.14% 但价/ATR=+1.00（价格在涨），属于顺势推动而非背离（delta 与价格同向，不是"价格跌但 delta 正"的背离）。</p>
+<h3 id="part3-why">3.4 为什么拉长窗口会中和？</h3>
+<p>用户直觉前半对：15m/30m 因为包含前段的深跌（-17.5点），把"价跌"分量放大（价/ATR 从 -1.0 放大到 -3.78），让背离的价格确认（需要"价/ATR&gt;= -0.5"即跌不动）更不满足。</p>
+<p>但关键：背离判据的核心约束不是价格，而是 Delta占比必须 &gt;= +-20%。而无论是 5m/10m 还是 15m/30m，Delta占比都只有 3% 左右，从未逼近 20%。所以窗口缩短不会让背离达标——因为它缺的不是"价格确认"，而是"delta 强度"。</p>
+<p>结论：07:00-07:15 实测，5m/10m 量价背离/衰竭均未达标。这是正确的保守结果，不是窗口中和的问题。真正的看多信号（如果有）需要 delta_ratio 达到 +-20% 的强主动承接/压制才会触发，而本时段只是温和净买。</p></section><section><h2 id="part4-threshold">四、Δ占比阈值统计依据（20% / 12%）</h2>
+<h3 id="part4-src">4.1 两个阈值不是同一来源</h3>
+<table>
+<thead>
+<tr>
+<th>阈值</th>
+<th>来源</th>
+<th>定性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20%（主准入）</td>
+<td>系统既有值（规则手册、原引擎代码、config 里原本就是 0.20）</td>
+<td>继承自原引擎，非本次发明</td>
+</tr>
+<tr>
+<td>12%（方案C预警）</td>
+<td>新设的低门槛，取"20% 的 0.6 倍"</td>
+<td>经验取值，无回测/统计支撑</td>
+</tr>
+</tbody>
+</table>
+<p>诚实声明：12% 是由工程直觉选择的（隔出一个安全裕度，低于主门槛），没有跑回测验证。用真实数据补上了依据。</p>
+<h3 id="part4-stats">4.2 21 交易日 1285 根 5m bar 实测统计</h3>
+<p>统计 2026 年 ES 全部可用的 21 个 TICKS 文件、1285 根 5m bar 的 |Δ占比| 分布：</p>
+<p>|Δ占比| 分位数：<br/>
+- P50 = 4.23%（中位数）<br/>
+- P70 = 6.47%<br/>
+- P80 = 8.00%<br/>
+- P90 = 10.47%<br/>
+- P95 = 13.13%<br/>
+- P98 = 16.74%<br/>
+- P99 = 19.14%<br/>
+- 均值 = 5.21%</p>
+<p>超过 ±20% 的比例 = 0.93%（极罕见，安全边际极高）<br/>
+超过 ±12% 的比例 = 6.69%（中等）<br/>
+超过 ±10% 的比例 = 11.44%（较常见）</p>
+<h3 id="part4-meaning">4.3 这个分布说明了什么</h3>
+<h4 id="part4-m20">4.3.1 20% 是极罕见极端事件门槛</h4>
+<ul>
+<li>只有 0.93% 的 5m bar 能达到 ±20%，即约每 107 根 bar 出现 1 次</li>
+<li>这正是引擎"宁缺毋滥"哲学的体现：±20% 意味着几乎只在真正的主力极端动作时才触发</li>
+<li>它对应的是 P99（19.14%）的极限区，即"最强的那 1% 主动方向压倒性信号"</li>
+</ul>
+<h4 id="part4-m12">4.3.2 12% 是较显著但非极端的预警线</h4>
+<ul>
+<li>有 6.69% 的 bar 能达到 ±12%，约每 15 根 bar 出现 1 次</li>
+<li>对应 P95（13.13%）附近，即"前 5% 的强信号"</li>
+<li>作为预警（捕捉早中期背离萌芽）合理：比主门槛更容易触及，起到"提前吹哨"作用</li>
+</ul>
+<h4 id="part4-mwhy">4.3.3 为什么 20% 而非 10% 或 15%？</h4>
+<ul>
+<li>如果设成 ±10%（11.44% 的 bar 能达），会过于频繁触发，噪音太大</li>
+<li>设成 ±20%（0.93%），则只在最强时触发</li>
+<li>原引擎选 20% 是把"转向确认"钉在极端区，宁可错过 99% 的普通背离，只在最强 1% 出手</li>
+</ul>
+<h3 id="part4-check">4.4 用数据检验 07:10 的实际情况</h3>
+<p>07:10 的 |Δ占比| = 3.30%（5m）、2.35%（30m），处在 P50-P60 的常规区（中位数 4.23% 附近）——完全是普通水平，远未到 P95 的 12% 预警线，更别说 P99 的 20%。</p>
+<p>所以 07:10 判 Neutral 是绝对正确的：它的 delta 方向强度只是"普通的一天"，不是背离级别的极端信号。</p>
+<h3 id="part4-advice">4.5 诚实结论与建议</h3>
+<ol>
+<li>20% 保留：有统计支撑（对应 P99 极值），作为主准入完全合理，且是系统既有设计。</li>
+<li>12% 需严谨对待：这是在方案 C 里选的，统计显示它对应 P95（前 5%）。作为预警/加分是合理的（不应触发准入，只提示"接近背离"），但它不是 100% 确定的最优值。</li>
+<li>可再优化的方向：<br/>
+   - 用回测（背靠背测试各阈值下的信号命中率）选最优 delta_ratio 门槛<br/>
+   - 或用分位数锚定（如 P90=10.5%、P95=13.1%）而非拍脑袋<br/>
+   - 现在 12% 恰好接近 P95，是巧合的合理，但值得用回测确认</li>
+</ol>
+<h3 id="part4-summary">4.6 总结</h3>
+<p>20% 是系统原值（P99 极值区，有统计合理性）；12% 是新设的低门槛预警（缺回测，但统计显示它落在 P95 附近，作为预警线合理）。2026-09-08 的 07:10 数据在 P50-P60 常规区，所以 Neutral 判定正确。</p></section><section><h2 id="part5-derived">五、可推导的正统 Orderflow 指标（从 DOM 快照）</h2>
+<p>已有的 3 个量化信号（量价背离、盘口大翻转、密集冰山）是方向性终端信号。而 DOM 底层 snapshots（逐 500ms 的 bids/asks 档位深度）和 tick 成交流（tick_trades）还能推导出一批更高维、更正统的 orderflow 分析数据。</p>
+<h3 id="part5-aggregate">5.1 从已算聚合值即可推导（立即可用）</h3>
+<h4 id="part5-ag1">5.1.1 买卖压力比 (Bid/Ask Pressure Ratio)</h4>
+<p>已经有的 early_book_ratio=0.95、late_book_ratio=1.21 可进一步导出：<br/>
+- 全程 Book Ratio：近端买总量/近端卖总量的 5m 均值，衡量整体挂单攻防强度<br/>
+- Book Ratio 标准差：衡量锚定稳定度（若 std 大，说明盘口深度剧烈摆动 = 不稳定）<br/>
+- Ratio 拐点：early→late 是否穿越 1.0（从偏空转偏多）—— 07:10 是 0.95→1.21 穿越 1.0，正是"买盘接管"标志</p>
+<h4 id="part5-ag2">5.1.2 订单流不平衡斜率 (Order Flow Imbalance Slope)</h4>
+<p>已有的 imb_momentum=+0.047（late-early）可正统化导出：<br/>
+- w_imb 的 5m 斜率（线性回归）而非仅早/晚两点差值，更抗噪<br/>
+- 近端/中端/深端各自的动量（imb_near_mom / imb_mid_mom / imb_deep_mom）—— 区分"哪一层在变"</p>
+<h4 id="part5-ag3">5.1.3 做市商被动单占比 (Passive Flow Ratio)</h4>
+<p>从 absorption_bull/bear + stack_bid/ask 可导出：<br/>
+- 被动吸收强度：absorption(吸收) 除以 stack(堆单)，衡量主动单被吞 vs 挂单堆积的比例<br/>
+- spoof 占比：spoof/(spoof+stack)，衡量"假单 vs 真单"含量</p>
+<h4 id="part5-ag4">5.1.4 微观流动性深度 (Micro Liquidity Depth)</h4>
+<p>已有的 imb_near/mid/deep + vacuum 可导出：<br/>
+- 有效深度 (Effective Depth)：Near_Size + Mid_Size 的两侧净额（Bid-Ask），衡量真实可成交量（区别于名义挂单）<br/>
+- 流动性质量：1/(vacuum 占比)，vacuum 越高流动性越差</p>
+<h3 id="part5-snapshots">5.2 需要返回底层 snapshots 数据（小改造即可）</h3>
+<p>extract_5m_dom_metrics 目前只暴露聚合值，但内部已有 near_bids_500ms/near_asks_500ms/imb_near_500ms 等完整 500ms 时序数组。把这些加入 return 即可推导：</p>
+<h4 id="part5-sn1">5.2.1 价格-深度曲线 (Depth-Price Profile)</h4>
+<p>正统 orderflow 的核心。用每档 bids/asks 深度 vs 距离现价的档位，画出：<br/>
+- 净深度累积曲线：从现价向外，Bid-Ask 净深度的累积积分。曲线越陡的档位 = 越强的墙体<br/>
+- 阻力/支撑墙：净深度峰值的档位（类似 VWAP 中的体积分布）</p>
+<h4 id="part5-sn2">5.2.2 足迹图 (Footprint / Delta Profile)</h4>
+<p>合并 tick_trades（成交 side）+ DOM 深度，逐价位统计：<br/>
+- 每价位的主动买卖量：ask-consumed(主动买) vs bid-consumed(主动卖) 在每个价格档位<br/>
+- Delta 分布：每个价格的净主动量 —— 正统"足迹图"的微观版</p>
+<h4 id="part5-sn3">5.2.3 买单/卖单墙检测 (Order Wall Detection)</h4>
+<ul>
+<li>单档巨墙：某档 bid/ask 大于等阈值（如 800手），且持续存在（非瞬时）—— 识别真实机构墙</li>
+<li>墙的坚挺度：墙档位在窗口内被消耗后是否回补（已有冰山 refill 逻辑可复用）</li>
+</ul>
+<h4 id="part5-sn4">5.2.4 撤单/吸筹再平衡分析 (Trade-Cancel Balance)</h4>
+<p>已有的 spoof_bid/ask（撤单）和 had_buy/had_sell（成交）可正统推导：<br/>
+- 撤单-成交比 (Cancel-to-Trade ratio)：撤单次数/成交次数，衡量虚假流动性 vs 真实成交<br/>
+- 吸筹效率：净吸收 = (被动买吸收) - (被动卖吸收)，量化主力吸筹/派发净方向</p>
+<h3 id="part5-recommend">5.3 最有价值推荐（期权卖家）</h3>
+<p>考虑到这是给期权卖家提供入场参考，优先推荐 3 个既能立即算、又正统的：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>用途</th>
+<th>07:10 实测可导出值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Order Wall 净深度累积曲线</td>
+<td>找真正的阻力/支撑墙（不只靠 Wall strike）</td>
+<td>现价下方墙体强度可量化</td>
+</tr>
+<tr>
+<td>Delta 足迹分布</td>
+<td>找价格-体积共识区（支撑聚集）</td>
+<td>7684.5 低位附近的主动买量</td>
+</tr>
+<tr>
+<td>Cancel-to-Trade Ratio</td>
+<td>识别真假方向（撤单占比高 = 不可信）</td>
+<td>22 spoof / 成交量 → 假单占比</td>
+</tr>
+</tbody>
+</table></section><section><h2 id="part5-guide">六、三大 Orderflow 指标使用指南（Order Wall / Delta 足迹 / 撤单比）</h2>
+<h3 id="part6-wall">6.1 Order Wall 净深度累积曲线（最核心）</h3>
+<h4 id="part6-wall-what">6.1.1 是什么</h4>
+<p>从现价向外（上下各若干档），把每一档的净深度（Bid−Ask）逐档累加，画出一条"净深度随距离变化"的累积曲线。它回答："价格真要突破到某个位置，需要吃掉多少对手盘？"</p>
+<h4 id="part6-wall-how">6.1.2 怎么算</h4>
+<p>每档净深度_i = Bids_i − Asks_i；累积净深度_k = Σ(从1到k的每档净深度)。当累积净深度在某档急速转正（尤其左右落差大）= 该位置有硬墙。</p>
+<h4 id="part6-wall-read">6.1.3 07:10 实测解读</h4>
+<p>imb_near=+0.023 / imb_mid=-0.023 / imb_deep=-0.150，说明：<br/>
+- 近端 5 档：净偏多（买&gt;卖）<br/>
+- 中端 6-20 档：微偏空<br/>
+- 深层 21-120 档（≤30点内）：明显偏空 −0.150</p>
+<p>累积曲线会显示：近端有买墙但偏薄，深层/30点内卖墙偏厚 → 意味着价格往上推会先吃到近端买墙（支撑），但下方深处卖墙重 → 上方空间受限。</p>
+<h4 id="part6-wall-use">6.1.4 怎么用（期权卖家视角）</h4>
+<table>
+<thead>
+<tr>
+<th>读出</th>
+<th>交易含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>现价上方累积净深度陡增转负</td>
+<td>上方有卖墙 → 不宜卖 Call（会被逼仓），考虑 Bear Put Spread</td>
+</tr>
+<tr>
+<td>现价下方累积净深度陡增转正</td>
+<td>下方有买墙 → 可安全卖 Put（有支撑垫）</td>
+</tr>
+<tr>
+<td>近端薄、深层厚</td>
+<td>短期波动大但空间有限 → 适合卖铁鹰 / 卖价差收权利金</td>
+</tr>
+<tr>
+<td>曲线平缓（无墙）</td>
+<td>空间开放 → 单边方向可能延续，慎卖裸卖</td>
+</tr>
+</tbody>
+</table>
+<p>对期权卖家：要找的是"价格离硬墙有足够保护距离"的位置。净深度累积曲线帮你定位真正的墙（不是只看 Wall strike 单点），从而选离墙最远、最安全的 sell 位置。</p>
+<h3 id="part6-footprint">6.2 Delta 足迹（Footprint / Delta Profile）</h3>
+<h4 id="part6-fp-what">6.2.1 是什么</h4>
+<p>每个价格档位上，主动买卖量的分布。看"价格是在哪一层被大量成交"。主动买（ASK 成交）= 打卖方的市价买；主动卖（BID 成交）= 打买方的市价卖。</p>
+<pre><code>价格档位  |  主动买量  |  主动卖量  |  净Delta
+ 7690      |   300     |   80      |   +220
+ 7685      |   500     |  150      |   +350  ← 低点附近的主动买聚集
+</code></pre>
+<h4 id="part6-fp-how">6.2.2 怎么算</h4>
+<p>把 tick_trades（每笔成交流的 side、成交档位）按价格分档累加主动买/主动卖。已有 had_buy/had_sell 的 500ms 布尔数组，稍作扩展即可得到分价位的净 Delta。</p>
+<h4 id="part6-fp-read">6.2.3 07:10 实测解读</h4>
+<p>last_5m_delta=+668、price=-5.50（价格在跌但净Delta为正）—— 这正是主动买在低档位聚集的迹象：<br/>
+- 价格跌到 7684.5 附近时，主动买量 &gt; 主动卖量 → 低位有承接<br/>
+- 低点附近被大量主动买单接住（不是被动挂单，是主动市价买）</p>
+<h4 id="part6-fp-use">6.2.4 怎么用（期权卖家视角）</h4>
+<table>
+<thead>
+<tr>
+<th>读出</th>
+<th>交易含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>低档位净Delta大量为正</td>
+<td>底部有主动吸筹 → 卖 Put 有安全垫</td>
+</tr>
+<tr>
+<td>高档位净Delta大量为负</td>
+<td>顶部有主动派发 → 卖 Call 有安全垫</td>
+</tr>
+<tr>
+<td>净Delta在某价位由负转正</td>
+<td>该价位是吸筹/派发切换区 = 关键支撑/阻力</td>
+</tr>
+<tr>
+<td>净Delta均匀→无聚集</td>
+<td>无明确共识 → 暂缓单边卖，等确认</td>
+</tr>
+</tbody>
+</table>
+<p>对期权卖家：Delta 足迹帮你找"买卖共识聚集的价格（体积顶/底）"。在这些价位附近卖价差（Otm 方向），能最大化时间价值而离高成交区有保护。</p>
+<h3 id="part6-cancel">6.3 Cancel-to-Trade Ratio（撤单-成交比）</h3>
+<h4 id="part6-ct-what">6.3.1 是什么</h4>
+<p>撤单次数 ÷ 成交次数。它衡量"盘口里多少是假单（虚假流动性）vs 真实成交"。这是识别 spoofing（幌骗）的核心工具。</p>
+<h4 id="part6-ct-how">6.3.2 怎么算</h4>
+<p>已有 spoof_bid=22 / spoof_ask=4（撤单次数）和 had_buy/had_sell（成交）。但更正统是：</p>
+<pre><code>Cancel-to-Trade Ratio = (买方撤单 + 卖方撤单) / (主动买成交 + 主动卖成交)
+</code></pre>
+<ul>
+<li>
+<blockquote>
+<p>1.0：盘口大部分是假单（挂单撤得多、成交少）→ 方向不可信</p>
+</blockquote>
+</li>
+<li>&lt;0.5：盘口大部分是真实成交 → 方向可信</li>
+</ul>
+<h4 id="part6-ct-read">6.3.3 07:10 实测解读</h4>
+<p>spoof_bid=22 / spoof_ask=4，而 07:05-07:10 成交量 20248 手。即便只是撤单计数，买方撤单 22 次远超卖方 4 次，说明买方在反复挂单撤单（假托单诱多嫌疑高）。</p>
+<h4 id="part6-ct-use">6.3.4 怎么用（期权卖家视角）</h4>
+<table>
+<thead>
+<tr>
+<th>读出</th>
+<th>交易含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>买方撤单比高</td>
+<td>假托单诱多 → 谨防冲高回落 → 别追买，上方卖Call可以但要注意</td>
+</tr>
+<tr>
+<td>卖方撤单比高</td>
+<td>假压单诱空 → 谨防探底回升 → 别追卖，下方卖Put可以但要注意</td>
+</tr>
+<tr>
+<td>撤单比整体高</td>
+<td>盘口充满虚单 → 方向信号打折，仓位放小</td>
+</tr>
+<tr>
+<td>撤单比低（成交为主）</td>
+<td>方向真实可信 → 可正常按信号建仓</td>
+</tr>
+</tbody>
+</table>
+<p>对期权卖家：Cancel-to-Trade Ratio 是信号的"可信度校验器"。当背离/翻转信号出现时，先看撤单比：撤单比低 → 信号可信 → 正常卖价差；撤单比高 → 信号可能被幌骗污染 → 降低仓位或等撤单减少。</p>
+<h3 id="part6-flow">6.4 三指标组合决策流程（入场模板）</h3>
+<pre><code>1. 用 Delta 足迹 → 找到买卖共识聚集的关键价位（支撑/阻力）
+2. 用 Order Wall → 确认该价位上方/下方是否有硬墙、离现价多少点
+3. 用 Cancel-to-Trade → 校验当前信号是否可信
+↓
+第1步 + 第2步 → 选出离硬墙保护最远的卖点（sell side 选有墙支撑的方向）
+第3步 → 决定仓位：撤单比低 → 正常仓；高 → 缩仓
+</code></pre>
+<h3 id="part6-example">6.5 07:10 综合示例</h3>
+<ul>
+<li>Delta 足迹：低位 7684.5 附近主动买聚集（净Delta正）→ 下方有吸筹</li>
+<li>Order Wall：近端买墙薄、深层卖墙重 → 上方空间受限</li>
+<li>Cancel-to-Trade：买方撤单 22 次（假托）→ 信号可信度打折</li>
+</ul>
+<p>结论：底部有承接但上方受限 + 假托单嫌疑 → 不宜激进追多，若做卖家可选离 7684.5 有保护的 Bull Put Spread（有低位吸筹垫底），但缩仓（因撤单比显示可信度一般）。这正是引擎判 Neutral 的合理性——信号存在但不够干净，保守观望。</p></section></article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

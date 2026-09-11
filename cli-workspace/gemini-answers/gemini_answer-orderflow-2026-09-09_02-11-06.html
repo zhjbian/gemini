@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - Order Flow 核心指标方向判定规则详解</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">Order Flow 核心指标方向判定规则详解</h1>
+<div class="meta">
+<span>Saved: 2026-09-09 02:11:06</span>
+<span>Topic: orderflow</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#核心思路：解耦出一个纯-OrderFlow-方向（of_direction）">核心思路：解耦出一个纯 OrderFlow 方向（of_direction）</a></li><li><a href="#一、4-个核心指标（对应第二道门的分支）">一、4 个核心指标（对应第二道门的分支）</a></li><li><a href="#二、核心规则：加权计分（of_direction）">二、核心规则：加权计分（of_direction）</a></li><li><a href="#三、与是否开仓（trade_decision）的关键区别">三、与"是否开仓"（trade_decision）的关键区别</a></li><li><a href="#四、四象限背离的具体对称结构">四、四象限背离的具体对称结构</a></li><li><a href="#五、强度打分（of_strength）">五、强度打分（of_strength）</a></li><li><a href="#六、为什么这样设计">六、为什么这样设计</a></li><li><a href="#一句话总结">一句话总结</a></li><li><a href="#附：Key-代码段（order_flow_rules_optimizer.py）">附：Key 代码段（order_flow_rules_optimizer.py）</a></li></ul></div>
+<section class="main-content">
+<h2 id="我实现的Order-Flow-核心指标判定方向规则详解">我实现的"Order Flow 核心指标判定方向"规则详解</h2>
+<h2 id="核心思路：解耦出一个纯-OrderFlow-方向（of_direction）">核心思路：解耦出一个纯 OrderFlow 方向（of_direction）</h2>
+<p>它只依赖 4 个核心微观指标的量价/盘口信号，与价格位置（第一道门）、非接飞刀无关——这正是要能在图上看到"OrderFlow 看多但当前不宜开仓"的原因。</p>
+<h2 id="一、4-个核心指标（对应第二道门的分支）">一、4 个核心指标（对应第二道门的分支）</h2>
+<table>
+<thead>
+<tr>
+<th>分支</th>
+<th>指标</th>
+<th>权重</th>
+<th>触发条件（看多）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>b1</td>
+<td>量价背离（四象限）</td>
+<td>3</td>
+<td>象限I 被动吸收：delta_ratio &lt;= -15% 且 price_change_atr &gt;= -0.6；或 象限II 主动承接：delta_ratio &gt;= +15% 且 price_change_atr &lt;= -0.5</td>
+</tr>
+<tr>
+<td>b2</td>
+<td>盘口大翻转</td>
+<td>1</td>
+<td>book_flip_bull == True（前半段&lt;0.85 到 后半段&gt;1.40）</td>
+</tr>
+<tr>
+<td>b3</td>
+<td>密集冰山/吸收</td>
+<td>1</td>
+<td>absorption_bull &gt;= 1 或 iceberg_bull &gt;= 1 且 &gt; iceberg_bear，且 last_5m_delta &gt;= -300</td>
+</tr>
+<tr>
+<td>b4</td>
+<td>2h 机构大单</td>
+<td>1</td>
+<td>inst_bull_accumulation == True（大单净量&gt;=3000 或评分&gt;=1500 且 Pos&lt;=45%）</td>
+</tr>
+</tbody>
+</table>
+<p>看空对称（象限III被动拦截/象限IV主动压制、book_flip_bear、iceberg_bear、inst_bear_distribution，且 last_5m_delta &lt;= +300）。</p>
+<h2 id="二、核心规则：加权计分（of_direction）">二、核心规则：加权计分（of_direction）</h2>
+<pre><code class="language-python">branch_score = b1*3 + b2*1 + b3*1 + b4*1   # 加权
+of_bull_raw = (branch_score &gt;= 2)           # 门槛=2
+
+# 一票否决(只含撤单陷阱 + 大单逆势, 不含物理门槛/非接飞刀)
+_of_blocked_bull = block_bull_by_spoof or (big_trade_net_2h &lt;= -3000)
+of_bull_ok = of_bull_raw and not _of_blocked_bull
+</code></pre>
+<p>加权逻辑：<br/>
+- b1 量价背离是核心（权重3）：单独即通过（3&gt;=2）<br/>
+- 辅助指标（b2/b3/b4 各权重1）：需 &gt;=2 个聚合（2&gt;=2）才通过<br/>
+- 单一辅助（1分）不通过</p>
+<p>最终方向：</p>
+<pre><code>of_bull_ok 且 not of_bear_ok -&gt; Bullish
+of_bear_ok 且 not of_bull_ok -&gt; Bearish
+否则 -&gt; Neutral
+</code></pre>
+<h2 id="三、与是否开仓（trade_decision）的关键区别">三、与"是否开仓"（trade_decision）的关键区别</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>of_direction</th>
+<th>trade_decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>依据</td>
+<td>纯 4 核心指标加权 + 一票否决</td>
+<td>第一道门物理门槛 + of_direction + 一票否决</td>
+</tr>
+<tr>
+<td>受价格位置影响</td>
+<td>不受</td>
+<td>受（超卖/超买区路径 A/B/C）</td>
+</tr>
+<tr>
+<td>受非接飞刀影响</td>
+<td>不受</td>
+<td>受</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>展示 OrderFlow 真实方向</td>
+<td>决定能不能开仓</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四、四象限背离的具体对称结构">四、四象限背离的具体对称结构</h2>
+<p>看多（价格偏跌方向）：<br/>
+- 象限I 被动吸收（净卖但跌不动）：dr &lt;= -15% 且 atr &gt;= -0.6<br/>
+- 象限II 主动承接（跌中净买）：dr &gt;= +15% 且 atr &lt;= -0.5<br/>
+- 两者互斥（dr 只有一个符号）</p>
+<p>看空（价格偏涨方向）：<br/>
+- 象限III 被动拦截（净买但涨不动）：dr &gt;= +15% 且 atr &lt;= +0.6，且 atr &gt;= -0.5（防止与看多象限II重叠）<br/>
+- 象限IV 主动压制（涨中净卖）：dr &lt;= -15% 且 atr &gt;= +0.5</p>
+<h2 id="五、强度打分（of_strength）">五、强度打分（of_strength）</h2>
+<p>对 of_direction 为 Bullish/Bearish 时，用现行加分项累加（1~10）：<br/>
+- Bullish：30m 推进、10m/5m 动能、DOM失衡、真空、吸收/冰山、2h大单、趋势日共振、5m/10m早警...<br/>
+- Bearish：对称</p>
+<h2 id="六、为什么这样设计">六、为什么这样设计</h2>
+<ol>
+<li>
+<p>4 核心指标 vs 物理位置解耦：OrderFlow 方向（量价/盘口）与"是不是开仓好位置"（价格在不在超卖/超买区）是两个独立判断。图上可以显示"OrderFlow 看多但价格不在低位 -&gt; 观望"。</p>
+</li>
+<li>
+<p>量价背离权重最高（3）：因为它是<strong>最核心、最可靠</strong>的方向信号（四象限覆盖被动吸收+主动承接），符合你"量价背离最重要、单独通过"的要求。</p>
+</li>
+<li>
+<p>一票否决较宽松（只含撤单陷阱+大单逆势）：of_direction 是<strong>方向判定</strong>，不掺入物理门槛的风控因素，才能真实反映 OrderFlow 是否看多/看空。</p>
+</li>
+<li>
+<p>屏蔽了非接飞刀：这是特意为之——of_direction 看的是"盘面力量方向"，而接飞刀是<strong>开仓时机</strong>的考量，两者不应混淆。图上就能看到"OrderFlow 看多（接飞刀时）但观望"。</p>
+</li>
+</ol>
+<h2 id="一句话总结">一句话总结</h2>
+<p>of_direction = 4 个核心指标加权（量价背离权重3 为核心，辅助&gt;=2 聚合）来 判多空 来 扣撤单/大单一票否决，产出纯 OrderFlow 方向；trade_decision 再叠加<strong>第一道门物理位置</strong>决定能否开仓。这样用户在图上能看到 OrderFlow 的真实方向，同时知道现在是不是开仓时机。</p>
+<h2 id="附：Key-代码段（order_flow_rules_optimizer.py）">附：Key 代码段（order_flow_rules_optimizer.py）</h2>
+<p>量价背离四象限（与 b1 判据一致）：</p>
+<pre><code class="language-python">_of_passive_bull = (delta_ratio_15m &lt;= -THRESHOLDS["absorb_delta_ratio"] and price_change_atr_15m &gt;= -THRESHOLDS["absorb_price_atr"]) or (delta_ratio_30m &lt;= -THRESHOLDS["absorb_delta_ratio"] and price_change_atr_30m &gt;= -THRESHOLDS["absorb_price_atr"])
+_of_active_bull = (delta_ratio_15m &gt;= THRESHOLDS["active_absorb_delta_ratio"] and price_change_atr_15m &lt;= -THRESHOLDS["active_absorb_price_atr"]) or (delta_ratio_30m &gt;= THRESHOLDS["active_absorb_delta_ratio"] and price_change_atr_30m &lt;= -THRESHOLDS["active_absorb_price_atr"])
+_of_div_bull = _of_passive_bull or _of_active_bull
+_of_b1 = _of_div_bull; _of_b2 = is_book_flip_bull
+_of_b3 = (absorption_bull &gt;= 1 or (iceberg_bull &gt;= 1 and iceberg_bull &gt; iceberg_bear)) and last_5m_delta &gt;= -THRESHOLDS["absorption_last5m_subsided"]
+_of_b4 = inst_bull_accumulation
+_of_branch_score = int(_of_b1) * wb1 + int(_of_b2) * wb2 + int(_of_b3) * wb3 + int(_of_b4) * wb4
+_of_bull_raw = (_of_branch_score &gt;= branch_min_score)
+</code></pre>
+<p>看空背离：</p>
+<pre><code class="language-python">_of_passive_bear = (delta_ratio_15m &gt;= THRESHOLDS["absorb_delta_ratio"] and price_change_atr_15m &gt;= -THRESHOLDS["absorb_price_atr"] and price_change_atr_15m &lt;= THRESHOLDS["absorb_price_atr"]) or (delta_ratio_30m &gt;= THRESHOLDS["absorb_delta_ratio"] and price_change_atr_30m &gt;= -THRESHOLDS["absorb_price_atr"] and price_change_atr_30m &lt;= THRESHOLDS["absorb_price_atr"])
+_of_active_bear = (delta_ratio_15m &lt;= -THRESHOLDS["active_absorb_delta_ratio"] and price_change_atr_15m &gt;= THRESHOLDS["active_absorb_price_atr"]) or (delta_ratio_30m &lt;= -THRESHOLDS["active_absorb_delta_ratio"] and price_change_atr_30m &gt;= THRESHOLDS["active_absorb_price_atr"])
+_of_div_bear = _of_passive_bear or _of_active_bear
+_of_b1b = _of_div_bear; _of_b2b = is_book_flip_bear
+_of_b3b = (absorption_bear &gt;= 1 or (iceberg_bear &gt;= 1 and iceberg_bear &gt; iceberg_bull)) and last_5m_delta &lt;= THRESHOLDS["absorption_last5m_subsided"]
+_of_b4b = inst_bear_distribution
+_of_branch_score_b = int(_of_b1b) * wb1 + int(_of_b2b) * wb2 + int(_of_b3b) * wb3 + int(_of_b4b) * wb4
+_of_bear_raw = (_of_branch_score_b &gt;= branch_min_score)
+</code></pre>
+<p>一票否决与方向定夺：</p>
+<pre><code class="language-python">_of_blocked_bull = block_bull_by_spoof or (big_trade_net_2h &lt;= -THRESHOLDS["big_trade_block_net"])
+_of_blocked_bear = block_bear_by_spoof or (big_trade_net_2h &gt;= THRESHOLDS["big_trade_block_net"])
+of_bull_ok = _of_bull_raw and not _of_blocked_bull
+of_bear_ok = _of_bear_raw and not _of_blocked_bear
+if of_bull_ok and not of_bear_ok:
+    of_direction = "Bullish"
+elif of_bear_ok and not of_bull_ok:
+    of_direction = "Bearish"
+else:
+    of_direction = "Neutral"
+</code></pre>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

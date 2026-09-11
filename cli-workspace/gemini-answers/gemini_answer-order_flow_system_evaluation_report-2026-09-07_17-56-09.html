@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - BBT Order Flow 分析系统：理论与实现综合评估报告</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">BBT Order Flow 分析系统：理论与实现综合评估报告</h1>
+<div class="meta">
+<span>Saved: 2026-09-07 17:56:09</span>
+<span>Topic: order_flow_system_evaluation_report</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#0.-评估范围与方法">0. 评估范围与方法</a></li><li><a href="#1.-总体结论（一句话）">1. 总体结论（一句话）</a></li><li><a href="#2.-(1)-现在理论框架是否合理">2. (1) 现在理论框架是否合理</a></li><li><a href="#3.-(2)-哪些地方有错误（可定位）">3. (2) 哪些地方有错误（可定位）</a></li><li><a href="#4.-(3)-哪些地方可以改进（优先级排序）">4. (3) 哪些地方可以改进（优先级排序）</a></li><li><a href="#5.-(4)-还缺少什么重要的东西">5. (4) 还缺少什么重要的东西</a></li><li><a href="#6.-(5)-改进方案（分阶段路线图）">6. (5) 改进方案（分阶段路线图）</a></li><li><a href="#7.-主要参考（标准方法）">7. 主要参考（标准方法）</a></li></ul></div>
+<section class="main-content">
+<h2 id="0.-评估范围与方法">0. 评估范围与方法</h2>
+<ul>
+<li><strong>规则来源</strong>：交易系统核心规则手册 第一部分（5分钟两步判定法：方向准入 + 1~10 强度打分 + DOM 200档 + Gamma 联动）。</li>
+<li><strong>代码来源</strong>：PyTools/order_flow_analysis/ 下 order_flow_sentinel.py、order_flow_rules_optimizer.py、dom_sentinel_evaluator.py。</li>
+<li><strong>对照基准</strong>：主流 order flow 交易方法（Cumulative Delta、Delta Divergence、Absorption）、市场拍卖理论（Market Profile / Value Area / POC，Steidlmayer–Dalton）、微观结构学术方法（VPIN/Easley 知悉交易毒性、OFI/Cont–Kukanov–Stoikov 订单流失衡、Kyle λ 价格冲击）、期权做市商 Gamma 对冲（0DTE pinning/磁吸）。</li>
+</ul>
+<h2 id="1.-总体结论（一句话）">1. 总体结论（一句话）</h2>
+<p>理论框架方向正确、防御设计成熟，但实现上存在若干“把近似当作精确”的硬伤，且整套规则是未经验证的手工阈值系统——作为“决策支持/风险过滤”可用，作为“统计边缘”尚不成立。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>评级</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>理论契合度</td>
+<td>★★★★☆</td>
+<td>核心概念几乎都能映射到成熟理论</td>
+</tr>
+<tr>
+<td>防御/风控设计</td>
+<td>★★★★★</td>
+<td>一票否决、中性分类、反追单是亮点</td>
+</tr>
+<tr>
+<td>实现正确性</td>
+<td>★★★☆☆</td>
+<td>DPER、spoof、iceberg 有实质偏差</td>
+</tr>
+<tr>
+<td>稳健性/泛化</td>
+<td>★★☆☆☆</td>
+<td>绝对阈值、未归一化、无样本外验证</td>
+</tr>
+<tr>
+<td>可维护性</td>
+<td>★★☆☆☆</td>
+<td>规则散落 code+doc、新旧引擎并存</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2.-(1)-现在理论框架是否合理">2. (1) 现在理论框架是否合理</h2>
+<p>合理，且相当有层次。它本质上是一个“多因子微观结构专家系统”，可逐项映射到标准理论：<br/>
+- Delta / Cumulative Delta（inc_delta = +size if ASK else -size）＝标准 order flow 的主动量净额。<br/>
+- DPER（价格推进效率）本质是每单位 Delta 的价格冲击，与 Kyle λ / Amihud 非流动性 / OFI 价格冲击同族。<br/>
+- weighted_imbalance（多梯队盘口加权失衡）＝Cont–Kukanov–Stoikov 的订单流失衡（Order Flow Imbalance）。<br/>
+- book_flip / vacuum / stack / iceberg＝盘口动力学的直觉刻画。<br/>
+- Gamma Regime（正/负 Gamma、Call/Put Wall、Gamma Flip、pinning）＝标准 0DTE 做市商对冲模型。<br/>
+- 两步判定 + 一票否决 + 中性细分是防御性很好的设计，符合风险管理优先原则。<br/>
+但框架的合理是“定性合理”，不是“定量成立”：40+ 阈值（±3000/±4500/±5000/±800/±500、0.85/1.40/1.15/0.70、0.20/-0.20、20s、1.5、2.0点…）人工拍定，没有配套样本外回测证据。应定位为 expert-system overlay（决策辅助与风险闸门），而非已校准的 alpha 模型。</p>
+<div style="margin:18px 0 4px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;font-size:0.9rem;line-height:1.7;"><strong>实施状态图例（更新于 2026-09-07）：</strong> <span style="color:#047857;font-weight:700;">✅ 已完成</span> · <span style="color:#b45309;font-weight:700;">⚠️ 部分完成</span> · <span style="color:#64748b;font-weight:700;">⏳ 未处理</span></div>
+<h2 id="3.-(2)-哪些地方有错误（可定位）">3. (2) 哪些地方有错误（可定位）</h2>
+<ul>
+<li>E1（最严重）DPER 符号归一化使“底背离/顶背离”判定近乎失效：dper_30m = price_change/(net_delta/1000)，价格与 delta 同号时 DPER 恒为正，<code>net_delta_30m&lt;=-3500 and dper_30m&gt;-1.5</code> 里 <code>&gt;-1.5</code> 几乎恒真 → 退化为纯“大额抛压”，背离逻辑名存实亡。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>E2 “iceberg”不是冰山检测：实际是 abs(b_chg)&lt;=3.0 且高成交低位移的吸收代理，未检测隐藏量 refill。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>E3 spoof 把“被打掉”误当“撤单”：diff_bids&lt;-50 记为撤单，但深度减少也可能是市价打穿，未结合 trade print 区分 → 会误封杀真实抛压。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>E4 文档与代码盘口权重不一致：文档§2(5)写 50/30/15/5，§6(1)写 50/35/10，代码 50/35/10/5（远墙 45/25/10/20）。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>E5 price_position_pct 用递归扩大的 RTH 高/低，早盘严重失真。<span style="color:#64748b;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⏳ 未处理</span></li>
+<li>E6 绝对阈值未做量级/波动率归一化（±3000/±800 等裸合约数，高/低成交量日含义不同）。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+<li>E7 新旧两套引擎并存（旧 delta_pct_vol+cond_a..d 启发式 vs 新 tiered scoring），双真源/死代码风险。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+<li>E8 次要：iceberg 门槛 <code>last_5m_delta&gt;=-300</code> 退化；book_flip 用粗糙均值比；vacuum nb/5&lt;10 粗糙；600 网格是前向填充假设。<span style="color:#64748b;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⏳ 未处理</span></li>
+</ul>
+<h2 id="4.-(3)-哪些地方可以改进（优先级排序）">4. (3) 哪些地方可以改进（优先级排序）</h2>
+<ol>
+<li>修复 DPER：滚动回归取 Kyle λ 或 |price_change|/|net_delta| 的 z-score，让背离真正要求价格不确认。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>delta 归一化：主特征切到 delta_pct_vol / delta/volume / delta/ATR，阈值用分位数。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+<li>spoof 加“成交 vs 撤单”判别，或改 OFI。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>iceberg 正名（absorption_proxy）或实现 refill 检测。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>用 TPO Value Area(POC/VAH/VAL)/Opening Range 替代递归高/低。<span style="color:#64748b;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⏳ 未处理</span></li>
+<li>消除 doc-code 漂移 + 清理旧引擎，规则集中到版本化 config。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+<li>整合 Gamma Cushion 到 OF 打分（近 Call/Put Wall 8–15 点时降级/拦截）。<span style="color:#64748b;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⏳ 未处理</span></li>
+<li>加 CVD 多周期背离（价格新高/低而 CVD 不新高/低）。<span style="color:#64748b;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⏳ 未处理</span></li>
+<li>输出置信度与可追溯性（setup 分支 + veto 原因 + 阈值版本号）。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+</ol>
+<h2 id="5.-(4)-还缺少什么重要的东西">5. (4) 还缺少什么重要的东西</h2>
+<p>微观结构层：VPIN（订单流毒性）、OFI/queue imbalance、真实冰山 refill、执行质量/参与率归一化。<br/>
+拍卖理论层（最大缺口）：Market Profile 的 POC/Value Area/TPO/单印/Excess/差高低点；Balance vs Imbalance/旋转识别。<br/>
+统计/工程层：样本外回测与校准、Live vs Backtest 对账、精度/召回/时效衰减、波动率/成交量/流动性日历自适应、每信号头寸规模、数据质量管线、可复现版本化。</p>
+<h2 id="6.-(5)-改进方案（分阶段路线图）">6. (5) 改进方案（分阶段路线图）</h2>
+<ul>
+<li>Phase 0 正确性修复（1–2 周）：重写 DPER 背离、spoof 加成交/撤单判别或改 OFI、iceberg 正名、统一盘口权重、清理旧路径、阈值外置+版本号写入 verdict。<span style="color:#047857;background:#d1fae5;border:1px solid #6ee7b7;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">✅ 已完成</span></li>
+<li>Phase 1 归一化与拍卖参考系（2–3 周）：delta 用 delta/volume、delta/ATR 分位数；引入 TPO Value Area + Opening Range 作位置锚；波动率/成交量 regime 门控。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+<li>Phase 2 补齐缺失测度（3–4 周）：接入 OFI、VPIN、真实 iceberg、CVD 多周期背离；Gamma Cushion 作为 OF 一级过滤器。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+<li>Phase 3 验证与校准（持续）：backtest 框架，逐 setup/逐阈值桶的命中率、胜率、时效衰减、walk-forward；产出《分层校准报告》并反推删减冗余加分项。<span style="color:#64748b;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⏳ 未处理</span></li>
+<li>Phase 4 集成与工程化：OF 信号→头寸规模打通；规则 config 版本化+部署；drift 监控（规则改动对历史信号 diff）。<span style="color:#b45309;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:1px 8px;font-size:0.8em;font-weight:700;margin-left:6px;">⚠️ 部分完成</span></li>
+</ul>
+<h2 id="7.-主要参考（标准方法）">7. 主要参考（标准方法）</h2>
+<ul>
+<li>订单流与微观结构：delta/CVD、absorption、order book imbalance；OFI（Cont–Kukanov–Stoikov）、VPIN（Easley et al.）。</li>
+<li>市场拍卖理论 / Market Profile / Value Area / POC：Steidlmayer（CBOT）、Dalton《Markets in Profile》。</li>
+<li>0DTE 做市商 Gamma 对冲（pinning/磁吸/墙体）：标准期权做市微观模型。</li>
+</ul>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

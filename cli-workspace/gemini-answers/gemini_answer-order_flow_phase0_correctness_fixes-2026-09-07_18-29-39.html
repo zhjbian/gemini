@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - Order Flow Phase 0 正确性修复与 E4 权重统一</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">Order Flow Phase 0 正确性修复与 E4 权重统一</h1>
+<div class="meta">
+<span>Saved: 2026-09-07 18:29:39</span>
+<span>Topic: order_flow_phase0_correctness_fixes</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#改动清单">改动清单</a><ul><li><a href="#新增-order_flow_config.py（单一事实来源）">新增 order_flow_config.py（单一事实来源）</a></li><li><a href="#dom_sentinel_evaluator.py">dom_sentinel_evaluator.py</a></li><li><a href="#order_flow_rules_optimizer.py">order_flow_rules_optimizer.py</a></li><li><a href="#order_flow_sentinel.py">order_flow_sentinel.py</a></li><li><a href="#文档（E4）">文档（E4）</a></li></ul></li><li><a href="#校验">校验</a></li><li><a href="#两点说明">两点说明</a></li></ul></div>
+<section class="main-content">
+<h2 id="改动清单">改动清单</h2>
+<h3 id="新增-order_flow_config.py（单一事实来源）">新增 order_flow_config.py（单一事实来源）</h3>
+<ul>
+<li>RULES_VERSION = "2026-09-07-phase0"</li>
+<li>ORDER_BOOK_WEIGHTS = {near:0.50, mid:0.35, deep:0.10, far:0.05} + 远墙分支 {0.45/0.25/0.10/0.20}、FAR_WALL_MIN_SIZE=800</li>
+<li>THRESHOLDS（40 个键）：背离/吸收、位置红线、机构大单、加分项、强度分级、setup1/2/3、突破、DOM 点火等</li>
+</ul>
+<h3 id="dom_sentinel_evaluator.py">dom_sentinel_evaluator.py</h3>
+<ul>
+<li>盘口四层加权改用 config（E4 统一：50/35/10/5）</li>
+<li>iceberg → absorption 全量改名（36 英文 + 4 中文 + 注释），并注明"这是吸收代理，非真冰山"</li>
+<li>spoof 成交/撤单判别：新增 tick_trades 参数，构建 had_buy/had_sell 网格，把"深度下降但有同侧成交"判为被打掉（consumption，不计 spoof），"深度下降且无成交"才判为撤单</li>
+</ul>
+<h3 id="order_flow_rules_optimizer.py">order_flow_rules_optimizer.py</h3>
+<ul>
+<li>DPER 背离重写：从失效的 dper_30m &gt; -1.5 / &lt; 1.5 改为"大额 delta + 价格不确认"（absorb_net_delta=3500 + absorb_price_change=3.0）</li>
+<li>iceberg → absorption（读取/加分项/verdict 文案）</li>
+<li>阈值外置：59 处 THRESHOLDS[...]，覆盖全部打分阈值</li>
+<li>版本号写入 verdict 文本 + metrics_dict.rules_version + 返回值</li>
+</ul>
+<h3 id="order_flow_sentinel.py">order_flow_sentinel.py</h3>
+<ul>
+<li>清理旧路径：删除死代码（旧 Condition B 背离 / Heuristics / Check Bullish-Bearish High 的 cond_a..d / pre_<em> / is_likely_</em>），方向/强度统一由两步判定法产出</li>
+<li>解析 ticks 时收集 micro_tick_trades 并传入 DOM 评估器（供 spoof 判别）</li>
+<li>修正 iceberg_bull/bear → absorption_bull/bear 的 print（避免 KeyError）</li>
+</ul>
+<h3 id="文档（E4）">文档（E4）</h3>
+<ul>
+<li>gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html §2(5) 盘口权重 30%/15% → 35%/10%，与 §6(1)/代码一致</li>
+</ul>
+<h2 id="校验">校验</h2>
+<ul>
+<li>4 个 Python 文件 py_compile 全部通过</li>
+<li>导入测试通过：RULES_VERSION、ORDER_BOOK_WEIGHTS、THRESHOLDS(40 keys)</li>
+<li>59 处 THRESHOLDS/RULES_VERSION 引用已接入</li>
+<li>sentinel 残留 iceberg 引用清零（改为 absorption）</li>
+<li>DPER 背离逻辑已改为价格确认式（absorb_net_delta + absorb_price_change）</li>
+</ul>
+<h2 id="两点说明">两点说明</h2>
+<ol>
+<li>evaluate_optimized_rules（旧"方案一/二/三"）仍被 ai_tape_analyst.py 和 backfill_order_flow_signals.py 使用，属 30m AI tape 路径、非本次 5m 两步判定法，故未动；其内部仍有硬编码阈值。</li>
+<li>iceberg 只在 5m 引擎里改名；ai_tape_analyst.py、order_flow_feature_generator.py、order_flow_html_renderer.py 里的 iceberg 是另一套（基于 DataFrame 特征的 30m 旧路径），未受影响、也不会因本次改动报错。</li>
+</ol>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>
