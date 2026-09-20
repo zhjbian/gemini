@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang='zh'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/><title>Order Flow 深度分析 · ES · 2026-09-14 07:25→08:15</title><style>:root{color-scheme:light;}body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.55;}.page{max-width:1160px;margin:0 auto;padding:24px 20px 60px;}header.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}header.card h1{margin:0;font-size:1.3rem;font-weight:800;}header.card .sub{margin-top:4px;font-size:0.8rem;color:#64748b;}section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 24px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}</style><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'/>
+<!DOCTYPE html><html lang='zh'><head>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script><meta charset='utf-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/><title>Order Flow 深度分析 · ES · 2026-09-14 07:25→08:15</title><style>:root{color-scheme:light;}body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.55;}.page{max-width:1160px;margin:0 auto;padding:24px 20px 60px;}header.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}header.card h1{margin:0;font-size:1.3rem;font-weight:800;}header.card .sub{margin-top:4px;font-size:0.8rem;color:#64748b;}section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 24px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}</style><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'/>
 <style>
 .copy-title-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;margin-left:6px;border:1px solid #e2e8f0;border-radius:5px;background:#f8fafc;color:#64748b;cursor:pointer;font-size:0.72rem;line-height:1;transition:all 0.15s ease;flex-shrink:0;vertical-align:middle;}
 .copy-title-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#4f46e5;}
@@ -79,4 +80,801 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
     }
 }
 </script>
-</head><body><div class='page'><header class='card'><h1>Order Flow 深度分析 · ES</h1><div class='sub'>2026-09-14 · 07:25 → 08:15 · 待验证方向 BULLISH · 无前视 ✓ · Light Theme</div></header><section class='card'><div style='font-size:0.82rem;color:#334155;margin:4px 0 8px;'>标的 <b>ES</b> · 窗口 <b>07:25 → 08:15</b> · 待验证方向 <b>BULLISH</b>。以下用<b>逐笔成交（TICK）</b>与<b>盘口挂单（DOM）</b>两个数据源交叉印证，无前视 ✓，仅分析参考、不接入自动下单 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>1️⃣ 合并时间线（每 5 分钟一行 ✓ 无前视 ✓；<b>短窗为主</b>：tick Δ1m/Δ5m + 每行 DOM ±2/±5 ✓；引擎 Δ30m 仅作<b>慢口径对照</b> ✓） <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '1️⃣ 合并时间线')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </div><table style='border-collapse:collapse;font-size:0.75rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 6px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎方向/Setup</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ1m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ5m（短窗主 ✓）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 5m 价位移</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM ±2/±5 失衡</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 Δ30m（慢·对照）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎价(ES)</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 量5m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM 质量</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 vs tick</th></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+92</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-323</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-7.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.053 / -0.164</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+680</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>13271</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 526 个">OK 526</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-38</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+308</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.027 / -0.048</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+242</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>15572</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 527 个">OK 527</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+48</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-112</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+4.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.010 / +0.010</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-759</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>11050</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b45309;font-weight:700;" title="quality_tier=DEGRADED · DOM 快照 372 个">降 372</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+46</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+731</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.009 / -0.037</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-209</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7667.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>9551</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b91c1c;font-weight:700;" title="该槽无 DOM 数据（盘口缺失）">缺</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+503</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1270</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+4.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.009 / -0.066</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1200</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>10462</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b91c1c;font-weight:700;" title="该槽无 DOM 数据（盘口缺失）">缺</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+11</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-198</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.024 / -0.005</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1676</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7618</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b91c1c;font-weight:700;" title="该槽无 DOM 数据（盘口缺失）">缺</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-173</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-1.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.012 / -0.022</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1826</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7665.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6071</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b45309;font-weight:700;" title="quality_tier=DEGRADED · DOM 快照 459 个">降 459</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-19</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+248</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+5.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.012 / -0.022</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1766</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>9090</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 699 个">OK 699</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-128</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-133</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.167 / +0.014</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1745</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7665.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7395</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 888 个">OK 888</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1240</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.007 / -0.009</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2254</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>30278</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 866 个">OK 866</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-179</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-188</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-4.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.068 / -0.040</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+796</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6620</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 677 个">OK 677</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>Δ1m/Δ5m = 该时刻前 1/5 分钟的逐笔成交净 Delta（tick 严格口径 ✓）；DOM ±2/±5 = 距 mid ±2/±5 ticks 挂单失衡（DB 扁平列 imb_short/mid_short 优先 ✓）；引擎 Δ30m 为滚动 30 分钟净额，仅作慢口径对照 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>2️⃣ 🧭 DOM × TICK <b>合并结论</b>（两个数据源交叉印证 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '2️⃣ 🧭 DOM × TICK 合并结论')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>维度</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>DOM（挂单 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>TICK（成交 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>综合判断</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 全窗</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗 imb ±5 均值 -0.035 · 偏空 64% / 偏多 0%</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗净Delta <b>+1962</b> · 买占比 0.507 · DOM 与 tick 同向占 43%</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>两源分歧 ⇒ 谨慎 ⚠️</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 窗口极值点</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 -0.013 · ±5 +0.002</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Δ5m <b>-173</b>｜引擎 Δ30m <b>+1826</b></td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>极值点由「末段抛压/抢筹」打出，但 30 分钟累积方向相反 ⇒ 典型「吸收/派发」✓（短窗与慢窗背离）</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>位置</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 7655.00 / 卖墙 7685.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL 7665.00 · POC 7667.25 · VAH 7675.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口低点 <b>7665.25</b> 贴住价值区下沿 VAL ⇒ 折价区（利于看多 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>大额资金</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 75 手 vs 卖墙 133 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>大单(≥20手) 买 769 vs 卖 1148（共 51 笔）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>大额单净卖 ✗（1148 vs 买 769）⇒ 走势缺大单确认</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>机构大单</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—（挂单源无此层）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>SingleTickBigTrade 0 笔 · 买 0 vs 卖 0</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#94a3b8;'>窗口内无 SingleTickBigTrade ⇒ 无机构大单锚点</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>近端风险</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧真空 1 ticks / 卖侧 1</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口内 5 分钟成交格数 13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方结构连续 ⇒ 无真空风险 ✓</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>DOM 快照取窗口极值点最近有效快照 + t0 快照；TICK 全窗为 t0 前 60 分钟口径 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>3️⃣ 系统 order flow 指标解读（哪些与价格走势一致 / 不一致 ✓ —— 待验证方向 = BULLISH） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '3️⃣ 系统 order flow 指标解读')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='margin:6px 0 2px;font-size:0.8rem;color:#047857;font-weight:700;'>✅ 支持该方向</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>30m 累计 Delta 在低点「越跌越正」（-759 → +796）⇒ 低点有持续主动买盘吸收 ✓</li><li>窗口短窗主动买脉冲（tick Δ5m 正值）与 30m 净买同向 ⇒ 短周期动能确认 ✓</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#b91c1c;font-weight:700;'>⚠️ 不支持该方向 / 缺乏确认</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>DOM 窗口级：imb ±5 时间加权 -0.035，偏空占 64% / 偏多 0% / 中性 36%；且未收敛 ⇒ 挂单侧持续卖方占优 ✗</li><li>大额单（≥20 手）净卖 ⇒ 走势缺机构大单确认 ✗</li><li>窗口内无 SingleTickBigTrade ⇒ 缺机构大单层确认 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#0369a1;font-weight:700;'>📌 要右侧确认，还需要看到</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>需价格放量站上 VAH（7675.50）才能右侧确认反弹延续 ✓</li></ul><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>🧩 命中的 pattern（可机检 · 待回测标定阈值）</div><div><span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 9px;border-radius:6px;font-size:0.78rem;font-weight:700;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">P5 · 短长窗背离（转折前兆）（low）</span></div><div style='font-size:0.74rem;color:#94a3b8;margin-top:2px;'>pattern 定义见 patterns.py（P1 低点吸收 / P2 恐慌洗盘 / P3 高位派发 / P4 挂单-成交共振 / P5 短长窗背离）；置信档 high&gt;medium&gt;low，阈值待历史样本回测收敛 ✓</div><div style='display:flex;flex-direction:column;gap:14px;align-items:stretch;'><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>5️⃣ 🧱 DOM 深度分析（盘口挂单 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '4️⃣ 🧱 DOM 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 DOM 快照（500ms 级 ✓ 取发帖时刻及之前最近**有效**快照 ✓ 无前视 ✓）；本模块为**独立复算** ✓（引擎 <code>imb_*</code> 定义未公开 ✗ 但三档方向已对照 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>快照时刻</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最优买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最优档手数 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价差</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>档位数 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>全盘总量 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>总量比</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:14:59</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.25 / 7669.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>39 / 42</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>2 ticks</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>200 / 200</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>3392 / 4367</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b>0.78</b></td></tr></table><div style='height:6px;'></div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>带宽</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买挂单</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>卖挂单</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>失衡 (买−卖)/(买+卖)</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>解读</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 ticks（≈0.50 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>82</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>98</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.089</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±5 ticks（≈1.25 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>188</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>266</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.172</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±15 ticks（≈3.75 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>531</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>666</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.113</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±25 ticks（≈6.25 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>828</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1038</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.113</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr></table><div style='height:6px;'></div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>项</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>卖侧</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>最大单档（墙 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>77 手 @ 7655.00（距 mid 58 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>116 手 @ 7685.00（距 mid 62 ticks ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>堆叠（相邻 ≥30 手 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>8 档 / 合计 283 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>40 档 / 合计 1582 手</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>最大真空（缺口 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1 ticks（7669.00→7669.25）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1 ticks（7719.25→7719.50）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>DOM 时间演变（发帖前 60/30/15/5 分钟 → 发帖时刻 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时点</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>快照</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±5 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±15 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>全盘买/卖比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>最大买墙</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>最大卖墙</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>07:33:29</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7671.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.012</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.059</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1.62</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>74 手 @ 7655.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>112 手 @ 7685.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:00:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7668.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.102</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.032</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.92</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>76 手 @ 7655.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>133 手 @ 7685.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:10:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7674.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.033</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.040</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.92</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>102 手 @ 7670.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>115 手 @ 7685.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T0（发帖 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:14:59</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.172</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.113</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.78</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>77 手 @ 7655.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>116 手 @ 7685.00</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ DOM 提供的支持证据</div><div style='margin-left:18px;font-size:0.78rem;color:#94a3b8;'>（无 —— 盘口未给出支持信号 ✗）</div><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ DOM 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>±5 ticks 内 **卖挂单多出买 78 手**（失衡 -0.172 ✗）⇒ 近端上方压制 ✓</li><li>全盘 200 档挂单 **买/卖 = 0.78**（卖侧总量占优 ✗）</li><li>**卖墙更大**（116 手 @ 7685.00，距 mid 62 ticks ✗ vs 买墙 77 手）⇒ 上方阻力更重 ✗</li><li>卖侧**堆叠** 40 档（合计 1582 手 ✗）多于买侧 8 档 ⇒ 卖方分批压制 ✗</li></ul><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>买卖压力与挂单墙 · 逐分钟序列（每 5 分钟采样 ✓ 完整分钟序列见页面图表 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±5 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>全盘买/卖比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买墙</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>卖墙</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:17</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7684.25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.037</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.86</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>77 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>83 @7700.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:22</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.12</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.011</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>70 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>92 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:27</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7668.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.031</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.83</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>74 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>110 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:32</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.62</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.041</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.93</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>76 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>112 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:54</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7665.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.081</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.74</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>75 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>133 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:59</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7668.88</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.127</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.94</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>86 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>133 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:04</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7664.88</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.109</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.75</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>77 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>133 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:09</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.009</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.91</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>102 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>115 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.172</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>77 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>116 @7685.00</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价格结构位 × 挂单墙（VWAP / POC ✓ 与墙位叠加 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>结构位</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价位</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>相对发帖价</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>与墙位关系</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Session VWAP ✓</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7675.13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7675.13（mid 上方 23 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>价格在 VWAP <b>下方</b> ⇒ 处于**折价区** ✓（利于其看多逻辑 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（成交最密集价 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7671.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7671.50（mid 上方 8 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>价格在 POC <b>下方</b> ⇒ 位于**价值区之下** ✓（拍卖理论：折价 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙（最大买档 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7655.00（77 手）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7655.00（mid 下方 58 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方 58 ticks 处的大额防守 ✓</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>卖墙（最大卖档 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7685.00（116 手）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7685.00（mid 上方 62 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>上方 62 ticks 处的压力 ✗</td></tr></table><div class='adam-dom-chart' data-vwap='7675.127521242874' data-poc='7671.5' data-series='[{"t": "07:17", "mid": 7684.25, "imb5": 0.037037037037037035, "ratio": 0.864, "wb": 77.0, "wbpx": 7670.0, "wa": 83.0, "wapx": 7700.0}, {"t": "07:18", "mid": 7682.0, "imb5": 0.11161731207289294, "ratio": 0.819, "wb": 68.0, "wbpx": 7681.75, "wa": 72.0, "wapx": 7700.0}, {"t": "07:19", "mid": 7681.875, "imb5": 0.02158273381294964, "ratio": 0.825, "wb": 65.0, "wbpx": 7670.0, "wa": 68.0, "wapx": 7700.0}, {"t": "07:20", "mid": 7679.125, "imb5": -0.06267029972752043, "ratio": 0.774, "wb": 86.0, "wbpx": 7670.0, "wa": 66.0, "wapx": 7700.0}, {"t": "07:21", "mid": 7676.625, "imb5": -0.10204081632653061, "ratio": 0.767, "wb": 73.0, "wbpx": 7670.0, "wa": 66.0, "wapx": 7700.0}, {"t": "07:22", "mid": 7676.125, "imb5": 0.010638297872340425, "ratio": 0.78, "wb": 70.0, "wbpx": 7670.0, "wa": 92.0, "wapx": 7685.0}, {"t": "07:23", "mid": 7675.375, "imb5": 0.10875331564986737, "ratio": 0.762, "wb": 72.0, "wbpx": 7670.0, "wa": 93.0, "wapx": 7685.0}, {"t": "07:24", "mid": 7671.375, "imb5": -0.29955947136563876, "ratio": 0.69, "wb": 83.0, "wbpx": 7670.0, "wa": 83.0, "wapx": 7685.0}, {"t": "07:25", "mid": 7669.125, "imb5": -0.08684863523573201, "ratio": 0.683, "wb": 51.0, "wbpx": 7664.5, "wa": 78.0, "wapx": 7685.0}, {"t": "07:26", "mid": 7667.0, "imb5": -0.04950495049504951, "ratio": 0.753, "wb": 75.0, "wbpx": 7655.0, "wa": 111.0, "wapx": 7685.0}, {"t": "07:27", "mid": 7668.375, "imb5": 0.030612244897959183, "ratio": 0.828, "wb": 74.0, "wbpx": 7655.0, "wa": 110.0, "wapx": 7685.0}, {"t": "07:28", "mid": 7669.125, "imb5": -0.0076726342710997444, "ratio": 0.824, "wb": 84.0, "wbpx": 7655.0, "wa": 110.0, "wapx": 7685.0}, {"t": "07:29", "mid": 7671.375, "imb5": -0.011363636363636364, "ratio": 0.959, "wb": 74.0, "wbpx": 7655.0, "wa": 111.0, "wapx": 7685.0}, {"t": "07:30", "mid": 7669.625, "imb5": 0.08262108262108261, "ratio": 0.837, "wb": 74.0, "wbpx": 7655.0, "wa": 111.0, "wapx": 7685.0}, {"t": "07:31", "mid": 7670.375, "imb5": 0.0410958904109589, "ratio": 0.866, "wb": 76.0, "wbpx": 7655.0, "wa": 113.0, "wapx": 7685.0}, {"t": "07:32", "mid": 7671.625, "imb5": -0.04065040650406504, "ratio": 0.934, "wb": 76.0, "wbpx": 7655.0, "wa": 112.0, "wapx": 7685.0}, {"t": "07:33", "mid": 7671.875, "imb5": -0.011560693641618497, "ratio": 1.623, "wb": 74.0, "wbpx": 7655.0, "wa": 112.0, "wapx": 7685.0}, {"t": "07:51", "mid": 7667.75, "imb5": 0.005025125628140704, "ratio": 0.797, "wb": 74.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:52", "mid": 7665.375, "imb5": 0.0267639902676399, "ratio": 0.719, "wb": 75.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:53", "mid": 7664.375, "imb5": 0.0591016548463357, "ratio": 0.691, "wb": 75.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:54", "mid": 7665.375, "imb5": -0.08133971291866028, "ratio": 0.743, "wb": 75.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:55", "mid": 7664.125, "imb5": -0.08872901678657075, "ratio": 0.739, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:56", "mid": 7663.625, "imb5": 0.03879310344827586, "ratio": 0.735, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:57", "mid": 7666.375, "imb5": -0.035175879396984924, "ratio": 0.857, "wb": 87.0, "wbpx": 7664.25, "wa": 133.0, "wapx": 7685.0}, {"t": "07:58", "mid": 7667.875, "imb5": 0.12832929782082325, "ratio": 0.912, "wb": 78.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:59", "mid": 7668.875, "imb5": 0.12655086848635236, "ratio": 0.942, "wb": 86.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:00", "mid": 7668.125, "imb5": 0.13314447592067988, "ratio": 0.876, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:01", "mid": 7667.625, "imb5": -0.010752688172043012, "ratio": 0.863, "wb": 77.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:02", "mid": 7666.375, "imb5": 0.06382978723404255, "ratio": 0.812, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:03", "mid": 7668.375, "imb5": -0.013927576601671309, "ratio": 0.899, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:04", "mid": 7664.875, "imb5": 0.10857142857142857, "ratio": 0.753, "wb": 77.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:05", "mid": 7674.0, "imb5": -0.07818930041152264, "ratio": 0.925, "wb": 77.0, "wbpx": 7655.0, "wa": 135.0, "wapx": 7685.0}, {"t": "08:06", "mid": 7678.125, "imb5": -0.025454545454545455, "ratio": 1.025, "wb": 77.0, "wbpx": 7655.0, "wa": 122.0, "wapx": 7685.0}, {"t": "08:07", "mid": 7675.875, "imb5": 0.175, "ratio": 0.97, "wb": 77.0, "wbpx": 7655.0, "wa": 121.0, "wapx": 7685.0}, {"t": "08:08", "mid": 7674.875, "imb5": 0.0473186119873817, "ratio": 0.952, "wb": 97.0, "wbpx": 7670.0, "wa": 115.0, "wapx": 7685.0}, {"t": "08:09", "mid": 7674.375, "imb5": 0.00946372239747634, "ratio": 0.911, "wb": 102.0, "wbpx": 7670.0, "wa": 115.0, "wapx": 7685.0}, {"t": "08:10", "mid": 7674.375, "imb5": 0.01639344262295082, "ratio": 0.912, "wb": 100.0, "wbpx": 7670.0, "wa": 117.0, "wapx": 7685.0}, {"t": "08:11", "mid": 7671.125, "imb5": 0.2676056338028169, "ratio": 0.829, "wb": 114.0, "wbpx": 7670.0, "wa": 116.0, "wapx": 7685.0}, {"t": "08:12", "mid": 7671.375, "imb5": 0.07204610951008646, "ratio": 0.846, "wb": 116.0, "wbpx": 7670.0, "wa": 126.0, "wapx": 7685.0}, {"t": "08:13", "mid": 7672.875, "imb5": -0.02425876010781671, "ratio": 0.903, "wb": 106.0, "wbpx": 7670.0, "wa": 116.0, "wapx": 7685.0}, {"t": "08:14", "mid": 7669.5, "imb5": -0.17180616740088106, "ratio": 0.777, "wb": 77.0, "wbpx": 7655.0, "wa": 116.0, "wapx": 7685.0}]' style='height:260px;margin-top:8px;'></div></div></div><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>6️⃣ 📈 TICK 深度分析（逐笔成交 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '5️⃣ 📈 TICK 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 tick（截止发帖时刻 ✓ 无前视 ✓）；主动买 = 吃 ASK ✓ 主动卖 = 吃 BID ✓（与 MW 口径一致 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>平均/最大单笔</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最新价</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>135442</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>68702 / 66740</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>+1962</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>0.507</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>103446</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1.31 / 257</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.25</td></tr></table><div style='height:6px;'></div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>分窗口（截至发帖 ✓ tick 严格口径 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价格位移</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>判定</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-222</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>6658</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-5.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.483</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−10′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1018</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>36936</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+4.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.514</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+885</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>44331</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.510</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+762</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>67110</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.506</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−60′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1962</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>135442</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-18.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.507</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价位分布（Volume Profile ✓ 70% 价值区 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL（价值区下沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（最密集）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAH（价值区上沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>收盘价相对价值区</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7665.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>7667.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7675.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#047857;'>价内（VAL–VAH 之间 ✓）</b></td></tr></table><div style='font-size:0.76rem;color:#475569;margin-top:2px;'>Top5 成交密集价：7667.25（3984 手） · 7667.50（3827 手） · 7667.75（3626 手） · 7668.25（3177 手） · 7669.25（3148 手）</div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>大单（单笔 ≥20 手 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>合计量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最大 3 笔</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>51</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1917</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>769 / 1148</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:05 257手@7666.00（主动买 ✓） · 07:15 120手@7689.75（主动卖 ✗） · 07:45 90手@7671.50（主动卖 ✗）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>逐分钟成交节奏（每 5 分钟采样 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>价</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2098</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-58</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.486</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7687.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2392</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-166</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.465</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7679.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>3036</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-150</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.475</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:30</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2696</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-294</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.445</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:35</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1700</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.523</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2121</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+163</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.538</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7665.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2224</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-104</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.477</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7672.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1376</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.472</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7667.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2466</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+114</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.523</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7664.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1736</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.504</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7668.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:05</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>10911</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1259</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.558</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:10</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1440</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.505</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-34</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.053</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.25</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ TICK 提供的支持证据</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>发帖前 60 分钟净 Delta <b>+1962</b>（买占比 0.507 ✓）与其方向同向 ⇒ 主动成交支持他 ✓</li></ul><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ TICK 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>大单主动卖 <b>1148</b> 手 > 买 769 手 ✗</li></ul></div></div></div><div style='font-size:0.72rem;color:#94a3b8;margin-top:6px;'>数据源：引擎行 order_flow_signals（每 5 分钟 ✓）+ 原始 TICKS/DOM 文件复算 ✓；Δ1m/Δ5m/DOM ±2/±5 为短窗主口径，引擎 Δ30m 仅对照 ✓；价格列用 quantitative_metrics.es_price ✓。</div></section></div></body></html>
+</head><body><div class='page'><header class='card'><h1>Order Flow 深度分析 · ES</h1><div class='sub'>2026-09-14 · 07:25 → 08:15 · 待验证方向 BULLISH · 无前视 ✓ · Light Theme</div></header>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 0️⃣-a 当日 ES 价格走势与关键点位 (Candlestick Chart) -->
+<section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
+  <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
+    <div>
+      <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
+        <span>0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
+      <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
+        标的 <b>ES</b> · 日期 <b>2026-09-14</b> · 周期 <b>5 分钟</b> · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
+      </div>
+    </div>
+    <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
+      <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 7677.00</span>
+      <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 7673.50 (Gap Down)</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP L1: 7648.25</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>07:55 吸收: +248 Delta</span>
+    </div>
+  </div>
+
+  <!-- Legend & Point Guide -->
+  <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
+    <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 7677.00</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 7673.50 ｜ H1 7699.00 · H2 7727.00 ｜ <span style='color:#dc2626;font-weight:700;'>L1 7648.25</span> · L2 7631.25</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 7743.75 · +61.8% 7718.25 · -61.8% 7635.75 · -100% 7610.25 (ATR 66.64)</div>
+  </div>
+
+  <div id='esCandlestickChart' style='width:100%;height:855px;'></div>
+  <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与净 Delta</div>
+</section>
+
+<script>
+(function() {
+  function initEsChart() {
+    var chartDom = document.getElementById('esCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initEsChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
+
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[7676.75, 7679.25, 7674.25, 7679.5], [7679.25, 7679.5, 7678.25, 7680.25], [7679.5, 7679.25, 7677.0, 7681.25], [7679.25, 7680.75, 7679.25, 7681.25], [7680.75, 7682.25, 7679.5, 7682.75], [7682.25, 7684.25, 7681.75, 7684.75], [7684.25, 7681.25, 7680.75, 7685.25], [7681.25, 7681.5, 7677.75, 7682.0], [7681.5, 7682.25, 7681.0, 7684.25], [7682.5, 7683.25, 7679.5, 7684.0], [7683.25, 7680.5, 7679.0, 7683.25], [7680.75, 7678.75, 7678.5, 7681.75], [7678.75, 7675.25, 7674.25, 7679.0], [7675.25, 7677.0, 7673.75, 7678.0], [7677.0, 7677.0, 7675.5, 7679.5], [7677.0, 7677.75, 7676.5, 7682.25], [7678.0, 7677.5, 7676.0, 7679.25], [7677.5, 7676.75, 7674.5, 7677.75], [7676.75, 7673.75, 7672.75, 7679.25], [7673.75, 7667.75, 7663.0, 7674.0], [7667.75, 7674.25, 7663.25, 7675.0], [7674.25, 7672.75, 7670.5, 7676.0], [7672.75, 7670.75, 7670.0, 7674.25], [7670.75, 7673.5, 7668.5, 7674.0], [7673.5, 7666.0, 7664.75, 7673.5], [7666.0, 7666.0, 7663.5, 7668.5], [7666.0, 7673.25, 7665.25, 7674.25], [7673.25, 7674.75, 7671.75, 7675.75], [7674.75, 7674.75, 7674.0, 7676.25], [7674.75, 7673.25, 7672.5, 7675.75], [7673.5, 7670.5, 7668.75, 7675.25], [7670.5, 7669.0, 7668.0, 7672.5], [7669.25, 7677.5, 7667.75, 7678.5], [7677.75, 7686.5, 7677.5, 7689.5], [7686.75, 7685.25, 7684.0, 7690.0], [7685.5, 7683.25, 7681.25, 7686.0], [7683.25, 7688.0, 7682.5, 7689.25], [7688.0, 7692.25, 7686.5, 7694.75], [7692.25, 7687.75, 7687.5, 7694.0], [7688.0, 7681.75, 7681.0, 7690.0], [7682.0, 7671.25, 7671.25, 7682.0], [7671.25, 7671.25, 7665.25, 7671.75], [7671.0, 7674.0, 7668.0, 7674.5], [7674.0, 7667.75, 7666.0, 7674.0], [7667.75, 7669.75, 7664.0, 7670.0], [7670.0, 7669.5, 7667.75, 7673.75], [7669.5, 7665.25, 7664.0, 7669.75], [7665.25, 7669.0, 7662.25, 7669.25], [7668.75, 7665.25, 7664.75, 7669.0], [7665.25, 7674.25, 7664.5, 7682.5], [7674.5, 7669.25, 7669.25, 7675.25], [7669.25, 7673.75, 7668.0, 7675.0], [7674.0, 7678.75, 7672.75, 7679.0], [7678.5, 7679.5, 7676.25, 7682.25], [7679.25, 7691.5, 7678.0, 7692.5], [7691.5, 7696.0, 7688.75, 7696.25], [7696.0, 7705.0, 7695.25, 7706.5], [7705.25, 7698.75, 7698.5, 7705.5], [7698.5, 7702.5, 7697.0, 7703.0], [7701.75, 7702.0, 7701.0, 7704.5], [7701.75, 7697.25, 7697.25, 7703.5], [7697.25, 7698.25, 7696.0, 7699.25], [7698.0, 7698.75, 7697.75, 7701.0], [7699.0, 7708.0, 7698.75, 7709.0], [7708.0, 7708.25, 7704.5, 7710.5], [7708.5, 7704.25, 7703.0, 7709.25], [7704.25, 7703.75, 7703.5, 7708.75], [7703.5, 7704.75, 7702.25, 7705.75], [7704.5, 7707.25, 7703.25, 7707.25], [7707.25, 7717.0, 7704.5, 7719.25], [7717.0, 7714.75, 7714.5, 7719.75], [7715.0, 7713.0, 7709.5, 7715.25], [7713.0, 7710.75, 7709.25, 7714.75], [7710.75, 7708.5, 7707.5, 7712.25], [7708.5, 7705.5, 7705.5, 7712.5], [7705.75, 7704.5, 7703.0, 7706.75], [7704.5, 7707.0, 7704.25, 7708.25], [7707.0, 7711.25, 7705.75, 7711.25], [7711.25, 7710.75, 7709.0, 7712.75], [7710.75, 7712.5, 7709.25, 7712.75], [7712.25, 7710.25, 7709.25, 7712.5], [7710.25, 7710.75, 7709.5, 7712.5], [7710.75, 7712.0, 7709.75, 7712.75], [7712.0, 7707.5, 7707.5, 7712.5], [7707.5, 7706.5, 7706.0, 7712.25], [7706.5, 7708.5, 7705.25, 7710.25], [7708.5, 7707.5, 7705.75, 7708.75], [7707.75, 7706.75, 7706.0, 7709.0], [7706.75, 7705.5, 7705.25, 7707.5], [7705.5, 7704.5, 7703.25, 7706.25], [7704.75, 7706.5, 7704.0, 7708.0], [7706.5, 7707.5, 7706.25, 7709.25], [7707.5, 7707.75, 7706.5, 7709.5], [7707.75, 7709.5, 7705.25, 7709.75], [7709.25, 7707.5, 7707.25, 7709.75], [7707.5, 7705.5, 7705.25, 7709.0], [7705.5, 7703.5, 7703.0, 7706.5], [7703.75, 7703.0, 7700.5, 7704.25], [7702.75, 7704.75, 7702.75, 7705.75], [7704.75, 7703.25, 7702.25, 7705.0], [7703.25, 7702.75, 7700.75, 7704.0], [7702.5, 7702.0, 7701.5, 7703.5], [7701.75, 7702.0, 7701.25, 7704.0], [7702.0, 7700.75, 7700.25, 7702.25], [7700.75, 7700.5, 7700.0, 7702.0], [7700.5, 7702.0, 7700.25, 7703.0], [7701.75, 7697.25, 7695.5, 7703.25], [7697.25, 7692.5, 7691.25, 7698.25], [7692.75, 7692.25, 7690.5, 7694.75], [7692.25, 7691.25, 7690.75, 7692.5], [7691.0, 7692.25, 7690.75, 7693.0], [7692.25, 7692.0, 7689.5, 7692.5], [7692.25, 7694.5, 7692.25, 7694.75], [7694.5, 7695.5, 7694.0, 7695.75], [7695.5, 7694.75, 7694.0, 7695.75], [7694.75, 7695.0, 7694.25, 7695.75], [7695.0, 7695.0, 7694.75, 7695.75], [7695.0, 7698.0, 7695.0, 7698.0], [7698.0, 7699.0, 7697.5, 7699.25], [7699.25, 7700.0, 7698.25, 7700.25]];
+    var rawVols = [1776.0, 1205.0, 1050.0, 825.0, 1163.0, 1032.0, 961.0, 657.0, 1828.0, 1573.0, 1110.0, 876.0, 1339.0, 1602.0, 1076.0, 4495.0, 1473.0, 992.0, 1438.0, 5957.0, 4810.0, 2007.0, 1262.0, 1241.0, 3026.0, 2597.0, 2236.0, 2842.0, 1450.0, 4331.0, 16577.0, 11670.0, 12693.0, 12086.0, 13119.0, 11744.0, 8649.0, 9857.0, 9081.0, 8426.0, 13271.0, 15572.0, 11050.0, 9551.0, 10462.0, 7618.0, 6071.0, 9090.0, 7395.0, 30278.0, 6620.0, 7779.0, 7958.0, 10392.0, 27296.0, 11576.0, 15502.0, 11162.0, 7559.0, 5089.0, 5596.0, 3638.0, 5140.0, 8143.0, 6018.0, 5884.0, 8362.0, 4426.0, 4750.0, 19185.0, 8566.0, 6873.0, 5246.0, 4148.0, 6033.0, 5267.0, 3848.0, 5081.0, 6052.0, 3178.0, 2986.0, 3713.0, 3865.0, 3238.0, 6594.0, 3080.0, 2993.0, 3592.0, 2866.0, 4860.0, 4059.0, 2567.0, 3134.0, 6607.0, 2754.0, 4405.0, 8568.0, 5658.0, 3392.0, 3743.0, 4930.0, 3955.0, 4600.0, 4670.0, 5095.0, 5775.0, 10972.0, 58991.0, 12301.0, 3617.0, 3159.0, 3057.0, 1062.0, 782.0, 906.0, 958.0, 826.0, 1189.0, 1518.0, 1270.0];
+    var rawDeltas = [-112.0, -25.0, -50.0, 23.0, 251.0, 8.0, 9.0, -23.0, -106.0, -169.0, -162.0, 68.0, 97.0, 220.0, 42.0, 295.0, -77.0, 72.0, -74.0, 75.0, 648.0, 287.0, 104.0, 59.0, -416.0, 209.0, 320.0, 194.0, -6.0, -91.0, -45.0, -278.0, 1137.0, 472.0, 347.0, 746.0, 889.0, 181.0, -139.0, -674.0, -323.0, 308.0, -112.0, 731.0, 1270.0, -198.0, -173.0, 248.0, -133.0, 1240.0, -188.0, 475.0, 286.0, 288.0, 2064.0, 136.0, 668.0, -668.0, 415.0, 213.0, -362.0, 242.0, 10.0, 909.0, 160.0, -312.0, -72.0, 182.0, 406.0, 923.0, -274.0, -195.0, 420.0, -18.0, -81.0, -63.0, 232.0, 467.0, 400.0, -156.0, -264.0, -449.0, -267.0, -116.0, -138.0, -74.0, -185.0, 156.0, -388.0, -642.0, -13.0, 57.0, -304.0, -745.0, -378.0, -783.0, -844.0, -590.0, -6.0, -251.0, -344.0, -297.0, -140.0, -610.0, -515.0, -129.0, -466.0, 823.0, -5.0, -319.0, -351.0, -389.0, 182.0, 44.0, -110.0, 66.0, -32.0, 281.0, 110.0, 124.0];
+
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+          var delta = rawDeltas[idx];
+          var deltaSign = delta > 0 ? '+' : '';
+          var deltaColor = delta > 0 ? '#16a34a' : (delta < 0 ? '#dc2626' : '#64748b');
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">ES · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '<span>净 Delta:</span><b style="color:' + deltaColor + '">' + deltaSign + delta.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
+      },
+      axisPointer: { link: [{ xAxisIndex: 'all' }] },
+      grid: [
+        { left: 55, right: 80, top: 35, height: 575 },
+        { left: 55, right: 80, top: 675, height: 90 }
+      ],
+      xAxis: [
+        { type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } },
+        { type: 'category', gridIndex: 1, data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { show: false }, splitLine: { show: false } }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f1f5f9' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(1); } }
+        },
+        {
+          type: 'value',
+          gridIndex: 1,
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f8fafc' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#94a3b8', fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'k'; } }
+        }
+      ],
+      series: [
+        {
+          name: 'ES 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '07:25',
+                  name: '深度分析窗口 07:25→08:15',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '08:15' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
+              {
+                name: '07:55 最低',
+                coord: ['07:55', 7662.25],
+                symbol: 'arrow',
+                symbolRotate: 0,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
+                label: {
+                  show: true,
+                  position: 'bottom',
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '07:55 最低 7662.25\n(+248 Delta 吸收反转)',
+                  color: '#0369a1',
+                  fontWeight: 'bold',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 7677.00',
+                yAxis: 7677.00,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 7677.00'
+                }
+              },
+              {
+                name: 'QP Open: 7673.50',
+                yAxis: 7673.50,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 7673.50 (Gap Down)'
+                }
+              },
+              {
+                name: 'QP H1: 7699.00',
+                yAxis: 7699.00,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dashed' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(5, 150, 105, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#047857', fontSize: 10, fontWeight: '600', formatter: 'QP H1: 7699.00' }
+              },
+              {
+                name: 'QP H2: 7727.00',
+                yAxis: 7727.00,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 7727.00'
+                }
+              },
+              {
+                name: 'QP L1: 7648.25',
+                yAxis: 7648.25,
+                lineStyle: { color: '#dc2626', width: 2.0, type: 'solid' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(220, 38, 38, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#b91c1c', fontSize: 10, fontWeight: 'bold', formatter: '★ QP L1: 7648.25 (RTH支撑)' }
+              },
+              {
+                name: 'QP L2: 7631.25',
+                yAxis: 7631.25,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 7631.25'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 7718.25',
+                yAxis: 7718.25,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 7718.25'
+                }
+              },
+              {
+                name: 'Saty +100%: 7743.75',
+                yAxis: 7743.75,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 7743.75'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 7635.75',
+                yAxis: 7635.75,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 7635.75'
+                }
+              },
+              {
+                name: 'Saty -100%: 7610.25',
+                yAxis: 7610.25,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 7610.25'
+                }
+              }
+            ]
+          }
+        },
+        {
+          name: '5m Delta Volume',
+          type: 'bar',
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+          data: rawDeltas.map(function(d) {
+            return { value: d, itemStyle: { color: d > 0 ? '#10b981' : (d < 0 ? '#ef4444' : '#94a3b8') } };
+          })
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEsChart);
+  } else {
+    initEsChart();
+  }
+})();
+</script>
+
+
+<!-- 0️⃣-b 当日 SPY 价格走势与关键点位 (Candlestick Chart) -->
+<section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
+  <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
+    <div>
+      <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
+        <span>0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
+      <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
+        标的 <b>SPY</b> · 日期 <b>2026-09-14</b> · 周期 <b>5 分钟</b> · 无 Delta 信息 · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
+      </div>
+    </div>
+    <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
+      <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 762.40</span>
+      <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 757.12</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP L1: 754.63</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>07:55 最低: 757.93</span>
+    </div>
+  </div>
+
+  <!-- Legend & Point Guide -->
+  <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
+    <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 762.40</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 757.12 ｜ H1 759.65 · H2 762.39 ｜ L1 754.63 · L2 752.94</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 767.98 · +61.8% 765.85 · -61.8% 758.95 · -100% 756.82 (ATR 5.58)</div>
+  </div>
+
+  <div id='spyCandlestickChart' style='width:100%;height:640px;'></div>
+  <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与成交量</div>
+</section>
+
+<script>
+(function() {
+  function initSpyChart() {
+    var chartDom = document.getElementById('spyCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initSpyChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
+
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[759.31, 759.5, 759.11, 759.51], [759.6, 759.61, 759.49, 759.67], [759.64, 759.52, 759.33, 759.72], [759.55, 759.68, 759.55, 760.0], [759.69, 759.85, 759.57, 759.85], [759.87, 760.05, 759.8, 760.05], [760.0, 759.71, 759.7, 760.11], [759.75, 759.69, 759.46, 759.8], [759.72, 759.84, 759.68, 760.01], [759.81, 759.86, 759.68, 759.96], [759.91, 759.68, 759.54, 759.91], [759.76, 759.5, 759.47, 759.76], [759.5, 759.15, 759.0, 759.52], [759.17, 759.33, 759.02, 759.37], [759.35, 759.32, 759.17, 759.56], [759.36, 759.42, 759.33, 759.8], [759.53, 759.36, 759.28, 759.55], [759.36, 759.33, 759.12, 759.4], [759.32, 758.98, 758.96, 759.58], [759.0, 758.51, 758.04, 759.35], [758.46, 759.06, 758.12, 759.15], [759.14, 758.97, 758.75, 759.15], [758.92, 758.74, 758.73, 759.07], [758.74, 759.01, 758.53, 759.03], [759.0, 758.25, 758.16, 759.0], [758.23, 758.28, 758.04, 758.45], [758.26, 759.0, 758.21, 759.01], [759.0, 759.0, 759.0, 759.0], [759.0, 759.0, 759.0, 759.0], [759.0, 759.0, 759.0, 759.0], [759.0, 758.68, 758.58, 759.21], [758.68, 758.57, 758.45, 758.9], [758.58, 759.41, 758.47, 759.52], [759.43, 760.29, 759.43, 760.56], [760.28, 760.17, 760.07, 760.59], [760.18, 759.99, 759.76, 760.24], [759.99, 760.46, 759.91, 760.59], [760.46, 760.87, 760.32, 761.11], [760.87, 760.44, 760.42, 761.01], [760.46, 759.84, 759.77, 760.65], [759.85, 758.82, 758.81, 759.85], [758.82, 758.84, 758.23, 758.87], [758.83, 759.1, 758.53, 759.14], [759.1, 758.5, 758.3, 759.1], [758.48, 758.68, 758.12, 758.68], [758.68, 758.62, 758.46, 759.03], [758.64, 758.22, 758.11, 758.66], [758.22, 758.57, 757.93, 758.59], [758.59, 758.18, 758.15, 758.6], [758.18, 759.11, 758.17, 759.88], [759.13, 758.63, 758.63, 759.21], [758.62, 759.07, 758.52, 759.18], [759.09, 759.54, 758.99, 759.58], [759.54, 759.59, 759.32, 759.9], [759.55, 760.8, 759.45, 760.89], [760.81, 761.2, 760.45, 761.24], [761.22, 762.09, 760.97, 762.23], [762.1, 761.48, 761.47, 762.15], [761.47, 761.83, 761.29, 761.89], [761.83, 761.75, 761.68, 762.03], [761.77, 761.33, 761.33, 761.91], [761.32, 761.4, 761.21, 761.52], [761.4, 761.47, 761.36, 761.67], [761.47, 762.35, 761.47, 762.45], [762.35, 762.4, 762.02, 762.6], [762.41, 762.02, 761.88, 762.46], [762.01, 761.95, 761.95, 762.45], [761.97, 762.05, 761.83, 762.13], [762.05, 762.31, 761.92, 762.31], [762.32, 763.26, 762.05, 763.5], [763.28, 763.06, 763.02, 763.52], [763.06, 762.9, 762.57, 763.11], [762.9, 762.66, 762.53, 763.06], [762.67, 762.45, 762.34, 762.81], [762.46, 762.18, 762.18, 762.86], [762.18, 762.05, 761.9, 762.27], [762.07, 762.29, 762.04, 762.42], [762.32, 762.68, 762.19, 762.72], [762.72, 762.64, 762.49, 762.83], [762.65, 762.81, 762.51, 762.87], [762.83, 762.6, 762.54, 762.83], [762.65, 762.63, 762.55, 762.85], [762.64, 762.79, 762.58, 762.87], [762.78, 762.35, 762.34, 762.85], [762.35, 762.25, 762.21, 762.83], [762.26, 762.43, 762.12, 762.59], [762.43, 762.34, 762.16, 762.45], [762.35, 762.28, 762.18, 762.48], [762.27, 762.12, 762.1, 762.33], [762.13, 762.01, 761.92, 762.19], [762.04, 762.22, 761.97, 762.35], [762.22, 762.35, 762.19, 762.47], [762.32, 762.35, 762.25, 762.52], [762.35, 762.5, 762.11, 762.7], [762.5, 762.32, 762.29, 762.54], [762.31, 762.13, 762.09, 762.47], [762.14, 761.93, 761.84, 762.21], [761.94, 761.83, 761.61, 761.98], [761.85, 762.03, 761.82, 762.09], [762.03, 761.87, 761.77, 762.03], [761.86, 761.81, 761.65, 761.93], [761.79, 761.72, 761.69, 761.86], [761.72, 761.69, 761.66, 761.93], [761.7, 761.6, 761.55, 761.74], [761.6, 761.6, 761.54, 761.72], [761.59, 761.71, 761.55, 761.83], [761.72, 761.25, 761.11, 761.82], [761.25, 760.77, 760.66, 761.34], [760.78, 760.76, 760.59, 761.0], [760.75, 760.66, 760.6, 760.84], [760.66, 760.75, 760.59, 760.81], [760.74, 760.75, 760.48, 761.1], [760.75, 760.95, 760.74, 761.0], [760.99, 761.07, 760.94, 761.1], [761.08, 760.98, 760.96, 761.09], [761.02, 761.04, 760.88, 761.05], [761.04, 761.03, 761.01, 761.39], [761.03, 761.3, 760.68, 761.34], [761.32, 760.88, 760.53, 761.41], [761.4, 761.49, 761.05, 761.49]];
+    var rawVols = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2425368, 617747, 490763, 550712, 447456, 457216, 457179, 458914, 388199, 316861, 667645, 613192, 390303, 398387, 407536, 324806, 436256, 486267, 247181, 1247075, 241672, 255926, 241692, 258921, 962916, 628639, 632695, 404994, 346092, 235656, 209530, 187834, 162707, 319007, 254832, 273563, 280539, 157961, 143809, 605816, 254748, 291218, 200411, 185673, 349782, 175150, 131624, 143667, 176537, 216462, 281589, 182983, 175566, 184587, 1056284, 313661, 147010, 118110, 277152, 292809, 192009, 158181, 278640, 311517, 4909895, 302336, 365228, 269220, 325500, 280779, 1419679, 221021, 336536, 388332, 484226, 901672, 1059247, 3592827, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">SPY · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
+      },
+      grid: [{ left: 55, right: 80, top: 35, height: 535 }],
+      xAxis: [{ type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } }],
+      yAxis: [{ type: 'value', scale: true, position: 'right', min: function(val) { return Math.floor(val.min - 0.5); }, max: function(val) { return Math.ceil(val.max + 0.5); }, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(2); } } }],
+      series: [
+        {
+          name: 'SPY 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '07:25',
+                  name: '深度分析窗口 07:25→08:15',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '08:15' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
+              {
+                name: '07:55 最低',
+                coord: ['07:55', 757.93],
+                symbol: 'arrow',
+                symbolRotate: 0,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
+                label: {
+                  show: true,
+                  position: 'bottom',
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '07:55 最低 757.93\n(同步 ES 吸收反转)',
+                  color: '#0369a1',
+                  fontWeight: 'bold',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 762.40',
+                yAxis: 762.40,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 762.40'
+                }
+              },
+              {
+                name: 'QP Open: 757.12',
+                yAxis: 757.12,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 757.12'
+                }
+              },
+              {
+                name: 'QP H1: 759.65',
+                yAxis: 759.65,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H1: 759.65'
+                }
+              },
+              {
+                name: 'QP H2: 762.39',
+                yAxis: 762.39,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 762.39'
+                }
+              },
+              {
+                name: 'QP L1: 754.63',
+                yAxis: 754.63,
+                lineStyle: { color: '#dc2626', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(220, 38, 38, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#b91c1c',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L1: 754.63'
+                }
+              },
+              {
+                name: 'QP L2: 752.94',
+                yAxis: 752.94,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 752.94'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 765.85',
+                yAxis: 765.85,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 765.85'
+                }
+              },
+              {
+                name: 'Saty +100%: 767.98',
+                yAxis: 767.98,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 767.98'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 758.95',
+                yAxis: 758.95,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 758.95'
+                }
+              },
+              {
+                name: 'Saty -100%: 756.82',
+                yAxis: 756.82,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 756.82'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpyChart);
+  } else {
+    initSpyChart();
+  }
+})();
+</script>
+
+<section class='card'><div style='font-size:0.82rem;color:#334155;margin:4px 0 8px;'>标的 <b>ES</b> · 窗口 <b>07:25 → 08:15</b> · 待验证方向 <b>BULLISH</b>。以下用<b>逐笔成交（TICK）</b>与<b>盘口挂单（DOM）</b>两个数据源交叉印证，无前视 ✓，仅分析参考、不接入自动下单 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>1️⃣ 合并时间线（每 5 分钟一行 ✓ 无前视 ✓；<b>短窗为主</b>：tick Δ1m/Δ5m + 每行 DOM ±2/±5 ✓；引擎 Δ30m 仅作<b>慢口径对照</b> ✓） <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '1️⃣ 合并时间线')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </div><table style='border-collapse:collapse;font-size:0.75rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 6px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎方向/Setup</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ1m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ5m（短窗主 ✓）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 5m 价位移</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM ±2/±5 失衡</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 Δ30m（慢·对照）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎价(ES)</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 量5m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM 质量</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 vs tick</th></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+92</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-323</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-7.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.053 / -0.164</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+680</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>13271</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 526 个">OK 526</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-38</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+308</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.027 / -0.048</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+242</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>15572</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 527 个">OK 527</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+48</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-112</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+4.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.010 / +0.010</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-759</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>11050</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b45309;font-weight:700;" title="quality_tier=DEGRADED · DOM 快照 372 个">降 372</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+46</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+731</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.009 / -0.037</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-209</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7667.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>9551</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b91c1c;font-weight:700;" title="该槽无 DOM 数据（盘口缺失）">缺</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+503</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1270</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+4.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.009 / -0.066</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1200</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>10462</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b91c1c;font-weight:700;" title="该槽无 DOM 数据（盘口缺失）">缺</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+11</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-198</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.024 / -0.005</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1676</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7618</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b91c1c;font-weight:700;" title="该槽无 DOM 数据（盘口缺失）">缺</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-173</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-1.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.012 / -0.022</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1826</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7665.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6071</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#b45309;font-weight:700;" title="quality_tier=DEGRADED · DOM 快照 459 个">降 459</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-19</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+248</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+5.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.012 / -0.022</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1766</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>9090</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 699 个">OK 699</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-128</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-133</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.167 / +0.014</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1745</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7665.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7395</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 888 个">OK 888</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1240</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.007 / -0.009</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2254</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>30278</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 866 个">OK 866</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-179</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-188</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-4.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.068 / -0.040</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+796</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7669.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6620</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 677 个">OK 677</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>Δ1m/Δ5m = 该时刻前 1/5 分钟的逐笔成交净 Delta（tick 严格口径 ✓）；DOM ±2/±5 = 距 mid ±2/±5 ticks 挂单失衡（DB 扁平列 imb_short/mid_short 优先 ✓）；引擎 Δ30m 为滚动 30 分钟净额，仅作慢口径对照 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>2️⃣ 🧭 DOM × TICK <b>合并结论</b>（两个数据源交叉印证 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '2️⃣ 🧭 DOM × TICK 合并结论')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>维度</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>DOM（挂单 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>TICK（成交 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>综合判断</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 全窗</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗 imb ±5 均值 -0.035 · 偏空 64% / 偏多 0%</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗净Delta <b>+1962</b> · 买占比 0.507 · DOM 与 tick 同向占 43%</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>两源分歧 ⇒ 谨慎 ⚠️</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 窗口极值点</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 -0.013 · ±5 +0.002</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Δ5m <b>-173</b>｜引擎 Δ30m <b>+1826</b></td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>极值点由「末段抛压/抢筹」打出，但 30 分钟累积方向相反 ⇒ 典型「吸收/派发」✓（短窗与慢窗背离）</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>位置</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 7655.00 / 卖墙 7685.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL 7665.00 · POC 7667.25 · VAH 7675.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口低点 <b>7665.25</b> 贴住价值区下沿 VAL ⇒ 折价区（利于看多 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>大额资金</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 75 手 vs 卖墙 133 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>大单(≥20手) 买 769 vs 卖 1148（共 51 笔）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>大额单净卖 ✗（1148 vs 买 769）⇒ 走势缺大单确认</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>机构大单</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—（挂单源无此层）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>SingleTickBigTrade 0 笔 · 买 0 vs 卖 0</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#94a3b8;'>窗口内无 SingleTickBigTrade ⇒ 无机构大单锚点</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>近端风险</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧真空 1 ticks / 卖侧 1</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口内 5 分钟成交格数 13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方结构连续 ⇒ 无真空风险 ✓</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>DOM 快照取窗口极值点最近有效快照 + t0 快照；TICK 全窗为 t0 前 60 分钟口径 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>3️⃣ 系统 order flow 指标解读（哪些与价格走势一致 / 不一致 ✓ —— 待验证方向 = BULLISH） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '3️⃣ 系统 order flow 指标解读')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='margin:6px 0 2px;font-size:0.8rem;color:#047857;font-weight:700;'>✅ 支持该方向</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>30m 累计 Delta 在低点「越跌越正」（-759 → +796）⇒ 低点有持续主动买盘吸收 ✓</li><li>窗口短窗主动买脉冲（tick Δ5m 正值）与 30m 净买同向 ⇒ 短周期动能确认 ✓</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#b91c1c;font-weight:700;'>⚠️ 不支持该方向 / 缺乏确认</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>DOM 窗口级：imb ±5 时间加权 -0.035，偏空占 64% / 偏多 0% / 中性 36%；且未收敛 ⇒ 挂单侧持续卖方占优 ✗</li><li>大额单（≥20 手）净卖 ⇒ 走势缺机构大单确认 ✗</li><li>窗口内无 SingleTickBigTrade ⇒ 缺机构大单层确认 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#0369a1;font-weight:700;'>📌 要右侧确认，还需要看到</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>需价格放量站上 VAH（7675.50）才能右侧确认反弹延续 ✓</li></ul><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>🧩 命中的 pattern（可机检 · 待回测标定阈值）</div><div><span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 9px;border-radius:6px;font-size:0.78rem;font-weight:700;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">P5 · 短长窗背离（转折前兆）（low）</span></div><div style='font-size:0.74rem;color:#94a3b8;margin-top:2px;'>pattern 定义见 patterns.py（P1 低点吸收 / P2 恐慌洗盘 / P3 高位派发 / P4 挂单-成交共振 / P5 短长窗背离）；置信档 high&gt;medium&gt;low，阈值待历史样本回测收敛 ✓</div><div style='display:flex;flex-direction:column;gap:14px;align-items:stretch;'><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>5️⃣ 🧱 DOM 深度分析（盘口挂单 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '4️⃣ 🧱 DOM 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 DOM 快照（500ms 级 ✓ 取发帖时刻及之前最近**有效**快照 ✓ 无前视 ✓）；本模块为**独立复算** ✓（引擎 <code>imb_*</code> 定义未公开 ✗ 但三档方向已对照 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>快照时刻</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最优买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最优档手数 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价差</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>档位数 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>全盘总量 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>总量比</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:14:59</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.25 / 7669.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>39 / 42</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>2 ticks</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>200 / 200</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>3392 / 4367</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b>0.78</b></td></tr></table><div style='height:6px;'></div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>带宽</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买挂单</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>卖挂单</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>失衡 (买−卖)/(买+卖)</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>解读</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 ticks（≈0.50 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>82</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>98</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.089</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±5 ticks（≈1.25 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>188</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>266</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.172</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±15 ticks（≈3.75 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>531</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>666</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.113</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±25 ticks（≈6.25 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>828</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1038</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.113</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#b91c1c;'>卖侧占优 ✗</span></td></tr></table><div style='height:6px;'></div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>项</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>卖侧</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>最大单档（墙 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>77 手 @ 7655.00（距 mid 58 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>116 手 @ 7685.00（距 mid 62 ticks ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>堆叠（相邻 ≥30 手 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>8 档 / 合计 283 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>40 档 / 合计 1582 手</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>最大真空（缺口 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1 ticks（7669.00→7669.25）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1 ticks（7719.25→7719.50）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>DOM 时间演变（发帖前 60/30/15/5 分钟 → 发帖时刻 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时点</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>快照</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±5 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±15 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>全盘买/卖比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>最大买墙</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>最大卖墙</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>07:33:29</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7671.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.012</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.059</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1.62</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>74 手 @ 7655.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>112 手 @ 7685.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:00:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7668.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.102</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.032</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.92</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>76 手 @ 7655.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>133 手 @ 7685.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:10:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7674.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.033</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.040</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.92</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>102 手 @ 7670.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>115 手 @ 7685.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T0（发帖 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:14:59</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.172</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.113</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.78</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>77 手 @ 7655.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>116 手 @ 7685.00</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ DOM 提供的支持证据</div><div style='margin-left:18px;font-size:0.78rem;color:#94a3b8;'>（无 —— 盘口未给出支持信号 ✗）</div><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ DOM 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>±5 ticks 内 **卖挂单多出买 78 手**（失衡 -0.172 ✗）⇒ 近端上方压制 ✓</li><li>全盘 200 档挂单 **买/卖 = 0.78**（卖侧总量占优 ✗）</li><li>**卖墙更大**（116 手 @ 7685.00，距 mid 62 ticks ✗ vs 买墙 77 手）⇒ 上方阻力更重 ✗</li><li>卖侧**堆叠** 40 档（合计 1582 手 ✗）多于买侧 8 档 ⇒ 卖方分批压制 ✗</li></ul><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>买卖压力与挂单墙 · 逐分钟序列（每 5 分钟采样 ✓ 完整分钟序列见页面图表 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±5 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>全盘买/卖比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买墙</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>卖墙</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:17</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7684.25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.037</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.86</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>77 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>83 @7700.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:22</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.12</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.011</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>70 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>92 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:27</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7668.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.031</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.83</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>74 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>110 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:32</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.62</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.041</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.93</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>76 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>112 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:54</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7665.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.081</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.74</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>75 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>133 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:59</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7668.88</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.127</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.94</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>86 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>133 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:04</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7664.88</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.109</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.75</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>77 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>133 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:09</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.009</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.91</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>102 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>115 @7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.172</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>77 @7655.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>116 @7685.00</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价格结构位 × 挂单墙（VWAP / POC ✓ 与墙位叠加 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>结构位</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价位</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>相对发帖价</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>与墙位关系</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Session VWAP ✓</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7675.13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7675.13（mid 上方 23 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>价格在 VWAP <b>下方</b> ⇒ 处于**折价区** ✓（利于其看多逻辑 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（成交最密集价 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7671.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7671.50（mid 上方 8 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>价格在 POC <b>下方</b> ⇒ 位于**价值区之下** ✓（拍卖理论：折价 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙（最大买档 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7655.00（77 手）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7655.00（mid 下方 58 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方 58 ticks 处的大额防守 ✓</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>卖墙（最大卖档 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7685.00（116 手）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7685.00（mid 上方 62 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>上方 62 ticks 处的压力 ✗</td></tr></table><div class='adam-dom-chart' data-vwap='7675.127521242874' data-poc='7671.5' data-series='[{"t": "07:17", "mid": 7684.25, "imb5": 0.037037037037037035, "ratio": 0.864, "wb": 77.0, "wbpx": 7670.0, "wa": 83.0, "wapx": 7700.0}, {"t": "07:18", "mid": 7682.0, "imb5": 0.11161731207289294, "ratio": 0.819, "wb": 68.0, "wbpx": 7681.75, "wa": 72.0, "wapx": 7700.0}, {"t": "07:19", "mid": 7681.875, "imb5": 0.02158273381294964, "ratio": 0.825, "wb": 65.0, "wbpx": 7670.0, "wa": 68.0, "wapx": 7700.0}, {"t": "07:20", "mid": 7679.125, "imb5": -0.06267029972752043, "ratio": 0.774, "wb": 86.0, "wbpx": 7670.0, "wa": 66.0, "wapx": 7700.0}, {"t": "07:21", "mid": 7676.625, "imb5": -0.10204081632653061, "ratio": 0.767, "wb": 73.0, "wbpx": 7670.0, "wa": 66.0, "wapx": 7700.0}, {"t": "07:22", "mid": 7676.125, "imb5": 0.010638297872340425, "ratio": 0.78, "wb": 70.0, "wbpx": 7670.0, "wa": 92.0, "wapx": 7685.0}, {"t": "07:23", "mid": 7675.375, "imb5": 0.10875331564986737, "ratio": 0.762, "wb": 72.0, "wbpx": 7670.0, "wa": 93.0, "wapx": 7685.0}, {"t": "07:24", "mid": 7671.375, "imb5": -0.29955947136563876, "ratio": 0.69, "wb": 83.0, "wbpx": 7670.0, "wa": 83.0, "wapx": 7685.0}, {"t": "07:25", "mid": 7669.125, "imb5": -0.08684863523573201, "ratio": 0.683, "wb": 51.0, "wbpx": 7664.5, "wa": 78.0, "wapx": 7685.0}, {"t": "07:26", "mid": 7667.0, "imb5": -0.04950495049504951, "ratio": 0.753, "wb": 75.0, "wbpx": 7655.0, "wa": 111.0, "wapx": 7685.0}, {"t": "07:27", "mid": 7668.375, "imb5": 0.030612244897959183, "ratio": 0.828, "wb": 74.0, "wbpx": 7655.0, "wa": 110.0, "wapx": 7685.0}, {"t": "07:28", "mid": 7669.125, "imb5": -0.0076726342710997444, "ratio": 0.824, "wb": 84.0, "wbpx": 7655.0, "wa": 110.0, "wapx": 7685.0}, {"t": "07:29", "mid": 7671.375, "imb5": -0.011363636363636364, "ratio": 0.959, "wb": 74.0, "wbpx": 7655.0, "wa": 111.0, "wapx": 7685.0}, {"t": "07:30", "mid": 7669.625, "imb5": 0.08262108262108261, "ratio": 0.837, "wb": 74.0, "wbpx": 7655.0, "wa": 111.0, "wapx": 7685.0}, {"t": "07:31", "mid": 7670.375, "imb5": 0.0410958904109589, "ratio": 0.866, "wb": 76.0, "wbpx": 7655.0, "wa": 113.0, "wapx": 7685.0}, {"t": "07:32", "mid": 7671.625, "imb5": -0.04065040650406504, "ratio": 0.934, "wb": 76.0, "wbpx": 7655.0, "wa": 112.0, "wapx": 7685.0}, {"t": "07:33", "mid": 7671.875, "imb5": -0.011560693641618497, "ratio": 1.623, "wb": 74.0, "wbpx": 7655.0, "wa": 112.0, "wapx": 7685.0}, {"t": "07:51", "mid": 7667.75, "imb5": 0.005025125628140704, "ratio": 0.797, "wb": 74.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:52", "mid": 7665.375, "imb5": 0.0267639902676399, "ratio": 0.719, "wb": 75.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:53", "mid": 7664.375, "imb5": 0.0591016548463357, "ratio": 0.691, "wb": 75.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:54", "mid": 7665.375, "imb5": -0.08133971291866028, "ratio": 0.743, "wb": 75.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:55", "mid": 7664.125, "imb5": -0.08872901678657075, "ratio": 0.739, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:56", "mid": 7663.625, "imb5": 0.03879310344827586, "ratio": 0.735, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:57", "mid": 7666.375, "imb5": -0.035175879396984924, "ratio": 0.857, "wb": 87.0, "wbpx": 7664.25, "wa": 133.0, "wapx": 7685.0}, {"t": "07:58", "mid": 7667.875, "imb5": 0.12832929782082325, "ratio": 0.912, "wb": 78.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "07:59", "mid": 7668.875, "imb5": 0.12655086848635236, "ratio": 0.942, "wb": 86.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:00", "mid": 7668.125, "imb5": 0.13314447592067988, "ratio": 0.876, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:01", "mid": 7667.625, "imb5": -0.010752688172043012, "ratio": 0.863, "wb": 77.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:02", "mid": 7666.375, "imb5": 0.06382978723404255, "ratio": 0.812, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:03", "mid": 7668.375, "imb5": -0.013927576601671309, "ratio": 0.899, "wb": 76.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:04", "mid": 7664.875, "imb5": 0.10857142857142857, "ratio": 0.753, "wb": 77.0, "wbpx": 7655.0, "wa": 133.0, "wapx": 7685.0}, {"t": "08:05", "mid": 7674.0, "imb5": -0.07818930041152264, "ratio": 0.925, "wb": 77.0, "wbpx": 7655.0, "wa": 135.0, "wapx": 7685.0}, {"t": "08:06", "mid": 7678.125, "imb5": -0.025454545454545455, "ratio": 1.025, "wb": 77.0, "wbpx": 7655.0, "wa": 122.0, "wapx": 7685.0}, {"t": "08:07", "mid": 7675.875, "imb5": 0.175, "ratio": 0.97, "wb": 77.0, "wbpx": 7655.0, "wa": 121.0, "wapx": 7685.0}, {"t": "08:08", "mid": 7674.875, "imb5": 0.0473186119873817, "ratio": 0.952, "wb": 97.0, "wbpx": 7670.0, "wa": 115.0, "wapx": 7685.0}, {"t": "08:09", "mid": 7674.375, "imb5": 0.00946372239747634, "ratio": 0.911, "wb": 102.0, "wbpx": 7670.0, "wa": 115.0, "wapx": 7685.0}, {"t": "08:10", "mid": 7674.375, "imb5": 0.01639344262295082, "ratio": 0.912, "wb": 100.0, "wbpx": 7670.0, "wa": 117.0, "wapx": 7685.0}, {"t": "08:11", "mid": 7671.125, "imb5": 0.2676056338028169, "ratio": 0.829, "wb": 114.0, "wbpx": 7670.0, "wa": 116.0, "wapx": 7685.0}, {"t": "08:12", "mid": 7671.375, "imb5": 0.07204610951008646, "ratio": 0.846, "wb": 116.0, "wbpx": 7670.0, "wa": 126.0, "wapx": 7685.0}, {"t": "08:13", "mid": 7672.875, "imb5": -0.02425876010781671, "ratio": 0.903, "wb": 106.0, "wbpx": 7670.0, "wa": 116.0, "wapx": 7685.0}, {"t": "08:14", "mid": 7669.5, "imb5": -0.17180616740088106, "ratio": 0.777, "wb": 77.0, "wbpx": 7655.0, "wa": 116.0, "wapx": 7685.0}]' style='height:260px;margin-top:8px;'></div></div></div><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>6️⃣ 📈 TICK 深度分析（逐笔成交 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '5️⃣ 📈 TICK 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 tick（截止发帖时刻 ✓ 无前视 ✓）；主动买 = 吃 ASK ✓ 主动卖 = 吃 BID ✓（与 MW 口径一致 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>平均/最大单笔</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最新价</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>135442</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>68702 / 66740</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>+1962</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>0.507</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>103446</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1.31 / 257</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7669.25</td></tr></table><div style='height:6px;'></div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>分窗口（截至发帖 ✓ tick 严格口径 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价格位移</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>判定</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-222</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>6658</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-5.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.483</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−10′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1018</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>36936</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+4.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.514</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+885</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>44331</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.510</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+762</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>67110</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.506</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−60′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1962</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>135442</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-18.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.507</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价位分布（Volume Profile ✓ 70% 价值区 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL（价值区下沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（最密集）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAH（价值区上沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>收盘价相对价值区</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7665.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>7667.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7675.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#047857;'>价内（VAL–VAH 之间 ✓）</b></td></tr></table><div style='font-size:0.76rem;color:#475569;margin-top:2px;'>Top5 成交密集价：7667.25（3984 手） · 7667.50（3827 手） · 7667.75（3626 手） · 7668.25（3177 手） · 7669.25（3148 手）</div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>大单（单笔 ≥20 手 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>合计量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最大 3 笔</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>51</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1917</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>769 / 1148</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:05 257手@7666.00（主动买 ✓） · 07:15 120手@7689.75（主动卖 ✗） · 07:45 90手@7671.50（主动卖 ✗）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>逐分钟成交节奏（每 5 分钟采样 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>价</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2098</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-58</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.486</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7687.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2392</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-166</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.465</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7679.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>3036</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-150</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.475</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:30</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2696</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-294</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.445</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:35</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1700</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.523</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2121</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+163</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.538</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7665.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2224</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-104</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.477</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7672.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1376</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-78</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.472</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7667.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>07:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2466</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+114</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.523</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7664.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1736</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.504</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7668.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:05</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>10911</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1259</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.558</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:10</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1440</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.505</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-34</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.053</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.25</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ TICK 提供的支持证据</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>发帖前 60 分钟净 Delta <b>+1962</b>（买占比 0.507 ✓）与其方向同向 ⇒ 主动成交支持他 ✓</li></ul><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ TICK 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>大单主动卖 <b>1148</b> 手 > 买 769 手 ✗</li></ul></div></div></div><div style='font-size:0.72rem;color:#94a3b8;margin-top:6px;'>数据源：引擎行 order_flow_signals（每 5 分钟 ✓）+ 原始 TICKS/DOM 文件复算 ✓；Δ1m/Δ5m/DOM ±2/±5 为短窗主口径，引擎 Δ30m 仅对照 ✓；价格列用 quantitative_metrics.es_price ✓。</div></section></div></body></html>

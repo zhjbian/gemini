@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang='zh'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/><title>Order Flow 深度分析 · ES · 2026-09-11 07:00→10:00</title><style>:root{color-scheme:light;}body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.55;}.page{max-width:1160px;margin:0 auto;padding:24px 20px 60px;}header.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}header.card h1{margin:0;font-size:1.3rem;font-weight:800;}header.card .sub{margin-top:4px;font-size:0.8rem;color:#64748b;}section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 24px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}</style><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'/>
+<!DOCTYPE html><html lang='zh'><head>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script><meta charset='utf-8'/><meta name='viewport' content='width=device-width,initial-scale=1'/><title>Order Flow 深度分析 · ES · 2026-09-11 07:00→10:00</title><style>:root{color-scheme:light;}body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.55;}.page{max-width:1160px;margin:0 auto;padding:24px 20px 60px;}header.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}header.card h1{margin:0;font-size:1.3rem;font-weight:800;}header.card .sub{margin-top:4px;font-size:0.8rem;color:#64748b;}section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 24px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);}</style><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'/>
 <style>
 .copy-title-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;margin-left:6px;border:1px solid #e2e8f0;border-radius:5px;background:#f8fafc;color:#64748b;cursor:pointer;font-size:0.72rem;line-height:1;transition:all 0.15s ease;flex-shrink:0;vertical-align:middle;}
 .copy-title-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#4f46e5;}
@@ -79,4 +80,801 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
     }
 }
 </script>
-</head><body><div class='page'><header class='card'><h1>Order Flow 深度分析 · ES</h1><div class='sub'>2026-09-11 · 07:00 → 10:00 · 待验证方向 BULLISH · 无前视 ✓ · Light Theme</div></header><section class='card'><div style='font-size:0.82rem;color:#334155;margin:4px 0 8px;'>标的 <b>ES</b> · 窗口 <b>07:00 → 10:00</b> · 待验证方向 <b>BULLISH</b>。以下用<b>逐笔成交（TICK）</b>与<b>盘口挂单（DOM）</b>两个数据源交叉印证，无前视 ✓，仅分析参考、不接入自动下单 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>1️⃣ 合并时间线（每 5 分钟一行 ✓ 无前视 ✓；<b>短窗为主</b>：tick Δ1m/Δ5m + 每行 DOM ±2/±5 ✓；引擎 Δ30m 仅作<b>慢口径对照</b> ✓） <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '1️⃣ 合并时间线')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </div><table style='border-collapse:collapse;font-size:0.75rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 6px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎方向/Setup</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ1m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ5m（短窗主 ✓）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 5m 价位移</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM ±2/±5 失衡</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 Δ30m（慢·对照）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎价(ES)</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 量5m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 vs tick</th></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.055 / -0.054</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+884</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7681.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.055 / -0.054</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1211</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.027 / -0.100</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-514</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.014 / -0.031</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2946</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7666.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:20</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.052 / -0.028</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-613</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+330</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7675.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1809</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7675.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.008 / -0.050</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3650</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7664.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.024 / -0.073</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-4068</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7660.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.003 / -0.027</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1386</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7657.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.002 / -0.005</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-422</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7664.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.020 / -0.038</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-733</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7658.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-918</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7657.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.015 / -0.078</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1645</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7664.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.034 / +0.019</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+3208</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7666.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.009 / -0.080</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2896</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7663.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:20</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.021 / +0.063</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2235</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.040 / +0.072</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2111</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.039 / +0.018</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2593</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7677.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1435</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-274</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7677.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.067 / +0.021</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7679.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1147</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1653</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7673.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2403</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7675.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-16</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+3.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1908</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7679.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>9616</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-24</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-598</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1947</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7388</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-63</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-467</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2497</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7673.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>5969</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:20</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-126</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-292</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2690</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8376</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Spoof-Trap</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-189</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-804</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.025 / -0.033</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2875</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7642</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1740</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1911</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-4.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.055 / -0.024</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-4088</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7667.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>21611</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+38</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+370</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+3.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3702</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7673.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>17010</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-288</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-599</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-4.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3703</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7667.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8193</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+110</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+223</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3013</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>10483</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-110</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-432</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-1.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3153</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6308</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-41</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1062</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3411</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6648</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>10:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-13</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+131</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1369</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6309</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>Δ1m/Δ5m = 该时刻前 1/5 分钟的逐笔成交净 Delta（tick 严格口径 ✓）；DOM ±2/±5 = 距 mid ±2/±5 ticks 挂单失衡（DB 扁平列 imb_short/mid_short 优先 ✓）；引擎 Δ30m 为滚动 30 分钟净额，仅作慢口径对照 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>2️⃣ 🧭 DOM × TICK <b>合并结论</b>（两个数据源交叉印证 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '2️⃣ 🧭 DOM × TICK 合并结论')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>维度</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>DOM（挂单 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>TICK（成交 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>综合判断</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 全窗</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>t0 近端 ±2 — · ±5 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗净Delta <b>-5416</b> · 买占比 0.477</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 窗口极值点</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 — · ±5 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Δ5m <b>—</b>｜引擎 Δ30m <b>-918</b></td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>极值点由「末段抛压/抢筹」打出，但 30 分钟累积方向相反 ⇒ 典型「吸收/派发」✓（短窗与慢窗背离）</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>位置</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 — / 卖墙 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL 7667.75 · POC 7672.25 · VAH 7673.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口低点 <b>7657.25</b> 贴住价值区下沿 VAL ⇒ 折价区（利于看多 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>大额资金</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 — 手 vs 卖墙 — 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>大单(≥20手) 买 467 vs 卖 984（共 34 笔）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>大额单净卖 ✗（984 vs 买 467）⇒ 走势缺大单确认</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>机构大单</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—（挂单源无此层）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>SingleTickBigTrade 2 笔 · 买 414 vs 卖 500 · 净 -86</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>机构大单净卖 -86 ⇒ 与看多相悖 ✗</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>近端风险</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧真空 — ticks / 卖侧 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口内 5 分钟成交格数 13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方结构连续 ⇒ 无真空风险 ✓</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>DOM 快照取窗口极值点最近有效快照 + t0 快照；TICK 全窗为 t0 前 60 分钟口径 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>3️⃣ 系统 order flow 指标解读（哪些与价格走势一致 / 不一致 ✓ —— 待验证方向 = BULLISH） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '3️⃣ 系统 order flow 指标解读')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='margin:6px 0 2px;font-size:0.8rem;color:#047857;font-weight:700;'>✅ 支持该方向</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>30m 累计 Delta 尚未转正（-1369）⇒ 低点承接不足 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#b91c1c;font-weight:700;'>⚠️ 不支持该方向 / 缺乏确认</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>被动盘口失衡（imb ±5）在窗口内偏空 ⇒ 挂单侧卖方占优，上涨靠主动买盘 ✗</li><li>大额单（≥20 手）净卖 ⇒ 走势缺机构大单确认 ✗</li><li>机构大单（SingleTickBigTrade）2 笔净 <b>-86</b> 手 ⇒ 与方向相悖 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#0369a1;font-weight:700;'>📌 要右侧确认，还需要看到</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>需价格放量站上 VAH（7673.75）才能右侧确认反弹延续 ✓</li></ul><div style='display:flex;flex-direction:column;gap:14px;align-items:stretch;'><div style='flex:1 1 100%;width:100%;'><div style='font-size:0.8rem;color:#94a3b8;'>（当日无有效 DOM 快照 ⇒ DOM 深度分析不可用 ✗）</div></div><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>6️⃣ 📈 TICK 深度分析（逐笔成交 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '5️⃣ 📈 TICK 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 tick（截止发帖时刻 ✓ 无前视 ✓）；主动买 = 吃 ASK ✓ 主动卖 = 吃 BID ✓（与 MW 口径一致 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>平均/最大单笔</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最新价</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>115608</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>55096 / 60512</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>-5416</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>0.477</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>87670</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1.32 / 500</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7674.75</td></tr></table><div style='height:6px;'></div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>分窗口（截至发帖 ✓ tick 严格口径 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价格位移</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>判定</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+172</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>6364</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+2.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.514</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−10′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-890</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>13012</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+4.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.466</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1322</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>19320</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+2.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.466</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1328</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>55006</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+7.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.488</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−60′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-5416</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>115608</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.477</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价位分布（Volume Profile ✓ 70% 价值区 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL（价值区下沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（最密集）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAH（价值区上沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>收盘价相对价值区</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7667.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>7672.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7673.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>高于 VAH ⇒ 溢价 ⚠️</b></td></tr></table><div style='font-size:0.76rem;color:#475569;margin-top:2px;'>Top5 成交密集价：7672.25（5155 手） · 7672.50（5007 手） · 7673.00（4680 手） · 7671.00（4679 手） · 7672.75（4579 手）</div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>大单（单笔 ≥20 手 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>合计量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最大 3 笔</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>34</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1451</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>467 / 984</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:51 500手@7671.50（主动卖 ✗） · 09:51 73手@7671.00（主动买 ✓） · 09:34 50手@7674.50（主动买 ✓）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>逐分钟成交节奏（每 5 分钟采样 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>价</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2389</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-135</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.472</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:05</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1793</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-91</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.475</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7679.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:10</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1269</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-19</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.493</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1412</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-16</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.494</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7673.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1677</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-291</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.413</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2042</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-180</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.456</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:30</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>5427</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+93</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.509</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7670.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:35</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1499</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-177</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.441</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>3206</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-22</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.497</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1072</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-44</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.479</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7672.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1775</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+29</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.508</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7672.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1593</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-103</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.468</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>10:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+41</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.873</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.75</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ TICK 提供的支持证据</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>最近 5 分钟净 Delta <b>+172</b> 已同向 ⇒ 短周期动能确认 ✓</li></ul><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ TICK 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>发帖前 60 分钟净 Delta <b>-5416</b> 与其方向相反 ✗（但短窗口可能已转 ✓ 见分窗口表）</li><li>最新价 <b>7674.75</b> 高于价值区上沿 7673.75 ⇒ 溢价区 ⚠️</li><li>大单主动卖 <b>984</b> 手 > 买 467 手 ✗</li></ul></div></div></div><div style='font-size:0.72rem;color:#94a3b8;margin-top:6px;'>数据源：引擎行 order_flow_signals（每 5 分钟 ✓）+ 原始 TICKS/DOM 文件复算 ✓；Δ1m/Δ5m/DOM ±2/±5 为短窗主口径，引擎 Δ30m 仅对照 ✓；价格列用 quantitative_metrics.es_price ✓。</div></section></div></body></html>
+</head><body><div class='page'><header class='card'><h1>Order Flow 深度分析 · ES</h1><div class='sub'>2026-09-11 · 07:00 → 10:00 · 待验证方向 BULLISH · 无前视 ✓ · Light Theme</div></header>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 0️⃣-a 当日 ES 价格走势与关键点位 (Candlestick Chart) -->
+<section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
+  <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
+    <div>
+      <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
+        <span>0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
+      <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
+        标的 <b>ES</b> · 日期 <b>2026-09-11</b> · 周期 <b>5 分钟</b> · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
+      </div>
+    </div>
+    <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
+      <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 7631.00</span>
+      <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 7665.00 (Gap Up)</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP L1: 7639.75</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>07:45 吸收: +1,744 Delta</span>
+    </div>
+  </div>
+
+  <!-- Legend & Point Guide -->
+  <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
+    <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 7631.00</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 7665.00 ｜ H1 7692.25 · H2 7721.00 ｜ <span style='color:#dc2626;font-weight:700;'>L1 7639.75</span> · L2 7622.75</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 7695.00 · +61.8% 7670.50 · -61.8% 7591.50 · -100% 7567.00 (ATR 64.04)</div>
+  </div>
+
+  <div id='esCandlestickChart' style='width:100%;height:855px;'></div>
+  <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与净 Delta</div>
+</section>
+
+<script>
+(function() {
+  function initEsChart() {
+    var chartDom = document.getElementById('esCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initEsChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
+
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[7638.75, 7638.5, 7637.75, 7639.5], [7638.25, 7636.5, 7635.5, 7638.5], [7636.25, 7636.25, 7635.75, 7637.25], [7636.25, 7638.5, 7635.5, 7638.75], [7638.75, 7638.25, 7636.0, 7638.75], [7638.25, 7639.5, 7638.25, 7641.25], [7639.5, 7636.5, 7636.25, 7640.5], [7636.75, 7638.0, 7635.75, 7638.5], [7637.75, 7640.5, 7637.5, 7640.5], [7640.75, 7641.0, 7637.75, 7641.5], [7641.0, 7640.5, 7639.0, 7641.0], [7640.5, 7640.75, 7640.0, 7642.5], [7640.75, 7639.5, 7637.5, 7641.25], [7639.5, 7640.25, 7638.25, 7640.25], [7640.5, 7641.75, 7639.25, 7644.0], [7641.75, 7644.5, 7640.75, 7645.75], [7644.75, 7643.5, 7643.25, 7646.75], [7643.75, 7653.75, 7642.75, 7657.5], [7653.5, 7643.0, 7620.5, 7655.25], [7642.75, 7647.75, 7640.25, 7650.5], [7647.5, 7646.5, 7644.75, 7650.0], [7646.75, 7656.0, 7644.75, 7658.25], [7656.0, 7667.25, 7655.5, 7668.75], [7667.25, 7676.25, 7666.5, 7677.5], [7676.25, 7677.25, 7675.75, 7683.5], [7677.25, 7673.5, 7671.25, 7680.25], [7673.25, 7667.25, 7665.5, 7674.5], [7667.5, 7665.75, 7665.25, 7669.0], [7665.75, 7667.0, 7665.75, 7668.25], [7667.0, 7665.0, 7664.5, 7673.0], [7665.0, 7675.5, 7659.75, 7676.5], [7675.25, 7673.5, 7671.5, 7677.75], [7673.25, 7672.25, 7664.25, 7676.5], [7672.5, 7667.75, 7665.75, 7677.0], [7667.5, 7668.75, 7664.75, 7670.75], [7668.75, 7681.0, 7667.75, 7682.0], [7681.0, 7672.25, 7671.25, 7681.25], [7672.25, 7672.0, 7667.0, 7673.75], [7672.0, 7666.5, 7664.5, 7674.75], [7666.75, 7674.75, 7664.0, 7675.5], [7675.0, 7675.25, 7673.5, 7678.25], [7675.5, 7675.0, 7673.5, 7678.75], [7675.0, 7664.75, 7664.25, 7676.0], [7664.75, 7660.5, 7657.75, 7665.0], [7660.5, 7657.75, 7656.0, 7665.0], [7657.75, 7664.5, 7653.25, 7665.5], [7664.5, 7658.0, 7657.25, 7665.0], [7658.0, 7657.25, 7654.25, 7659.5], [7657.25, 7664.25, 7655.25, 7664.25], [7664.0, 7666.5, 7663.25, 7670.25], [7666.5, 7663.5, 7658.5, 7667.25], [7663.5, 7671.5, 7663.5, 7673.25], [7671.5, 7676.25, 7670.75, 7676.75], [7676.25, 7677.5, 7674.25, 7680.25], [7677.5, 7676.5, 7675.0, 7679.25], [7676.5, 7677.0, 7673.75, 7678.25], [7677.25, 7679.0, 7676.25, 7680.5], [7679.0, 7676.75, 7675.25, 7679.25], [7676.75, 7673.0, 7671.75, 7677.5], [7673.0, 7675.0, 7671.5, 7676.0], [7674.75, 7679.25, 7674.75, 7680.0], [7679.25, 7676.75, 7675.25, 7679.75], [7677.0, 7673.5, 7673.0, 7678.0], [7673.75, 7672.75, 7671.5, 7674.25], [7672.75, 7671.25, 7670.25, 7674.0], [7671.25, 7667.0, 7666.25, 7673.75], [7667.0, 7673.5, 7665.75, 7675.5], [7673.5, 7667.0, 7666.75, 7673.75], [7667.0, 7672.0, 7666.25, 7672.5], [7672.0, 7671.0, 7670.75, 7673.75], [7670.75, 7671.75, 7670.5, 7673.5], [7672.0, 7674.25, 7671.75, 7674.5], [7674.25, 7674.0, 7673.25, 7676.5], [7674.25, 7675.0, 7673.75, 7678.75], [7675.0, 7673.25, 7673.0, 7676.75], [7673.5, 7676.75, 7673.5, 7677.0], [7677.0, 7680.0, 7676.5, 7680.5], [7680.25, 7677.5, 7677.0, 7681.0], [7677.75, 7677.75, 7676.75, 7680.25], [7677.5, 7676.0, 7675.5, 7678.25], [7675.75, 7676.5, 7675.5, 7677.75], [7676.25, 7676.75, 7675.0, 7677.25], [7676.75, 7676.25, 7676.0, 7677.5], [7676.25, 7674.75, 7674.0, 7676.25], [7675.0, 7676.5, 7674.5, 7677.75], [7676.5, 7674.5, 7673.5, 7676.5], [7674.75, 7673.5, 7672.75, 7675.0], [7673.25, 7673.75, 7672.75, 7675.0], [7673.5, 7671.25, 7668.75, 7673.75], [7671.25, 7672.0, 7669.75, 7673.25], [7672.0, 7672.0, 7669.0, 7673.5], [7672.0, 7670.5, 7670.0, 7673.25], [7670.5, 7669.25, 7668.5, 7671.75], [7669.0, 7668.25, 7667.5, 7671.5], [7668.0, 7668.5, 7668.0, 7669.5], [7668.25, 7668.0, 7667.0, 7670.25], [7668.0, 7669.25, 7667.5, 7669.5], [7669.0, 7665.25, 7664.75, 7669.0], [7665.25, 7666.75, 7663.0, 7666.75], [7666.75, 7667.5, 7666.25, 7668.5], [7667.5, 7669.5, 7666.5, 7669.75], [7669.5, 7667.75, 7667.5, 7670.5], [7667.75, 7667.0, 7666.25, 7668.75], [7667.25, 7666.5, 7666.0, 7667.75], [7666.75, 7667.5, 7666.25, 7668.0], [7667.5, 7664.5, 7664.5, 7667.75], [7664.75, 7664.0, 7661.75, 7665.5], [7664.0, 7658.75, 7657.5, 7664.5], [7658.75, 7660.75, 7658.5, 7661.25], [7661.0, 7661.25, 7660.5, 7661.75], [7661.25, 7660.5, 7659.5, 7662.0], [7660.5, 7660.0, 7659.75, 7660.75], [7660.0, 7661.5, 7660.0, 7661.75], [7661.75, 7661.0, 7660.5, 7661.75], [7661.0, 7662.25, 7660.75, 7663.5], [7662.25, 7661.75, 7661.75, 7662.75], [7662.0, 7660.75, 7660.0, 7662.25], [7661.0, 7660.25, 7659.75, 7661.25], [7660.25, 7661.5, 7660.0, 7661.5], [7661.25, 7660.75, 7660.0, 7661.5]];
+    var rawVols = [1541.0, 1488.0, 795.0, 1306.0, 806.0, 1562.0, 1363.0, 1679.0, 1171.0, 1485.0, 1080.0, 1061.0, 2199.0, 2575.0, 3450.0, 2057.0, 2991.0, 9328.0, 25376.0, 11211.0, 7238.0, 8595.0, 11365.0, 11231.0, 15038.0, 10033.0, 9874.0, 5724.0, 4023.0, 11717.0, 43692.0, 33044.0, 35832.0, 27399.0, 18939.0, 17584.0, 23337.0, 19553.0, 25498.0, 18516.0, 15468.0, 13595.0, 19190.0, 23707.0, 21674.0, 36424.0, 17955.0, 13774.0, 15521.0, 16950.0, 16834.0, 15133.0, 13833.0, 17094.0, 15971.0, 11803.0, 11477.0, 9789.0, 9737.0, 11574.0, 9616.0, 7388.0, 5969.0, 8376.0, 7642.0, 21611.0, 17010.0, 8193.0, 10483.0, 6308.0, 6648.0, 6309.0, 9617.0, 11627.0, 7892.0, 6040.0, 7087.0, 7404.0, 7572.0, 4991.0, 4908.0, 5091.0, 4433.0, 4798.0, 7422.0, 5160.0, 5045.0, 6095.0, 19763.0, 9335.0, 7474.0, 3990.0, 4937.0, 10688.0, 5297.0, 7299.0, 5528.0, 8438.0, 9749.0, 6427.0, 6600.0, 7333.0, 7516.0, 5960.0, 8073.0, 10813.0, 21938.0, 90150.0, 20807.0, 4408.0, 4737.0, 1846.0, 1436.0, 829.0, 1780.0, 1245.0, 1093.0, 1264.0, 1245.0, 1099.0];
+    var rawDeltas = [-19.0, -152.0, -3.0, 36.0, -12.0, 150.0, -203.0, 123.0, 253.0, 77.0, 206.0, 45.0, -117.0, 329.0, -166.0, -99.0, -299.0, 1006.0, 44.0, 307.0, -182.0, 1091.0, 1135.0, -389.0, -506.0, -717.0, -1300.0, -332.0, -555.0, -367.0, 2020.0, -692.0, -164.0, -1553.0, -621.0, 1894.0, -75.0, 5.0, -2596.0, 780.0, 322.0, -245.0, -1916.0, -413.0, 86.0, 1744.0, 11.0, -430.0, 647.0, 1150.0, -226.0, 1083.0, -113.0, 52.0, -511.0, -559.0, 83.0, -99.0, -619.0, -698.0, -16.0, -598.0, -467.0, -292.0, -804.0, -1911.0, 370.0, -599.0, 223.0, -432.0, -1062.0, 131.0, -455.0, 545.0, -64.0, 776.0, 569.0, -266.0, -376.0, -587.0, 78.0, -239.0, 135.0, -606.0, 166.0, -292.0, -141.0, -215.0, -1717.0, 601.0, -700.0, -150.0, -203.0, 44.0, 309.0, 425.0, 70.0, -1048.0, 567.0, -279.0, -140.0, -1057.0, -416.0, -146.0, 755.0, -623.0, 474.0, -2862.0, -891.0, 456.0, 277.0, -50.0, 100.0, -63.0, 378.0, -51.0, 105.0, -268.0, -33.0, -357.0];
+
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+          var delta = rawDeltas[idx];
+          var deltaSign = delta > 0 ? '+' : '';
+          var deltaColor = delta > 0 ? '#16a34a' : (delta < 0 ? '#dc2626' : '#64748b');
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">ES · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '<span>净 Delta:</span><b style="color:' + deltaColor + '">' + deltaSign + delta.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
+      },
+      axisPointer: { link: [{ xAxisIndex: 'all' }] },
+      grid: [
+        { left: 55, right: 80, top: 35, height: 575 },
+        { left: 55, right: 80, top: 675, height: 90 }
+      ],
+      xAxis: [
+        { type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } },
+        { type: 'category', gridIndex: 1, data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { show: false }, splitLine: { show: false } }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f1f5f9' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(1); } }
+        },
+        {
+          type: 'value',
+          gridIndex: 1,
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f8fafc' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#94a3b8', fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'k'; } }
+        }
+      ],
+      series: [
+        {
+          name: 'ES 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '07:00',
+                  name: '深度分析窗口 07:00→10:00',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '10:00' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
+              {
+                name: '07:45 最低',
+                coord: ['07:45', 7653.25],
+                symbol: 'arrow',
+                symbolRotate: 0,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
+                label: {
+                  show: true,
+                  position: 'bottom',
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '07:45 最低 7653.25\n(+1,744 Delta 吸收反转)',
+                  color: '#0369a1',
+                  fontWeight: 'bold',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 7631.00',
+                yAxis: 7631.00,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 7631.00'
+                }
+              },
+              {
+                name: 'QP Open: 7665.00',
+                yAxis: 7665.00,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 7665.00 (Gap Up)'
+                }
+              },
+              {
+                name: 'QP H1: 7692.25',
+                yAxis: 7692.25,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dashed' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(5, 150, 105, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#047857', fontSize: 10, fontWeight: '600', formatter: 'QP H1: 7692.25' }
+              },
+              {
+                name: 'QP H2: 7721.00',
+                yAxis: 7721.00,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 7721.00'
+                }
+              },
+              {
+                name: 'QP L1: 7639.75',
+                yAxis: 7639.75,
+                lineStyle: { color: '#dc2626', width: 2.0, type: 'solid' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(220, 38, 38, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#b91c1c', fontSize: 10, fontWeight: 'bold', formatter: '★ QP L1: 7639.75 (RTH支撑)' }
+              },
+              {
+                name: 'QP L2: 7622.75',
+                yAxis: 7622.75,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 7622.75'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 7670.50',
+                yAxis: 7670.50,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 7670.50'
+                }
+              },
+              {
+                name: 'Saty +100%: 7695.00',
+                yAxis: 7695.00,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 7695.00'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 7591.50',
+                yAxis: 7591.50,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 7591.50'
+                }
+              },
+              {
+                name: 'Saty -100%: 7567.00',
+                yAxis: 7567.00,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 7567.00'
+                }
+              }
+            ]
+          }
+        },
+        {
+          name: '5m Delta Volume',
+          type: 'bar',
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+          data: rawDeltas.map(function(d) {
+            return { value: d, itemStyle: { color: d > 0 ? '#10b981' : (d < 0 ? '#ef4444' : '#94a3b8') } };
+          })
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEsChart);
+  } else {
+    initEsChart();
+  }
+})();
+</script>
+
+
+<!-- 0️⃣-b 当日 SPY 价格走势与关键点位 (Candlestick Chart) -->
+<section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
+  <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
+    <div>
+      <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
+        <span>0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
+      <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
+        标的 <b>SPY</b> · 日期 <b>2026-09-11</b> · 周期 <b>5 分钟</b> · 无 Delta 信息 · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
+      </div>
+    </div>
+    <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
+      <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 755.95</span>
+      <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 762.83</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP L1: 760.30</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>07:45 最低: 763.60</span>
+    </div>
+  </div>
+
+  <!-- Legend & Point Guide -->
+  <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
+    <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 755.95</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 762.83 ｜ H1 765.54 · H2 768.39 ｜ L1 760.30 · L2 758.61</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 761.30 · +61.8% 759.26 · -61.8% 752.64 · -100% 750.60 (ATR 5.35)</div>
+  </div>
+
+  <div id='spyCandlestickChart' style='width:100%;height:640px;'></div>
+  <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与成交量</div>
+</section>
+
+<script>
+(function() {
+  function initSpyChart() {
+    var chartDom = document.getElementById('spyCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initSpyChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
+
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[762.12, 762.14, 762.02, 762.22], [762.12, 761.87, 761.83, 762.12], [761.85, 761.9, 761.85, 761.94], [761.85, 762.09, 761.82, 762.09], [762.14, 761.94, 761.88, 762.14], [762.12, 762.19, 762.1, 762.37], [762.19, 761.89, 761.88, 762.29], [761.92, 762.05, 761.78, 762.09], [762.03, 762.3, 762.03, 762.3], [762.28, 762.37, 762.03, 762.39], [762.38, 762.22, 762.2, 762.38], [762.28, 762.35, 762.28, 762.45], [762.37, 762.22, 762.03, 762.37], [762.23, 762.32, 762.13, 762.32], [762.34, 762.45, 762.21, 762.72], [762.45, 762.74, 762.34, 762.83], [762.75, 762.62, 762.59, 762.93], [762.59, 763.5, 762.57, 763.78], [763.24, 762.61, 760.39, 763.55], [762.56, 763.03, 762.31, 763.32], [763.02, 762.9, 762.7, 763.2], [762.9, 763.85, 762.71, 764.05], [763.85, 765.04, 763.83, 765.1], [764.98, 765.8, 764.93, 765.95], [765.83, 765.93, 765.81, 766.53], [765.92, 765.57, 765.33, 766.21], [765.49, 764.95, 764.8, 765.64], [764.95, 764.95, 764.95, 764.95], [764.95, 764.95, 764.95, 764.95], [764.95, 764.95, 764.95, 764.95], [764.72, 765.77, 764.22, 765.86], [765.76, 765.56, 765.38, 765.99], [765.56, 765.46, 764.67, 765.81], [765.48, 764.97, 764.8, 765.93], [764.99, 765.13, 764.7, 765.29], [765.13, 766.31, 765.03, 766.38], [766.31, 765.45, 765.38, 766.33], [765.45, 765.41, 764.94, 765.6], [765.41, 764.9, 764.78, 765.69], [764.9, 765.72, 764.63, 765.75], [765.72, 765.76, 765.58, 766.03], [765.76, 765.73, 765.57, 766.1], [765.75, 764.73, 764.69, 765.78], [764.73, 764.3, 764.04, 764.73], [764.3, 764.05, 763.88, 764.74], [764.04, 764.69, 763.6, 764.8], [764.72, 764.07, 764.0, 764.85], [764.08, 763.97, 763.7, 764.21], [763.95, 764.67, 763.81, 764.67], [764.65, 764.9, 764.6, 765.25], [764.91, 764.61, 764.12, 764.96], [764.61, 765.4, 764.61, 765.55], [765.39, 765.84, 765.34, 765.89], [765.87, 766.0, 765.68, 766.24], [765.98, 765.9, 765.76, 766.19], [765.89, 765.95, 765.62, 766.05], [765.94, 766.12, 765.86, 766.27], [766.12, 765.88, 765.76, 766.14], [765.88, 765.52, 765.42, 765.96], [765.54, 765.71, 765.38, 765.8], [765.72, 766.14, 765.72, 766.2], [766.14, 765.9, 765.74, 766.18], [765.91, 765.58, 765.53, 765.99], [765.59, 765.49, 765.4, 765.65], [765.52, 765.36, 765.26, 765.6], [765.36, 764.92, 764.87, 765.6], [764.94, 765.58, 764.81, 765.76], [765.58, 764.95, 764.91, 765.59], [764.94, 765.45, 764.85, 765.48], [765.44, 765.31, 765.3, 765.6], [765.33, 765.42, 765.27, 765.55], [765.41, 765.62, 765.38, 765.67], [765.64, 765.63, 765.55, 765.85], [765.64, 765.74, 765.6, 766.08], [765.73, 765.56, 765.51, 765.87], [765.56, 765.92, 765.56, 765.92], [765.92, 766.24, 765.87, 766.25], [766.23, 765.99, 765.91, 766.33], [765.99, 765.98, 765.91, 766.26], [765.98, 765.81, 765.78, 766.05], [765.81, 765.86, 765.79, 766.0], [765.86, 765.91, 765.72, 765.94], [765.91, 765.85, 765.82, 765.98], [765.86, 765.74, 765.64, 765.88], [765.74, 765.86, 765.69, 765.97], [765.85, 765.7, 765.6, 765.85], [765.7, 765.57, 765.51, 765.73], [765.56, 765.58, 765.53, 765.72], [765.59, 765.34, 765.14, 765.6], [765.37, 765.41, 765.2, 765.54], [765.42, 765.45, 765.15, 765.58], [765.46, 765.3, 765.25, 765.56], [765.3, 765.15, 765.1, 765.41], [765.15, 765.04, 764.96, 765.32], [765.04, 765.06, 765.03, 765.17], [765.04, 765.03, 764.94, 765.26], [765.04, 765.14, 765.0, 765.19], [765.13, 764.76, 764.72, 765.14], [764.75, 764.9, 764.55, 764.92], [764.9, 764.99, 764.88, 765.1], [765.0, 765.2, 764.9, 765.22], [765.2, 765.02, 765.01, 765.3], [765.03, 764.98, 764.9, 765.13], [764.98, 764.93, 764.87, 765.03], [764.93, 765.01, 764.88, 765.05], [765.01, 764.75, 764.72, 765.04], [764.74, 764.66, 764.42, 764.82], [764.66, 764.18, 764.04, 764.7], [764.18, 764.29, 763.83, 764.39], [764.37, 764.4, 764.29, 764.44], [764.42, 764.35, 764.0, 765.13], [764.32, 764.27, 764.25, 764.33], [764.3, 764.45, 764.3, 764.45], [764.45, 764.36, 764.29, 764.45], [764.35, 764.51, 764.33, 764.6], [764.5, 764.45, 764.42, 764.53], [764.45, 764.35, 764.26, 764.48], [764.36, 764.25, 764.25, 764.36], [764.26, 764.39, 764.25, 764.4], [764.4, 764.38, 764.29, 764.4]];
+    var rawVols = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4205683, 769423, 829435, 762224, 443437, 445940, 542787, 372761, 405671, 488857, 343584, 286702, 429465, 546936, 407838, 754627, 280128, 773529, 194568, 261249, 252479, 273070, 189265, 287743, 168884, 686844, 204618, 198972, 390945, 234935, 1518720, 308945, 142257, 160955, 210740, 329045, 300257, 358442, 230372, 157822, 501051, 500841, 1361794, 159685, 183128, 262400, 208368, 269591, 172407, 454293, 406972, 349285, 160600, 164816, 237769, 189779, 251917, 273300, 593144, 461589, 212652, 127680, 378014, 240617, 299921, 311427, 428806, 511995, 475037, 225774, 371497, 482925, 510203, 459681, 640436, 1015795, 1537156, 4353192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">SPY · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
+      },
+      grid: [{ left: 55, right: 80, top: 35, height: 535 }],
+      xAxis: [{ type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } }],
+      yAxis: [{ type: 'value', scale: true, position: 'right', min: function(val) { return Math.floor(val.min - 0.5); }, max: function(val) { return Math.ceil(val.max + 0.5); }, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(2); } } }],
+      series: [
+        {
+          name: 'SPY 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '07:00',
+                  name: '深度分析窗口 07:00→10:00',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '10:00' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
+              {
+                name: '07:45 最低',
+                coord: ['07:45', 763.6],
+                symbol: 'arrow',
+                symbolRotate: 0,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
+                label: {
+                  show: true,
+                  position: 'bottom',
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '07:45 最低 763.60\n(同步 ES 吸收反转)',
+                  color: '#0369a1',
+                  fontWeight: 'bold',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 755.95',
+                yAxis: 755.95,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 755.95'
+                }
+              },
+              {
+                name: 'QP Open: 762.83',
+                yAxis: 762.83,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 762.83'
+                }
+              },
+              {
+                name: 'QP H1: 765.54',
+                yAxis: 765.54,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H1: 765.54'
+                }
+              },
+              {
+                name: 'QP H2: 768.39',
+                yAxis: 768.39,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 768.39'
+                }
+              },
+              {
+                name: 'QP L1: 760.30',
+                yAxis: 760.30,
+                lineStyle: { color: '#dc2626', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(220, 38, 38, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#b91c1c',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L1: 760.30'
+                }
+              },
+              {
+                name: 'QP L2: 758.61',
+                yAxis: 758.61,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 758.61'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 759.26',
+                yAxis: 759.26,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 759.26'
+                }
+              },
+              {
+                name: 'Saty +100%: 761.30',
+                yAxis: 761.30,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 761.30'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 752.64',
+                yAxis: 752.64,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 752.64'
+                }
+              },
+              {
+                name: 'Saty -100%: 750.60',
+                yAxis: 750.60,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 750.60'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpyChart);
+  } else {
+    initSpyChart();
+  }
+})();
+</script>
+
+<section class='card'><div style='font-size:0.82rem;color:#334155;margin:4px 0 8px;'>标的 <b>ES</b> · 窗口 <b>07:00 → 10:00</b> · 待验证方向 <b>BULLISH</b>。以下用<b>逐笔成交（TICK）</b>与<b>盘口挂单（DOM）</b>两个数据源交叉印证，无前视 ✓，仅分析参考、不接入自动下单 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>1️⃣ 合并时间线（每 5 分钟一行 ✓ 无前视 ✓；<b>短窗为主</b>：tick Δ1m/Δ5m + 每行 DOM ±2/±5 ✓；引擎 Δ30m 仅作<b>慢口径对照</b> ✓） <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '1️⃣ 合并时间线')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </div><table style='border-collapse:collapse;font-size:0.75rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 6px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎方向/Setup</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ1m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ5m（短窗主 ✓）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 5m 价位移</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM ±2/±5 失衡</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 Δ30m（慢·对照）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎价(ES)</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 量5m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 vs tick</th></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.055 / -0.054</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+884</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7681.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.055 / -0.054</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1211</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.027 / -0.100</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-514</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.014 / -0.031</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2946</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7666.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:20</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.052 / -0.028</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-613</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+330</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7675.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1809</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7675.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.008 / -0.050</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3650</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7664.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.024 / -0.073</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-4068</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7660.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.003 / -0.027</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1386</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7657.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.002 / -0.005</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-422</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7664.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>07:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.020 / -0.038</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-733</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7658.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-918</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7657.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.015 / -0.078</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1645</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7664.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.034 / +0.019</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+3208</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7666.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.009 / -0.080</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2896</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7663.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:20</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.021 / +0.063</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2235</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.040 / +0.072</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2111</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.039 / +0.018</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2593</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7677.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1435</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-274</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7677.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.067 / +0.021</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7679.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1147</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>08:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1653</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7673.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2403</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7675.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:05</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-16</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+3.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1908</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7679.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>9616</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:10</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:High-Bound</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-24</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-598</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1947</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7676.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7388</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:15</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-63</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-467</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2497</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7673.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>5969</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:20</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-126</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-292</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2690</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8376</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Spoof-Trap</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-189</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-804</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.025 / -0.033</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2875</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7642</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:30</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1740</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1911</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-4.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.055 / -0.024</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-4088</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7667.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>21611</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:35</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+38</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+370</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+3.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3702</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7673.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>17010</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-288</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-599</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-4.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3703</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7667.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8193</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:45</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+110</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+223</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3013</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7672.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>10483</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-110</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-432</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-1.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3153</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6308</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>09:55</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-41</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1062</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3411</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7671.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6648</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;'>10:00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-13</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+131</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1369</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7674.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6309</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>Δ1m/Δ5m = 该时刻前 1/5 分钟的逐笔成交净 Delta（tick 严格口径 ✓）；DOM ±2/±5 = 距 mid ±2/±5 ticks 挂单失衡（DB 扁平列 imb_short/mid_short 优先 ✓）；引擎 Δ30m 为滚动 30 分钟净额，仅作慢口径对照 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>2️⃣ 🧭 DOM × TICK <b>合并结论</b>（两个数据源交叉印证 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '2️⃣ 🧭 DOM × TICK 合并结论')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>维度</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>DOM（挂单 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>TICK（成交 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>综合判断</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 全窗</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>t0 近端 ±2 — · ±5 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗净Delta <b>-5416</b> · 买占比 0.477</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 窗口极值点</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 — · ±5 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Δ5m <b>—</b>｜引擎 Δ30m <b>-918</b></td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>极值点由「末段抛压/抢筹」打出，但 30 分钟累积方向相反 ⇒ 典型「吸收/派发」✓（短窗与慢窗背离）</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>位置</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 — / 卖墙 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL 7667.75 · POC 7672.25 · VAH 7673.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口低点 <b>7657.25</b> 贴住价值区下沿 VAL ⇒ 折价区（利于看多 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>大额资金</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 — 手 vs 卖墙 — 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>大单(≥20手) 买 467 vs 卖 984（共 34 笔）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>大额单净卖 ✗（984 vs 买 467）⇒ 走势缺大单确认</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>机构大单</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—（挂单源无此层）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>SingleTickBigTrade 2 笔 · 买 414 vs 卖 500 · 净 -86</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>机构大单净卖 -86 ⇒ 与看多相悖 ✗</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>近端风险</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧真空 — ticks / 卖侧 —</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口内 5 分钟成交格数 13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方结构连续 ⇒ 无真空风险 ✓</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>DOM 快照取窗口极值点最近有效快照 + t0 快照；TICK 全窗为 t0 前 60 分钟口径 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>3️⃣ 系统 order flow 指标解读（哪些与价格走势一致 / 不一致 ✓ —— 待验证方向 = BULLISH） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '3️⃣ 系统 order flow 指标解读')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='margin:6px 0 2px;font-size:0.8rem;color:#047857;font-weight:700;'>✅ 支持该方向</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>30m 累计 Delta 尚未转正（-1369）⇒ 低点承接不足 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#b91c1c;font-weight:700;'>⚠️ 不支持该方向 / 缺乏确认</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>被动盘口失衡（imb ±5）在窗口内偏空 ⇒ 挂单侧卖方占优，上涨靠主动买盘 ✗</li><li>大额单（≥20 手）净卖 ⇒ 走势缺机构大单确认 ✗</li><li>机构大单（SingleTickBigTrade）2 笔净 <b>-86</b> 手 ⇒ 与方向相悖 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#0369a1;font-weight:700;'>📌 要右侧确认，还需要看到</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>需价格放量站上 VAH（7673.75）才能右侧确认反弹延续 ✓</li></ul><div style='display:flex;flex-direction:column;gap:14px;align-items:stretch;'><div style='flex:1 1 100%;width:100%;'><div style='font-size:0.8rem;color:#94a3b8;'>（当日无有效 DOM 快照 ⇒ DOM 深度分析不可用 ✗）</div></div><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>6️⃣ 📈 TICK 深度分析（逐笔成交 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '5️⃣ 📈 TICK 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 tick（截止发帖时刻 ✓ 无前视 ✓）；主动买 = 吃 ASK ✓ 主动卖 = 吃 BID ✓（与 MW 口径一致 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>平均/最大单笔</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最新价</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>115608</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>55096 / 60512</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>-5416</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>0.477</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>87670</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1.32 / 500</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7674.75</td></tr></table><div style='height:6px;'></div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>分窗口（截至发帖 ✓ tick 严格口径 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价格位移</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>判定</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+172</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>6364</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+2.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.514</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−10′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-890</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>13012</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+4.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.466</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1322</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>19320</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+2.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.466</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-1328</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>55006</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+7.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.488</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−60′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-5416</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>115608</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.477</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#b91c1c;'>逆势 ✗</span></td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价位分布（Volume Profile ✓ 70% 价值区 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL（价值区下沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（最密集）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAH（价值区上沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>收盘价相对价值区</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7667.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>7672.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7673.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>高于 VAH ⇒ 溢价 ⚠️</b></td></tr></table><div style='font-size:0.76rem;color:#475569;margin-top:2px;'>Top5 成交密集价：7672.25（5155 手） · 7672.50（5007 手） · 7673.00（4680 手） · 7671.00（4679 手） · 7672.75（4579 手）</div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>大单（单笔 ≥20 手 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>合计量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最大 3 笔</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>34</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1451</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>467 / 984</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:51 500手@7671.50（主动卖 ✗） · 09:51 73手@7671.00（主动买 ✓） · 09:34 50手@7674.50（主动买 ✓）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>逐分钟成交节奏（每 5 分钟采样 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>价</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2389</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-135</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.472</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:05</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1793</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-91</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.475</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7679.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:10</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1269</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-19</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.493</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1412</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-16</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.494</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7673.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1677</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-291</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.413</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2042</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-180</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.456</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:30</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>5427</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+93</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.509</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7670.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:35</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1499</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-177</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.441</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>3206</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-22</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.497</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7669.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1072</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-44</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.479</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7672.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1775</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+29</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.508</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7672.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1593</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-103</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.468</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7671.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>10:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+41</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.873</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7674.75</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ TICK 提供的支持证据</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>最近 5 分钟净 Delta <b>+172</b> 已同向 ⇒ 短周期动能确认 ✓</li></ul><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ TICK 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>发帖前 60 分钟净 Delta <b>-5416</b> 与其方向相反 ✗（但短窗口可能已转 ✓ 见分窗口表）</li><li>最新价 <b>7674.75</b> 高于价值区上沿 7673.75 ⇒ 溢价区 ⚠️</li><li>大单主动卖 <b>984</b> 手 > 买 467 手 ✗</li></ul></div></div></div><div style='font-size:0.72rem;color:#94a3b8;margin-top:6px;'>数据源：引擎行 order_flow_signals（每 5 分钟 ✓）+ 原始 TICKS/DOM 文件复算 ✓；Δ1m/Δ5m/DOM ±2/±5 为短窗主口径，引擎 Δ30m 仅对照 ✓；价格列用 quantitative_metrics.es_price ✓。</div></section></div></body></html>

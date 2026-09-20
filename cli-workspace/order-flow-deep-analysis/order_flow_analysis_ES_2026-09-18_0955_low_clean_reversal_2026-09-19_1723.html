@@ -213,21 +213,31 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
     </div>
   </div>
 </section>
+
+
+
+
+
+
+
+
+
 <!-- 0️⃣-a 当日 ES 价格走势与关键点位 (Candlestick Chart) -->
 <section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
   <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
     <div>
       <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
-        <span>0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </h3>
+        <span>0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
       <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
-        标的 <b>ES</b> · 日期 <b>2026-09-18</b> · 周期 <b>5 分钟</b> · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00)
+        标的 <b>ES</b> · 日期 <b>2026-09-18</b> · 周期 <b>5 分钟</b> · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
       </div>
     </div>
     <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
       <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 7713.50</span>
       <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 7710.00 (Gap Up)</span>
-      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP L1: 7677.25</span>
-      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>09:25 吸收: +2,101 Delta</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP H1: 7735.50</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>08:30 衰竭: -976 Delta</span>
     </div>
   </div>
 
@@ -235,422 +245,378 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
   <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
     <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
     <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 7713.50</div>
-    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 7710.00 ｜ H1 7735.50 · H2 7762.25 ｜ <span style='color:#dc2626;font-weight:700;'>L1 7677.25</span> · L2 7653.25</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 7710.00 ｜ <span style='color:#dc2626;font-weight:700;'>H1 7735.50</span> · H2 7762.25 ｜ L1 7677.25 · L2 7653.25</div>
     <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 7788.75 · +61.8% 7760.00 · -61.8% 7667.00 · -100% 7638.25 (ATR 75.28)</div>
   </div>
 
-  <!-- Chart Container: 855px -->
   <div id='esCandlestickChart' style='width:100%;height:855px;'></div>
   <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与净 Delta</div>
 </section>
 
 <script>
 (function() {
-  var chartDom = document.getElementById('esCandlestickChart');
-  if (!chartDom) return;
-  var myChart = echarts.init(chartDom);
+  function initEsChart() {
+    var chartDom = document.getElementById('esCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initEsChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
 
-  var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
-  var rawCandles = [[7720.25, 7724.0, 7717.25, 7724.0], [7724.0, 7717.75, 7713.75, 7724.0], [7718.0, 7717.5, 7714.75, 7719.25], [7717.25, 7713.25, 7711.75, 7717.25], [7713.25, 7713.25, 7711.5, 7714.75], [7713.25, 7713.0, 7712.25, 7714.0], [7712.75, 7715.0, 7712.75, 7716.5], [7715.0, 7716.25, 7714.5, 7717.75], [7716.25, 7713.0, 7712.25, 7716.5], [7713.0, 7713.75, 7712.0, 7714.25], [7713.5, 7713.5, 7712.25, 7714.0], [7713.75, 7712.0, 7710.25, 7714.0], [7712.25, 7712.5, 7708.25, 7714.5], [7712.5, 7705.5, 7705.5, 7715.0], [7705.75, 7703.0, 7702.0, 7705.75], [7703.25, 7701.0, 7701.0, 7705.5], [7701.0, 7697.75, 7697.75, 7702.5], [7698.0, 7699.0, 7697.75, 7700.5], [7699.0, 7702.25, 7698.0, 7703.0], [7702.0, 7702.0, 7699.5, 7703.25], [7702.0, 7702.5, 7700.75, 7703.75], [7702.25, 7701.0, 7701.0, 7703.5], [7701.0, 7701.5, 7700.5, 7702.25], [7701.75, 7700.75, 7699.25, 7702.0], [7700.75, 7700.25, 7699.25, 7702.25], [7700.25, 7701.75, 7700.0, 7702.5], [7701.75, 7701.5, 7701.0, 7703.0], [7701.5, 7702.75, 7701.0, 7703.25], [7702.5, 7698.25, 7698.0, 7702.75], [7698.0, 7710.0, 7692.25, 7710.0], [7710.0, 7706.75, 7706.25, 7714.5], [7706.75, 7705.0, 7701.75, 7708.0], [7705.25, 7705.0, 7703.5, 7710.25], [7705.0, 7701.0, 7700.5, 7707.5], [7700.75, 7695.0, 7694.75, 7701.25], [7695.0, 7693.0, 7691.25, 7697.0], [7693.0, 7686.25, 7685.0, 7695.25], [7686.25, 7690.25, 7684.0, 7690.5], [7690.0, 7688.0, 7687.5, 7695.0], [7687.75, 7689.25, 7683.25, 7689.5], [7689.25, 7687.25, 7686.5, 7691.75], [7687.25, 7689.0, 7686.25, 7692.0], [7688.75, 7687.5, 7686.25, 7690.0], [7687.5, 7690.5, 7685.25, 7693.5], [7690.5, 7685.5, 7684.0, 7690.75], [7685.75, 7690.0, 7684.0, 7690.75], [7690.0, 7693.75, 7688.75, 7695.25], [7694.0, 7695.0, 7691.75, 7695.25], [7695.0, 7692.5, 7689.5, 7695.5], [7692.25, 7693.0, 7691.5, 7696.0], [7692.75, 7691.25, 7690.5, 7695.0], [7691.25, 7693.25, 7690.0, 7693.5], [7693.25, 7693.75, 7692.0, 7694.5], [7693.75, 7695.5, 7693.5, 7696.25], [7695.5, 7693.75, 7690.5, 7697.0], [7693.5, 7688.5, 7687.75, 7694.75], [7688.25, 7688.25, 7686.5, 7689.5], [7688.5, 7687.0, 7686.25, 7689.5], [7687.0, 7684.75, 7684.25, 7689.0], [7685.0, 7685.25, 7683.75, 7687.5], [7685.25, 7683.5, 7682.0, 7685.5], [7683.5, 7687.0, 7683.25, 7687.75], [7687.0, 7685.75, 7685.0, 7687.5], [7685.75, 7686.5, 7684.25, 7687.25], [7686.5, 7677.75, 7677.25, 7686.5], [7677.75, 7683.25, 7675.0, 7684.75], [7683.25, 7687.0, 7681.25, 7689.0], [7687.0, 7685.5, 7684.0, 7688.5], [7685.5, 7686.75, 7684.0, 7688.75], [7686.75, 7687.5, 7683.5, 7687.75], [7687.5, 7690.5, 7687.5, 7691.5], [7690.5, 7689.75, 7689.0, 7691.5], [7690.0, 7689.75, 7687.5, 7690.75], [7689.5, 7689.25, 7688.5, 7691.5], [7689.25, 7689.25, 7686.25, 7689.5], [7689.25, 7689.5, 7688.5, 7691.0], [7689.75, 7691.25, 7688.5, 7691.25], [7691.25, 7690.0, 7689.75, 7692.0], [7690.25, 7690.25, 7688.25, 7690.75], [7690.25, 7693.0, 7690.25, 7693.5], [7693.0, 7694.0, 7691.5, 7694.0], [7694.0, 7692.75, 7692.25, 7694.5], [7692.5, 7694.25, 7692.5, 7695.0], [7694.0, 7694.5, 7693.5, 7695.0], [7694.75, 7695.25, 7693.0, 7696.0], [7695.5, 7694.25, 7693.75, 7695.75], [7694.5, 7694.5, 7693.0, 7695.5], [7694.5, 7697.75, 7694.5, 7697.75], [7697.75, 7700.25, 7697.5, 7703.25], [7700.0, 7701.75, 7698.75, 7701.75], [7701.75, 7702.25, 7699.5, 7702.25], [7702.0, 7700.5, 7699.0, 7702.5], [7700.5, 7702.5, 7699.75, 7702.75], [7702.25, 7709.75, 7702.25, 7712.25], [7709.75, 7712.25, 7709.0, 7715.75], [7712.25, 7710.0, 7708.75, 7712.25], [7709.75, 7710.5, 7708.0, 7711.75], [7710.5, 7709.25, 7708.0, 7712.0], [7709.5, 7709.0, 7707.75, 7711.25], [7709.0, 7709.25, 7707.5, 7709.75], [7709.25, 7708.5, 7707.5, 7710.5], [7708.25, 7706.25, 7705.75, 7709.0], [7706.25, 7704.75, 7704.25, 7706.5], [7704.75, 7709.5, 7704.25, 7710.0], [7709.5, 7712.0, 7708.25, 7712.25], [7712.25, 7715.0, 7711.0, 7715.0], [7714.75, 7712.75, 7710.25, 7716.75], [7712.75, 7712.75, 7711.25, 7718.25], [7714.0, 7722.25, 7713.0, 7723.5], [7722.25, 7722.5, 7721.75, 7724.0], [7722.75, 7725.5, 7722.5, 7729.25], [7725.5, 7723.75, 7723.75, 7726.25], [7724.0, 7725.0, 7724.0, 7725.5], [7724.75, 7726.0, 7724.75, 7726.0], [7726.25, 7725.5, 7724.75, 7726.75], [7725.5, 7725.75, 7724.5, 7726.0], [7725.75, 7727.25, 7725.5, 7727.5], [7727.0, 7726.75, 7726.0, 7728.75], [7726.75, 7725.0, 7724.75, 7728.0], [7725.0, 7725.0, 7724.0, 7725.75]];
-  var rawVols = [2979.0, 7345.0, 1555.0, 1986.0, 1836.0, 1430.0, 2231.0, 1401.0, 1574.0, 1132.0, 1052.0, 1836.0, 3919.0, 6684.0, 3361.0, 3594.0, 4627.0, 2051.0, 2723.0, 3006.0, 2396.0, 2336.0, 1742.0, 2062.0, 3810.0, 3619.0, 2622.0, 3457.0, 3090.0, 27301.0, 35211.0, 22178.0, 17815.0, 15517.0, 19594.0, 17594.0, 25443.0, 21791.0, 23202.0, 17404.0, 15460.0, 10404.0, 13290.0, 17919.0, 13242.0, 13331.0, 15621.0, 10319.0, 12051.0, 10300.0, 9180.0, 8161.0, 7624.0, 8675.0, 17012.0, 11173.0, 12570.0, 8211.0, 6700.0, 8354.0, 8422.0, 7919.0, 6911.0, 6384.0, 11702.0, 24913.0, 16019.0, 8056.0, 6372.0, 7257.0, 8619.0, 7586.0, 5955.0, 4919.0, 6134.0, 5830.0, 3386.0, 3660.0, 5145.0, 5235.0, 5110.0, 5879.0, 4186.0, 4384.0, 6283.0, 4334.0, 5438.0, 5310.0, 15821.0, 6713.0, 5910.0, 7083.0, 4469.0, 23795.0, 15785.0, 8716.0, 7861.0, 7076.0, 8030.0, 5970.0, 6595.0, 6650.0, 9327.0, 10751.0, 9111.0, 13273.0, 24519.0, 86043.0, 25590.0, 7487.0, 10723.0, 3644.0, 2470.0, 2190.0, 2406.0, 1946.0, 2531.0, 2728.0, 1867.0, 1775.0];
-  var rawDeltas = [255.0, -63.0, 135.0, -174.0, 300.0, 194.0, 263.0, 93.0, 26.0, -86.0, -86.0, 44.0, 243.0, -402.0, -153.0, 186.0, -857.0, -19.0, 69.0, 124.0, -52.0, -66.0, 2.0, -172.0, -256.0, 403.0, 230.0, 431.0, -408.0, 3411.0, -1163.0, -188.0, 1387.0, -275.0, 616.0, 82.0, 177.0, 1175.0, 842.0, -1706.0, -250.0, -166.0, -304.0, 929.0, -266.0, 909.0, 1109.0, 267.0, 63.0, 514.0, -162.0, 107.0, 550.0, 639.0, -976.0, -1349.0, -678.0, 35.0, 58.0, -274.0, -450.0, 619.0, 7.0, 370.0, -848.0, 2101.0, 1165.0, -492.0, 244.0, -181.0, 889.0, -52.0, 27.0, 347.0, -350.0, 516.0, 340.0, 46.0, 93.0, 833.0, 374.0, 527.0, 208.0, 426.0, 131.0, -100.0, -22.0, 986.0, 1295.0, 375.0, 338.0, 277.0, 521.0, -153.0, -703.0, -486.0, -283.0, -382.0, 404.0, -214.0, -277.0, -828.0, -481.0, 197.0, 571.0, 159.0, -401.0, -6657.0, 2936.0, 419.0, -379.0, -704.0, -48.0, 10.0, -378.0, -124.0, -51.0, -194.0, -259.0, 77.0];
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[7720.25, 7724.0, 7717.25, 7724.0], [7724.0, 7717.75, 7713.75, 7724.0], [7718.0, 7717.5, 7714.75, 7719.25], [7717.25, 7713.25, 7711.75, 7717.25], [7713.25, 7713.25, 7711.5, 7714.75], [7713.25, 7713.0, 7712.25, 7714.0], [7712.75, 7715.0, 7712.75, 7716.5], [7715.0, 7716.25, 7714.5, 7717.75], [7716.25, 7713.0, 7712.25, 7716.5], [7713.0, 7713.75, 7712.0, 7714.25], [7713.5, 7713.5, 7712.25, 7714.0], [7713.75, 7712.0, 7710.25, 7714.0], [7712.25, 7712.5, 7708.25, 7714.5], [7712.5, 7705.5, 7705.5, 7715.0], [7705.75, 7703.0, 7702.0, 7705.75], [7703.25, 7701.0, 7701.0, 7705.5], [7701.0, 7697.75, 7697.75, 7702.5], [7698.0, 7699.0, 7697.75, 7700.5], [7699.0, 7702.25, 7698.0, 7703.0], [7702.0, 7702.0, 7699.5, 7703.25], [7702.0, 7702.5, 7700.75, 7703.75], [7702.25, 7701.0, 7701.0, 7703.5], [7701.0, 7701.5, 7700.5, 7702.25], [7701.75, 7700.75, 7699.25, 7702.0], [7700.75, 7700.25, 7699.25, 7702.25], [7700.25, 7701.75, 7700.0, 7702.5], [7701.75, 7701.5, 7701.0, 7703.0], [7701.5, 7702.75, 7701.0, 7703.25], [7702.5, 7698.25, 7698.0, 7702.75], [7698.0, 7710.0, 7692.25, 7710.0], [7710.0, 7706.75, 7706.25, 7714.5], [7706.75, 7705.0, 7701.75, 7708.0], [7705.25, 7705.0, 7703.5, 7710.25], [7705.0, 7701.0, 7700.5, 7707.5], [7700.75, 7695.0, 7694.75, 7701.25], [7695.0, 7693.0, 7691.25, 7697.0], [7693.0, 7686.25, 7685.0, 7695.25], [7686.25, 7690.25, 7684.0, 7690.5], [7690.0, 7688.0, 7687.5, 7695.0], [7687.75, 7689.25, 7683.25, 7689.5], [7689.25, 7687.25, 7686.5, 7691.75], [7687.25, 7689.0, 7686.25, 7692.0], [7688.75, 7687.5, 7686.25, 7690.0], [7687.5, 7690.5, 7685.25, 7693.5], [7690.5, 7685.5, 7684.0, 7690.75], [7685.75, 7690.0, 7684.0, 7690.75], [7690.0, 7693.75, 7688.75, 7695.25], [7694.0, 7695.0, 7691.75, 7695.25], [7695.0, 7692.5, 7689.5, 7695.5], [7692.25, 7693.0, 7691.5, 7696.0], [7692.75, 7691.25, 7690.5, 7695.0], [7691.25, 7693.25, 7690.0, 7693.5], [7693.25, 7693.75, 7692.0, 7694.5], [7693.75, 7695.5, 7693.5, 7696.25], [7695.5, 7693.75, 7690.5, 7697.0], [7693.5, 7688.5, 7687.75, 7694.75], [7688.25, 7688.25, 7686.5, 7689.5], [7688.5, 7687.0, 7686.25, 7689.5], [7687.0, 7684.75, 7684.25, 7689.0], [7685.0, 7685.25, 7683.75, 7687.5], [7685.25, 7683.5, 7682.0, 7685.5], [7683.5, 7687.0, 7683.25, 7687.75], [7687.0, 7685.75, 7685.0, 7687.5], [7685.75, 7686.5, 7684.25, 7687.25], [7686.5, 7677.75, 7677.25, 7686.5], [7677.75, 7683.25, 7675.0, 7684.75], [7683.25, 7687.0, 7681.25, 7689.0], [7687.0, 7685.5, 7684.0, 7688.5], [7685.5, 7686.75, 7684.0, 7688.75], [7686.75, 7687.5, 7683.5, 7687.75], [7687.5, 7690.5, 7687.5, 7691.5], [7690.5, 7689.75, 7689.0, 7691.5], [7690.0, 7689.75, 7687.5, 7690.75], [7689.5, 7689.25, 7688.5, 7691.5], [7689.25, 7689.25, 7686.25, 7689.5], [7689.25, 7689.5, 7688.5, 7691.0], [7689.75, 7691.25, 7688.5, 7691.25], [7691.25, 7690.0, 7689.75, 7692.0], [7690.25, 7690.25, 7688.25, 7690.75], [7690.25, 7693.0, 7690.25, 7693.5], [7693.0, 7694.0, 7691.5, 7694.0], [7694.0, 7692.75, 7692.25, 7694.5], [7692.5, 7694.25, 7692.5, 7695.0], [7694.0, 7694.5, 7693.5, 7695.0], [7694.75, 7695.25, 7693.0, 7696.0], [7695.5, 7694.25, 7693.75, 7695.75], [7694.5, 7694.5, 7693.0, 7695.5], [7694.5, 7697.75, 7694.5, 7697.75], [7697.75, 7700.25, 7697.5, 7703.25], [7700.0, 7701.75, 7698.75, 7701.75], [7701.75, 7702.25, 7699.5, 7702.25], [7702.0, 7700.5, 7699.0, 7702.5], [7700.5, 7702.5, 7699.75, 7702.75], [7702.25, 7709.75, 7702.25, 7712.25], [7709.75, 7712.25, 7709.0, 7715.75], [7712.25, 7710.0, 7708.75, 7712.25], [7709.75, 7710.5, 7708.0, 7711.75], [7710.5, 7709.25, 7708.0, 7712.0], [7709.5, 7709.0, 7707.75, 7711.25], [7709.0, 7709.25, 7707.5, 7709.75], [7709.25, 7708.5, 7707.5, 7710.5], [7708.25, 7706.25, 7705.75, 7709.0], [7706.25, 7704.75, 7704.25, 7706.5], [7704.75, 7709.5, 7704.25, 7710.0], [7709.5, 7712.0, 7708.25, 7712.25], [7712.25, 7715.0, 7711.0, 7715.0], [7714.75, 7712.75, 7710.25, 7716.75], [7712.75, 7712.75, 7711.25, 7718.25], [7714.0, 7722.25, 7713.0, 7723.5], [7722.25, 7722.5, 7721.75, 7724.0], [7722.75, 7725.5, 7722.5, 7729.25], [7725.5, 7723.75, 7723.75, 7726.25], [7724.0, 7725.0, 7724.0, 7725.5], [7724.75, 7726.0, 7724.75, 7726.0], [7726.25, 7725.5, 7724.75, 7726.75], [7725.5, 7725.75, 7724.5, 7726.0], [7725.75, 7727.25, 7725.5, 7727.5], [7727.0, 7726.75, 7726.0, 7728.75], [7726.75, 7725.0, 7724.75, 7728.0], [7725.0, 7725.0, 7724.0, 7725.75]];
+    var rawVols = [2979.0, 7345.0, 1555.0, 1986.0, 1836.0, 1430.0, 2231.0, 1401.0, 1574.0, 1132.0, 1052.0, 1836.0, 3919.0, 6684.0, 3361.0, 3594.0, 4627.0, 2051.0, 2723.0, 3006.0, 2396.0, 2336.0, 1742.0, 2062.0, 3810.0, 3619.0, 2622.0, 3457.0, 3090.0, 27301.0, 35211.0, 22178.0, 17815.0, 15517.0, 19594.0, 17594.0, 25443.0, 21791.0, 23202.0, 17404.0, 15460.0, 10404.0, 13290.0, 17919.0, 13242.0, 13331.0, 15621.0, 10319.0, 12051.0, 10300.0, 9180.0, 8161.0, 7624.0, 8675.0, 17012.0, 11173.0, 12570.0, 8211.0, 6700.0, 8354.0, 8422.0, 7919.0, 6911.0, 6384.0, 11702.0, 24913.0, 16019.0, 8056.0, 6372.0, 7257.0, 8619.0, 7586.0, 5955.0, 4919.0, 6134.0, 5830.0, 3386.0, 3660.0, 5145.0, 5235.0, 5110.0, 5879.0, 4186.0, 4384.0, 6283.0, 4334.0, 5438.0, 5310.0, 15821.0, 6713.0, 5910.0, 7083.0, 4469.0, 23795.0, 15785.0, 8716.0, 7861.0, 7076.0, 8030.0, 5970.0, 6595.0, 6650.0, 9327.0, 10751.0, 9111.0, 13273.0, 24519.0, 86043.0, 25590.0, 7487.0, 10723.0, 3644.0, 2470.0, 2190.0, 2406.0, 1946.0, 2531.0, 2728.0, 1867.0, 1775.0];
+    var rawDeltas = [255.0, -63.0, 135.0, -174.0, 300.0, 194.0, 263.0, 93.0, 26.0, -86.0, -86.0, 44.0, 243.0, -402.0, -153.0, 186.0, -857.0, -19.0, 69.0, 124.0, -52.0, -66.0, 2.0, -172.0, -256.0, 403.0, 230.0, 431.0, -408.0, 3411.0, -1163.0, -188.0, 1387.0, -275.0, 616.0, 82.0, 177.0, 1175.0, 842.0, -1706.0, -250.0, -166.0, -304.0, 929.0, -266.0, 909.0, 1109.0, 267.0, 63.0, 514.0, -162.0, 107.0, 550.0, 639.0, -976.0, -1349.0, -678.0, 35.0, 58.0, -274.0, -450.0, 619.0, 7.0, 370.0, -848.0, 2101.0, 1165.0, -492.0, 244.0, -181.0, 889.0, -52.0, 27.0, 347.0, -350.0, 516.0, 340.0, 46.0, 93.0, 833.0, 374.0, 527.0, 208.0, 426.0, 131.0, -100.0, -22.0, 986.0, 1295.0, 375.0, 338.0, 277.0, 521.0, -153.0, -703.0, -486.0, -283.0, -382.0, 404.0, -214.0, -277.0, -828.0, -481.0, 197.0, 571.0, 159.0, -401.0, -6657.0, 2936.0, 419.0, -379.0, -704.0, -48.0, 10.0, -378.0, -124.0, -51.0, -194.0, -259.0, 77.0];
 
-  var option = {
-    animation: false,
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'cross',
-        lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' }
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+          var delta = rawDeltas[idx];
+          var deltaSign = delta > 0 ? '+' : '';
+          var deltaColor = delta > 0 ? '#16a34a' : (delta < 0 ? '#dc2626' : '#64748b');
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">ES · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '<span>净 Delta:</span><b style="color:' + deltaColor + '">' + deltaSign + delta.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
       },
-      backgroundColor: 'rgba(255, 255, 255, 0.96)',
-      borderColor: '#cbd5e1',
-      borderWidth: 1,
-      padding: [8, 12],
-      textStyle: { color: '#0f172a', fontSize: 12 },
-      formatter: function(params) {
-        var idx = params[0].dataIndex;
-        var t = rawTimes[idx];
-        var c = rawCandles[idx];
-        var vol = rawVols[idx];
-        var delta = rawDeltas[idx];
-        var deltaSign = delta > 0 ? '+' : '';
-        var deltaColor = delta > 0 ? '#16a34a' : (delta < 0 ? '#dc2626' : '#64748b');
-
-        var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">ES · ' + t + ' (5m K线)</div>';
-        html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
-        html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
-        html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
-        html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
-        html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
-        html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
-        html += '<span>净 Delta:</span><b style="color:' + deltaColor + '">' + deltaSign + delta.toLocaleString() + '</b>';
-        html += '</div>';
-        return html;
-      }
-    },
-    axisPointer: {
-      link: [{ xAxisIndex: 'all' }]
-    },
-    grid: [
-      { left: 55, right: 80, top: 35, height: 575 },
-      { left: 55, right: 80, top: 675, height: 90 }
-    ],
-    xAxis: [
-      {
-        type: 'category',
-        data: rawTimes,
-        boundaryGap: true,
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        axisLabel: { color: '#64748b', fontSize: 11 },
-        splitLine: { show: false }
-      },
-      {
-        type: 'category',
-        gridIndex: 1,
-        data: rawTimes,
-        boundaryGap: true,
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        axisLabel: { show: false },
-        splitLine: { show: false }
-      }
-    ],
-    yAxis: [
-      {
-        type: 'value',
-        scale: true,
-        position: 'right',
-        min: function(val) {
-          return Math.min(Math.floor(val.min - 6), 7665);
+      axisPointer: { link: [{ xAxisIndex: 'all' }] },
+      grid: [
+        { left: 55, right: 80, top: 35, height: 575 },
+        { left: 55, right: 80, top: 675, height: 90 }
+      ],
+      xAxis: [
+        { type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } },
+        { type: 'category', gridIndex: 1, data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { show: false }, splitLine: { show: false } }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f1f5f9' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(1); } }
         },
-        splitArea: { show: false },
-        splitLine: { lineStyle: { color: '#f1f5f9' } },
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(1); } }
-      },
-      {
-        type: 'value',
-        gridIndex: 1,
-        scale: true,
-        position: 'right',
-        splitLine: { lineStyle: { color: '#f8fafc' } },
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        axisLabel: { color: '#94a3b8', fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'k'; } }
-      }
-    ],
-    series: [
-      {
-        name: 'ES 5m K线',
-        type: 'candlestick',
-        data: rawCandles,
-        itemStyle: {
-          color: '#16a34a',
-          color0: '#ef4444',
-          borderColor: '#16a34a',
-          borderColor0: '#ef4444'
-        },
-        markArea: {
-          silent: true,
-          data: [
-            [
+        {
+          type: 'value',
+          gridIndex: 1,
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f8fafc' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#94a3b8', fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'k'; } }
+        }
+      ],
+      series: [
+        {
+          name: 'ES 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '07:55',
+                  name: '深度分析窗口 07:55→09:55',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '09:55' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
               {
-                xAxis: '04:00',
-                itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
-                label: {
-                  show: true,
-                  position: ['12px', '12px'],
-                  color: '#64748b',
-                  fontSize: 10,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderWidth: 0,
-                  borderRadius: 3,
-                  padding: [2, 6],
-                  formatter: '盘前 (06:30 前)'
-                }
-              },
-              { xAxis: '06:30' }
-            ],
-            [
-              {
-                xAxis: '13:00',
-                itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
-                label: {
-                  show: true,
-                  position: ['12px', '12px'],
-                  color: '#64748b',
-                  fontSize: 10,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderWidth: 0,
-                  borderRadius: 3,
-                  padding: [2, 6],
-                  formatter: '盘后 (13:00 后)'
-                }
-              },
-              { xAxis: '13:55' }
-            ],
-            [
-              {
-                xAxis: '08:25',
-                name: '深度分析窗口 08:25→09:45',
-                itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                name: '08:30 最高',
+                coord: ['08:30', 7697.0],
+                symbol: 'arrow',
+                symbolRotate: 180,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
                 label: {
                   show: true,
                   position: 'top',
-                  color: '#0284c7',
-                  fontSize: 11,
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '08:30 最高 7697.00\n(-976 Delta 衰竭反转)',
+                  color: '#0369a1',
                   fontWeight: 'bold',
-                  backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 7713.50',
+                yAxis: 7713.50,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
                   borderWidth: 0,
                   borderRadius: 3,
-                  padding: [3, 6]
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 7713.50'
                 }
               },
-              { xAxis: '09:45' }
+              {
+                name: 'QP Open: 7710.00',
+                yAxis: 7710.00,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 7710.00 (Gap Up)'
+                }
+              },
+              {
+                name: 'QP H1: 7735.50',
+                yAxis: 7735.50,
+                lineStyle: { color: '#dc2626', width: 2.0, type: 'solid' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(220, 38, 38, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#b91c1c', fontSize: 10, fontWeight: 'bold', formatter: '★ QP H1: 7735.50 (关键阻力)' }
+              },
+              {
+                name: 'QP H2: 7762.25',
+                yAxis: 7762.25,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 7762.25'
+                }
+              },
+              {
+                name: 'QP L1: 7677.25',
+                yAxis: 7677.25,
+                lineStyle: { color: '#dc2626', width: 1.2, type: 'dashed' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(220, 38, 38, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#b91c1c', fontSize: 10, fontWeight: '600', formatter: 'QP L1: 7677.25' }
+              },
+              {
+                name: 'QP L2: 7653.25',
+                yAxis: 7653.25,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 7653.25'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 7760.00',
+                yAxis: 7760.00,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 7760.00'
+                }
+              },
+              {
+                name: 'Saty +100%: 7788.75',
+                yAxis: 7788.75,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 7788.75'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 7667.00',
+                yAxis: 7667.00,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 7667.00'
+                }
+              },
+              {
+                name: 'Saty -100%: 7638.25',
+                yAxis: 7638.25,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 7638.25'
+                }
+              }
             ]
-          ]
+          }
         },
-        markPoint: {
-          data: [
-            {
-              name: '日内最低点',
-              coord: ['09:25', 7674.5],
-              symbol: 'arrow',
-              symbolRotate: 0,
-              symbolSize: [10, 13],
-              itemStyle: { color: '#0284c7' },
-              label: {
-                show: true,
-                position: 'right',
-                distance: 10,
-                backgroundColor: 'rgba(2, 132, 199, 0.20)',
-                borderWidth: 0,
-                borderRadius: 4,
-                padding: [4, 8],
-                formatter: '09:25 最低 7675.00\n(+2,101 Delta 吸收反转)',
-                color: '#0369a1',
-                fontWeight: 'bold',
-                fontSize: 10,
-                lineHeight: 14
-              }
-            }
-          ]
-        },
-        markLine: {
-          symbol: ['none', 'none'],
-          silent: false,
-          data: [
-            {
-              name: '06:30 开盘',
-              xAxis: '06:30',
-              lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
-              label: { show: false }
-            },
-            {
-              name: '13:00 关盘',
-              xAxis: '13:00',
-              lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
-              label: { show: false }
-            },
-            {
-              name: '昨收 PC: 7713.50',
-              yAxis: 7713.50,
-              lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(71, 85, 105, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#1e293b',
-                fontSize: 10,
-                fontWeight: 'bold',
-                formatter: '昨收 PC: 7713.50'
-              }
-            },
-            {
-              name: 'QP Open: 7710.00',
-              yAxis: 7710.00,
-              lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
-              label: {
-                show: true,
-                position: 'insideEndBottom',
-                distance: [0, 3],
-                backgroundColor: 'rgba(37, 99, 235, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#1d4ed8',
-                fontSize: 10,
-                fontWeight: 'bold',
-                formatter: 'QP Open 7710.00 (Gap Up)'
-              }
-            },
-            {
-              name: 'QP H1: 7735.50',
-              yAxis: 7735.50,
-              lineStyle: { color: '#059669', width: 1.2, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(5, 150, 105, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#047857',
-                fontSize: 10,
-                fontWeight: '600',
-                formatter: 'QP H1: 7735.50'
-              }
-            },
-            {
-              name: 'QP H2: 7762.25',
-              yAxis: 7762.25,
-              lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(4, 120, 87, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#047857',
-                fontSize: 10,
-                fontWeight: '600',
-                formatter: 'QP H2: 7762.25'
-              }
-            },
-            {
-              name: 'QP L1: 7677.25',
-              yAxis: 7677.25,
-              lineStyle: { color: '#dc2626', width: 2.0, type: 'solid' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(220, 38, 38, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#b91c1c',
-                fontSize: 10,
-                fontWeight: 'bold',
-                formatter: '★ QP L1: 7677.25 (RTH支撑)'
-              }
-            },
-            {
-              name: 'QP L2: 7653.25',
-              yAxis: 7653.25,
-              lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(153, 27, 27, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#991b1b',
-                fontSize: 10,
-                fontWeight: '600',
-                formatter: 'QP L2: 7653.25'
-              }
-            },
-            {
-              name: 'Saty +61.8%: 7760.00',
-              yAxis: 7760.00,
-              lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndBottom',
-                distance: [0, 3],
-                backgroundColor: 'rgba(16, 185, 129, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#065f46',
-                fontSize: 9,
-                formatter: 'Saty +61.8%: 7760.00'
-              }
-            },
-            {
-              name: 'Saty +100%: 7788.75',
-              yAxis: 7788.75,
-              lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(5, 150, 105, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#047857',
-                fontSize: 9,
-                formatter: 'Saty +100%: 7788.75'
-              }
-            },
-            {
-              name: 'Saty -61.8%: 7667.00',
-              yAxis: 7667.00,
-              lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndBottom',
-                distance: [0, 3],
-                backgroundColor: 'rgba(248, 113, 113, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#991b1b',
-                fontSize: 9,
-                formatter: 'Saty -61.8%: 7667.00'
-              }
-            },
-            {
-              name: 'Saty -100%: 7638.25',
-              yAxis: 7638.25,
-              lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(239, 68, 68, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#991b1b',
-                fontSize: 9,
-                formatter: 'Saty -100%: 7638.25'
-              }
-            }
-          ]
+        {
+          name: '5m Delta Volume',
+          type: 'bar',
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+          data: rawDeltas.map(function(d) {
+            return { value: d, itemStyle: { color: d > 0 ? '#10b981' : (d < 0 ? '#ef4444' : '#94a3b8') } };
+          })
         }
-      },
-      {
-        name: '5m Delta Volume',
-        type: 'bar',
-        xAxisIndex: 1,
-        yAxisIndex: 1,
-        data: rawDeltas.map(function(d, idx) {
-          return {
-            value: d,
-            itemStyle: {
-              color: d > 0 ? '#10b981' : (d < 0 ? '#ef4444' : '#94a3b8')
-            }
-          };
-        })
-      }
-    ]
-  };
+      ]
+    };
 
-  myChart.setOption(option);
-  window.addEventListener('resize', function() {
-    myChart.resize();
-  });
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEsChart);
+  } else {
+    initEsChart();
+  }
 })();
 </script>
 
@@ -660,16 +626,17 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
   <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
     <div>
       <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
-        <span>0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </h3>
+        <span>0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
       <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
-        标的 <b>SPY</b> · 日期 <b>2026-09-18</b> · 周期 <b>5 分钟</b> · 无 Delta 信息 · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00)
+        标的 <b>SPY</b> · 日期 <b>2026-09-18</b> · 周期 <b>5 分钟</b> · 无 Delta 信息 · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
       </div>
     </div>
     <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
       <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 762.63</span>
       <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 761.31</span>
-      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP L1: 758.67</span>
-      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>09:25 最低: 757.97</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP H1: 763.19</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>08:30 最高: 760.07</span>
     </div>
   </div>
 
@@ -677,391 +644,366 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
   <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
     <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
     <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 762.63</div>
-    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 761.31 ｜ H1 763.19 · H2 764.75 ｜ <span style='color:#dc2626;font-weight:700;'>L1 758.67</span> · L2 756.82</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 761.31 ｜ H1 763.19 · H2 764.75 ｜ L1 758.67 · L2 756.82</div>
     <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 769.23 · +61.8% 766.71 · -61.8% 758.55 · -100% 756.03 (ATR 6.60)</div>
   </div>
 
-  <!-- Chart Container: 640px -->
   <div id='spyCandlestickChart' style='width:100%;height:640px;'></div>
   <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与成交量</div>
 </section>
 
 <script>
 (function() {
-  var chartDom = document.getElementById('spyCandlestickChart');
-  if (!chartDom) return;
-  var myChart = echarts.init(chartDom);
+  function initSpyChart() {
+    var chartDom = document.getElementById('spyCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initSpyChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
 
-  var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
-  var rawCandles = [[762.32, 762.66, 762.03, 762.72], [762.7, 762.07, 761.69, 762.7], [762.1, 762.02, 761.85, 762.22], [761.99, 761.62, 761.48, 761.99], [761.58, 761.61, 761.48, 761.77], [761.62, 761.61, 761.52, 761.7], [761.6, 761.81, 761.6, 761.94], [761.77, 761.92, 761.77, 762.1], [761.92, 761.52, 761.51, 761.92], [761.54, 761.65, 761.48, 761.67], [761.62, 761.64, 761.52, 761.66], [761.64, 761.47, 761.3, 761.65], [761.47, 761.53, 761.07, 761.67], [761.52, 760.85, 760.84, 761.75], [760.85, 760.58, 760.48, 760.86], [760.59, 760.42, 760.4, 760.77], [760.39, 760.09, 760.0, 760.71], [760.09, 760.2, 760.07, 760.35], [760.23, 760.52, 760.08, 760.6], [760.5, 760.5, 760.25, 760.63], [760.5, 760.54, 760.43, 760.71], [760.49, 760.43, 760.42, 760.64], [760.41, 760.43, 760.35, 760.53], [760.41, 760.39, 760.24, 760.48], [760.36, 760.32, 760.24, 760.5], [760.32, 760.47, 760.3, 760.52], [760.46, 760.45, 760.41, 760.58], [760.45, 760.45, 760.45, 760.45], [760.45, 760.45, 760.45, 760.45], [760.45, 760.45, 760.45, 760.45], [761.31, 761.08, 760.95, 761.76], [761.08, 760.91, 760.58, 761.18], [760.9, 760.92, 760.75, 761.42], [760.92, 760.5, 760.46, 761.15], [760.48, 759.92, 759.9, 760.54], [759.92, 759.71, 759.56, 760.12], [759.71, 759.1, 758.96, 759.93], [759.08, 759.42, 758.85, 759.44], [759.43, 759.21, 759.18, 759.91], [759.22, 759.37, 758.75, 759.37], [759.35, 759.16, 759.11, 759.62], [759.17, 759.34, 759.08, 759.65], [759.32, 759.22, 759.07, 759.44], [759.25, 759.49, 758.98, 759.76], [759.49, 758.99, 758.85, 759.52], [759.0, 759.43, 758.87, 759.52], [759.46, 759.82, 759.32, 759.96], [759.84, 759.93, 759.62, 759.95], [759.95, 759.68, 759.42, 760.0], [759.68, 759.75, 759.63, 760.04], [759.76, 759.56, 759.5, 759.95], [759.58, 759.78, 759.45, 759.8], [759.76, 759.81, 759.64, 759.88], [759.8, 759.98, 759.77, 760.06], [759.97, 759.78, 759.5, 760.07], [759.78, 759.29, 759.23, 759.89], [759.27, 759.29, 759.1, 759.39], [759.3, 759.14, 759.09, 759.39], [759.14, 758.95, 758.9, 759.33], [758.96, 759.0, 758.85, 759.2], [758.99, 758.84, 758.68, 759.01], [758.84, 759.15, 758.79, 759.23], [759.15, 759.01, 758.95, 759.2], [759.03, 759.09, 758.88, 759.17], [759.09, 758.27, 758.21, 759.1], [758.25, 758.78, 757.97, 758.91], [758.76, 759.11, 758.57, 759.3], [759.15, 758.96, 758.82, 759.25], [758.97, 759.09, 758.84, 759.27], [759.09, 759.17, 758.78, 759.19], [759.16, 759.47, 759.15, 759.52], [759.46, 759.4, 759.32, 759.54], [759.4, 759.37, 759.18, 759.45], [759.36, 759.31, 759.26, 759.53], [759.32, 759.31, 759.03, 759.33], [759.31, 759.35, 759.26, 759.48], [759.37, 759.51, 759.27, 759.51], [759.49, 759.4, 759.37, 759.58], [759.41, 759.43, 759.23, 759.46], [759.45, 759.71, 759.43, 759.75], [759.7, 759.76, 759.56, 759.78], [759.78, 759.65, 759.62, 759.8], [759.65, 759.79, 759.65, 759.86], [759.79, 759.83, 759.72, 759.9], [759.83, 759.89, 759.68, 759.97], [759.9, 759.78, 759.74, 759.96], [759.79, 759.81, 759.66, 759.89], [759.81, 760.1, 759.79, 760.1], [760.09, 760.33, 760.08, 760.61], [760.33, 760.47, 760.21, 760.47], [760.48, 760.51, 760.26, 760.51], [760.51, 760.36, 760.23, 760.53], [760.36, 760.54, 760.28, 760.54], [760.55, 761.27, 760.54, 761.48], [761.29, 761.48, 761.19, 761.83], [761.49, 761.26, 761.17, 761.5], [761.26, 761.33, 761.1, 761.44], [761.33, 761.22, 761.09, 761.47], [761.22, 761.18, 761.06, 761.39], [761.19, 761.17, 761.02, 761.23], [761.17, 761.08, 761.02, 761.27], [761.08, 760.86, 760.84, 761.13], [760.87, 760.7, 760.69, 760.92], [760.71, 761.17, 760.68, 761.22], [761.17, 761.43, 761.04, 761.44], [761.42, 761.65, 761.3, 761.66], [761.64, 761.41, 761.18, 761.79], [761.41, 761.63, 761.39, 762.0], [761.6, 762.59, 760.74, 762.69], [762.59, 762.56, 761.95, 762.72], [762.6, 762.85, 761.69, 763.17], [762.81, 762.69, 760.74, 762.9], [762.69, 762.77, 761.69, 762.79], [762.76, 762.86, 762.75, 762.9], [762.89, 762.8, 762.75, 762.92], [762.8, 762.85, 762.74, 762.94], [762.86, 762.97, 762.86, 763.0], [762.96, 762.92, 761.69, 763.15], [762.92, 762.83, 762.76, 763.03], [762.83, 762.74, 762.7, 762.85]];
-  var rawVols = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2697828, 5240070, 657346, 560799, 549337, 747128, 732322, 638498, 562261, 492519, 403452, 327893, 249950, 313569, 414973, 383226, 371603, 354064, 256803, 173511, 248259, 9145723, 4128232, 193656, 303376, 271002, 217011, 370393, 180856, 332597, 181559, 451937, 300229, 139517, 216278, 894725, 241486, 238095, 127089, 160383, 245139, 175260, 85142, 129133, 217666, 105618, 4630286, 141977, 212141, 248226, 154541, 191503, 174154, 157249, 325662, 215823, 218121, 310401, 528638, 252883, 229953, 208369, 123356, 766680, 424757, 227218, 210075, 214077, 389513, 309361, 307581, 266464, 594231, 551694, 637100, 917750, 1686788, 4095457, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[762.32, 762.66, 762.03, 762.72], [762.7, 762.07, 761.69, 762.7], [762.1, 762.02, 761.85, 762.22], [761.99, 761.62, 761.48, 761.99], [761.58, 761.61, 761.48, 761.77], [761.62, 761.61, 761.52, 761.7], [761.6, 761.81, 761.6, 761.94], [761.77, 761.92, 761.77, 762.1], [761.92, 761.52, 761.51, 761.92], [761.54, 761.65, 761.48, 761.67], [761.62, 761.64, 761.52, 761.66], [761.64, 761.47, 761.3, 761.65], [761.47, 761.53, 761.07, 761.67], [761.52, 760.85, 760.84, 761.75], [760.85, 760.58, 760.48, 760.86], [760.59, 760.42, 760.4, 760.77], [760.39, 760.09, 760.0, 760.71], [760.09, 760.2, 760.07, 760.35], [760.23, 760.52, 760.08, 760.6], [760.5, 760.5, 760.25, 760.63], [760.5, 760.54, 760.43, 760.71], [760.49, 760.43, 760.42, 760.64], [760.41, 760.43, 760.35, 760.53], [760.41, 760.39, 760.24, 760.48], [760.36, 760.32, 760.24, 760.5], [760.32, 760.47, 760.3, 760.52], [760.46, 760.45, 760.41, 760.58], [760.45, 760.45, 760.45, 760.45], [760.45, 760.45, 760.45, 760.45], [760.45, 760.45, 760.45, 760.45], [761.31, 761.08, 760.95, 761.76], [761.08, 760.91, 760.58, 761.18], [760.9, 760.92, 760.75, 761.42], [760.92, 760.5, 760.46, 761.15], [760.48, 759.92, 759.9, 760.54], [759.92, 759.71, 759.56, 760.12], [759.71, 759.1, 758.96, 759.93], [759.08, 759.42, 758.85, 759.44], [759.43, 759.21, 759.18, 759.91], [759.22, 759.37, 758.75, 759.37], [759.35, 759.16, 759.11, 759.62], [759.17, 759.34, 759.08, 759.65], [759.32, 759.22, 759.07, 759.44], [759.25, 759.49, 758.98, 759.76], [759.49, 758.99, 758.85, 759.52], [759.0, 759.43, 758.87, 759.52], [759.46, 759.82, 759.32, 759.96], [759.84, 759.93, 759.62, 759.95], [759.95, 759.68, 759.42, 760.0], [759.68, 759.75, 759.63, 760.04], [759.76, 759.56, 759.5, 759.95], [759.58, 759.78, 759.45, 759.8], [759.76, 759.81, 759.64, 759.88], [759.8, 759.98, 759.77, 760.06], [759.97, 759.78, 759.5, 760.07], [759.78, 759.29, 759.23, 759.89], [759.27, 759.29, 759.1, 759.39], [759.3, 759.14, 759.09, 759.39], [759.14, 758.95, 758.9, 759.33], [758.96, 759.0, 758.85, 759.2], [758.99, 758.84, 758.68, 759.01], [758.84, 759.15, 758.79, 759.23], [759.15, 759.01, 758.95, 759.2], [759.03, 759.09, 758.88, 759.17], [759.09, 758.27, 758.21, 759.1], [758.25, 758.78, 757.97, 758.91], [758.76, 759.11, 758.57, 759.3], [759.15, 758.96, 758.82, 759.25], [758.97, 759.09, 758.84, 759.27], [759.09, 759.17, 758.78, 759.19], [759.16, 759.47, 759.15, 759.52], [759.46, 759.4, 759.32, 759.54], [759.4, 759.37, 759.18, 759.45], [759.36, 759.31, 759.26, 759.53], [759.32, 759.31, 759.03, 759.33], [759.31, 759.35, 759.26, 759.48], [759.37, 759.51, 759.27, 759.51], [759.49, 759.4, 759.37, 759.58], [759.41, 759.43, 759.23, 759.46], [759.45, 759.71, 759.43, 759.75], [759.7, 759.76, 759.56, 759.78], [759.78, 759.65, 759.62, 759.8], [759.65, 759.79, 759.65, 759.86], [759.79, 759.83, 759.72, 759.9], [759.83, 759.89, 759.68, 759.97], [759.9, 759.78, 759.74, 759.96], [759.79, 759.81, 759.66, 759.89], [759.81, 760.1, 759.79, 760.1], [760.09, 760.33, 760.08, 760.61], [760.33, 760.47, 760.21, 760.47], [760.48, 760.51, 760.26, 760.51], [760.51, 760.36, 760.23, 760.53], [760.36, 760.54, 760.28, 760.54], [760.55, 761.27, 760.54, 761.48], [761.29, 761.48, 761.19, 761.83], [761.49, 761.26, 761.17, 761.5], [761.26, 761.33, 761.1, 761.44], [761.33, 761.22, 761.09, 761.47], [761.22, 761.18, 761.06, 761.39], [761.19, 761.17, 761.02, 761.23], [761.17, 761.08, 761.02, 761.27], [761.08, 760.86, 760.84, 761.13], [760.87, 760.7, 760.69, 760.92], [760.71, 761.17, 760.68, 761.22], [761.17, 761.43, 761.04, 761.44], [761.42, 761.65, 761.3, 761.66], [761.64, 761.41, 761.18, 761.79], [761.41, 761.63, 761.39, 762.0], [761.6, 762.59, 760.74, 762.69], [762.59, 762.56, 761.95, 762.72], [762.6, 762.85, 761.69, 763.17], [762.81, 762.69, 760.74, 762.9], [762.69, 762.77, 761.69, 762.79], [762.76, 762.86, 762.75, 762.9], [762.89, 762.8, 762.75, 762.92], [762.8, 762.85, 762.74, 762.94], [762.86, 762.97, 762.86, 763.0], [762.96, 762.92, 761.69, 763.15], [762.92, 762.83, 762.76, 763.03], [762.83, 762.74, 762.7, 762.85]];
+    var rawVols = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2697828, 5240070, 657346, 560799, 549337, 747128, 732322, 638498, 562261, 492519, 403452, 327893, 249950, 313569, 414973, 383226, 371603, 354064, 256803, 173511, 248259, 9145723, 4128232, 193656, 303376, 271002, 217011, 370393, 180856, 332597, 181559, 451937, 300229, 139517, 216278, 894725, 241486, 238095, 127089, 160383, 245139, 175260, 85142, 129133, 217666, 105618, 4630286, 141977, 212141, 248226, 154541, 191503, 174154, 157249, 325662, 215823, 218121, 310401, 528638, 252883, 229953, 208369, 123356, 766680, 424757, 227218, 210075, 214077, 389513, 309361, 307581, 266464, 594231, 551694, 637100, 917750, 1686788, 4095457, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  var option = {
-    animation: false,
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'cross',
-        lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' }
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">SPY · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
       },
-      backgroundColor: 'rgba(255, 255, 255, 0.96)',
-      borderColor: '#cbd5e1',
-      borderWidth: 1,
-      padding: [8, 12],
-      textStyle: { color: '#0f172a', fontSize: 12 },
-      formatter: function(params) {
-        var idx = params[0].dataIndex;
-        var t = rawTimes[idx];
-        var c = rawCandles[idx];
-        var vol = rawVols[idx];
-
-        var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">SPY · ' + t + ' (5m K线)</div>';
-        html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
-        html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
-        html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
-        html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
-        html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
-        html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
-        html += '</div>';
-        return html;
-      }
-    },
-    grid: [
-      { left: 55, right: 80, top: 35, height: 535 }
-    ],
-    xAxis: [
-      {
-        type: 'category',
-        data: rawTimes,
-        boundaryGap: true,
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        axisLabel: { color: '#64748b', fontSize: 11 },
-        splitLine: { show: false }
-      }
-    ],
-    yAxis: [
-      {
-        type: 'value',
-        scale: true,
-        position: 'right',
-        min: function(val) {
-          return Math.min(Math.floor(val.min - 1.0), 756.0);
-        },
-        splitArea: { show: false },
-        splitLine: { lineStyle: { color: '#f1f5f9' } },
-        axisLine: { lineStyle: { color: '#cbd5e1' } },
-        axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(2); } }
-      }
-    ],
-    series: [
-      {
-        name: 'SPY 5m K线',
-        type: 'candlestick',
-        data: rawCandles,
-        itemStyle: {
-          color: '#16a34a',
-          color0: '#ef4444',
-          borderColor: '#16a34a',
-          borderColor0: '#ef4444'
-        },
-        markArea: {
-          silent: true,
-          data: [
-            // (1) 6:30前 浅灰底色
-            [
+      grid: [{ left: 55, right: 80, top: 35, height: 535 }],
+      xAxis: [{ type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } }],
+      yAxis: [{ type: 'value', scale: true, position: 'right', min: function(val) { return Math.floor(val.min - 0.5); }, max: function(val) { return Math.ceil(val.max + 0.5); }, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(2); } } }],
+      series: [
+        {
+          name: 'SPY 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '07:55',
+                  name: '深度分析窗口 07:55→09:55',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '09:55' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
               {
-                xAxis: '04:00',
-                itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
-                label: {
-                  show: true,
-                  position: ['12px', '12px'],
-                  color: '#64748b',
-                  fontSize: 10,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderWidth: 0,
-                  borderRadius: 3,
-                  padding: [2, 6],
-                  formatter: '盘前 (06:30 前)'
-                }
-              },
-              { xAxis: '06:30' }
-            ],
-            // (1) 13:00后 浅灰底色
-            [
-              {
-                xAxis: '13:00',
-                itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
-                label: {
-                  show: true,
-                  position: ['12px', '12px'],
-                  color: '#64748b',
-                  fontSize: 10,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderWidth: 0,
-                  borderRadius: 3,
-                  padding: [2, 6],
-                  formatter: '盘后 (13:00 后)'
-                }
-              },
-              { xAxis: '13:55' }
-            ],
-            // 深度分析窗口 08:25 -> 09:45
-            [
-              {
-                xAxis: '08:25',
-                name: '深度分析窗口 08:25→09:45',
-                itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                name: '08:30 最高',
+                coord: ['08:30', 760.07],
+                symbol: 'arrow',
+                symbolRotate: 180,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
                 label: {
                   show: true,
                   position: 'top',
-                  color: '#0284c7',
-                  fontSize: 11,
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '08:30 最高 760.07\n(同步 ES 衰竭反转)',
+                  color: '#0369a1',
                   fontWeight: 'bold',
-                  backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 762.63',
+                yAxis: 762.63,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
                   borderWidth: 0,
                   borderRadius: 3,
-                  padding: [3, 6]
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 762.63'
                 }
               },
-              { xAxis: '09:45' }
+              {
+                name: 'QP Open: 761.31',
+                yAxis: 761.31,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 761.31'
+                }
+              },
+              {
+                name: 'QP H1: 763.19',
+                yAxis: 763.19,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H1: 763.19'
+                }
+              },
+              {
+                name: 'QP H2: 764.75',
+                yAxis: 764.75,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 764.75'
+                }
+              },
+              {
+                name: 'QP L1: 758.67',
+                yAxis: 758.67,
+                lineStyle: { color: '#dc2626', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(220, 38, 38, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#b91c1c',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L1: 758.67'
+                }
+              },
+              {
+                name: 'QP L2: 756.82',
+                yAxis: 756.82,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 756.82'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 766.71',
+                yAxis: 766.71,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 766.71'
+                }
+              },
+              {
+                name: 'Saty +100%: 769.23',
+                yAxis: 769.23,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 769.23'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 758.55',
+                yAxis: 758.55,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 758.55'
+                }
+              },
+              {
+                name: 'Saty -100%: 756.03',
+                yAxis: 756.03,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 756.03'
+                }
+              }
             ]
-          ]
-        },
-        markPoint: {
-          data: [
-            {
-              name: '日内最低点',
-              coord: ['09:25', 757.90],
-              symbol: 'arrow',
-              symbolRotate: 0,
-              symbolSize: [10, 13],
-              itemStyle: { color: '#0284c7' },
-              label: {
-                show: true,
-                position: 'right',
-                distance: 10,
-                backgroundColor: 'rgba(2, 132, 199, 0.20)',
-                borderWidth: 0,
-                borderRadius: 4,
-                padding: [4, 8],
-                formatter: '09:25 最低 757.97\n(同步 ES 吸收反转)',
-                color: '#0369a1',
-                fontWeight: 'bold',
-                fontSize: 10,
-                lineHeight: 14
-              }
-            }
-          ]
-        },
-        markLine: {
-          symbol: ['none', 'none'],
-          silent: false,
-          data: [
-            // (1) 6:30 开盘 和 13:00 关盘 灰色 dash 线
-            {
-              name: '06:30 开盘',
-              xAxis: '06:30',
-              lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
-              label: { show: false }
-            },
-            {
-              name: '13:00 关盘',
-              xAxis: '13:00',
-              lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
-              label: { show: false }
-            },
-
-            // (4) 上个交易日收盘价
-            {
-              name: '昨收 PC: 762.63',
-              yAxis: 762.63,
-              lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(71, 85, 105, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#1e293b',
-                fontSize: 10,
-                fontWeight: 'bold',
-                formatter: '昨收 PC: 762.63'
-              }
-            },
-
-            // (2) Quant Pivot 4条线 + Open
-            {
-              name: 'QP Open: 761.31',
-              yAxis: 761.31,
-              lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
-              label: {
-                show: true,
-                position: 'insideEndBottom',
-                distance: [0, 3],
-                backgroundColor: 'rgba(37, 99, 235, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#1d4ed8',
-                fontSize: 10,
-                fontWeight: 'bold',
-                formatter: 'QP Open 761.31'
-              }
-            },
-            {
-              name: 'QP H1: 763.19',
-              yAxis: 763.19,
-              lineStyle: { color: '#059669', width: 1.2, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(5, 150, 105, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#047857',
-                fontSize: 10,
-                fontWeight: '600',
-                formatter: 'QP H1: 763.19'
-              }
-            },
-            {
-              name: 'QP H2: 764.75',
-              yAxis: 764.75,
-              lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(4, 120, 87, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#047857',
-                fontSize: 10,
-                fontWeight: '600',
-                formatter: 'QP H2: 764.75'
-              }
-            },
-            {
-              name: 'QP L1: 758.67',
-              yAxis: 758.67,
-              lineStyle: { color: '#dc2626', width: 2.0, type: 'solid' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(220, 38, 38, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#b91c1c',
-                fontSize: 10,
-                fontWeight: 'bold',
-                formatter: '★ QP L1: 758.67 (RTH支撑)'
-              }
-            },
-            {
-              name: 'QP L2: 756.82',
-              yAxis: 756.82,
-              lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(153, 27, 27, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [2, 6],
-                color: '#991b1b',
-                fontSize: 10,
-                fontWeight: '600',
-                formatter: 'QP L2: 756.82'
-              }
-            },
-
-            // (3) Saty ATR 4条线 +-61.8% +-100%
-            {
-              name: 'Saty +61.8%: 766.71',
-              yAxis: 766.71,
-              lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndBottom',
-                distance: [0, 3],
-                backgroundColor: 'rgba(16, 185, 129, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#065f46',
-                fontSize: 9,
-                formatter: 'Saty +61.8%: 766.71'
-              }
-            },
-            {
-              name: 'Saty +100%: 769.23',
-              yAxis: 769.23,
-              lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(5, 150, 105, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#047857',
-                fontSize: 9,
-                formatter: 'Saty +100%: 769.23'
-              }
-            },
-            {
-              name: 'Saty -61.8%: 758.55',
-              yAxis: 758.55,
-              lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndBottom',
-                distance: [0, 3],
-                backgroundColor: 'rgba(248, 113, 113, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#991b1b',
-                fontSize: 9,
-                formatter: 'Saty -61.8%: 758.55'
-              }
-            },
-            {
-              name: 'Saty -100%: 756.03',
-              yAxis: 756.03,
-              lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
-              label: {
-                show: true,
-                position: 'insideEndTop',
-                distance: [0, 3],
-                backgroundColor: 'rgba(239, 68, 68, 0.20)',
-                borderWidth: 0,
-                borderRadius: 3,
-                padding: [1, 5],
-                color: '#991b1b',
-                fontSize: 9,
-                formatter: 'Saty -100%: 756.03'
-              }
-            }
-          ]
+          }
         }
-      }
-    ]
-  };
+      ]
+    };
 
-  myChart.setOption(option);
-  window.addEventListener('resize', function() {
-    myChart.resize();
-  });
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpyChart);
+  } else {
+    initSpyChart();
+  }
 })();
 </script>
+
 <section class='card'><div style='font-size:0.82rem;color:#334155;margin:4px 0 8px;'>标的 <b>ES</b> · 窗口 <b>07:55 → 09:55</b> · 待验证方向 <b>BULLISH</b>。以下用<b>逐笔成交（TICK）</b>与<b>盘口挂单（DOM）</b>两个数据源交叉印证，无前视 ✓，仅分析参考、不接入自动下单 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>1️⃣ 合并时间线（每 5 分钟一行 ✓ 无前视 ✓；<b>短窗为主</b>：tick Δ1m/Δ5m + 每行 DOM ±2/±5 ✓；引擎 Δ30m 仅作<b>慢口径对照</b> ✓） <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '1️⃣ 合并时间线')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button> </div><table style='border-collapse:collapse;font-size:0.75rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 6px;border:1px solid #e2e8f0;'>时刻 (MW Bar)</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎方向/Setup</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ1m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick Δ5m（短窗主 ✓）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 5m 价位移</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM ±2/±5 失衡</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 Δ30m（慢·对照）</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎价(ES)</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>tick 量5m</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>DOM 质量</th><th style='padding:4px 6px;border:1px solid #e2e8f0;'>引擎 vs tick</th></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>07:55<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 07:50</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Spoof-Trap</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.007 / +0.027</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2211</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7693.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 640 个">OK 640</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:00<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 07:55</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Spoof-Trap</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.014 / +0.035</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2644</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7695.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 991 个">OK 991</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:05<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:00</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.017 / -0.003</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+3011</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7692.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 984 个">OK 984</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:10<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:05</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.008 / -0.001</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2596</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7693.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 941 个">OK 941</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:15<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:10</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.020 / +0.012</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2700</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7691.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 942 个">OK 942</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:20<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:15</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.025 / +0.031</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1898</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7693.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 922 个">OK 922</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:25<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:20</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.013 / -0.009</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1339</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7693.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 955 个">OK 955</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:30<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:25</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.037 / -0.022</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1711</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7695.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 1001 个">OK 1001</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:35<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:30</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.020 / +0.069</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+672</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7693.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 1001 个">OK 1001</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:40<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:35</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.042 / +0.053</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1191</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7688.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 999 个">OK 999</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:45<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:40</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.032 / +0.087</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1707</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7688.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 987 个">OK 987</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:50<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:45</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.010 / +0.066</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-1779</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7687.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 970 个">OK 970</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>08:55<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:50</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.055 / +0.061</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2271</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7684.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>—</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 965 个">OK 965</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#64748b;'>—</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:00<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 08:55</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-259</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-274</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.069 / +0.078</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-3184</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7685.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8354</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 907 个">OK 907</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:05<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:00</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+28</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-450</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.056 / +0.079</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-2658</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7683.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8422</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 879 个">OK 879</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:10<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:05</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+90</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+619</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.027 / +0.039</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-690</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7687.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7919</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 878 个">OK 878</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:15<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:10</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+62</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+7</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.022 / +0.038</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-5</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7685.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6911</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 842 个">OK 842</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:20<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:15</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+186</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+370</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+1.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.022 / +0.024</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+330</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7686.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6384</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 879 个">OK 879</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:25<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:20</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-255</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-848</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-7.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.003 / -0.003</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>-576</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7677.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>11702</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 890 个">OK 890</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:30<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:25</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+473</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+2101</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+6.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.013 / +0.023</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1799</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7683.25</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>24913</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 931 个">OK 931</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:35<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:30</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+39</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+1165</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+1.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.002 / +0.032</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+3414</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7687.00</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>16019</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 934 个">OK 934</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:40<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:35</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Low-Bounda</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+62</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-492</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-1.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.035 / +0.030</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2303</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7685.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8056</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 962 个">OK 962</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:45<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:40</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+167</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+244</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+1.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.004 / +0.005</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+2540</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7686.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>6372</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 910 个">OK 910</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:50<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:45</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+308</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-181</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+0.75</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.011 / -0.012</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+1989</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7687.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7257</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 899 个">OK 899</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#b91c1c;'>反向 ✗</td></tr><tr><td style='padding:4px 6px;border:1px solid #e2e8f0;white-space:nowrap;'>09:55<br><span style='font-size:0.68rem;color:#0284c7;font-weight:600;' title='MotiveWave 5m 图表 Bar 起始时刻'>MW 09:50</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;'>Neutral:Balanced-R</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+43</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+889</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>+2.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>-0.067 / -0.004</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;color:#94a3b8;'>+3726</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>7690.50</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:right;'>8619</td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;'><span style="color:#047857;font-weight:700;" title="quality_tier=OK · DOM 快照 881 个">OK 881</span></td><td style='padding:4px 6px;border:1px solid #e2e8f0;text-align:center;font-weight:700;color:#047857;'>同向 ✓</td></tr></table><div style='font-size:0.72rem;color:#64748b;margin-top:4px;line-height:1.6;'>💡 <b>MotiveWave 图表对齐说明</b>：MotiveWave 图表以 Bar <b>起始时刻</b>标示（例如 MW 09:25 Bar 实际涵盖 09:25–09:30 窗口，在本表对应 09:30 结束行，其 Δ5m 确为 <b>+2,101 手</b>）；本表第一列主时刻为该 5 分钟槽的<b>结束时刻</b>。<br>Δ1m/Δ5m = 该时刻前 1/5 分钟的逐笔成交净 Delta（tick 严格口径 ✓）；DOM ±2/±5 = 距 mid ±2/±5 ticks 挂单失衡；引擎 Δ30m 为滚动 30 分钟净额，仅作慢口径对照 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>2️⃣ 🧭 DOM × TICK <b>合并结论</b>（两个数据源交叉印证 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '2️⃣ 🧭 DOM × TICK 合并结论')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>维度</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>DOM（挂单 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>TICK（成交 ✓）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>综合判断</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 全窗</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗 imb ±5 均值 +0.029 · 偏空 4% / 偏多 64%</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>全窗净Delta <b>+3190</b> · 买占比 0.513 · DOM 与 tick 同向占 62%</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#047857;'>两源同向 ⇒ 方向可信度高 ✓✓</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>方向 · 窗口极值点</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 -0.088 · ±5 -0.004</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>前序砸盘 5m: <b>-848</b><br><b>MW 09:25 Bar: <span style='color:#047857;'>+2101</span></b>（量 24913）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#047857;'>最低点打出后紧随天量主动买盘（MW 09:25 Bar 达 +2101 手），空头砸盘瞬间被强力吸收吞没，量价底背离反转成立！✓✓</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>位置</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 7666.00 / 卖墙 7705.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL 7681.50 · POC 7686.00 · VAH 7687.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口低点 <b>7677.75</b> 贴住价值区下沿 VAL ⇒ 折价区（利于看多 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>大额资金</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙 174 手 vs 卖墙 156 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>大单(≥20手) 买 582 vs 卖 1225（共 60 笔）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b91c1c;'>大额单净卖 ✗（1225 vs 买 582）⇒ 走势缺大单确认</b></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>机构大单</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>—（挂单源无此层）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>SingleTickBigTrade 0 笔 · 买 0 vs 卖 0</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#94a3b8;'>窗口内无 SingleTickBigTrade ⇒ 无机构大单锚点</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>近端风险</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧真空 1 ticks / 卖侧 1</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口内 5 分钟成交格数 13</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方结构连续 ⇒ 无真空风险 ✓</td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:2px;'>DOM 快照取窗口极值点最近有效快照 + t0 快照；TICK 全窗为 t0 前 60 分钟口径 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:8px 0 2px;'>3️⃣ 系统 order flow 指标解读（哪些与价格走势一致 / 不一致 ✓ —— 待验证方向 = BULLISH） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '3️⃣ 系统 order flow 指标解读')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='margin:6px 0 2px;font-size:0.8rem;color:#047857;font-weight:700;'>✅ 支持该方向</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>DOM 窗口级：imb ±5 偏多占 64%（时间加权 +0.029）⇒ 挂单侧买方占优 ✓</li><li><b>MW 最低点 5m Bar (09:25–09:30) 爆出天量主动买盘（Δ5m = +2101 手，成交 24913 手）</b>⇒ 极值打出瞬间即被天量主动买盘暴力吞没，构成最核心的量价底背离反转信号 ✓✓</li><li>30m 累计 Delta 在低点「越跌越正」（-3184 → +3726）⇒ 低点有持续主动买盘吸收 ✓</li><li>窗口短窗主动买脉冲（tick Δ5m 正值）与 30m 净买同向 ⇒ 短周期动能确认 ✓</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#b91c1c;font-weight:700;'>⚠️ 不支持该方向 / 缺乏确认</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>大额单（≥20 手）净卖 ⇒ 走势缺机构大单确认 ✗</li><li>窗口内无 SingleTickBigTrade ⇒ 缺机构大单层确认 ✗</li></ul><div style='margin:6px 0 2px;font-size:0.8rem;color:#0369a1;font-weight:700;'>📌 要右侧确认，还需要看到</div><ul style='margin:2px 0 4px 18px;font-size:0.78rem;line-height:1.6;'><li>需价格放量站上 VAH（7687.50）才能右侧确认反弹延续 ✓</li></ul><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:14px 0 2px;'>★ 双向证据维度（描述性 · <b>阈值未标定</b> ⇒ 不参与 pattern 判定 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;background:#ffffff;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>维度</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>取值</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>读法（多空对称 ✓）</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b>吸收度 ad_ratio</b><br><span style='color:#94a3b8;'>净 Delta ÷ 价格位移（手/点）</span></td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+580.0<br><span style='color:#94a3b8;'>净 +3190 / 位移 +5.50（60 分钟）</span></td><td style='padding:4px 8px;border:1px solid #e2e8f0;color:#64748b;font-weight:700;'>量价同向 ⇒ 无吸收特征</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b>大档位 / 盘口迁移</b><br><span style='color:#94a3b8;'>近端 ±5 失衡前后半段漂移<br>+ 大档距盘口距离与手数变化</span></td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'>±5 失衡 +0.033 → +0.017（漂移 -0.016）<br>卖墙距盘口 -21.5 ticks / +10 手<br>买墙距盘口 +77.5 ticks / +30 手<br><span style='color:#94a3b8;'>61 分钟盘口 · raw_dom_recompute</span></td><td style='padding:4px 8px;border:1px solid #e2e8f0;color:#b45309;font-weight:700;'>盘口向<b>卖侧</b>迁移 / 大额卖档向盘口收拢且增仓（<b>描述性 · 方向性未通过验证</b>）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b>瞬时事件（分钟级）</b><br><span style='color:#94a3b8;'>半段均值会漏掉的「临场压盘 / 抬盘」</span></td><td style='padding:4px 8px;border:1px solid #e2e8f0;' colspan='2'>买侧瞬时事件 <b>09:24→09:27</b>：大额档向盘口收拢 -8.0 ticks 且增仓 53 手（前值 164 → 峰值 230 手） <span style='color:#047857;'>（事件后未快速回落 ⇒ 相对可信）</span></td></tr></table><div style='font-size:0.72rem;color:#94a3b8;margin-top:4px;'>UNSET（待「同形态相反结局」配对样本标定；不得当阈值判据用 ✓） 定义：净买盘 + 价格下跌 = 买盘被吸收；净卖盘 + 价格上涨 = 卖盘被吸收 ✓</div><div style='font-weight:700;font-size:0.82rem;color:#0f172a;margin:10px 0 2px;'>🧩 命中的 pattern（可机检 · 待回测标定阈值）</div><div><span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 9px;border-radius:6px;font-size:0.78rem;font-weight:700;background:#fffbeb;color:#b45309;border:1px solid #fde68a;">P4 · 挂单-成交同向共振（medium）</span></div><div style='font-size:0.74rem;color:#94a3b8;margin-top:2px;'>pattern 定义见 patterns.py（P1 低点吸收 / P2 恐慌洗盘 / P3 高位派发 / P4 挂单-成交共振 / P5 短长窗背离）；置信档 high&gt;medium&gt;low，阈值待历史样本回测收敛 ✓</div><div style='display:flex;flex-direction:column;gap:14px;align-items:stretch;'><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>5️⃣ 🧱 DOM 深度分析（盘口挂单 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '4️⃣ 🧱 DOM 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 DOM 快照（500ms 级 ✓ 取发帖时刻及之前最近**有效**快照 ✓ 无前视 ✓）；本模块为**独立复算** ✓（引擎 <code>imb_*</code> 定义未公开 ✗ 但三档方向已对照 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>快照时刻</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最优买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最优档手数 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价差</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>档位数 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>全盘总量 买/卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>总量比</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:55:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7690.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7690.25 / 7690.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>82 / 32</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>2 ticks</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>200 / 200</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>10201 / 8264</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b>1.23</b></td></tr></table><div style='height:6px;'></div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>带宽</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买挂单</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>卖挂单</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>失衡 (买−卖)/(买+卖)</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>解读</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±2 ticks（≈0.50 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>181</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>120</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+0.203</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#047857;'>买侧占优 ✓（支持该方向）</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±5 ticks（≈1.25 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>476</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>417</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+0.066</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#047857;'>买侧占优 ✓（支持该方向）</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±15 ticks（≈3.75 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1375</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1381</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.002</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#64748b;'>接近平衡</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>±25 ticks（≈6.25 点）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>2173</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>2184</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-0.003</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><span style='color:#64748b;'>接近平衡</span></td></tr></table><div style='height:6px;'></div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>项</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买侧</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>卖侧</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>最大单档（墙 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>226 手 @ 7670.00（距 mid 82 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>163 手 @ 7705.00（距 mid 58 ticks ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>堆叠（相邻 ≥30 手 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>63 档 / 合计 4993 手</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>63 档 / 合计 4530 手</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>最大真空（缺口 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1 ticks（7690.00→7690.25）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1 ticks（7740.25→7740.50）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>DOM 时间演变（发帖前 60/30/15/5 分钟 → 发帖时刻 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时点</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>快照</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±5 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±15 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>全盘买/卖比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>最大买墙</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>最大卖墙</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−60′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>08:55:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7684.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.158</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.121</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.92</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>203 手 @ 7684.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>153 手 @ 7705.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:25:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7677.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.004</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.005</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.83</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>174 手 @ 7666.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>156 手 @ 7705.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:40:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7685.62</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.064</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.048</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1.02</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>181 手 @ 7670.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>164 手 @ 7705.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:50:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7687.62</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.118</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.075</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1.21</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>226 手 @ 7670.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>169 手 @ 7705.00</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T0（发帖 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:55:00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7690.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+0.066</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>-0.002</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>1.23</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>226 手 @ 7670.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>163 手 @ 7705.00</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ DOM 提供的支持证据</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>±5 ticks（≈1.25 点）内 **买挂单多出卖 59 手**（失衡 +0.066 ✓）⇒ 近端下方有承接（支持待验证方向 ✓）</li><li>全盘 200 档挂单 **买/卖 = 1.23**（买侧总量占优 ✓）⇒ 整体挂单结构偏多 ✓</li><li>**买墙更大**（226 手 @ 7670.00，距 mid 82 ticks ✓ vs 卖墙 163 手）⇒ 近端下方有大额防守 ✓</li></ul><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ DOM 提示的反向 / 风险</div><div style='margin-left:18px;font-size:0.78rem;color:#94a3b8;'>（无 ✓）</div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>买卖压力与挂单墙 · 逐分钟序列（每 5 分钟采样 ✓ 完整分钟序列见页面图表 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>mid</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>±5 失衡</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>全盘买/卖比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买墙</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>卖墙</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.12</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.145</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.93</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>196 @7684.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>153 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7683.62</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.036</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.91</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>183 @7682.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>163 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:05</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7684.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.037</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.97</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>169 @7680.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>163 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:10</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7686.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.070</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.02</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>167 @7682.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>164 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7684.62</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.076</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.93</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>169 @7682.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>162 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.38</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.019</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.95</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>162 @7680.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>162 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7676.88</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.004</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.90</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>215 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>161 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:30</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.052</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.13</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>206 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>165 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:35</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7687.12</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.139</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.08</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>181 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>163 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.12</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.051</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.01</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>226 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>164 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7686.62</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.065</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.14</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>227 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>165 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7687.88</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>-0.097</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>226 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>169 @7705.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7690.50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>+0.066</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1.23</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>226 @7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>163 @7705.00</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>挂单墙**出现/消失**追踪（分钟间变动 ≥40 手 ✓ 近似撤单识别 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>侧</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>价位</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>变动</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>变动后手数</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>解读</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>买</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;color:#047857;'>+51</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>215</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'><b>新增大额挂单</b>（可能是真实防守 ✓ 也可能是诱导 ✗ 需结合成交判断 ✓）</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>买</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7670.00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;color:#047857;'>+45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>226</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'><b>新增大额挂单</b>（可能是真实防守 ✓ 也可能是诱导 ✗ 需结合成交判断 ✓）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价格结构位 × 挂单墙（VWAP / POC ✓ 与墙位叠加 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>结构位</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价位</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>相对发帖价</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>与墙位关系</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>Session VWAP ✓</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7696.88</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7696.88（mid 上方 26 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>价格在 VWAP <b>下方</b> ⇒ 处于**折价区** ✓（利于其看多逻辑 ✓）</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（成交最密集价 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7687.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7687.00（mid 下方 14 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>价格在 POC 上方 ⇒ 溢价 ⚠️</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>买墙（最大买档 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7670.00（226 手）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7670.00（mid 下方 82 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>下方 82 ticks 处的大额防守 ✓</td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>卖墙（最大卖档 ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7705.00（163 手）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7705.00（mid 上方 58 ticks ✓）</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>上方 58 ticks 处的压力 ✗</td></tr></table><div class='adam-dom-chart' data-vwap='7696.881605806383' data-poc='7687.0' data-series='[{"t": "08:55", "mid": 7685.125, "imb5": 0.14472252448313383, "ratio": 0.931, "wb": 196.0, "wbpx": 7684.0, "wa": 153.0, "wapx": 7705.0}, {"t": "08:56", "mid": 7686.875, "imb5": 0.09935483870967741, "ratio": 1.022, "wb": 188.0, "wbpx": 7684.0, "wa": 163.0, "wapx": 7705.0}, {"t": "08:57", "mid": 7685.375, "imb5": 0.043478260869565216, "ratio": 0.935, "wb": 194.0, "wbpx": 7684.0, "wa": 161.0, "wapx": 7705.0}, {"t": "08:58", "mid": 7684.125, "imb5": 0.10995850622406639, "ratio": 0.885, "wb": 172.0, "wbpx": 7682.0, "wa": 161.0, "wapx": 7705.0}, {"t": "08:59", "mid": 7685.375, "imb5": -0.04716981132075472, "ratio": 0.946, "wb": 178.0, "wbpx": 7682.0, "wa": 161.0, "wapx": 7705.0}, {"t": "09:00", "mid": 7683.625, "imb5": 0.036036036036036036, "ratio": 0.905, "wb": 183.0, "wbpx": 7682.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:01", "mid": 7682.875, "imb5": 0.0565262076053443, "ratio": 0.884, "wb": 189.0, "wbpx": 7682.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:02", "mid": 7683.625, "imb5": 0.10526315789473684, "ratio": 0.948, "wb": 161.0, "wbpx": 7672.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:03", "mid": 7683.625, "imb5": -0.06868131868131869, "ratio": 0.931, "wb": 166.0, "wbpx": 7682.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:04", "mid": 7683.625, "imb5": 0.023977433004231313, "ratio": 0.939, "wb": 169.0, "wbpx": 7681.5, "wa": 163.0, "wapx": 7705.0}, {"t": "09:05", "mid": 7684.375, "imb5": -0.037037037037037035, "ratio": 0.969, "wb": 169.0, "wbpx": 7680.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:06", "mid": 7686.375, "imb5": 0.039239001189060645, "ratio": 1.043, "wb": 165.0, "wbpx": 7681.5, "wa": 163.0, "wapx": 7705.0}, {"t": "09:07", "mid": 7687.625, "imb5": 0.08982035928143713, "ratio": 1.107, "wb": 157.0, "wbpx": 7682.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:08", "mid": 7685.125, "imb5": 0.12373737373737374, "ratio": 0.956, "wb": 161.0, "wbpx": 7681.5, "wa": 163.0, "wapx": 7705.0}, {"t": "09:09", "mid": 7686.875, "imb5": 0.12714776632302405, "ratio": 1.073, "wb": 165.0, "wbpx": 7681.5, "wa": 163.0, "wapx": 7705.0}, {"t": "09:10", "mid": 7686.375, "imb5": -0.0698856416772554, "ratio": 1.017, "wb": 167.0, "wbpx": 7682.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:11", "mid": 7686.375, "imb5": -0.05363528009535161, "ratio": 1.012, "wb": 175.0, "wbpx": 7682.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:12", "mid": 7686.625, "imb5": 0.05227272727272727, "ratio": 1.037, "wb": 166.0, "wbpx": 7682.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:13", "mid": 7685.125, "imb5": 0.05128205128205128, "ratio": 0.942, "wb": 167.0, "wbpx": 7682.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:14", "mid": 7685.875, "imb5": -0.05060240963855422, "ratio": 0.981, "wb": 167.0, "wbpx": 7682.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:15", "mid": 7684.625, "imb5": 0.07612903225806451, "ratio": 0.925, "wb": 169.0, "wbpx": 7682.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:16", "mid": 7684.625, "imb5": 0.03128911138923655, "ratio": 0.921, "wb": 159.0, "wbpx": 7680.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:17", "mid": 7685.375, "imb5": 0.04267589388696655, "ratio": 0.961, "wb": 154.0, "wbpx": 7680.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:18", "mid": 7686.125, "imb5": 0.15262515262515264, "ratio": 1.013, "wb": 154.0, "wbpx": 7681.5, "wa": 162.0, "wapx": 7705.0}, {"t": "09:19", "mid": 7686.375, "imb5": 0.014778325123152709, "ratio": 1.021, "wb": 153.0, "wbpx": 7680.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:20", "mid": 7685.375, "imb5": -0.019138755980861243, "ratio": 0.954, "wb": 162.0, "wbpx": 7680.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:21", "mid": 7685.375, "imb5": 0.0951219512195122, "ratio": 0.96, "wb": 160.0, "wbpx": 7680.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:22", "mid": 7684.625, "imb5": -0.1116564417177914, "ratio": 0.91, "wb": 154.0, "wbpx": 7680.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:23", "mid": 7678.625, "imb5": -0.089179548156956, "ratio": 0.79, "wb": 146.0, "wbpx": 7672.0, "wa": 156.0, "wapx": 7705.0}, {"t": "09:24", "mid": 7677.875, "imb5": 0.02617801047120419, "ratio": 0.83, "wb": 164.0, "wbpx": 7666.0, "wa": 156.0, "wapx": 7705.0}, {"t": "09:25", "mid": 7676.875, "imb5": -0.0036809815950920245, "ratio": 0.899, "wb": 215.0, "wbpx": 7670.0, "wa": 161.0, "wapx": 7705.0}, {"t": "09:26", "mid": 7677.375, "imb5": -0.047508690614136734, "ratio": 0.902, "wb": 216.0, "wbpx": 7670.0, "wa": 158.0, "wapx": 7705.0}, {"t": "09:27", "mid": 7679.875, "imb5": -0.0011299435028248588, "ratio": 1.032, "wb": 217.0, "wbpx": 7670.0, "wa": 161.0, "wapx": 7705.0}, {"t": "09:28", "mid": 7681.625, "imb5": -0.05737704918032787, "ratio": 1.001, "wb": 215.0, "wbpx": 7670.0, "wa": 162.0, "wapx": 7705.0}, {"t": "09:29", "mid": 7683.125, "imb5": 0.10238429172510519, "ratio": 1.033, "wb": 208.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:30", "mid": 7685.25, "imb5": -0.051643192488262914, "ratio": 1.131, "wb": 206.0, "wbpx": 7670.0, "wa": 165.0, "wapx": 7705.0}, {"t": "09:31", "mid": 7683.125, "imb5": 0.1599479843953186, "ratio": 0.994, "wb": 202.0, "wbpx": 7670.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:32", "mid": 7684.625, "imb5": 0.03506650544135429, "ratio": 1.09, "wb": 203.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:33", "mid": 7687.25, "imb5": -0.048223350253807105, "ratio": 1.143, "wb": 183.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:34", "mid": 7686.875, "imb5": -0.014492753623188406, "ratio": 1.047, "wb": 181.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:35", "mid": 7687.125, "imb5": 0.13866666666666666, "ratio": 1.078, "wb": 181.0, "wbpx": 7670.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:36", "mid": 7685.875, "imb5": 0.06544502617801047, "ratio": 1.006, "wb": 181.0, "wbpx": 7670.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:37", "mid": 7685.375, "imb5": 0.12117177097203728, "ratio": 0.98, "wb": 182.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:38", "mid": 7684.625, "imb5": 0.1652989449003517, "ratio": 0.974, "wb": 181.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:39", "mid": 7685.625, "imb5": -0.03346720214190094, "ratio": 1.023, "wb": 181.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:40", "mid": 7685.125, "imb5": 0.0506155950752394, "ratio": 1.006, "wb": 226.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:41", "mid": 7684.375, "imb5": 0.17801672640382318, "ratio": 1.045, "wb": 226.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:42", "mid": 7686.875, "imb5": -0.0641399416909621, "ratio": 1.181, "wb": 227.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:43", "mid": 7686.125, "imb5": -0.06928104575163399, "ratio": 1.135, "wb": 227.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:44", "mid": 7686.875, "imb5": -0.13432835820895522, "ratio": 1.143, "wb": 227.0, "wbpx": 7670.0, "wa": 164.0, "wapx": 7705.0}, {"t": "09:45", "mid": 7686.625, "imb5": 0.06536856745479833, "ratio": 1.145, "wb": 227.0, "wbpx": 7670.0, "wa": 165.0, "wapx": 7705.0}, {"t": "09:46", "mid": 7685.375, "imb5": 0.13198573127229488, "ratio": 1.082, "wb": 226.0, "wbpx": 7670.0, "wa": 166.0, "wapx": 7705.0}, {"t": "09:47", "mid": 7685.875, "imb5": 0.07479224376731301, "ratio": 1.132, "wb": 226.0, "wbpx": 7670.0, "wa": 170.0, "wapx": 7705.0}, {"t": "09:48", "mid": 7684.875, "imb5": 0.11614730878186968, "ratio": 1.078, "wb": 230.0, "wbpx": 7670.0, "wa": 170.0, "wapx": 7705.0}, {"t": "09:49", "mid": 7687.625, "imb5": -0.17900403768506057, "ratio": 1.2, "wb": 226.0, "wbpx": 7670.0, "wa": 169.0, "wapx": 7705.0}, {"t": "09:50", "mid": 7687.875, "imb5": -0.09725685785536159, "ratio": 1.202, "wb": 226.0, "wbpx": 7670.0, "wa": 169.0, "wapx": 7705.0}, {"t": "09:51", "mid": 7688.875, "imb5": -0.11990950226244344, "ratio": 1.246, "wb": 226.0, "wbpx": 7670.0, "wa": 169.0, "wapx": 7705.0}, {"t": "09:52", "mid": 7690.375, "imb5": -0.02372034956304619, "ratio": 1.26, "wb": 226.0, "wbpx": 7670.0, "wa": 173.0, "wapx": 7705.0}, {"t": "09:53", "mid": 7690.875, "imb5": -0.055288461538461536, "ratio": 1.253, "wb": 226.0, "wbpx": 7670.0, "wa": 173.0, "wapx": 7705.0}, {"t": "09:54", "mid": 7690.375, "imb5": 0.04399524375743163, "ratio": 1.22, "wb": 226.0, "wbpx": 7670.0, "wa": 163.0, "wapx": 7705.0}, {"t": "09:55", "mid": 7690.5, "imb5": 0.06606942889137737, "ratio": 1.234, "wb": 226.0, "wbpx": 7670.0, "wa": 163.0, "wapx": 7705.0}]' style='height:260px;margin-top:8px;'></div></div></div><div style='flex:1 1 100%;width:100%;'><div style='margin-top:10px;padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;'><div style='font-weight:800;color:#0f172a;font-size:0.84rem;margin-bottom:4px;'>6️⃣ 📈 TICK 深度分析（逐笔成交 · 全部指标 ✓） <button class='copy-title-btn' onclick="copyReportSectionLink(this, event, '5️⃣ 📈 TICK 深度分析')" title='复制层级链接' aria-label='复制层级链接'><i class='fas fa-copy'></i></button> </div><div style='font-size:0.78rem;color:#64748b;margin-bottom:6px;'>数据：原始 tick（截止发帖时刻 ✓ 无前视 ✓）；主动买 = 吃 ASK ✓ 主动卖 = 吃 BID ✓（与 MW 口径一致 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>平均/最大单笔</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最新价</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>120990</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>62090 / 58900</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>+3190</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>0.513</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>90758</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1.33 / 53</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7690.75</td></tr></table><div style='height:6px;'></div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>分窗口（截至发帖 ✓ tick 严格口径 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>窗口</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>价格位移</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>判定</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−5′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+929</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>8681</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+3.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.554</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−10′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+748</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>15938</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+4.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.523</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−15′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+992</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>22310</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+5.25</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.522</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−30′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+3766</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>71298</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+13.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.526</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>T−60′</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+3190</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>120990</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>+5.75</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:right;'>0.513</td><td style='padding:4px 8px;border:1px solid #e2e8f0;text-align:center;'><span style='color:#047857;'>顺势 ✓</span></td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>价位分布（Volume Profile ✓ 70% 价值区 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAL（价值区下沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>POC（最密集）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>VAH（价值区上沿）</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>收盘价相对价值区</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7681.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;font-weight:700;'>7686.00</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>7687.50</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'><b style='color:#b45309;'>高于 VAH ⇒ 溢价 ⚠️</b></td></tr></table><div style='font-size:0.76rem;color:#475569;margin-top:2px;'>Top5 成交密集价：7686.00（5657 手） · 7686.50（5480 手） · 7685.75（5334 手） · 7687.00（5266 手） · 7686.25（4915 手）</div><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>大单（单笔 ≥20 手 ✓）</div><table style='border-collapse:collapse;font-size:0.78rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 8px;border:1px solid #e2e8f0;'>笔数</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>合计量</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>主动买 / 卖</th><th style='padding:4px 8px;border:1px solid #e2e8f0;'>最大 3 笔</th></tr><tr><td style='padding:4px 8px;border:1px solid #e2e8f0;'>60</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>1807</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>582 / 1225</td><td style='padding:4px 8px;border:1px solid #e2e8f0;'>09:24 53手@7678.00（主动卖 ✗） · 08:59 50手@7684.00（主动卖 ✗） · 09:02 50手@7683.50（主动买 ✓）</td></tr></table><div style='font-weight:700;font-size:0.8rem;color:#0f172a;margin:8px 0 2px;'>逐分钟成交节奏（每 5 分钟采样 ✓）</div><table style='border-collapse:collapse;font-size:0.76rem;width:auto;'><tr style='background:#f1f5f9;color:#475569;'><th style='padding:4px 7px;border:1px solid #e2e8f0;'>时刻</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>成交量</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>净 Delta</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>买占比</th><th style='padding:4px 7px;border:1px solid #e2e8f0;'>价</th></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>08:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1568</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+64</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.520</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:00</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>2294</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-336</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.427</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7683.50</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:05</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1253</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.522</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7684.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:10</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1112</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.491</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7686.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1796</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-84</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.477</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7684.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:20</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1233</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+15</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.506</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:25</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>5251</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-235</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.478</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7677.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:30</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>4249</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+337</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.540</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.25</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:35</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1821</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-57</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.484</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7687.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1151</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-17</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.493</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7685.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:45</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1632</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-82</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.475</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7686.75</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:50</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>1768</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>-40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.489</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7688.00</td></tr><tr><td style='padding:4px 7px;border:1px solid #e2e8f0;'>09:55</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>62</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;font-weight:700;'>+40</td><td style='padding:4px 7px;border:1px solid #e2e8f0;text-align:right;'>0.823</td><td style='padding:4px 7px;border:1px solid #e2e8f0;'>7690.75</td></tr></table><div style='margin:4px 0 2px;font-size:0.78rem;color:#047857;font-weight:700;'>✅ TICK 提供的支持证据</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>发帖前 60 分钟净 Delta <b>+3190</b>（买占比 0.513 ✓）与其方向同向 ⇒ 主动成交支持他 ✓</li><li>最近 5 分钟净 Delta <b>+929</b> 已同向 ⇒ 短周期动能确认 ✓</li></ul><div style='margin:4px 0 2px;font-size:0.78rem;color:#b91c1c;font-weight:700;'>⚠️ TICK 提示的反向 / 风险</div><ul style='margin:2px 0 2px 18px;font-size:0.78rem;line-height:1.65;'><li>最新价 <b>7690.75</b> 高于价值区上沿 7687.50 ⇒ 溢价区 ⚠️</li><li>大单主动卖 <b>1225</b> 手 > 买 582 手 ✗</li></ul></div></div></div><div style='font-size:0.72rem;color:#94a3b8;margin-top:6px;'>数据源：引擎行 order_flow_signals（每 5 分钟 ✓）+ 原始 TICKS/DOM 文件复算 ✓；Δ1m/Δ5m/DOM ±2/±5 为短窗主口径，引擎 Δ30m 仅对照 ✓；价格列用 quantitative_metrics.es_price ✓。</div></section></div></body></html>

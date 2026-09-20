@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<!DOCTYPE html><html lang="zh-CN"><head>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script><meta charset="utf-8">
 <title>Adam 双帖 order flow 验证 · ES 2026-09-16</title><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'/>
 <style>
 .copy-title-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;margin-left:6px;border:1px solid #e2e8f0;border-radius:5px;background:#f8fafc;color:#64748b;cursor:pointer;font-size:0.72rem;line-height:1;transition:all 0.15s ease;flex-shrink:0;vertical-align:middle;}
@@ -219,6 +220,803 @@ function copyReportSectionLink(btn, evt, sectionTitle) {
     </div>
   </div>
 </section>
+
+<!-- 0️⃣-a 当日 ES 价格走势与关键点位 (Candlestick Chart) -->
+<section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
+  <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
+    <div>
+      <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
+        <span>0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-a 当日 ES 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
+      <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
+        标的 <b>ES</b> · 日期 <b>2026-09-16</b> · 周期 <b>5 分钟</b> · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
+      </div>
+    </div>
+    <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
+      <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 7673.75</span>
+      <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 7676.50 (Gap Up)</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP H1: 7699.25</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>06:50 衰竭: +353 Delta</span>
+    </div>
+  </div>
+
+  <!-- Legend & Point Guide -->
+  <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
+    <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 7673.75</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 7676.50 ｜ <span style='color:#dc2626;font-weight:700;'>H1 7699.25</span> · H2 7724.25 ｜ L1 7652.25 · L2 7637.25</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 7741.75 · +61.8% 7715.75 · -61.8% 7631.75 · -100% 7605.75 (ATR 68.09)</div>
+  </div>
+
+  <div id='esCandlestickChart' style='width:100%;height:855px;'></div>
+  <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与净 Delta</div>
+</section>
+
+<script>
+(function() {
+  function initEsChart() {
+    var chartDom = document.getElementById('esCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initEsChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
+
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[7676.5, 7675.75, 7674.5, 7681.5], [7675.75, 7676.25, 7673.5, 7678.0], [7676.25, 7673.5, 7673.5, 7677.25], [7673.75, 7674.25, 7672.0, 7674.25], [7674.0, 7674.75, 7672.75, 7675.25], [7675.0, 7675.0, 7674.5, 7676.25], [7675.25, 7677.25, 7675.0, 7677.75], [7677.25, 7678.75, 7676.75, 7679.5], [7678.75, 7680.0, 7675.5, 7681.25], [7680.0, 7680.75, 7679.75, 7681.0], [7681.0, 7682.75, 7680.75, 7683.0], [7682.75, 7683.25, 7681.75, 7683.5], [7683.0, 7683.75, 7682.5, 7689.25], [7684.0, 7685.5, 7682.75, 7686.25], [7685.5, 7683.25, 7683.25, 7685.5], [7683.25, 7683.0, 7682.0, 7684.0], [7683.0, 7679.75, 7679.5, 7683.25], [7680.0, 7683.75, 7680.0, 7684.0], [7683.5, 7681.25, 7679.25, 7684.0], [7681.0, 7676.5, 7675.5, 7681.5], [7676.25, 7675.25, 7675.0, 7677.5], [7675.0, 7679.0, 7674.0, 7679.0], [7679.0, 7676.0, 7676.0, 7680.75], [7676.0, 7679.75, 7675.5, 7680.75], [7679.75, 7673.75, 7673.0, 7681.0], [7673.75, 7677.0, 7673.25, 7677.25], [7677.0, 7680.5, 7676.25, 7680.5], [7680.5, 7678.0, 7677.5, 7681.25], [7677.75, 7679.75, 7677.25, 7682.25], [7680.0, 7676.5, 7676.25, 7680.75], [7676.5, 7673.75, 7673.25, 7679.0], [7674.0, 7670.25, 7669.25, 7676.75], [7670.0, 7669.75, 7669.0, 7673.25], [7669.75, 7681.25, 7669.5, 7681.5], [7681.25, 7684.5, 7680.75, 7686.5], [7684.5, 7684.25, 7681.75, 7686.25], [7684.5, 7678.75, 7678.0, 7686.5], [7678.75, 7679.0, 7675.25, 7680.5], [7679.0, 7677.5, 7673.0, 7680.0], [7677.75, 7675.0, 7674.0, 7679.25], [7674.75, 7671.75, 7671.25, 7675.5], [7671.75, 7671.75, 7669.5, 7672.25], [7673.5, 7673.75, 7670.0, 7674.25], [7671.5, 7676.0, 7671.25, 7677.25], [7676.0, 7680.75, 7675.5, 7680.75], [7680.5, 7678.25, 7678.0, 7682.0], [7678.25, 7678.75, 7678.0, 7681.25], [7679.0, 7684.25, 7679.0, 7685.0], [7684.5, 7687.25, 7683.75, 7688.5], [7687.25, 7691.25, 7684.5, 7692.75], [7691.25, 7689.75, 7687.25, 7692.5], [7690.0, 7688.5, 7685.75, 7690.25], [7688.5, 7688.0, 7686.25, 7688.5], [7687.75, 7686.0, 7685.25, 7690.5], [7685.75, 7683.75, 7682.0, 7687.0], [7683.75, 7686.25, 7683.5, 7688.0], [7686.25, 7688.0, 7685.5, 7688.25], [7687.75, 7692.5, 7687.0, 7699.0], [7692.75, 7689.75, 7688.75, 7693.0], [7690.0, 7689.0, 7688.25, 7690.75], [7689.0, 7685.5, 7685.25, 7689.75], [7685.25, 7686.75, 7685.0, 7687.25], [7686.75, 7685.75, 7683.75, 7687.25], [7685.75, 7685.5, 7684.75, 7686.75], [7685.25, 7681.75, 7681.5, 7685.25], [7681.75, 7683.25, 7680.25, 7683.5], [7683.25, 7678.75, 7678.25, 7684.0], [7678.75, 7680.75, 7678.5, 7681.25], [7680.75, 7680.75, 7679.75, 7682.0], [7680.75, 7682.5, 7680.75, 7683.5], [7682.5, 7680.75, 7678.75, 7683.0], [7680.75, 7679.25, 7679.25, 7681.75], [7679.5, 7675.5, 7674.0, 7679.75], [7675.5, 7677.5, 7675.5, 7677.75], [7677.5, 7678.75, 7675.75, 7679.75], [7678.75, 7679.25, 7678.25, 7680.0], [7679.25, 7677.75, 7676.75, 7680.75], [7677.75, 7680.75, 7677.75, 7681.0], [7681.0, 7679.5, 7678.0, 7682.25], [7679.5, 7677.75, 7677.75, 7680.5], [7677.75, 7674.75, 7674.5, 7678.0], [7674.75, 7677.0, 7674.75, 7678.75], [7677.25, 7679.25, 7676.25, 7680.0], [7679.25, 7683.5, 7677.75, 7684.75], [7684.5, 7683.75, 7668.75, 7691.0], [7684.0, 7688.5, 7682.75, 7694.25], [7688.25, 7681.25, 7679.5, 7690.25], [7681.25, 7681.0, 7678.0, 7685.0], [7681.0, 7680.25, 7677.5, 7684.5], [7680.25, 7678.0, 7669.25, 7681.5], [7678.25, 7657.5, 7656.25, 7680.75], [7657.25, 7660.0, 7641.0, 7661.25], [7659.75, 7671.25, 7658.75, 7683.25], [7671.5, 7656.5, 7655.25, 7677.25], [7656.25, 7631.75, 7631.0, 7659.25], [7632.0, 7618.75, 7617.5, 7638.0], [7618.75, 7627.5, 7617.0, 7633.75], [7627.25, 7611.75, 7609.75, 7627.75], [7611.75, 7592.5, 7591.0, 7613.5], [7592.5, 7588.75, 7584.0, 7600.75], [7589.0, 7586.25, 7580.25, 7593.0], [7586.5, 7591.75, 7575.0, 7592.75], [7591.75, 7605.25, 7590.5, 7606.0], [7605.5, 7604.0, 7594.0, 7606.25], [7604.0, 7600.75, 7597.25, 7608.0], [7600.75, 7615.0, 7600.5, 7616.75], [7615.0, 7621.75, 7614.0, 7623.25], [7621.75, 7622.25, 7618.5, 7625.0], [7622.25, 7623.75, 7620.0, 7626.0], [7623.5, 7622.0, 7620.5, 7624.25], [7621.75, 7621.75, 7620.75, 7622.75], [7621.75, 7621.25, 7620.0, 7623.0], [7621.25, 7620.0, 7620.0, 7621.5], [7620.0, 7620.25, 7617.25, 7620.5], [7620.25, 7622.25, 7619.0, 7622.75], [7622.0, 7622.5, 7620.5, 7622.5], [7622.5, 7621.25, 7619.75, 7623.0], [7621.25, 7622.25, 7620.75, 7622.5], [7622.25, 7621.5, 7620.5, 7623.0], [7621.5, 7622.0, 7618.5, 7622.75]];
+    var rawVols = [6257.0, 1987.0, 781.0, 869.0, 835.0, 1016.0, 1367.0, 1107.0, 3480.0, 762.0, 1287.0, 1384.0, 3458.0, 1773.0, 1425.0, 2310.0, 2305.0, 1861.0, 3111.0, 2245.0, 2078.0, 1987.0, 2222.0, 2339.0, 4315.0, 1871.0, 2000.0, 3695.0, 5653.0, 4639.0, 20704.0, 13360.0, 12654.0, 15690.0, 12383.0, 8637.0, 8765.0, 11818.0, 9496.0, 9536.0, 8620.0, 7004.0, 8914.0, 5666.0, 7529.0, 8226.0, 5766.0, 7711.0, 13155.0, 18560.0, 14202.0, 7975.0, 6842.0, 7783.0, 9303.0, 6776.0, 4546.0, 26715.0, 9161.0, 5861.0, 7593.0, 4833.0, 4418.0, 3987.0, 5806.0, 4381.0, 5266.0, 4008.0, 3181.0, 3966.0, 5794.0, 3081.0, 6791.0, 4576.0, 4938.0, 4651.0, 3907.0, 3594.0, 5017.0, 3151.0, 4662.0, 4608.0, 4567.0, 5025.0, 27937.0, 25465.0, 16373.0, 16735.0, 12635.0, 19813.0, 36965.0, 45177.0, 35847.0, 26103.0, 38151.0, 47451.0, 39730.0, 35197.0, 40208.0, 32508.0, 33818.0, 30625.0, 34227.0, 23971.0, 21692.0, 20492.0, 25795.0, 68384.0, 24272.0, 6915.0, 3508.0, 3336.0, 1418.0, 2877.0, 1529.0, 1446.0, 1988.0, 1421.0, 1115.0, 2053.0];
+    var rawDeltas = [281.0, -37.0, -47.0, -77.0, -55.0, -54.0, 65.0, 71.0, 120.0, -8.0, 121.0, 40.0, 612.0, -79.0, -289.0, 22.0, -253.0, 107.0, -173.0, -257.0, -4.0, 175.0, -116.0, 231.0, -225.0, 281.0, 208.0, -63.0, -1417.0, -277.0, -372.0, -190.0, 966.0, 1798.0, 353.0, 191.0, -49.0, 780.0, -426.0, -214.0, -512.0, -110.0, -38.0, 262.0, 235.0, -550.0, 384.0, 429.0, 213.0, 578.0, -70.0, -381.0, 418.0, -35.0, -481.0, 598.0, -152.0, 883.0, 33.0, -329.0, 27.0, 195.0, -62.0, 107.0, -304.0, -3.0, -214.0, 234.0, 11.0, 320.0, -1220.0, -107.0, -525.0, 556.0, 254.0, -57.0, -237.0, 194.0, -57.0, -181.0, -212.0, 60.0, 105.0, 383.0, -243.0, -497.0, -565.0, -573.0, -491.0, -865.0, -2411.0, -751.0, -531.0, -259.0, -1065.0, -1875.0, 1718.0, -2025.0, 1222.0, -408.0, 1056.0, 877.0, 3123.0, 223.0, 842.0, 2594.0, -131.0, -2848.0, -12.0, -925.0, -388.0, -654.0, -14.0, -703.0, 173.0, -90.0, -242.0, 341.0, -29.0, 235.0];
+
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+          var delta = rawDeltas[idx];
+          var deltaSign = delta > 0 ? '+' : '';
+          var deltaColor = delta > 0 ? '#16a34a' : (delta < 0 ? '#dc2626' : '#64748b');
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">ES · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '<span>净 Delta:</span><b style="color:' + deltaColor + '">' + deltaSign + delta.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
+      },
+      axisPointer: { link: [{ xAxisIndex: 'all' }] },
+      grid: [
+        { left: 55, right: 80, top: 35, height: 575 },
+        { left: 55, right: 80, top: 675, height: 90 }
+      ],
+      xAxis: [
+        { type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } },
+        { type: 'category', gridIndex: 1, data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { show: false }, splitLine: { show: false } }
+      ],
+      yAxis: [
+        {
+          type: 'value',
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f1f5f9' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(1); } }
+        },
+        {
+          type: 'value',
+          gridIndex: 1,
+          scale: true,
+          position: 'right',
+          splitLine: { lineStyle: { color: '#f8fafc' } },
+          axisLine: { lineStyle: { color: '#cbd5e1' } },
+          axisLabel: { color: '#94a3b8', fontSize: 10, formatter: function(v) { return (v/1000).toFixed(0) + 'k'; } }
+        }
+      ],
+      series: [
+        {
+          name: 'ES 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '06:45',
+                  name: '深度分析窗口 06:45→07:45',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '07:45' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
+              {
+                name: '06:50 最高',
+                coord: ['06:50', 7686.5],
+                symbol: 'arrow',
+                symbolRotate: 180,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
+                label: {
+                  show: true,
+                  position: 'top',
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '06:50 最高 7686.50\n(+353 Delta 衰竭反转)',
+                  color: '#0369a1',
+                  fontWeight: 'bold',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 7673.75',
+                yAxis: 7673.75,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 7673.75'
+                }
+              },
+              {
+                name: 'QP Open: 7676.50',
+                yAxis: 7676.50,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 7676.50 (Gap Up)'
+                }
+              },
+              {
+                name: 'QP H1: 7699.25',
+                yAxis: 7699.25,
+                lineStyle: { color: '#dc2626', width: 2.0, type: 'solid' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(220, 38, 38, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#b91c1c', fontSize: 10, fontWeight: 'bold', formatter: '★ QP H1: 7699.25 (关键阻力)' }
+              },
+              {
+                name: 'QP H2: 7724.25',
+                yAxis: 7724.25,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 7724.25'
+                }
+              },
+              {
+                name: 'QP L1: 7652.25',
+                yAxis: 7652.25,
+                lineStyle: { color: '#dc2626', width: 1.2, type: 'dashed' }, label: { show: true, position: 'insideEndTop', distance: [0, 3], backgroundColor: 'rgba(220, 38, 38, 0.20)', borderWidth: 0, borderRadius: 3, padding: [2, 6], color: '#b91c1c', fontSize: 10, fontWeight: '600', formatter: 'QP L1: 7652.25' }
+              },
+              {
+                name: 'QP L2: 7637.25',
+                yAxis: 7637.25,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 7637.25'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 7715.75',
+                yAxis: 7715.75,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 7715.75'
+                }
+              },
+              {
+                name: 'Saty +100%: 7741.75',
+                yAxis: 7741.75,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 7741.75'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 7631.75',
+                yAxis: 7631.75,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 7631.75'
+                }
+              },
+              {
+                name: 'Saty -100%: 7605.75',
+                yAxis: 7605.75,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 7605.75'
+                }
+              }
+            ]
+          }
+        },
+        {
+          name: '5m Delta Volume',
+          type: 'bar',
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+          data: rawDeltas.map(function(d) {
+            return { value: d, itemStyle: { color: d > 0 ? '#10b981' : (d < 0 ? '#ef4444' : '#94a3b8') } };
+          })
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEsChart);
+  } else {
+    initEsChart();
+  }
+})();
+</script>
+
+
+<!-- 0️⃣-b 当日 SPY 价格走势与关键点位 (Candlestick Chart) -->
+<section class='card' style='background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:18px 20px;margin:16px 0;box-shadow:0 1px 4px rgba(0,0,0,0.04);'>
+  <div style='display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #f1f5f9;padding-bottom:12px;margin-bottom:14px;'>
+    <div>
+      <h3 style='margin:0;font-size:1.15rem;color:#0f172a;font-weight:700;display:flex;align-items:center;gap:8px;'>
+        <span>0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)</span> <button class="copy-title-btn" onclick="copyReportSectionLink(this, event, '0️⃣-b 当日 SPY 价格走势与核心点位 (5-Minute Candlestick Chart)')" title="复制层级链接" aria-label="复制层级链接"><i class="fas fa-copy"></i></button>
+      </h3>
+      <div style='font-size:0.83rem;color:#64748b;margin-top:4px;'>
+        标的 <b>SPY</b> · 日期 <b>2026-09-16</b> · 周期 <b>5 分钟</b> · 无 Delta 信息 · 浅灰底色区为盘前/盘后，白底区为 RTH 正常盘 (06:30~13:00) · 静态全景视口（禁止缩放）
+      </div>
+    </div>
+    <div style='display:flex;gap:6px;flex-wrap:wrap;font-size:0.75rem;'>
+      <span style='background:rgba(248,250,252,0.8);border:1px solid #cbd5e1;color:#475569;padding:3px 8px;border-radius:4px;font-weight:600;'>昨收 PC: 755.51</span>
+      <span style='background:rgba(219,234,254,0.8);border:1px solid #93c5fd;color:#1d4ed8;padding:3px 8px;border-radius:4px;font-weight:600;'>QP Open: 757.62</span>
+      <span style='background:rgba(254,226,226,0.8);border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:4px;font-weight:600;'>★ QP H1: 759.86</span>
+      <span style='background:rgba(220,252,231,0.8);border:1px solid #86efac;color:#15803d;padding:3px 8px;border-radius:4px;font-weight:600;'>06:50 最高: 760.43</span>
+    </div>
+  </div>
+
+  <!-- Legend & Point Guide -->
+  <div style='background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:0.77rem;color:#475569;display:flex;flex-wrap:wrap;gap:14px;line-height:1.5;'>
+    <div><span style='display:inline-block;width:14px;height:10px;background:#f1f5f9;border:1px solid #cbd5e1;vertical-align:middle;margin-right:4px;'></span><b>时段底色</b>: 浅灰 = 盘前/盘后 (06:30前 / 13:00后) ｜ 白底 = RTH 交易时段</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dashed #475569;vertical-align:middle;margin-right:4px;'></span><b>昨收 (PC)</b>: 755.51</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.8px solid #2563eb;vertical-align:middle;margin-right:4px;'></span><b>Quant Pivot</b>: Open 757.62 ｜ H1 759.86 · H2 762.34 ｜ L1 755.21 · L2 753.75</div>
+    <div><span style='display:inline-block;width:14px;border-top:1.5px dotted #059669;vertical-align:middle;margin-right:4px;'></span><b>Saty ATR 4线</b>: +100% 761.36 · +61.8% 759.13 · -61.8% 751.89 · -100% 749.66 (ATR 5.85)</div>
+  </div>
+
+  <div id='spyCandlestickChart' style='width:100%;height:640px;'></div>
+  <div style='text-align:right;font-size:0.72rem;color:#94a3b8;margin-top:4px;'>鼠标悬停可查看单根 5m K线 OHLC 与成交量</div>
+</section>
+
+<script>
+(function() {
+  function initSpyChart() {
+    var chartDom = document.getElementById('spyCandlestickChart');
+    if (!chartDom) return;
+    if (typeof echarts === 'undefined') {
+      setTimeout(initSpyChart, 100);
+      return;
+    }
+    var myChart = echarts.init(chartDom);
+
+    var rawTimes = ["04:00", "04:05", "04:10", "04:15", "04:20", "04:25", "04:30", "04:35", "04:40", "04:45", "04:50", "04:55", "05:00", "05:05", "05:10", "05:15", "05:20", "05:25", "05:30", "05:35", "05:40", "05:45", "05:50", "05:55", "06:00", "06:05", "06:10", "06:15", "06:20", "06:25", "06:30", "06:35", "06:40", "06:45", "06:50", "06:55", "07:00", "07:05", "07:10", "07:15", "07:20", "07:25", "07:30", "07:35", "07:40", "07:45", "07:50", "07:55", "08:00", "08:05", "08:10", "08:15", "08:20", "08:25", "08:30", "08:35", "08:40", "08:45", "08:50", "08:55", "09:00", "09:05", "09:10", "09:15", "09:20", "09:25", "09:30", "09:35", "09:40", "09:45", "09:50", "09:55", "10:00", "10:05", "10:10", "10:15", "10:20", "10:25", "10:30", "10:35", "10:40", "10:45", "10:50", "10:55", "11:00", "11:05", "11:10", "11:15", "11:20", "11:25", "11:30", "11:35", "11:40", "11:45", "11:50", "11:55", "12:00", "12:05", "12:10", "12:15", "12:20", "12:25", "12:30", "12:35", "12:40", "12:45", "12:50", "12:55", "13:00", "13:05", "13:10", "13:15", "13:20", "13:25", "13:30", "13:35", "13:40", "13:45", "13:50", "13:55"];
+    var rawCandles = [[759.46, 759.36, 759.32, 759.96], [759.47, 759.5, 759.25, 759.6], [759.5, 759.18, 759.18, 759.56], [759.15, 759.27, 759.07, 759.27], [759.25, 759.35, 759.16, 759.35], [759.32, 759.45, 759.32, 759.45], [759.38, 759.56, 759.35, 759.6], [759.54, 759.63, 759.54, 759.75], [759.66, 759.83, 759.5, 759.94], [759.86, 759.91, 759.82, 759.96], [759.92, 760.1, 759.91, 760.22], [760.12, 760.14, 760.03, 760.14], [760.16, 760.23, 760.12, 760.51], [760.23, 760.42, 760.14, 760.45], [760.41, 760.17, 760.17, 760.41], [760.14, 760.13, 760.05, 760.23], [760.16, 759.82, 759.82, 760.16], [759.84, 760.16, 759.84, 760.16], [760.14, 759.96, 759.8, 760.21], [759.94, 759.5, 759.42, 759.99], [759.48, 759.36, 758.87, 759.59], [759.35, 759.72, 759.26, 759.72], [759.73, 759.46, 759.46, 759.9], [759.43, 759.87, 759.42, 759.91], [759.8, 759.2, 759.18, 759.93], [759.23, 759.55, 759.19, 759.55], [759.55, 759.89, 759.5, 759.9], [759.89, 759.89, 759.89, 759.89], [759.89, 759.89, 759.89, 759.89], [759.89, 759.89, 759.89, 759.89], [759.5, 759.21, 759.14, 759.7], [759.21, 758.81, 758.75, 759.49], [758.82, 758.8, 758.72, 759.14], [758.81, 759.89, 758.74, 759.93], [759.89, 760.24, 759.85, 760.43], [760.22, 760.2, 759.97, 760.4], [760.23, 759.68, 759.63, 760.42], [759.68, 759.7, 759.34, 759.84], [759.69, 759.55, 759.1, 759.78], [759.54, 759.28, 759.23, 759.72], [759.28, 758.96, 758.93, 759.35], [758.95, 758.96, 758.76, 759.02], [758.97, 759.15, 758.8, 759.22], [759.15, 759.37, 758.92, 759.5], [759.37, 759.84, 759.34, 759.86], [759.84, 759.62, 759.6, 759.95], [759.62, 759.68, 759.59, 759.88], [759.69, 760.21, 759.68, 760.25], [760.22, 760.53, 760.16, 760.61], [760.52, 760.91, 760.27, 761.03], [760.91, 760.74, 760.48, 761.0], [760.75, 760.6, 760.37, 760.79], [760.6, 760.54, 760.4, 760.63], [760.54, 760.34, 760.29, 760.83], [760.37, 760.13, 760.01, 760.47], [760.17, 760.39, 760.16, 760.56], [760.4, 760.57, 760.32, 760.6], [760.56, 761.05, 760.49, 761.67], [761.06, 760.79, 760.68, 761.1], [760.78, 760.69, 760.65, 760.86], [760.69, 760.33, 760.33, 760.74], [760.33, 760.48, 760.28, 760.51], [760.48, 760.37, 760.17, 760.52], [760.4, 760.33, 760.28, 760.47], [760.32, 759.98, 759.94, 760.32], [760.0, 760.14, 759.86, 760.18], [760.13, 759.69, 759.67, 760.22], [759.7, 759.89, 759.7, 759.94], [759.89, 759.9, 759.83, 760.03], [759.92, 760.1, 759.92, 760.19], [760.09, 759.89, 759.73, 760.15], [759.89, 759.77, 759.77, 760.01], [759.78, 759.41, 759.26, 759.79], [759.41, 759.57, 759.39, 759.59], [759.57, 759.73, 759.43, 759.81], [759.73, 759.76, 759.67, 759.84], [759.76, 759.64, 759.54, 759.92], [759.64, 759.93, 759.63, 759.94], [759.93, 759.79, 759.66, 760.06], [759.8, 759.63, 759.63, 759.89], [759.63, 759.34, 759.31, 759.64], [759.34, 759.57, 759.34, 759.76], [759.57, 759.79, 759.5, 759.86], [759.78, 760.28, 759.66, 760.28], [760.18, 760.21, 758.77, 760.98], [760.22, 760.67, 760.13, 761.22], [760.66, 759.97, 759.81, 760.85], [759.95, 759.94, 759.66, 760.36], [759.94, 759.85, 759.61, 760.3], [759.84, 759.68, 758.78, 759.98], [759.64, 757.65, 757.54, 759.89], [757.64, 757.89, 756.05, 758.03], [757.89, 759.0, 757.8, 760.21], [758.99, 757.56, 757.43, 759.55], [757.59, 755.14, 755.1, 757.83], [755.16, 753.89, 753.75, 755.76], [753.9, 754.76, 753.73, 755.36], [754.75, 753.2, 752.98, 754.77], [753.2, 751.31, 751.31, 753.34], [751.32, 750.95, 750.95, 752.12], [750.95, 750.68, 750.68, 751.34], [750.69, 751.26, 750.69, 751.31], [751.24, 752.57, 751.24, 752.62], [752.56, 752.42, 752.42, 752.65], [752.43, 752.09, 752.09, 752.82], [752.09, 753.46, 752.09, 753.65], [753.49, 754.09, 753.35, 754.23], [754.06, 754.07, 753.75, 754.37], [754.07, 754.24, 753.93, 754.47], [754.23, 754.1, 753.9, 754.32], [754.05, 754.06, 753.99, 754.14], [754.07, 754.05, 753.93, 754.19], [754.01, 753.94, 753.92, 754.13], [753.93, 753.94, 753.68, 754.05], [753.92, 754.13, 753.84, 754.17], [754.12, 754.16, 753.96, 754.16], [754.12, 754.06, 753.84, 754.47], [753.97, 754.09, 753.97, 754.12], [754.12, 754.03, 754.0, 754.18], [754.05, 754.09, 753.77, 754.11]];
+    var rawVols = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1391527, 715762, 584456, 645084, 338155, 328381, 349657, 369867, 466763, 206768, 341334, 150442, 270587, 266470, 246421, 226024, 168133, 213192, 460498, 391450, 670681, 757493, 356425, 175817, 201215, 190363, 339309, 413337, 211304, 176949, 204554, 110231, 373636, 144332, 278696, 406955, 136479, 116571, 225911, 154026, 113003, 161252, 294844, 233028, 242043, 149008, 243854, 109475, 310508, 135403, 166861, 175309, 190243, 244780, 1803727, 787000, 517198, 283888, 239455, 443684, 915645, 1864326, 967779, 702872, 1091942, 1283563, 1599361, 1039449, 1679548, 1860934, 1758519, 1667443, 1606304, 1295713, 1597146, 2400160, 1896297, 4148308, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    var option = {
+      animation: false,
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'cross', lineStyle: { color: '#94a3b8', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderColor: '#cbd5e1',
+        borderWidth: 1,
+        padding: [8, 12],
+        textStyle: { color: '#0f172a', fontSize: 12 },
+        formatter: function(params) {
+          var idx = params[0].dataIndex;
+          var t = rawTimes[idx];
+          var c = rawCandles[idx];
+          var vol = rawVols[idx];
+
+          var html = '<div style="font-weight:700;margin-bottom:4px;border-bottom:1px solid #f1f5f9;padding-bottom:4px;">SPY · ' + t + ' (5m K线)</div>';
+          html += '<div style="display:grid;grid-template-columns:auto auto;gap:4px 12px;font-size:0.75rem;">';
+          html += '<span>开盘 Open:</span><b>' + c[0].toFixed(2) + '</b>';
+          html += '<span>最高 High:</span><b>' + c[3].toFixed(2) + '</b>';
+          html += '<span>最低 Low:</span><b>' + c[2].toFixed(2) + '</b>';
+          html += '<span>收盘 Close:</span><b>' + c[1].toFixed(2) + '</b>';
+          html += '<span>成交量 Vol:</span><b>' + vol.toLocaleString() + '</b>';
+          html += '</div>';
+          return html;
+        }
+      },
+      grid: [{ left: 55, right: 80, top: 35, height: 535 }],
+      xAxis: [{ type: 'category', data: rawTimes, boundaryGap: true, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#64748b', fontSize: 11 }, splitLine: { show: false } }],
+      yAxis: [{ type: 'value', scale: true, position: 'right', min: function(val) { return Math.floor(val.min - 0.5); }, max: function(val) { return Math.ceil(val.max + 0.5); }, splitLine: { lineStyle: { color: '#f1f5f9' } }, axisLine: { lineStyle: { color: '#cbd5e1' } }, axisLabel: { color: '#475569', fontSize: 11, formatter: function(v) { return v.toFixed(2); } } }],
+      series: [
+        {
+          name: 'SPY 5m K线',
+          type: 'candlestick',
+          data: rawCandles,
+          itemStyle: { color: '#16a34a', color0: '#ef4444', borderColor: '#16a34a', borderColor0: '#ef4444' },
+          markArea: {
+            silent: true,
+            data: [
+              [
+                {
+                  xAxis: '04:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘前 (06:30 前)'
+                  }
+                },
+                { xAxis: '06:30' }
+              ],
+              [
+                {
+                  xAxis: '13:00',
+                  itemStyle: { color: 'rgba(241, 245, 249, 0.75)' },
+                  label: {
+                    show: true,
+                    position: ['12px', '12px'],
+                    color: '#64748b',
+                    fontSize: 10,
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [2, 6],
+                    formatter: '盘后 (13:00 后)'
+                  }
+                },
+                { xAxis: '13:55' }
+              ],
+              [
+                {
+                  xAxis: '06:45',
+                  name: '深度分析窗口 06:45→07:45',
+                  itemStyle: { color: 'rgba(2, 132, 199, 0.08)' },
+                  label: {
+                    show: true,
+                    position: 'top',
+                    color: '#0284c7',
+                    fontSize: 11,
+                    fontWeight: 'bold',
+                    backgroundColor: 'rgba(2, 132, 199, 0.20)',
+                    borderWidth: 0,
+                    borderRadius: 3,
+                    padding: [3, 6]
+                  }
+                },
+                { xAxis: '07:45' }
+              ]
+            ]
+          },
+          markPoint: {
+            data: [
+              {
+                name: '06:50 最高',
+                coord: ['06:50', 760.43],
+                symbol: 'arrow',
+                symbolRotate: 180,
+                symbolSize: [10, 13],
+                itemStyle: { color: '#0284c7' },
+                label: {
+                  show: true,
+                  position: 'top',
+                  distance: 12,
+                  backgroundColor: '#ffffff',
+                  borderColor: '#0284c7',
+                  borderWidth: 1.5,
+                  borderRadius: 4,
+                  padding: [4, 8],
+                  formatter: '06:50 最高 760.43\n(同步 ES 衰竭反转)',
+                  color: '#0369a1',
+                  fontWeight: 'bold',
+                  fontSize: 10,
+                  lineHeight: 14
+                }
+              }
+            ]
+          },
+          markLine: {
+            symbol: ['none', 'none'],
+            silent: false,
+            data: [
+              {
+                name: '06:30 开盘',
+                xAxis: '06:30',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '13:00 关盘',
+                xAxis: '13:00',
+                lineStyle: { color: '#94a3b8', width: 1.5, type: 'dashed' },
+                label: { show: false }
+              },
+              {
+                name: '昨收 PC: 755.51',
+                yAxis: 755.51,
+                lineStyle: { color: '#475569', width: 1.5, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(71, 85, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1e293b',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: '昨收 PC: 755.51'
+                }
+              },
+              {
+                name: 'QP Open: 757.62',
+                yAxis: 757.62,
+                lineStyle: { color: '#2563eb', width: 1.5, type: 'solid' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(37, 99, 235, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#1d4ed8',
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  formatter: 'QP Open 757.62'
+                }
+              },
+              {
+                name: 'QP H1: 759.86',
+                yAxis: 759.86,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H1: 759.86'
+                }
+              },
+              {
+                name: 'QP H2: 762.34',
+                yAxis: 762.34,
+                lineStyle: { color: '#047857', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(4, 120, 87, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#047857',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP H2: 762.34'
+                }
+              },
+              {
+                name: 'QP L1: 755.21',
+                yAxis: 755.21,
+                lineStyle: { color: '#dc2626', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(220, 38, 38, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#b91c1c',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L1: 755.21'
+                }
+              },
+              {
+                name: 'QP L2: 753.75',
+                yAxis: 753.75,
+                lineStyle: { color: '#991b1b', width: 1.2, type: 'dashed' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(153, 27, 27, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [2, 6],
+                  color: '#991b1b',
+                  fontSize: 10,
+                  fontWeight: '600',
+                  formatter: 'QP L2: 753.75'
+                }
+              },
+              {
+                name: 'Saty +61.8%: 759.13',
+                yAxis: 759.13,
+                lineStyle: { color: '#10b981', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(16, 185, 129, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#065f46',
+                  fontSize: 9,
+                  formatter: 'Saty +61.8%: 759.13'
+                }
+              },
+              {
+                name: 'Saty +100%: 761.36',
+                yAxis: 761.36,
+                lineStyle: { color: '#059669', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(5, 150, 105, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#047857',
+                  fontSize: 9,
+                  formatter: 'Saty +100%: 761.36'
+                }
+              },
+              {
+                name: 'Saty -61.8%: 751.89',
+                yAxis: 751.89,
+                lineStyle: { color: '#f87171', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndBottom',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(248, 113, 113, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -61.8%: 751.89'
+                }
+              },
+              {
+                name: 'Saty -100%: 749.66',
+                yAxis: 749.66,
+                lineStyle: { color: '#ef4444', width: 1.2, type: 'dotted' },
+                label: {
+                  show: true,
+                  position: 'insideEndTop',
+                  distance: [0, 3],
+                  backgroundColor: 'rgba(239, 68, 68, 0.20)',
+                  borderWidth: 0,
+                  borderRadius: 3,
+                  padding: [1, 5],
+                  color: '#991b1b',
+                  fontSize: 9,
+                  formatter: 'Saty -100%: 749.66'
+                }
+              }
+            ]
+          }
+        }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', function() { myChart.resize(); });
+    try {
+      if (window.parent && window.parent.ofDeepFitFrame && window.frameElement) {
+        var cid = window.frameElement.id.replace('ofDeepFrame-', '');
+        window.parent.ofDeepFitFrame(cid);
+      }
+    } catch(e) {}
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSpyChart);
+  } else {
+    initSpyChart();
+  }
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <h2 style="font-size:1.05rem;color:#0f172a;margin:22px 0 8px;">一、结论摘要</h2>
 <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:16px 20px;">
