@@ -1867,6 +1867,14 @@
               <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/102_2026-09-19_Order_Flow_Mechanism_And_Price_Structure_Orthogonal_Decoupling/walkthrough.md"><i class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
               <td style="text-align: center;"><code>102_2026-09-19_Order_Flow_Mechanism_And_Price_Structure_Orthogonal_Decoupling</code></td>
             </tr>
+            <tr>
+              <td style="text-align: center;"><code>2026-09-20</code></td>
+              <td style="text-align: left;"><strong>5分钟 Order Flow 静态规则与微观形态模式规则双通道研判与盘后自适应调参系统</strong><br/><span class="en-sub">5-Minute Order Flow Static Rules & Microstructure Pattern Mode Rules Dual-Channel Evaluation</span></td>
+              <td style="text-align: left;">在保持现有 5 分钟 <b>Order Flow 静态规则</b>（通道 A：两步判定法核心引擎）100% 不变的前提下，新增独立的 <b>Order Flow 微观形态模式规则</b>（通道 B：OF-1 至 OF-5）平行通道与盘后自适应进化闭环：<br/>① <b>微观形态模式规则评测引擎 (OF-1 至 OF-5)</b>：创建 <code>order_flow_pattern_evaluator.py</code> 与基准配置 <code>order_flow_pattern_params.json</code>，实现被动吸收（限价单承接/拦截）、由守转攻（市价脉冲突破）、诱导洗盘（假击穿反包）、双频共振（DOM深度与TICK合力）、CVD背离的纯文本客观量化判定与置信度评分；<br/>② <b>双通道共振机制 (Resonance Analysis)</b>：解耦 Order Flow 静态规则与微观形态模式规则，输出强顺势共振（CONVERGENT）、微观左侧反转预警（EARLY TURNING）及多空分歧背离（CONFLICT），完美解决传统大周期趋势日防护罩封杀下对极值底部（如 2026-09-18 09:25 探底 7677.75）的滞后预警盲区；<br/>③ <b>全链路 UI 双通道浅色可视化</b>：在 BBT 信号图（<code>bbt_signals.html</code>）增设 <code>[✔] Order Flow静态规则</code> 与 <code>[✔] Order Flow微观形态模式规则</code> 图层专属散点徽标及悬浮 Tooltip；在 Order Flow 实时信号列表增设形态徽章，并在行详情展开面板呈现双通道对照表与五维机理判定状态表；<br/>④ <b>盘后阻尼自适应调参管道</b>：编写 <code>daily_order_flow_pattern_autotune.py</code>，每日收盘自动扫描案例库成功样本分布，以学习率 0.15 平滑微调参数并输出审计日志；<br/>⑤ <b>三维自适应去重状态机与多尺度回看架构</b>：规范 5m/10m/15m/30m（冰山回看前移 30 分钟）/120m 分层回看规范；部署状态机过滤器（<code>deduplicate_pattern_signals</code>），基于方向反转、机理跃迁、极值高潮刷新与空间突破精准过滤同质冗余信号，图表端配置 <code>(仅主信号)</code> 切换。</td>
+              <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/103_2026-09-20_Order_Flow_5m_Parallel_Pattern_Channel_And_Autotune/implementation_plan.md"><i class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/103_2026-09-20_Order_Flow_5m_Parallel_Pattern_Channel_And_Autotune/walkthrough.md"><i class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: center;"><code>103_2026-09-20_Order_Flow_5m_Parallel_Pattern_Channel_And_Autotune</code></td>
+            </tr>
           </tbody>
         </table>
       </section>

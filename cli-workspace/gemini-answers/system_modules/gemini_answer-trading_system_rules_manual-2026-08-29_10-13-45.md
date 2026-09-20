@@ -6,9 +6,9 @@
 
 ## 1. Order Flow 订单流分析规则 (Order Flow Analysis Rules)
 
-### 1.1 5分钟 Order Flow 两步判定法核心架构 (Two-Step Evaluation Architecture)
+### 1.1 Order Flow静态规则：两步判定法核心架构 (Order Flow Static Rules: Two-Step Evaluation Architecture)
 
-5 分钟 Order Flow 研判引擎在美西 `06:30 - 13:00` 对 ES 成交流（Ticks Flow）与盘口深度（DOM 200 档）做毫秒级扫描，代码入口为 `PyTools/order_flow_analysis/order_flow_rules_optimizer.py::evaluate_order_flow_tiered_scoring()`，权威规则版本 `RULES_VERSION`（当前 `2026-09-13-phase18`）。
+5 分钟 Order Flow 静态规则研判引擎在美西 `06:30 - 13:00` 对 ES 成交流（Ticks Flow）与盘口深度（DOM 200 档）做毫秒级扫描，代码入口为 `PyTools/order_flow_analysis/order_flow_rules_optimizer.py::evaluate_order_flow_tiered_scoring()`，权威规则版本 `RULES_VERSION`（当前 `2026-09-13-phase18`）。
 
 **为什么必须拆成两步**：旧版把「方向」与「强度」压进同一条加权链，只要分数够高就直接开仓，由此产生两个结构性缺陷——**动量滞后**导致在日内天花板追多、地板杀跌；**变色率过高**使中性状态名存实亡。2026-09-08 起二者彻底解耦：第一步只回答「朝哪边」，第二步只回答「这个方向有多强」，因此 UI 可以如实展示「方向看多、但强度不足 / 当前不是开仓好时机」。
 
@@ -583,6 +583,163 @@
 - P5 -> OF-5 (结构性背离)
 
 任何历史案例与新案例均能在系统报告与分析页面中无缝呈现与检索。
+
+
+### 1.12 Order Flow微观形态模式规则与双通道共振机制 (Order Flow Microstructure Pattern Mode Rules & Resonance Engine)
+
+为了将从经典微观结构案例库中提炼的五大微观形态模式（OF-1 至 OF-5）无缝引入 5 分钟实盘决策体系，同时绝对保护现行成熟的 5 分钟两步判定法，系统构建了“**Order Flow静态规则（通道 A）**”与“**Order Flow微观形态模式规则（通道 B）**”双通道平行研判架构与共振状态机：
+
+#### 1.12.1 双通道平行架构与职责解耦
+
+1. **通道 A：Order Flow静态规则基准通道 (Channel A: Order Flow Static Rules Engine)**
+   - 代码入口：`PyTools/order_flow_analysis/order_flow_rules_optimizer.py::evaluate_order_flow_tiered_scoring()`
+   - 职责：基于 4 核心分支加权与 11 项强度客观加分，执行趋势性顺势动量研判与防追涨杀跌过滤。保持现有逻辑、权重与门禁契约 100% 独立且零修改。
+2. **通道 B：Order Flow微观形态模式规则通道 (Channel B: Order Flow Microstructure Pattern Mode Rules Engine)**
+   - 代码入口：`PyTools/order_flow_analysis/order_flow_pattern_evaluator.py::evaluate_order_flow_pattern_channel()`
+   - 职责：以 5 分钟微观成交流（TICK）与 200 档盘口（DOM）为输入，实时扫描 OF-1 至 OF-5 五大微观形态模式，分别累计多空微观强度分（满分各 10.0 分），专门捕捉**左侧拐点、被动吸收壁垒、流动性猎杀与双频共振**。
+3. **共振裁决层 (Dual-Channel Resonance Engine)**
+   - 职责：融合通道 A（Order Flow静态规则）与通道 B（Order Flow微观形态模式规则）的判定结果，评估两者是否同向推进（顺势共振）、方向分歧（假突破或左侧吸收）或双向中性，生成最终共振状态（Resonance Mode）与交易警示。
+
+---
+
+#### 1.12.2 Order Flow微观形态模式规则五大形态量化判定 (OF-1 至 OF-5)
+
+五大形态判定完全遵循**多空严格镜像对称**与**纯文本公式规范**，各形态分值与判定条件如下：
+
+##### 1. OF-1 被动吸收壁垒 (Passive Absorption - 满分 2.5 分)
+- **多头被动承接判定规则**:
+  - 条件 1（极端冰山接盘）：`iceberg_extreme_bull >= 1`（得分 2.5）；
+  - 条件 2（常规冰山多点防御）：`iceberg_bull >= 2`（得分 2.5）；
+  - 条件 3（竭尽性抛压衰减）：`delta_5m < -1000` 且 `dper < 0.005` 且 `price_position_pct <= 35%`（得分 2.5）；
+  - 条件 4（买一买二盘口爆量承接）：`near_bid_consumption_burst == True`（得分 2.0）；
+  - **一票阻断（反向过滤）**：若 `iceberg_bear >= 2`（存在明显空头压盘），多头吸收直接清零。
+- **空头被动拦截判定规则**:
+  - 条件 1（极端冰山压制）：`iceberg_extreme_bear >= 1`（得分 2.5）；
+  - 条件 2（常规冰山多点拦截）：`iceberg_bear >= 2`（得分 2.5）；
+  - 条件 3（追高买盘衰竭）：`delta_5m > 1000` 且 `dper < 0.005` 且 `price_position_pct >= 65%`（得分 2.5）；
+  - 条件 4（卖一卖二盘口爆量拦截）：`near_ask_consumption_burst == True`（得分 2.0）；
+  - **一票阻断（反向过滤）**：若 `iceberg_bull >= 2`（存在明显多头托盘），空头拦截直接清零。
+
+##### 2. OF-2 主动破位与由守转攻 (Initiative Momentum & Sweep - 满分 2.0 分)
+- **多头主动向上进攻判定规则**:
+  - 主动放量突破：`delta_5m > 1500` 且 `dper >= 0.010` 且 `price_position_pct >= 65%` 且 `imb_momentum > 0.05`（得分 2.0）；
+  - **特殊阻断约束**：若上方存在极端空头冰山或被动拦截，禁止判定主动突破多头（防止追入压单陷阱）。
+- **空头主动向下击穿判定规则**:
+  - 主动放量打压：`delta_5m < -1500` 且 `dper >= 0.010` 且 `price_position_pct <= 35%` 且 `imb_momentum < -0.05`（得分 2.0）；
+  - **特殊阻断约束（案例 2026-09-18 09:25 真实写照）**：若下方存在极端多头冰山或巨量被动承接，禁止判定主动向下破位（防止在地板杀跌追空）。
+
+##### 3. OF-3 诱导洗盘与流动性猎杀 (Liquidity Sweep & Trap - 满分 2.0 分)
+- **诱空洗盘拉回判定规则**:
+  - 条件 1：`sweep_reclaim_bull == True`（得分 2.0）；
+  - 条件 2（刺破关键支撑后价格拒斥）：当前价格收复波段低点或价值区下沿，且 `delta_5m < -800` 但 K 线收出明显下影线或阳线反包（得分 2.0）。
+- **诱多洗盘打回判定规则**:
+  - 条件 1：`sweep_reclaim_bear == True`（得分 2.0）；
+  - 条件 2（冲高假突破后价格拒斥）：当前价格跌破波段高点或价值区上沿，且 `delta_5m > 800` 但 K 线收出明显上影线或阴线反包（得分 2.0）。
+
+##### 4. OF-4 盘口与成交双频共振 (DOM & Flow Confluence - 满分 2.0 分)
+- **多头双频共振判定规则**:
+  - 买盘堆叠优势：`bid_stacking_count >= ask_stacking_count * 1.3`（或 `bid_stacking_count >= 50` 且 `ask_stacking_count <= 40`）；
+  - 且盘口深度倾斜：`weighted_imbalance >= 0.15`；
+  - 且成交流配合推进：`delta_5m > 0`（得分 2.0）。
+- **空头双频共振判定规则**:
+  - 卖盘堆叠优势：`ask_stacking_count >= bid_stacking_count * 1.3`（或 `ask_stacking_count >= 50` 且 `bid_stacking_count <= 40`）；
+  - 且盘口深度倾斜：`weighted_imbalance <= -0.15`；
+  - 且成交流配合打压：`delta_5m < 0`（得分 2.0）。
+
+##### 5. OF-5 结构性 CVD 背离 (CVD Divergence - 满分 1.5 分)
+- **多头 CVD 底背离判定规则**:
+  - 价格创出新低或走平，但 5 分钟 CVD 未创新低反而出现明显斜率抬升（`cvd_divergence_bull == True`，得分 1.5）。
+- **空头 CVD 顶背离判定规则**:
+  - 价格创出新高或走平，但 5 分钟 CVD 未创新高反而出现明显斜率走低（`cvd_divergence_bear == True`，得分 1.5）。
+
+---
+
+#### 1.12.3 通道 B (Order Flow微观形态模式规则) 准入与强度评级决策
+
+通道 B 分别计算多头总得分 `bull_score`（0.0 ~ 10.0）与空头总得分 `bear_score`（0.0 ~ 10.0）：
+1. **净胜优势准入门槛**：
+   - 若 `bull_score - bear_score >= 2.0`，判定为 `Bullish`，强度分 `strength_score = round(bull_score, 1)`；
+   - 若 `bear_score - bull_score >= 2.0`，判定为 `Bearish`，强度分 `strength_score = round(bear_score, 1)`；
+   - 否则判定为 `Neutral`（中性），强度分 `strength_score = 0.0`。
+2. **强度等级映射 (Signal Strength)**：
+   - `strength_score >= 8.0`：**High**（极高置信度微观形态，通常 3 项以上形态发生共振）；
+   - `strength_score >= 5.0`：**Medium**（中等置信度微观形态）；
+   - `strength_score >= 2.0`：**Low**（微弱单形态试探）；
+   - 否则：**Neutral**。
+
+---
+
+#### 1.12.4 静态规则与微观形态模式规则双通道共振决策状态机与交易指导
+
+系统对比通道 A（Order Flow静态规则基准）与通道 B（Order Flow微观形态模式规则）的判定输出，生成四大共振状态与决策指导：
+
+| 共振状态 (Resonance State) | 通道 A (Order Flow静态规则) | 通道 B (微观形态模式规则) | 市场真实含义与微观图景 | 交易系统决策指导 |
+| :--- | :---: | :---: | :--- | :--- |
+| **CONVERGENT**<br/>(双通道顺势共振) | 看多 / 看空 | 看多 / 看空<br/>(方向相同) | 宏观动量与微观盘口挂单/成交完全同频推进，阻力最小路线极其明确。 | **最高置信度开仓/加仓**。顺势跟随，执行标准止盈止损策略。 |
+| **EARLY_TURNING_SIGNAL**<br/>(左侧拐点警示) | 中性 / 观望<br/>(Neutral) | High / Medium<br/>(多或空) | 价格处于极限震荡边缘或趋势日防护区，基准通道因防追涨杀跌屏蔽右侧信号，但形态通道敏锐捕捉到底部/顶部巨量冰山吸筹或流动性猎杀。 | **提示左侧波段拐点**。禁止在当前价位顺势追单；原顺势持仓应锁定利润减仓；允许激进交易员依托微观冰山挂单带设紧凑止损入场左侧试仓。 |
+| **CONFLICT_WARNING**<br/>(多空冲突预警) | 看多 (Bullish)<br/>看空 (Bearish) | 看空 (Bearish)<br/>看多 (Bullish) | 主动单推进方向与微观挂单/冰山吸收壁垒发生剧烈冲突（如大阴线砸盘却砸进 4 座买盘冰山），大概率遭遇假突破或诱敌深入。 | **坚决禁止开仓，执行避险防御**。已有持仓立即收紧止损至保本位；提示警惕多头陷阱或空头陷阱。 |
+| **NEUTRAL_CONSOLIDATION**<br/>(中性整理蓄势) | 中性 (Neutral) | 中性 (Neutral) | 盘口无明显挂单倾斜，买卖主动单量能平衡，处于价值区中枢内震荡。 | **区间观望或均值回归**。严禁追单，以 POC 均值回归或区间高抛低吸为主。 |
+
+---
+
+#### 1.12.5 盘后自动微调与自适应校准流水线 (Daily Auto-Tuning Pipeline)
+
+为避免人工主观调整参数导致过拟合，系统部署盘后自动微调任务：
+- **执行脚本**：`PyTools/jobs/daily_order_flow_pattern_autotune.py`
+- **数据源**：每日复盘后追加到 `of_deep_pattern_cases` 表中的高置信度微观结构与形态案例。
+- **校准算法**：
+  - 读取历史样本中的 `dper`、`delta_5m`、`imbalance` 等分布，计算经验四分位数（25% / 50% / 75% 分位数）；
+  - 采用平滑学习率（`learning_rate = 0.15`）执行指数加权移动更新：`new_param = old_param * (1 - lr) + target_value * lr`；
+  - 严格限制参数更新单日变动幅度不超过 20%，防止极端噪点漂移；
+  - 自动将微调结果与审计追踪日志持久化写入 `order_flow_pattern_params.json`。
+
+---
+
+#### 1.12.6 5分钟周期微观形态模式规则回看时长多尺度分层规范 (Multi-Scale Lookback Architecture)
+
+在每个 5 分钟周期的计算时刻（如 `09:25:00`），系统对不同物理属性与微观持续性的订单流数据采用了分层多尺度回看架构（Multi-Scale Lookback）：
+
+| 数据层级 / 量化指标 | 回看时长 (Lookback Window) | 底层数据源与读取策略 | 具体微观物理意义与研判用途 |
+| :--- | :---: | :--- | :--- |
+| **基础 5m 周期窗口** | **5 分钟** | `formatted_parsed_bins[-1]`<br>`[target_time - 5m, target_time]` | 统计当前 5m K 线的 `price_change_5m`、`volume_5m` 与成交流净差 `last_5m_delta`；构建 200 档盘口的 250ms/500ms 离散网格，计算实时加权失衡 `weighted_imbalance`、盘口微观动量 `imb_momentum` 与档位真空秒数。 |
+| **中短窗动能衰竭** | **10 分钟 / 15 分钟** | `combined_intervals[-2:]`<br>`combined_intervals[-3:]` | `last_10m_delta` 与 `last_15m_delta`，用于对比 5m 短窗冲量与 10m/15m 背景动量的比例，识别主动市价单的冲刺速率或衰竭迹象。 |
+| **波段成交量增量 (CVD)** | **30 分钟** | `combined_intervals[-6:]` | `net_delta_30m` 与 `delta_ratio_30m`，计算 30 分钟价格位移占 ATR 的比率，评估大盘处于被动吸收（量大价不跌）还是主动破位（量价顺势推进），以及 30m 尺度的 CVD 背离。 |
+| **持久冰山单与挂单墙** | **30 分钟** (`iceberg_lookback_min = 30`) | **DOM 数据文件读取起点前移 30 分钟**<br>`read_start_dt = target_dt - 30m` | 单一 5 分钟快照无法区分是“临时挂单”还是“主力持久被动买盘”。系统向前追溯 30 分钟的盘口演变，检测同一价位是否经历多次补单（Refill），判定限价单墙的真实物理厚度与被动吃货持续性。 |
+| **机构大单资金流** | **120 分钟 (2 小时)** | `big_trades` (>= 100 手) 逐笔成交流 | `big_trade_net_2h`，累计过去 2 小时内大于 100 手的大额机构主动单净流入，作为背景宏观资金流护栏。 |
+
+---
+
+#### 1.12.7 Order Flow微观形态模式规则智能去重与状态机过滤规则 (Adaptive Pattern Mode Deduplication & State Machine Rules)
+
+##### 1.12.7.1 去重背景与微观拍卖理论 (Auction Market Theory)
+- **拍卖过程 vs 离散事件**：机构在关键技术支撑/阻力位的筑底吸筹或冲顶派发是一个**持续推进的过程（Process），而非离散孤立的瞬间（Event）**。若采用无状态单步采样，会导致同价位同形态在持续震荡吸收时出现密集提示（如在 7680~7685 连续 5 根 K 线触发）；
+- **去重治理原则**：**“底层数据完整保留，信号发射智能去重，图表视觉清晰精简”**。数据库与详情列表完整记录每个周期的物理真值（以供审计与回测），图表展示与核心报警经过状态机去重，划分为 `Primary Signal (核心主信号)` 与 `Continuation (持续确认/吸收)`。
+
+##### 1.12.7.2 三维自适应去重过滤器模型与量化判据 (Three-Dimensional Deduplication)
+
+每个周期评估出形态信号后，输入状态机裁决，只有通过以下任一条件的信号才被标记为 `Primary Signal`，否则降级为 `Continuation`：
+
+![5分钟订单流微观形态智能去重与状态机过滤决策树](images/order_flow_pattern_dedup_flowchart.png)
+
+1. **方向反转判据 (Direction Flip)**：
+   - 若当前周期形态方向与上一个主信号方向相反（如从看多转为看空，或从看空转为看多），立即无条件放行，作为新趋势的主信号。
+2. **微观机理状态跃迁豁免 (Mechanism State Transition Exemption)**：
+   - 微观交易的核心是从“防守”到“进攻”的跃迁。若发生机理跃迁，立即无视冷却期放行：
+     - **被动转主动跃迁**：若上一个主信号为被动防守类（`OF-1 被动吸收` 或 `OF-5 CVD背离`），而当前信号命中主动进攻类（`OF-2 由守转攻点火/突破`），表明主力已完成吸筹开始市价扫盘推进，必须放行主信号；
+     - **洗盘反包跃迁**：若当前信号命中 `OF-3 诱导洗盘猎杀`（刺破前低/前高后瞬间反包收复），表明流动性池已清扫完毕，必须放行主信号。
+3. **极值高潮刷新与空间位移豁免 (New Extreme Climax & Price Displacement)**：
+   - **多头极值高潮刷新**：当前价刷新上一个主信号以来的波段新低超过 2.5 点（`current_price < extreme_price - 2.5pt`），且伴随极端买盘冰山吸收（`iceberg_extreme_bull >= 1` 或 `delta_5m < -1000`），判定为恐慌抛售高潮（Selling Climax），必须放行主信号；
+   - **空头极值高潮刷新**：当前价刷新上一个主信号以来的波段新高超过 2.5 点（`current_price > extreme_price + 2.5pt`），且伴随极端卖盘冰山拦截（`iceberg_extreme_bear >= 1` 或 `delta_5m > 1000`），判定为买入高潮耗竭（Buying Climax），必须放行主信号；
+   - **空间脱离密集区**：若现价相较上一个主信号单向脱离超过 4.0 点（`abs(price - last_price) >= 4.0pt`）且时间间隔大于等于 10 分钟，表明价格脱离原吸收筹码密集区，进入新拍卖区间，允许放行主信号。
+4. **时间冷却窗口约束 (Time Cooldown Window)**：
+   - 在同一方向、且处于同一价格密集震荡区域内（未满足上述跃迁与极值豁免），强制执行 **25 分钟（5 根 5m K 线）** 冷却静默期；冷却期内所有同质化形态均标记为 `Continuation (同区域持续确认)`，不在图表默认打点。冷却期届满后若形态依然存在，允许触发二次确认主信号。
+
+##### 1.12.7.3 输出字段契约
+在 `parallel_pattern_channel` 字典中增加去重状态字段：
+- `is_primary`: 布尔值（`True` 为核心主信号，`False` 为同区域持续确认）；
+- `primary_reason`: 字符串，记录主信号放行原因（如 `首发预警信号`、`极值低吸高潮刷新`、`微观机理跃迁由守转攻`、`空间突破脱离密集区`、`方向反转` 等）；
+- `dedup_status`: 枚举值（`PRIMARY` / `CONTINUATION` / `NEUTRAL`）；
+- `dedup_reason`: 字符串，记录详细去重审计追踪原因（包含间隔分钟数与价差）。
 
 ---
 

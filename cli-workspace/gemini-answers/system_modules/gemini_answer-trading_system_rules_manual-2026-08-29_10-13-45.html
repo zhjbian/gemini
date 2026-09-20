@@ -608,10 +608,10 @@
 <div class="nav-group">
 <div class="nav-group-title"><a href="#part-1">1. Order Flow 订单流分析规则 (Order Flow Analysis Rules)</a></div>
 <ul class="nav-list">
-<li class="nav-item" data-title="5分钟 order flow 两步判定法核心架构">
+<li class="nav-item" data-title="order flow 静态规则 两步判定法核心架构">
 <a class="nav-link" href="#chapter-1" onclick="setActiveNav(this)">
 <span class="nav-num">1.1</span>
-<span class="nav-text">5分钟 Order Flow 两步判定法核心架构</span>
+<span class="nav-text">Order Flow静态规则：两步判定法核心架构</span>
 </a>
 </li>
 <li class="nav-item" data-title="核心微观订单流与 dom 盘口指标定义与计算模型">
@@ -629,49 +629,55 @@
 <li class="nav-item" data-title="dom microstructure & low-level metrics (500ms)">
 <a class="nav-link" href="#chapter-2d" onclick="setActiveNav(this)">
 <span class="nav-num">1.4</span>
-<span class="nav-text">DOM 盘口微观结构判读规则 (500ms 网格)</span>
+<span class="nav-text">DOM 微观指标与低频元数据（500ms 网格采样）</span>
 </a>
 </li>
-<li class="nav-item" data-title="data sufficiency tiering & gates">
-<a class="nav-link" href="#chapter-2b" onclick="setActiveNav(this)">
-<span class="nav-num">1.5</span>
-<span class="nav-text">数据充分性分级与闸门 (Data Sufficiency)</span>
-</a>
-</li>
-<li class="nav-item" data-title="第一步：基本规则方向准入判定 (direction qualifying rules)">
+<li class="nav-item" data-title="第一步：基本规则方向准入判定 (direction qualifying)">
 <a class="nav-link" href="#chapter-3" onclick="setActiveNav(this)">
-<span class="nav-num">1.6</span>
-<span class="nav-text">第一步：基本规则方向准入判定 (Direction Qualifying)</span>
+<span class="nav-num">1.5</span>
+<span class="nav-text">第一步：基本规则方向准入判定 (Qualifying)</span>
 </a>
 </li>
-<li class="nav-item" data-title="第二步：底层数据强度打分体系 (strength scoring 1 ~ 10 分)">
+<li class="nav-item" data-title="第二步：底层数据强度打分体系 (strength scoring)">
 <a class="nav-link" href="#chapter-4" onclick="setActiveNav(this)">
-<span class="nav-num">1.7</span>
-<span class="nav-text">第二步：底层数据强度打分体系 (1 ~ 10 分)</span>
+<span class="nav-num">1.6</span>
+<span class="nav-text">第二步：底层数据强度打分体系 (Scoring 1-10)</span>
 </a>
 </li>
-<li class="nav-item" data-title="输出代码规范与全系统数据库落库 (order_flow_signals 表)">
+<li class="nav-item" data-title="数据质量分层与门禁 c 执行规范">
+<a class="nav-link" href="#chapter-4b" onclick="setActiveNav(this)">
+<span class="nav-num">1.7</span>
+<span class="nav-text">数据质量分层与门禁 C 执行规范</span>
+</a>
+</li>
+<li class="nav-item" data-title="日内极限边界突破与流动性陷阱诱捕规则 (boundary traps)">
 <a class="nav-link" href="#chapter-5" onclick="setActiveNav(this)">
 <span class="nav-num">1.8</span>
-<span class="nav-text">输出代码规范与全系统数据库落库 (Signals DB)</span>
+<span class="nav-text">日内极限边界突破与流动性陷阱 (Boundary Traps)</span>
 </a>
 </li>
-<li class="nav-item" data-title="dom 200档盘口微观机制与 smashelito 关键点位联动">
+<li class="nav-item" data-title="趋势日防护与逆势拦截规则 (trend day & counter-trend)">
 <a class="nav-link" href="#chapter-6" onclick="setActiveNav(this)">
 <span class="nav-num">1.9</span>
-<span class="nav-text">DOM 200档机制与 Smashelito 关键位联动</span>
+<span class="nav-text">趋势日防护与逆势拦截 (Trend Day Guard)</span>
 </a>
 </li>
-<li class="nav-item" data-title="订单流微观形态全景真值判定规则">
-<a class="nav-link" href="#chapter-110" onclick="setActiveNav(this)">
+<li class="nav-item" data-title="大额异动单与单笔脉冲研判规则 (big trades & sweeps)">
+<a class="nav-link" href="#chapter-7" onclick="setActiveNav(this)">
 <span class="nav-num">1.10</span>
-<span class="nav-text">订单流微观形态全景真值判定规则 (SPY标尺)</span>
+<span class="nav-text">大额异动单与单笔脉冲研判 (Big Trades)</span>
 </a>
 </li>
-<li class="nav-item" data-title="纯订单流微观机制 (OF-1 至 OF-5) 与价格拍卖结构二维正交解耦决策体系">
+<li class="nav-item" data-title="order flow 订单流核心微观机制二维正交解耦体系">
 <a class="nav-link" href="#chapter-111" onclick="setActiveNav(this)">
 <span class="nav-num">1.11</span>
 <span class="nav-text">纯订单流机制 (OF-1~5) 与走势结构解耦体系</span>
+</a>
+</li>
+<li class="nav-item" data-title="5分钟订单流微观形态平行判定通道与双通道共振机制">
+<a class="nav-link" href="#chapter-112" onclick="setActiveNav(this)">
+<span class="nav-num">1.12</span>
+<span class="nav-text">5分钟微观形态平行通道与共振机制</span>
 </a>
 </li>
 </ul>
@@ -2696,6 +2702,251 @@ DOM 侧平铺列（<code>imb_short/mid/deep_short</code>、<code>stack_*_val</co
     </tr>
   </tbody>
 </table>
+<hr/>
+</article>
+
+<article class="rule-card" id="card-chapter-112">
+<h3 class="chapter-heading" id="chapter-112">1.12 Order Flow微观形态模式规则与双通道共振机制</h3>
+<p style="font-size:0.86rem; color:#475569; line-height:1.6; margin-bottom:14px;">
+为了将从经典微观结构案例库中提炼的五大微观形态模式（OF-1 至 OF-5）无缝引入 5 分钟实盘决策体系，同时绝对保护现行成熟的 5 分钟两步判定法，系统构建了“<strong>Order Flow静态规则（通道 A）</strong>”与“<strong>Order Flow微观形态模式规则（通道 B）</strong>”双通道平行研判架构与共振状态机。
+</p>
+
+<h4 class="rule-heading" style="color:#0369a1; border-left-color:#0284c7; background:#f0f9ff;">1.12.1 双通道平行架构：Order Flow静态规则 (通道 A) vs Order Flow微观形态模式规则 (通道 B)</h4>
+<div style="font-size:0.84rem; color:#334155; line-height:1.7;">
+  <p><strong>(1) 通道 A：Order Flow静态规则基准通道 (Channel A: Order Flow Static Rules Engine)</strong><br/>
+  · 代码入口：<code>PyTools/order_flow_analysis/order_flow_rules_optimizer.py::evaluate_order_flow_tiered_scoring()</code><br/>
+  · 职责：基于 4 核心分支加权与 11 项强度加分，执行趋势性顺势动量研判与防追涨杀跌过滤。保持现有逻辑、权重与门禁契约 100% 独立且零修改。</p>
+  
+  <p><strong>(2) 通道 B：Order Flow微观形态模式规则通道 (Channel B: Order Flow Microstructure Pattern Mode Rules Engine)</strong><br/>
+  · 代码入口：<code>PyTools/order_flow_analysis/order_flow_pattern_evaluator.py::evaluate_order_flow_pattern_channel()</code><br/>
+  · 职责：以 5 分钟微观成交流（TICK）与 200 档盘口（DOM）为输入，实时扫描 OF-1 至 OF-5 五大形态，分别累计多空微观强度分（满分各 10.0 分），专门捕捉<strong>左侧拐点、被动吸收壁垒、流动性猎杀与双频共振</strong>。</p>
+  
+  <p><strong>(3) 共振裁决层：静态规则与微观形态模式规则双通道共振引擎 (Dual-Channel Resonance Engine)</strong><br/>
+  · 职责：融合通道 A（Order Flow静态规则）与通道 B（Order Flow微观形态模式规则）的判定结果，评估两者是否同向推进（顺势共振）、方向分歧（假突破或左侧吸收）或双向中性，生成最终共振状态（Resonance Mode）与交易警示。</p>
+</div>
+
+<h4 class="rule-heading" style="color:#0f766e; border-left-color:#0d9488; background:#f0fdfa;">1.12.2 Order Flow微观形态模式规则五大形态量化判定 (OF-1 至 OF-5)</h4>
+<p style="font-size:0.84rem; color:#334155; line-height:1.6;">五大形态判定完全遵循<strong>多空严格镜像对称</strong>与<strong>纯文本公式规范</strong>：</p>
+
+<table style="border-collapse:collapse; font-size:0.82rem; width:100%; margin:8px 0 16px;">
+  <thead>
+    <tr style="background:#f1f5f9; color:#475569;">
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; width:14%;">形态代码</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; width:18%;">物理微观内涵</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; width:8%;">满分</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; width:30%;">多头判定准则 (Bullish Criteria)</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; width:30%;">空头判定准则 (Bearish Criteria)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#0369a1;">OF-1 被动吸收</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">限价单持续吃货/出货<br/>对手盘动能被摩擦耗尽</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; text-align:center;">2.5</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 极端冰山买盘: iceberg_extreme_bull &gt;= 1 (2.5分)<br/>
+        · 常规冰山防御: iceberg_bull &gt;= 2 (2.5分)<br/>
+        · 竭尽抛压衰减: delta_5m &lt; -1000 且 dper &lt; 0.005 且 price_pos &lt;= 35% (2.5分)<br/>
+        · 盘口爆量承接: near_bid_consumption_burst == True (2.0分)<br/>
+        <span style="color:#b91c1c; font-size:0.78rem;">[一票否决] 若 iceberg_bear &gt;= 2 则多头清零</span>
+      </td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 极端冰山卖盘: iceberg_extreme_bear &gt;= 1 (2.5分)<br/>
+        · 常规冰山拦截: iceberg_bear &gt;= 2 (2.5分)<br/>
+        · 追高买盘衰竭: delta_5m &gt; 1000 且 dper &lt; 0.005 且 price_pos &gt;= 65% (2.5分)<br/>
+        · 盘口爆量拦截: near_ask_consumption_burst == True (2.0分)<br/>
+        <span style="color:#b91c1c; font-size:0.78rem;">[一票否决] 若 iceberg_bull &gt;= 2 则空头清零</span>
+      </td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#0f766e;">OF-2 主动破位</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">由守转攻，市价单横扫盘口清扫挂单</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; text-align:center;">2.0</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 放量冲刺: delta_5m &gt; 1500 且 dper &gt;= 0.010 且 price_pos &gt;= 65% 且 imb_mom &gt; 0.05 (2.0分)<br/>
+        <span style="color:#b91c1c; font-size:0.78rem;">[阻断] 上方有极端空头冰山或被动拦截时禁止追多</span>
+      </td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 放量砸盘: delta_5m &lt; -1500 且 dper &gt;= 0.010 且 price_pos &lt;= 35% 且 imb_mom &lt; -0.05 (2.0分)<br/>
+        <span style="color:#b91c1c; font-size:0.78rem;">[阻断] 下方有极端多头冰山或被动承接时禁止追空 (如09:25)</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#d97706;">OF-3 诱导洗盘</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">刺破关键位引爆止损池<br/>主力通吃筹码后反包</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; text-align:center;">2.0</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 探底回升: sweep_reclaim_bull == True (2.0分)<br/>
+        · 刺破反包: 击穿前低后价格收复 且 delta_5m &lt; -800 伴随长下影线拒斥 (2.0分)
+      </td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 假破打回: sweep_reclaim_bear == True (2.0分)<br/>
+        · 冲高回落: 虚破前高后跌回 且 delta_5m &gt; 800 伴随长上影线拒斥 (2.0分)
+      </td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#2563eb;">OF-4 双频共振</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">DOM深度与TICK主动单<br/>同频推进，置信度最高</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; text-align:center;">2.0</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 买盘堆叠: bid_stack &gt;= ask_stack * 1.3 且 weighted_imbalance &gt;= 0.15 且 delta_5m &gt; 0 (2.0分)
+      </td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 卖盘堆叠: ask_stack &gt;= bid_stack * 1.3 且 weighted_imbalance &lt;= -0.15 且 delta_5m &lt; 0 (2.0分)
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#7c3aed;">OF-5 CVD背离</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">量价顶底背离<br/>拍卖动能耗尽衰竭</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; text-align:center;">1.5</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 底背离: 价格走平或创新低，而 5m CVD 明显底背离抬升 (cvd_divergence_bull == True, 1.5分)
+      </td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">
+        · 顶背离: 价格走平或创新高，而 5m CVD 明显顶背离走低 (cvd_divergence_bear == True, 1.5分)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 class="rule-heading" style="color:#475569; border-left-color:#64748b; background:#f1f5f9;">1.12.3 通道 B (Order Flow微观形态模式规则) 准入与强度评级决策</h4>
+<div style="font-size:0.84rem; color:#334155; line-height:1.6;">
+  <p>通道 B 累计多头总分 <code>bull_score</code> 与空头总分 <code>bear_score</code>（各 0.0 ~ 10.0）：<br/>
+  · <strong>净胜优势准入</strong>：若 <code>bull_score - bear_score &gt;= 2.0</code>，判定为 <code>Bullish</code>，强度分 = <code>round(bull_score, 1)</code>；若 <code>bear_score - bull_score &gt;= 2.0</code>，判定为 <code>Bearish</code>，强度分 = <code>round(bear_score, 1)</code>；否则为 <code>Neutral</code>。<br/>
+  · <strong>强度等级映射</strong>：<code>score &gt;= 8.0</code> ⇒ <strong>High</strong>；<code>score &gt;= 5.0</code> ⇒ <strong>Medium</strong>；<code>score &gt;= 2.0</code> ⇒ <strong>Low</strong>；否则为 <strong>Neutral</strong>。</p>
+</div>
+
+<h4 class="rule-heading" style="color:#b45309; border-left-color:#f59e0b; background:#fffbeb;">1.12.4 静态规则与微观形态模式规则双通道共振决策状态机与交易指导</h4>
+<table style="border-collapse:collapse; font-size:0.82rem; width:100%; margin:8px 0 16px;">
+  <thead>
+    <tr style="background:#f1f5f9; color:#475569;">
+      <th style="padding:6px 10px; border:1px solid #cbd5e1;">共振状态</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center;">通道 A (Order Flow静态规则)</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center;">通道 B (微观形态模式规则)</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1;">微观市场物理图景</th>
+      <th style="padding:6px 10px; border:1px solid #cbd5e1;">交易系统决策指导</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background:#f0fdf4;">
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">CONVERGENT<br/>(顺势共振)</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">看多 / 看空</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">同向推进</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">宏观动量与微观盘口挂单/成交完全同频，阻力最小路线极清晰</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:600; color:#15803d;">最高置信度顺势开仓/加仓，标准止盈止损策略</td>
+    </tr>
+    <tr style="background:#eff6ff;">
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#1d4ed8;">EARLY_TURNING_SIGNAL<br/>(左侧拐点警示)</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center;">Neutral / 观望</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">High / Medium</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">极限震荡边缘或趋势日防护区，基准通道屏蔽右侧追单，而形态通道捕捉到巨量冰山吸筹或流动性猎杀 (如09:25低点)</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:600; color:#1d4ed8;">严禁追单！原顺势持仓锁定利润；激进者可依托微观冰山带设紧凑止损左侧试仓</td>
+    </tr>
+    <tr style="background:#fef2f2;">
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#b91c1c;">CONFLICT_WARNING<br/>(多空冲突预警)</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; color:#b91c1c; font-weight:600;">看多 / 看空</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; color:#b91c1c; font-weight:600;">反向对立</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">主动单推进方向与微观挂单/冰山吸收壁垒剧烈冲突，大概率面临假突破陷阱</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:600; color:#b91c1c;">坚决禁止开仓！已有持仓立即提保本止损，避险防御</td>
+    </tr>
+    <tr style="background:#f8fafc;">
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#64748b;">NEUTRAL_CONSOLIDATION<br/>(中性整理蓄势)</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center;">Neutral</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center;">Neutral</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1;">盘口无明显挂单倾斜，买卖主动单量能平衡，处于中枢内均衡震荡</td>
+      <td style="padding:6px 10px; border:1px solid #cbd5e1; color:#64748b;">保持观望，或以 POC 均值回归与价值区上下沿高抛低吸为主</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 class="rule-heading" style="color:#047857; border-left-color:#10b981; background:#ecfdf5;">1.12.5 盘后自动微调与自适应校准流水线 (Daily Auto-Tuning Pipeline)</h4>
+<div style="font-size:0.84rem; color:#334155; line-height:1.6;">
+  <p>· <strong>执行脚本</strong>：<code>PyTools/jobs/daily_order_flow_pattern_autotune.py</code><br/>
+  · <strong>数据源</strong>：每日复盘后录入 <code>of_deep_pattern_cases</code> 表中的高置信度形态样本。<br/>
+  · <strong>自适应算法</strong>：计算经验四分位数分布，以平滑学习率 (<code>learning_rate = 0.15</code>) 迭代更新，限制单日波动幅度不超过 20%，生成审计日志并持久化至 <code>order_flow_pattern_params.json</code>。</p>
+</div>
+
+<h4 class="rule-heading" style="color:#0284c7; border-left-color:#0ea5e9; background:#f0f9ff;">1.12.6 5分钟周期微观形态模式规则回看时长多尺度分层规范 (Multi-Scale Lookback Architecture)</h4>
+<div style="font-size:0.84rem; color:#334155; line-height:1.6; margin-bottom:12px;">
+  <p>在每个 5 分钟周期的计算时刻（如 <code>09:25:00</code>），系统对不同物理属性与微观持续性的订单流数据采用了分层多尺度回看架构：</p>
+  <table style="border-collapse:collapse; font-size:0.82rem; width:100%; margin:8px 0 16px;">
+    <thead>
+      <tr style="background:#f1f5f9; color:#475569;">
+        <th style="padding:6px 10px; border:1px solid #cbd5e1;">数据层级 / 指标</th>
+        <th style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center;">回看时长</th>
+        <th style="padding:6px 10px; border:1px solid #cbd5e1;">底层数据源与读取策略</th>
+        <th style="padding:6px 10px; border:1px solid #cbd5e1;">具体微观物理意义与研判用途</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700;">基础 5m 周期窗口</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:700; color:#0284c7;">5 分钟</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>formatted_parsed_bins[-1]</code><br/><code>[target_time - 5m, target_time]</code></td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;">统计当前 5m K 线的 <code>price_change_5m</code>、<code>volume_5m</code> 与成交流净差 <code>last_5m_delta</code>；构建 200 档盘口的 250ms/500ms 离散网格，计算加权失衡 <code>weighted_imbalance</code>、盘口动量 <code>imb_momentum</code> 与档位真空秒数。</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700;">中短窗动能衰竭</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:700; color:#0284c7;">10m / 15m</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>combined_intervals[-2:]</code><br/><code>combined_intervals[-3:]</code></td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>last_10m_delta</code> 与 <code>last_15m_delta</code>，对比 5m 短窗冲量与背景动量比例，识别主动单冲刺速率或衰竭迹象。</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700;">波段成交量增量 (CVD)</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:700; color:#0284c7;">30 分钟</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>combined_intervals[-6:]</code></td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>net_delta_30m</code> 与 <code>delta_ratio_30m</code>，计算 30 分钟价格位移占 ATR 比率，评估处于被动吸收还是顺势推进，以及 30m 结构性 CVD 背离。</td>
+      </tr>
+      <tr style="background:#f0fdf4;">
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">持久冰山单与挂单墙</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:700; color:#15803d;">30 分钟</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><strong>DOM 文件读取起点前移 30 分钟</strong><br/><code>read_start_dt = target_dt - 30m</code></td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;">单一 5m 快照无法区分临时挂单与主力持久被动防守。向前追溯 30 分钟盘口演变，检测同一价位是否经历多次补单 (Refill)，判定限价单墙真实物理厚度。</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; font-weight:700;">机构大单资金流</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1; text-align:center; font-weight:700; color:#0284c7;">120 分钟 (2h)</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>big_trades</code> (&gt;= 100 手) 逐笔成交流</td>
+        <td style="padding:6px 10px; border:1px solid #cbd5e1;"><code>big_trade_net_2h</code>，累计过去 2 小时内大于 100 手的大额机构主动单净流入，作为背景宏观资金流护栏。</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h4 class="rule-heading" style="color:#7c3aed; border-left-color:#a855f7; background:#faf5ff;">1.12.7 Order Flow微观形态模式规则智能去重与状态机过滤规则 (Adaptive Pattern Mode Deduplication & State Machine Rules)</h4>
+<div style="font-size:0.84rem; color:#334155; line-height:1.6;">
+  <p><strong>(1) 去重背景与微观拍卖理论 (Auction Market Theory)</strong>：<br/>
+  机构在关键技术支撑/阻力位的筑底吸筹或冲顶派发是一个<strong>持续推进的过程（Process），而非离散孤立的瞬间（Event）</strong>。为避免同质化信号密集轰炸，系统贯彻<strong>“底层数据完整保留，信号发射智能去重，图表视觉清晰精简”</strong>原则。数据库完整保留真值，图表与告警经过状态机去重，分为 <code>Primary Signal (核心主信号)</code> 与 <code>Continuation (持续确认/吸收)</code>。</p>
+
+  <p><strong>(2) 三维自适应去重过滤器模型与四大放行判据</strong>：</p>
+  <div style="margin:16px 0; text-align:center;">
+    <img src="images/order_flow_pattern_dedup_flowchart.png" alt="5分钟订单流微观形态智能去重与状态机过滤决策树" style="max-width:100%; height:auto; border:1px solid #cbd5e1; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,0.05); background:#ffffff;"/>
+    <div style="font-size:0.80rem; color:#64748b; margin-top:8px; font-weight:600;">图 1.12-1 5分钟 Order Flow微观形态模式规则智能去重与状态机过滤决策树 (Light Theme 架构全景)</div>
+  </div>
+  <ul>
+    <li><strong>方向反转判据 (Direction Flip)</strong>：若当前周期形态方向与上一个主信号相反（多空反转），立即无条件放行，确立新主信号。</li>
+    <li><strong>微观机理状态跃迁豁免 (Mechanism State Transition)</strong>：
+      <ul>
+        <li><strong>被动转主动</strong>：若上一个主信号为防守类 (<code>OF-1</code> 或 <code>OF-5</code>)，当前命中主动进攻类 (<code>OF-2 由守转攻点火/突破</code>)，表明主力从吸筹转为主动推升，立即豁免冷却期放行；</li>
+        <li><strong>洗盘反包</strong>：当前命中 <code>OF-3 诱导洗盘猎杀</code>（刺破前低/前高后瞬间反包收复），流动性池清扫完毕，立即放行。</li>
+      </ul>
+    </li>
+    <li><strong>极值高潮刷新与空间位移豁免 (New Extreme Climax & Price Displacement)</strong>：
+      <ul>
+        <li><strong>极值高潮刷新</strong>：当前价刷新波段新低/新高超过 2.5 点（<code>current_price &lt; extreme_price - 2.5pt</code> 或 <code>current_price &gt; extreme_price + 2.5pt</code>），且伴随极端冰山吸收或衰竭性 Delta，判定为恐慌抛售/买入高潮耗竭，立即放行（如 09:25 探底 7677.75 精准捕获）；</li>
+        <li><strong>空间脱离密集区</strong>：现价相较上一个主信号单向脱离超过 4.0 点 (<code>abs(price - last_price) &gt;= 4.0pt</code>) 且时间间隔 &gt;= 10 分钟，表明脱离原密集区进入新拍卖区间，允许放行。</li>
+      </ul>
+    </li>
+    <li><strong>时间冷却窗口约束 (Time Cooldown Window)</strong>：
+      在同一方向、且处于同一价格密集震荡区域内，强制执行 <strong>25 分钟（5 根 5m K 线）</strong> 冷却静默期；冷却期内所有同质化形态均标记为 <code>Continuation (同区域持续确认)</code>，图表默认精简隐藏。</li>
+  </ul>
+
+  <p><strong>(3) 输出契约字段</strong>：<br/>
+  · <code>is_primary</code>: 布尔值（<code>True</code> 核心主信号，<code>False</code> 同区域持续确认）；<br/>
+  · <code>primary_reason</code>: 主信号放行原因（<code>首发预警信号</code> / <code>极值低吸高潮刷新</code> / <code>微观机理跃迁由守转攻</code> / <code>空间突破脱离密集区</code> / <code>方向反转` 等）；<br/>
+  · <code>dedup_status</code>: 枚举值 (<code>PRIMARY</code> / <code>CONTINUATION</code> / <code>NEUTRAL</code>)；<br/>
+  · <code>dedup_reason</code>: 详细审计追踪原因（记录间隔分钟数与价差）。</p>
+</div>
 <hr/>
 </article>
 
