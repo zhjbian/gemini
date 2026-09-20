@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Walkthrough · 机制 ② 前置条件 ③「昨收方向」（仅 H1 / L1）</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#4338ca; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.65;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1160px; margin:0 auto; padding:24px 22px 56px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 6px; color:#0f172a; }
+  h2 { font-size:1.06rem; margin:22px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.94rem; margin:16px 0 6px; color:#334155; }
+  .sub { color:var(--muted); font-size:0.84rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:8px 0 4px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.82em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  .ok { color:#047857; font-weight:700; }
+  .bad { color:#b91c1c; font-weight:700; }
+  .warn { background:#fef2f2; border-left:3px solid #dc2626; padding:9px 12px; font-size:0.84rem; color:#7f1d1d; border-radius:0 6px 6px 0; }
+  .info { background:#f0f9ff; border-left:3px solid #0284c7; padding:9px 12px; font-size:0.84rem; color:#0c4a6e; border-radius:0 6px 6px 0; }
+  .hl { background:#fffbeb; border-left:3px solid #f59e0b; padding:9px 12px; font-size:0.84rem; color:#78350f; border-radius:0 6px 6px 0; }
+  ul { margin:6px 0 6px 18px; padding:0; }
+  li { margin:3px 0; font-size:0.86rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <h1>机制 ②「QuantPivot边界反向」前置条件 ③「昨收方向」· 验收报告</h1>
+    <div class="sub">2026-09-14 · 归档 <code>56_2026-09-14_QuantPivot_PrevClose_Direction_Gate</code></div>
+    <p style="font-size:0.86rem;margin:12px 0 0;">
+      用户指令：<b>「H1: 只有 H1 高于昨天收盘价时才能开空仓；L1: 只有 L1 低于昨天收盘价时才能开多仓」</b><br/>
+      同日口径澄清（已据此修订）：<b>「昨收方向 只适用于 H1 和 L1，不适用于 H2 和 L2」</b><br/>
+      关联事故：账本第 5 笔（DB id <b>238/239</b>）<code>BEAR_CALL_SPREAD 764/766</code>，
+      08:41:50 触发、08:44:16 止损，<b class="bad">$-14.00 / 腿（LIVE）</b>。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. 事故 → 根因 → 修复</h2>
+    <table>
+      <tr><th style="width:12%;">环节</th><th>内容</th></tr>
+      <tr><td><b>现象</b></td><td>大幅低开日（昨收 764.29 → RTH 开 759.00），机制 ② 在 <b>H1 = 761.53</b> 自动布防并触发 <b>卖 Call 做空</b>，3 分钟内被反弹打穿 2.20× 硬止损。</td></tr>
+      <tr><td><b>根因</b></td><td>H1/H2 是「以当日 RTH 开盘为锚 + 平均上行扩张」的<b>相对阻力</b>；低开日阻力带可<b>整体落在昨收之下</b>。旧判据只查「波幅 / 日内位置 / 容差带」，<b>无任何「相对昨收的绝对位置」方向保护</b> ⇒ 在缺口回补（向昨收回归）的必经路径上逆势站空。</td></tr>
+      <tr><td><b>修复</b></td><td>新增<b>前置条件 ③「昨收方向」</b>（<b>仅 H1 / L1</b>）：做空 <b>H1</b> 要求 <code>H1 &gt; 昨收</code>、做多 <b>L1</b> 要求 <code>L1 &lt; 昨收</code>；<b>H2 / L2 豁免</b>。判据在<b>已判定档位</b>（<code>qp_level</code>）之后执行 ⇒ H1 / L1 档位的 QUALIFIED 与 ARMED 两路径同时被拦；触发侧兜底复核；只读探针新增判据行（含适用性标注）。</td></tr>
+    </table>
+
+    <h3>真实数据佐证（只读复算）</h3>
+    <pre>prev_close (2026-09-11 RTH Close) = 764.29
+2026-09-14 RTH Open               = 759.00        ← 低开 −0.69%
+H1 = 761.53   H2 = 764.28   L1 = 756.50   L2 = 754.81
+⇒ H1 (761.53) &lt; prev_close (764.29)   →  事故单档位 = H1  →  新规则判定「禁止开空仓」
+⇒ 事故单 238/239（trigger_price = H1 = 761.53）今日即可被拦</pre>
+  </div>
+
+  <div class="card">
+    <h2>2. 实现要点（档位级 · 单一权威 · 三层落地）</h2>
+    <table>
+      <tr><th style="width:22%;">层</th><th>改动</th></tr>
+      <tr><td><b>数据层</b><br/><code>pivots/quant_pivot.py</code></td>
+          <td>在既有 30 日样本 <code>hist_days</code>（<code>date_str &lt; target_date</code>，升序）上取上一交易日收盘：<br/>
+          <code>prev_close = float(hist_days.iloc[-1]['Close'])</code>，写入两条 return 路径。⇒ 与 H1/L1 <b>同源同口径</b>，不做「平台昨收 vs 计算昨收」两套数字。</td></tr>
+      <tr><td><b>判定层</b><br/><code>option_seller_engine.py</code></td>
+          <td>纯函数 <code>check_qp_prev_close_direction(level, quant_pivot)</code>：<br/>
+          · <code>H1</code> ⇒ 要求 <code>H1 &gt; prev_close</code>（<code>applicable=True</code>）；<br/>
+          · <code>L1</code> ⇒ 要求 <code>L1 &lt; prev_close</code>（<code>applicable=True</code>）；<br/>
+          · <b><code>H2</code> / <code>L2</code> ⇒ N/A（放行，<code>applicable=False</code>）</b>；<br/>
+          · 适用档位缺数据 ⇒ <b>fail-closed</b> + <code>data_missing=True</code>。<br/>
+          机制 ② 上/下轨<b>先判定档位</b>（<code>qp_level = 'H2'|'H1'</code> / <code>'L2'|'L1'</code>），<b>再以 <code>qp_level</code> 为入参</b>校验，并作为 QUALIFIED / ARMED 的<b>合取条件</b>：
+          <code>if _pc_ok_h and is_testing_or_above_h1: … elif _pc_ok_h and dist_to_h1 &gt; qp_tol: …</code><br/>
+          ⇒ <b>H2 做空 / L2 做多天然放行</b>；H1 / L1 档位的两条 <code>return</code> 都在分支内，天然同时被拦。</td></tr>
+      <tr><td><b>触发侧兜底</b><br/><code>option_seller_manager.py</code></td>
+          <td>条件单触发路径在既有「② 多次开仓三维准入」之后再校验同一前置（入参为解析出的 <code>qp_level</code>）；不通过 ⇒ 落 <code>SKIPPED_GUARD</code> 事件且<b>不消费</b> pending。覆盖：热重载 / 重启前遗留的 PENDING 单 + 跨进程重取的 QuantPivot。H2 / L2 单由纯函数返回 N/A ⇒ 一律放行。</td></tr>
+      <tr><td><b>可观测</b><br/><code>intraday_probe.py</code></td>
+          <td>探针 <code>_mech_counter_trend(..., 'QP')</code> 新增判据行「前置③ 昨收方向（做空：H1 &gt; 昨收 <b>· 仅 H1 档位适用</b>）/（做多：L1 &lt; 昨收 <b>· 仅 L1 档位适用</b>）」；按引擎同口径做档位代理（现价 <code>≥ H2 − 0.2</code> / <code>≤ L2 + 0.2</code>），给出 <code>prev_close_ok</code>（有效值）与 <code>prev_close_applicable</code>，并<b>纳入 <code>side_pass</code></b>。</td></tr>
+    </table>
+    <div class="info" style="margin-top:10px;">
+      <b>适用范围</b>：本项<b>仅</b>适用于机制 ②「QuantPivot边界反向」（<code>RANGE_BOUND_UPPER_BOUNDARY</code> / <code>RANGE_BOUND_LOWER_BOUNDARY</code>）；
+      机制 ④「趋势日极限终点」沿 SPX Gamma 墙开仓，<b>不受</b>本项约束。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3. 验收证据</h2>
+
+    <h3>3.1 新增契约测试 21/21 通过</h3>
+    <pre>/usr/local/bin/python3 PyTools/option_seller/test_qp_prev_close_gate.py
+Ran 21 tests in 0.000s — OK</pre>
+    <table>
+      <tr><th style="width:14%;">组</th><th style="width:40%;">测试</th><th>断言</th></tr>
+      <tr><td rowspan="9">纯函数（9）</td><td><code>test_short_passes_when_h1_above_prev_close</code></td><td><code>H1 &gt; 昨收</code> ⇒ 放行，<code>ref_level='H1'</code>、<code>applicable=True</code></td></tr>
+      <tr><td><code>test_short_blocked_when_h1_below_prev_close</code></td><td>事故值 <code>H1=761.53 / 昨收=764.29</code> ⇒ 拦截</td></tr>
+      <tr><td><code>test_short_blocked_when_h1_equals_prev_close</code></td><td><b>严格不等</b>：相等亦拦</td></tr>
+      <tr><td><b><code>test_h2_and_l2_are_not_gated</code></b></td><td><b>H2 / L2 ⇒ 放行（N/A）、<code>applicable=False</code>、<code>ref_level=None</code></b></td></tr>
+      <tr><td><code>test_long_passes_when_l1_below_prev_close</code></td><td><code>L1 &lt; 昨收</code> ⇒ 放行</td></tr>
+      <tr><td><code>test_long_blocked_when_l1_above_prev_close</code></td><td>高开日 <code>L1=764.00 / 昨收=760.00</code> ⇒ 拦截</td></tr>
+      <tr><td><code>test_long_blocked_when_l1_equals_prev_close</code></td><td>相等亦拦</td></tr>
+      <tr><td><code>test_missing_prev_close_is_fail_closed</code></td><td>H1/L1 档位缺键 / <code>qp=None</code> / <code>prev_close=0</code> ⇒ 全拦 + <code>data_missing=True</code></td></tr>
+      <tr><td><code>test_non_boundary_level_is_na</code></td><td>非 L1/L2/H1/H2 ⇒ 放行（N/A）</td></tr>
+      <tr><td rowspan="8">引擎（8）</td><td><code>test_gap_down_short_qualified_blocked</code></td><td><b>H1</b> 点扎入容差带（本应 QUALIFIED）⇒ <code>REJECTED</code>，<b>无方向、无 armed_order</b>，<code>applicable=True</code></td></tr>
+      <tr><td><code>test_gap_down_short_armed_blocked</code></td><td><b>H1</b> 点距 H1 ∈ (0.2, 0.5%]（本应 ARMED）⇒ <code>REJECTED</code>，<b>不布防</b></td></tr>
+      <tr><td><code>test_gap_up_long_qualified_blocked</code></td><td>高开日 <b>L1</b> 档位做多 ⇒ <code>REJECTED</code>（严格反向对称）</td></tr>
+      <tr><td><b><code>test_gap_down_h2_short_not_blocked</code></b></td><td><b>低开日 H2 点（H2=764.28 &lt; 昨收 764.29）⇒ <code>QUALIFIED</code>，档位 H2、<code>applicable=False</code>、无否决项、锚位 H2</b></td></tr>
+      <tr><td><b><code>test_gap_up_l2_long_not_blocked</code></b></td><td><b>高开日 L2 点 ⇒ <code>QUALIFIED</code> / 锚位 L2（严格反向对称豁免）</b></td></tr>
+      <tr><td><code>test_valid_short_still_passes</code></td><td>昨收 &lt; H1 ⇒ <code>QUALIFIED</code> / 锚位 H1，行为不变</td></tr>
+      <tr><td><code>test_valid_long_still_passes</code></td><td>昨收 &gt; L1 ⇒ <code>QUALIFIED</code> / 锚位 L1</td></tr>
+      <tr><td><code>test_missing_prev_close_blocks_in_engine</code></td><td><b>H1</b> 档位且引擎内缺昨收 ⇒ fail-closed</td></tr>
+      <tr><td rowspan="4">探针（4）</td><td><code>test_bearish_row_present_and_blocks</code></td><td>判据行存在、<code>passed=False</code>、<code>prev_close_ok=False</code>、verdict=<code>REJECTED</code>、rationale 含阻断项</td></tr>
+      <tr><td><code>test_bullish_row_present_and_blocks</code></td><td>做多侧同构（仅 L1 档位适用）</td></tr>
+      <tr><td><b><code>test_h2_point_gate_not_applicable</code></b></td><td><b>现价已达 H2 ⇒ 判据行 <code>passed=True</code> + actual 标「不适用」、<code>prev_close_applicable=False</code>、verdict=<code>QUALIFIED</code></b></td></tr>
+      <tr><td><code>test_passing_case_ready_to_qualify</code></td><td>通过时<b>不</b>成为阻断项</td></tr>
+    </table>
+
+    <h3>3.2 引擎真实事故复现（只读复算，非夹具）</h3>
+    <pre>prev_close 764.29  H1 761.53  H2 764.28  L1 756.5  L2 754.81
+
+# ① 事故点：现价 761.59 = H1 容差带内 ⇒ 档位 H1
+H1 point  -&gt; REJECTED NONE
+gate_upper: {'level':'H1','prev_close':764.29,'ref_level':'H1','ref_value':761.53,
+             'comparison':'H1 &gt; prev_close','data_missing':False,'applicable':True}
+veto: ['Prev-Close gate (H1 short) failed: H1=761.53 &lt;= PrevClose=764.29
+        -&gt; H1 Bear Call blocked (gap-down / weak-open day).']
+
+# ② 豁免对照：同一日把现价推到 H2 之上 ⇒ 档位 H2（H2=764.28 亦 &lt; 昨收，但本项不适用）
+H2 point  -&gt; QUALIFIED BEARISH
+gate_upper: {'level':'H2','prev_close':764.29,'ref_level':None,'ref_value':None,
+             'comparison':None,'data_missing':False,'applicable':False}</pre>
+    <p style="font-size:0.85rem;">
+      ⇒ 同一套判据下：<b class="ok">事故当日的 H1 档位输入被拦</b>、<b class="ok">H2 档位照常放行</b>（档位级约束，非轨道级）；
+      令 <code>prev_close &lt; H1</code> 时 H1 单也照常 <code>QUALIFIED</code>（<b>无过度拦截</b>）。
+    </p>
+
+    <h3>3.3 回归（全绿）</h3>
+    <table>
+      <tr><th>套件</th><th style="width:14%;">结果</th><th>备注</th></tr>
+      <tr><td><code>test_quant_pivot_option_seller.py</code></td><td class="ok">4/4</td><td>含新增 <code>prev_close</code> 产出断言；H1/H2/L1/L2 exact 值不变</td></tr>
+      <tr><td><code>test_intraday_probe.py</code></td><td class="ok">33/33</td><td>含既有一致性契约（如 <code>test_qp_bands_filtered_to_mandated_side</code>）</td></tr>
+      <tr><td><code>test_conditional_order_trigger_3131.py</code></td><td class="ok">9/9</td><td>夹具 <code>_QP</code> 补 <code>prev_close: 770.00</code></td></tr>
+      <tr><td><code>test_qp_meta_parse.py</code></td><td class="ok">20/20</td><td>无回归</td></tr>
+      <tr><td><code>test_strike_anchor_3131.py</code></td><td class="ok">11/11</td><td>无回归</td></tr>
+      <tr><td><code>test_l1_h1_breakeven_stop.py</code></td><td class="ok">1/1</td><td>无回归</td></tr>
+      <tr><td><code>test_force_dry_degrade.py</code></td><td class="ok">18/18</td><td>无回归</td></tr>
+      <tr><td><code>test_journal_filter_catalog.py</code> / <code>_mode_filter</code> / <code>_group_key</code></td><td class="ok">11 / 9 / 12</td><td>无回归</td></tr>
+    </table>
+
+    <h3>3.4 语法</h3>
+    <pre>python3 -m py_compile PyTools/pivots/quant_pivot.py \
+    PyTools/option_seller/option_seller_engine.py \
+    PyTools/option_seller/option_seller_manager.py \
+    PyTools/option_seller/intraday_probe.py        → COMPILE OK</pre>
+  </div>
+
+  <div class="card">
+    <h2>4. 规则手册已同步（规则 11）</h2>
+    <p style="font-size:0.86rem;">
+      规则手册 <code>§3.1.3.1 开仓规则 (Entry Rules)</code> 前置规则表新增
+      <b>③ 昨收方向前置（缺口日保护 · 仅 H1 / L1）</b>：<b>适用范围（只约束 H1 / L1；H2 / L2 豁免）</b>、
+      做空（仅 H1）/ 做多（仅 L1）判据、<b>H2 / L2 豁免理由</b>、数据来源与口径、
+      缺数据 fail-closed（含 <code>applicable</code> 标记）、执行位置（判定层按档位 + 触发侧兜底）、
+      机制归属（仅机制 ②）、本次事故依据。「机制 ② 的实际准入」收口说明同步为「波幅/位置 + 三维准入 + <b>昨收方向</b>」。
+      <b>HTML 与 MD 双份已改。</b>
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>5. 行为变化摘要（对使用者）</h2>
+    <table>
+      <tr><th style="width:36%;">场景</th><th>旧行为</th><th>新行为</th></tr>
+      <tr><td>大幅低开日（<code>H1 ≤ 昨收</code>）现价触及 / 逼近 <b>H1</b></td><td>卖 Call 做空（直接开仓或布防）</td><td class="bad">拦截（<code>REJECTED</code> + <code>veto_reasons</code>）</td></tr>
+      <tr><td>大幅低开日现价进入 <b>H2</b> 档位（即便 <code>H2 ≤ 昨收</code>）</td><td>卖 Call 做空</td><td class="ok">完全不变（H2 豁免）</td></tr>
+      <tr><td>大幅高开日（<code>L1 ≥ 昨收</code>）现价触及 / 逼近 <b>L1</b></td><td>卖 Put 做多（直接开仓或布防）</td><td class="bad">拦截（严格反向对称）</td></tr>
+      <tr><td>大幅高开日现价进入 <b>L2</b> 档位（即便 <code>L2 ≥ 昨收</code>）</td><td>卖 Put 做多</td><td class="ok">完全不变（L2 豁免）</td></tr>
+      <tr><td>正常日 / 缺口已收复（<code>H1 &gt; 昨收</code> 且 <code>L1 &lt; 昨收</code>）</td><td>原逻辑</td><td class="ok">完全不变</td></tr>
+      <tr><td>机制 ④ 趋势日极限终点</td><td>沿 SPX Gamma 墙</td><td class="ok">完全不变（不受本项约束）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>6. 回滚</h2>
+    <ul>
+      <li><b>代码</b>：<code>PyTools</code> 为独立 git 仓库 ⇒
+        <code>git -C PyTools checkout -- option_seller/option_seller_engine.py option_seller/option_seller_manager.py option_seller/intraday_probe.py pivots/quant_pivot.py option_seller/test_conditional_order_trigger_3131.py option_seller/test_quant_pivot_option_seller.py</code>，
+        并删除 <code>option_seller/test_qp_prev_close_gate.py</code>。</li>
+      <li><b>规则手册</b>：改动前已留时间戳快照（HTML：<code>.bak-20260914_225330</code> 初版插入前 / <code>.bak-20260914_230048</code> 口径修订前；MD：<code>.bak-20260914_230103</code>）。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

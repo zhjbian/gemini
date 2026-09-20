@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - PAW 墙-吸收-收复 累积统计卡片判读与好坏数据判定标准</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">PAW 墙-吸收-收复 累积统计卡片判读与好坏数据判定标准</h1>
+<div class="meta">
+<span>Saved: 2026-09-11 00:09:59</span>
+<span>Topic: paw</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#一句话结论">一句话结论</a></li><li><a href="#卡片五个区块怎么读">卡片五个区块怎么读</a></li><li><a href="#「好数据」的定义（数据质量轴）">「好数据」的定义（数据质量轴）</a></li><li><a href="#「好信号」的定义（统计价值轴）">「好信号」的定义（统计价值轴）</a></li><li><a href="#判定阈值（可操作版）">判定阈值（可操作版）</a></li><li><a href="#对当前这张卡的判读">对当前这张卡的判读</a></li><li><a href="#关联产物与规则位置">关联产物与规则位置</a></li></ul></div>
+<section class="main-content">
+<p><img alt="PAW 墙-吸收-收复 累积统计卡片" src="images/paw_stats_card_20260910.png"/></p>
+<h2 id="一句话结论">一句话结论</h2>
+<p>这张卡上<strong>同时有两类信息，必须分开读</strong>：</p>
+<ul>
+<li><strong>「数据好不好」</strong> = 覆盖是否完整、任务是否在跑（决定统计<strong>可不可信</strong>）</li>
+<li><strong>「信号好不好」</strong> = 命中率是否超随机、缓冲是否可交易（决定 Setup 5 <strong>能不能用</strong>）</li>
+</ul>
+<p>坏数据 ≠ 坏信号；样本少 ≠ 数据坏。下面给出判定标准。</p>
+<h2 id="卡片五个区块怎么读">卡片五个区块怎么读</h2>
+<table>
+<thead>
+<tr>
+<th>区块</th>
+<th>含义</th>
+<th>好 / 坏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>E2/E3 事件数 2/30</strong></td>
+<td>高价值形态（墙+吸收+收复确认）的<strong>样本进度</strong></td>
+<td>进度条满 = 可下结论；未满 = 只能观察（<strong>当前：不足</strong>）</td>
+</tr>
+<tr>
+<td><strong>可用交易日 3/10</strong></td>
+<td>有多少天 DOM 覆盖完整、能用来做统计</td>
+<td>这是<strong>数据质量</strong>指标；9/10 天不可用就是<strong>坏数据环境</strong></td>
+</tr>
+<tr>
+<td><strong>累积表现（30 分钟）</strong></td>
+<td>三档的 样本数 / hit率（朝墙方向 ≥0.15%）/ 不破率</td>
+<td>hit 要显著高于随机基准；不破率低说明「墙≠保险」</td>
+</tr>
+<tr>
+<td><strong>E1 行权价安全距离</strong></td>
+<td>达到 90% 持稳所需的<strong>最小离墙距离（tick）</strong>，分买卖两侧</td>
+<td>能算出有限值 = 数据可用；显示 <code>—</code> = 样本不足（坏）</td>
+</tr>
+<tr>
+<td><strong>底部 chips + 红字</strong></td>
+<td>每个交易日的事件数（E1/E2/E3 拆分）；数据不可用日 / 超期告警</td>
+<td>出现红字 = <strong>先修数据，别看统计</strong></td>
+</tr>
+</tbody>
+</table>
+<p>对照当前值：<code>E1 94 例 hit 11.7% 不破 23.4%</code>、<code>BID 51/66/66 tick</code>、<code>ASK 38/40/52 tick</code>、<code>持稳@16t = 44%/52%</code>。</p>
+<h2 id="「好数据」的定义（数据质量轴）">「好数据」的定义（数据质量轴）</h2>
+<table>
+<thead>
+<tr>
+<th>判定项</th>
+<th>好数据的标准</th>
+<th>当前状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>覆盖完整</td>
+<td>当天 DOM 从开盘前开始录、无损坏（<code>status = ok</code>）</td>
+<td>✅ 09-08 / 09-10 完整；⚠️ <strong>09-09 事件 0</strong>（DOM 傍晚 18:06 才开始录 → 那天只有晚段样本，属「部分可用」）</td>
+</tr>
+<tr>
+<td>快照连续</td>
+<td>窗口内快照数达标、无长间断（自动降级为 <code>DEGRADED</code>/<code>INSUFFICIENT</code>）</td>
+<td>✅ 07:15 曾因「间断 138.9s」被标 <code>DEGRADED</code>（仍可用，不拦参数）</td>
+</tr>
+<tr>
+<td>任务在跑</td>
+<td>最近交易日收盘后已更新（≤26 小时）</td>
+<td>✅ 更新于 23:21，<strong>无红字告警</strong></td>
+</tr>
+<tr>
+<td>无污染日</td>
+<td>无「数据不可用日」红字</td>
+<td>✅ 无（<code>bad_days</code> 为空）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>坏数据的四种具体形态</strong>：① DOM 傍晚才开录/文件损坏 → 当日事件数骤降或为 0；② tick 断流 → 该窗口标 <code>INSUFFICIENT</code>，不得作为样本/开仓依据；③ 任务未跑（&gt;26h）→ 卡片红字 + <strong>参数冻结</strong>；④ 快照间断过长 → 降级（可用但置信度下降）。</p>
+<h2 id="「好信号」的定义（统计价值轴）">「好信号」的定义（统计价值轴）</h2>
+<table>
+<thead>
+<tr>
+<th>判定项</th>
+<th>好信号的标准</th>
+<th>当前状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>超越随机</strong></td>
+<td>hit 率显著高于同日随机基准</td>
+<td>✅ E1 30 分钟 <strong>11.7% vs 基准 0.9%（p≈0.0007）</strong>；60 分钟 22.3% vs 10.2%（p≈0.015）</td>
+</tr>
+<tr>
+<td><strong>样本量</strong></td>
+<td>E2/E3 ≥30 例 且 ≥10 个可用交易日</td>
+<td>❌ 2/30 例、3/10 天 → <strong>不可启用</strong></td>
+</tr>
+<tr>
+<td><strong>防守性</strong></td>
+<td>不破率越高越安全</td>
+<td>❌ 30 分钟不破率仅 <strong>23.4%</strong> → <strong>76% 的墙会被击穿</strong>，说明「墙厚≠墙会守」</td>
+</tr>
+<tr>
+<td><strong>缓冲可交易</strong></td>
+<td>推荐缓冲有限且对应价差仍有权利金</td>
+<td>⚠️ BID 需 <strong>66 tick（16.5 点）</strong>、ASK 需 <strong>40 tick（10 点）</strong> —— 缓冲很大，价差宽度与权利金要单独评估</td>
+</tr>
+<tr>
+<td><strong>持稳曲线可用</strong></td>
+<td>曲线单调且能读出 90% 点</td>
+<td>✅ 可读（BID@16t 44% → 66t 90%；ASK@16t 52% → 40t 90%）</td>
+</tr>
+<tr>
+<td><strong>分侧合理</strong></td>
+<td>两侧都有值、无封顶/极值</td>
+<td>⚠️ 两侧<strong>明显不对称</strong>（ASK 更安全）→ 不能混用同一缓冲</td>
+</tr>
+</tbody>
+</table>
+<h2 id="判定阈值（可操作版）">判定阈值（可操作版）</h2>
+<table>
+<thead>
+<tr>
+<th>你看到</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>门槛两条进度条<strong>都满</strong> + E1/E2/E3 的 p&lt;0.05</td>
+<td>数据与信号都过关 → 进入 Setup 5 dry-run</td>
+</tr>
+<tr>
+<td>进度条未满（当前状态）</td>
+<td><strong>只观察，不接入自动开仓</strong>（Setup 5 保持「设计中」）</td>
+</tr>
+<tr>
+<td>hit 率 ≈ 基准（差值不显著）</td>
+<td><strong>垃圾样本</strong>：不是数据坏，是信号无效 → 放弃或重设形态定义</td>
+</tr>
+<tr>
+<td>不破率低但 hit 高（当前 E1）</td>
+<td>说明<strong>价值在方向性尾部</strong>，不在防守 → 必须「缓冲 ≥ p95 + 短持有期」，靠小止损博大尾</td>
+</tr>
+<tr>
+<td>缓冲大到价差无利可图</td>
+<td><strong>工程上不可行</strong> → 该 Setup 只能作为方向参考，不做卖方</td>
+</tr>
+<tr>
+<td>出现红字（不可用日 / &gt;26h 未更新）</td>
+<td><strong>先修数据再用参数</strong>（参数此时冻结）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="对当前这张卡的判读">对当前这张卡的判读</h2>
+<ol>
+<li><strong>数据：好</strong> —— 3 天可用、无不可用日、任务按时更新（唯一瑕疵是 09-09 只有晚段样本，贡献低）。</li>
+<li><strong>样本：不足</strong> —— E2/E3 仅 2 例、可用日 3 天 → <strong>还不能启用 Setup 5</strong>（这正是卡片显示「未达门槛·继续累积」的含义）。</li>
+<li><strong>E1 边际：成立且显著</strong>，但<strong>防守性弱</strong>（76% 会破）→ 若将来启用，<strong>必须</strong>用「缓冲在 p95 之外 + 15–30 分钟短持有期」，且<strong>两侧分别取缓冲</strong>。</li>
+<li><strong>最值得先试的一侧是 ASK（卖 call）</strong>：只需 40 tick（10 点）就达 90% 持稳，比 BID 的 66 tick 更容易做出有利可图的价差。</li>
+</ol>
+<h2 id="关联产物与规则位置">关联产物与规则位置</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>卡片数据源</td>
+<td><code>GET /data/paw_stats</code>（读 <code>PyTools/jobs/state/paw_calibration.json</code> + <code>order_flow_paw_stats.json</code>）</td>
+</tr>
+<tr>
+<td>校准表（机器可读）</td>
+<td><code>PyTools/jobs/state/paw_calibration.json</code>（逐 tier × 方向 × 持有期：hit/hold、越墙 p50/p90/p95/p99、持稳曲线、推荐缓冲）</td>
+</tr>
+<tr>
+<td>累积报告</td>
+<td><code>PyTools/jobs/state/order_flow_paw_stats_report.md</code></td>
+</tr>
+<tr>
+<td>每日自动检测</td>
+<td>launchd <code>com.bbt.orderflow-paw-stats</code>（周一至周五 14:45 / 21:15）→ 邮件「BBT DOM Wall反转每日统计」</td>
+</tr>
+<tr>
+<td>规则手册</td>
+<td>第一部分 §2c 第 11~13 项（PAW/逐价吸收/击穿-收复）、§3.5 Setup 5（含每日检测产出、启用判定、参数取值、失效降级）</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

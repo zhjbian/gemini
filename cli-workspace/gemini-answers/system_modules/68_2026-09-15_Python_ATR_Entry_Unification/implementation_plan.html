@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>Python 侧 ATR 取数统一：实算入口与绕道映射清理 —— 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+</style></head><body><div class='page'><div class='card'><h1>Python 侧 ATR 取数统一：实算入口与绕道映射清理 —— 实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：68 <code>Python_ATR_Entry_Unification</code>（归属能力域：<strong>M18 交易基础设施与开发环境工具链</strong> · MotiveWave 终端 Java SDK 研究基础设施 + Python 量化取数工具链）</li>
+<li><strong>触发事件</strong>：用户追加指令（原文）：「要一并切到实算 ATR」——即把<strong>仍在读 <code>Ticker_ATR.csv</code> 的 Python 侧消费者</strong>一并切到实算 ATR。</li>
+<li><strong>前序与本轮关系</strong>：本归档是 <code>67_2026-09-15_Cross_Study_Real_ATR_Unification</code> 的<strong>后续扩展</strong>。67 已完成 Java 侧 3 个研究调用点（<code>StudyPriceSpike</code> 2 处 + <code>StudyOrderFlowReversal</code> 1 处）由 <code>getATR</code> 切至 <code>getRealATR</code>；67 文档「未纳入本轮范围」一节中列出的 Python 消费者在本轮被纳入。
+  <strong>本轮取代 67 的该项边界说明</strong>：67 第 5 节与 walkthrough 第 6 节所记「Python 侧消费者 <code>PyTools/trading_view/</code>、<code>PyTools/option_chain/vantage.py</code>、<code>PyTools/spike_db/spikes_mw_to_csv.py</code> 仍读 CSV，本轮未改」这一边界，自本轮起不再成立；67 文档本身保持历史记录原样，不作修改。</li>
+<li><strong>用户口径</strong>：
+  <ol>
+  <li>「两个研究仍在读那张已弃用的 CSV 统一改成不用那个CSV」（前序指令，已完成，归档于 67）；</li>
+  <li>「我只需要用在 SPY 上」（主用标的 SPY）；</li>
+  <li>「要一并切到实算 ATR」（本轮指令）。</li>
+  </ol>
+</li>
+<li><strong>技术栈</strong>：Python 3 · <code>PyTools/py_lib/bb_tickers.py</code>（<code>BBTicker</code> 统一 ATR 入口）· Schwab 日线 API（<code>BBTOS.atr_wilder()</code>）· yfinance（<code>BBYF.atr_wilder()</code>，兜底）· Wilder RMA ATR(14) · Flask（<code>bbt_data_web</code>，<code>/mw_api/atr</code> 与 <code>/mw_api/atr_real</code>）· pandas（<code>Ticker_ATR.csv</code> 读表兜底）· 日志 <code>warning</code></li>
+</ul>
+<hr />
+<h2>1. 背景与目标</h2>
+<p>67 已把 Java 侧研究指标的 ATR 取数切至实算链路（<code>/mw_api/atr_real</code>），但 Python 侧消费者仍统一经 <code>BBTicker.atr(ticker)</code> 取数，而该方法<strong>优先读取 <code>Ticker_ATR.csv</code></strong>。因此存在口径分裂：</p>
+<ul>
+<li>Java 研究走实算 Wilder ATR(14)；</li>
+<li>Python 侧（TradingView 导出脚本、期权链、尖峰导出等）仍消费同一份被判定为过期 / 串行数据的 CSV。</li>
+</ul>
+<p>本轮目标是把 Python 侧统一切到实算口径，并清理当年为绕过 CSV 缺行而设的「绕道映射」。范围纪律：<strong>只动 Python 侧取数入口与 1 处绕道映射</strong>，不改 Java 侧、不改 CSV 文件本身、不改无关脚本。</p>
+<h2>2. 改动清单（2 个文件）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PyTools/py_lib/bb_tickers.py</code></td>
+<td><code>BBTicker.atr(ticker)</code> 重写为<strong>统一入口</strong>：优先 <code>atr_real()</code>（Schwab 日线 Wilder ATR(14) → yfinance Wilder 兜底，符号自行解析 <code>ES→/ES</code>、<code>SPX→$SPX</code>），<code>Ticker_ATR.csv</code> <strong>降级为「实算链路全部失败时的最后兜底」</strong>并写 warning 日志；新增私有 <code>_atr_from_csv(ticker)</code> 承载旧读表逻辑（仅在兜底内保留 <code>ES→SPX</code> / <code>NQ→NDX</code> 近似映射）；<strong>删除</strong>原先的 <code>BBTOS.atr()</code> / <code>BBYF.atr()</code>（SMA 口径）兜底链与末尾 <code>return 2.0</code> 硬编码</td>
+</tr>
+<tr>
+<td><code>PyTools/trading_view/tv_order_flow_big_trade_single_tick_by_trading_hour.py</code></td>
+<td><code>ticker_map_atr = {"ES": "SPX", "NQ": "NDX"}</code> → 清空为 <code>{}</code>（保留变量以便日后覆盖），并加注释说明：该映射是当年旧 CSV 无 ES/NQ 行的绕道，而 Pine 目标是 <code>ES1!</code>/<code>NQ1!</code> 期货图，故应取期货自身 ATR；实测差异 ES 期货 <code>70.08</code> vs SPX <code>60.17</code>（约 14%）</td>
+</tr>
+</tbody>
+</table>
+<h2>3. 设计要点：统一入口的优先级与失败语义</h2>
+<ul>
+<li><strong>入口优先级</strong>：<code>BBTicker.atr(ticker)</code> → <code>atr_real(ticker)</code>（Schwab 日线 Wilder ATR(14) 主源，yfinance Wilder 兜底）→ 失败时 <code>_atr_from_csv(ticker)</code> 读 <code>Ticker_ATR.csv</code> 并写 warning 日志。</li>
+<li><strong>CSV 的新定位</strong>：由「优先数据源」降级为「实算链路全部失败时的最后兜底」；这是为避免实算链路整体不可用时调用方直接崩断而保留的降级路径，不再是常规取数路径。</li>
+<li><strong>兜底内映射的保留理由</strong>：<code>_atr_from_csv()</code> 内的 <code>ES→SPX</code> / <code>NQ→NDX</code> 近似映射仅在最后兜底内保留——因为 CSV 表内没有 ES/NQ 行；该映射属兜底路径的近似手段，不参与常规实算路径。</li>
+<li><strong>失败语义变更</strong>：实算与 CSV 兜底<strong>全部失败</strong>时返回 <code>None</code>（原实现末尾硬编码 <code>return 2.0</code>）。该变更把「静默返回假值」改为「显式空值」，调用方需判空。</li>
+<li><strong>符号解析归属</strong>：实算链路内部自行解析券商符号（<code>ES→/ES</code>、<code>SPX→$SPX</code>），调用方仍传裸符号，接口表面不变。</li>
+</ul>
+<h2>4. 未改动项（避免误解，逐条列明）</h2>
+<p>以下本轮<strong>未改动</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>未改动的理由</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java 侧 3 个研究调用点（<code>StudyPriceSpike</code> 2 处、<code>StudyOrderFlowReversal</code> 1 处）</td>
+<td>已在 67 完成；且 <code>atr_real</code> 路由未变，<strong>无需重新部署</strong></td>
+</tr>
+<tr>
+<td><code>PyTools/trading_view/tv_order_flow_big_trade_by_time_range.py</code>、<code>tv_order_flow_big_trade_daily.py</code> 的 <code>ticker_map = {"ES": "SPY", "NQ": "QQQ"}</code></td>
+<td>该映射是因为这两个脚本生成的 Pine 目标是 <strong>SPY/QQQ 图</strong>、收盘价也取 SPY/QQQ，属正当映射，必须保留</td>
+</tr>
+<tr>
+<td><code>tv_dp_single_ticker.py</code>、<code>option_chain/vantage.py</code>、<code>spike_db/spikes_mw_to_csv.py</code> 的调用点</td>
+<td>它们经统一入口自动生效，无需改代码</td>
+</tr>
+<tr>
+<td>CSV 文件 <code>Ticker_ATR.csv</code>、写表任务 <code>PyTools/jobs/calc_atr.py</code></td>
+<td>本轮未改；该表降级为兜底，写表任务下次运行会把真实 ATR 写回表中（见第 6 节）</td>
+</tr>
+</tbody>
+</table>
+<h2>5. 行为变化</h2>
+<h3>5.1 ATR 值</h3>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>旧值（CSV 口径）</th>
+<th>新值（实算口径）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SPY</td>
+<td><code>19.16</code></td>
+<td><code>5.98</code></td>
+<td>缩小 <strong>3.2 倍</strong></td>
+</tr>
+<tr>
+<td>ES</td>
+<td>CSV 时代走 SPX <code>49.31</code></td>
+<td>期货实算 <code>70.08</code></td>
+<td>由「近似映射到 SPX」改为「期货自身」</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 生成 Pine 的 factor</h3>
+<table>
+<thead>
+<tr>
+<th>脚本</th>
+<th>Pine 目标</th>
+<th>factor 公式</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tv_order_flow_big_trade_by_time_range.py</code> / <code>tv_order_flow_big_trade_daily.py</code></td>
+<td>SPY / QQQ 图</td>
+<td><code>factor = (0.5 × ATR) / max_volume</code></td>
+<td>factor 缩小 3.2 倍，标记高度回到「0.5 × ATR」字面语义</td>
+</tr>
+<tr>
+<td><code>tv_order_flow_big_trade_single_tick_by_trading_hour.py</code></td>
+<td><code>ES1!</code> / <code>NQ1!</code></td>
+<td><code>factor = (2 × ATR) / max_volume</code></td>
+<td>ATR <code>49.31 → 70.08</code>，factor 放大 <code>1.42 倍</code></td>
+</tr>
+</tbody>
+</table>
+<h3>5.3 失败语义</h3>
+<ul>
+<li><code>BBTicker.atr()</code> 在实算与 CSV 兜底<strong>全部失败</strong>时返回 <code>None</code>（原先末尾硬编码返回 <code>2.0</code>）。</li>
+<li>判空现状：
+  <ul>
+  <li><code>tv_dp_single_ticker.py</code> 第 194 行已有 <code>if atr is None or atr &lt;= 0</code> 判空；</li>
+  <li><code>option_chain/vantage.py</code> 用 <code>or BBYF.atr(ticker)</code>；</li>
+  <li><strong><code>tv_order_flow_big_trade_by_time_range.py</code> 与 <code>tv_order_flow_big_trade_daily.py</code> 直接参与 <code>(0.5 * atr)</code> 运算，无判空</strong> —— 仅在「实算失败且该标的不在 CSV 表内」时才会触发 TypeError（实测当前数据下不会发生），属已知残余风险。</li>
+  </ul>
+</li>
+</ul>
+<h2>6. 对定时任务的影响</h2>
+<p>定时任务 <code>PyTools/jobs/calc_atr.py</code> 仍调用 <code>BBTicker.atr()</code> 并写回该表：由于入口已实算，该任务下次运行会把<strong>真实 ATR 写回表中</strong>，原先「读表 → 写回表」的自引用闭环自然消除。</p>
+<p><strong>本轮未执行该任务</strong>（写用户配置文件需其确认）。</p>
+<h2>7. 验收标准</h2>
+<ol>
+<li><strong>编译检查</strong>：<code>py_compile</code> 两个改动文件 → <strong>OK</strong>；</li>
+<li><strong>统一入口实算值正确</strong>：<code>BBTicker.atr()</code> 返回 SPY <code>5.98</code>、QQQ <code>8.77</code>、ES <code>70.08</code>、NQ <code>431.75</code>、SPX <code>60.17</code>、TSLA <code>13.11</code>；</li>
+<li><strong>降级行为正确</strong>：monkeypatch <code>atr_real</code> 返回 <code>None</code> 模拟实算全失败时，SPY → <code>19.16</code>（CSV 值）并写出 warning 日志；表内不存在的标的 → <code>None</code>；</li>
+<li><strong>真实 HTTP 一致</strong>：Flask 5005（debug 自动重载已生效）<code>/mw_api/atr</code> 与 <code>/mw_api/atr_real</code> 两条路由对同一标的值一致；</li>
+<li><strong>消费者收敛</strong>：<code>grep -rn "Ticker_ATR\|atr_config_file" --include=*.py</code> 显示全部 9 处调用点均经统一入口；直接读该表的代码仅剩 <code>_atr_from_csv()</code> 兜底；</li>
+<li><strong>归档</strong>：本目录（plan + walkthrough，<code>.md</code> / <code>.html</code> 双份）与 <code>bbt_trading_modules.html</code> M18 演进行同步。</li>
+</ol>
+<h2>8. 回滚方式</h2>
+<ol>
+<li>恢复 <code>BBTicker.atr()</code> 原实现（读表优先），或</li>
+<li><code>git revert</code> 这两个文件；</li>
+<li>Java 侧无需回滚（本轮未动，且 67 的 <code>atr_real</code> 路由口径未变）。</li>
+</ol></div></div></body></html>

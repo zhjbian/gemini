@@ -1,0 +1,239 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>DSH VS Code 扩展确认信息必达（二）· 卡片渲染必达兜底 · 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>DSH VS Code 扩展「确认信息必达（二）· 卡片渲染必达兜底」实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：63 <code>Question_Render_Guarantee</code>（承接模块 59 <code>Question_Delivery_Guarantee</code>）</li>
+<li><strong>目标</strong>：修复补丁10 之后<strong>仍然卡住</strong>的 <code>ask_user_question</code>（确认卡片）—— 让「state 里有问句」与「UI 里出现卡片」之间<strong>不再有静默断点</strong></li>
+<li><strong>技术栈</strong>：VS Code 扩展（第三方）· 唯一入口 <code>scripts/repatch_vscode_changes_bar.py</code>（新增 <strong>补丁12</strong>）· minified JS 定点替换 + 锚点唯一性断言 + 幂等 · node 最小 stub 自测 · headless Chrome（<code>--headless=old</code>）隔离 harness 对照实验</li>
+</ul>
+<hr />
+<h2>1. 现象（用户报告）</h2>
+<p>模块 59 修完（补丁10）之后，用户反馈：<strong>「这个 patch 后需要用户确认的问题好像更容易卡住了」</strong>，并给出实例「上一个 task」——
+本会话连续两次 <code>ask_user_question</code> 均以 <code>Error: ask_user_question was aborted before the user answered</code> 结束
+（界面里只看到工具卡片 <code>Ask_user_question({...})</code> + <code>Worked for 1m 53s</code>，<strong>没有确认卡片</strong>，用户只能 <code>Esc</code> 中断）。</p>
+<h2>2. 现场取证（分层，逐层排除）</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>证据</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 服务端 / mux</td>
+<td>会话日志中该两次调用均为 <code>tool/result = aborted</code></td>
+<td>问句确实发出过（未答）</td>
+</tr>
+<tr>
+<td>② host 是否收到帧</td>
+<td><code>/tmp/dsh_question_debug.log</code>（补丁10 的诊断）两次都出现：<br><code>recv question session=dsh-mu3g2tzy-zme4lo active=dsh-mu3g2tzy-zme4lo pending=1</code></td>
+<td>✅ <strong>帧到了 host</strong></td>
+</tr>
+<tr>
+<td>③ host 发给 webview 的 state 里有没有问句</td>
+<td>同日志紧接一行：<code>publish active=dsh-mu3g2tzy-zme4lo questions=1</code>（该计数取自 <code>gateway.snapshot()</code>，即<strong>真正 push 给 webview 的那份 state</strong>）</td>
+<td>✅ <strong>state 里确实有 1 条问句</strong></td>
+</tr>
+<tr>
+<td>④ webview 渲染</td>
+<td>界面无卡片</td>
+<td>❌ <strong>断点只剩 webview 渲染</strong></td>
+</tr>
+</tbody>
+</table>
+<p>⇒ 与模块 59 的结论不同：本次<strong>不是</strong>「帧没到 / 被会话过滤掉」，而是「host 把含问句的 state 发出去了，webview 没画出来」。</p>
+<h2>3. 根因（读 minified 源码定位，三处叠加）</h2>
+<h3>A. <code>fr()</code> 渲染链<strong>只有三步被隔离</strong>（补丁10 的覆盖不足）</h3>
+<pre><code class="language-js">function fr(){ if(!z)return; let{state:e}=z,t=e.active;
+  F.editorContext.setAutoAttach(…), dl(e), … 或 pt(),
+  __bbtSafe(&quot;composer&quot;,()=&gt;sl(t)),        // ← 补丁10 加了隔离
+  g.keyBanner.classList.toggle(…), g.sessionTitle.textContent=…, Eg(t),
+  g.backParent…, g.fork…, g.loadOlder…,
+  __bbtSafe(&quot;messages&quot;,()=&gt;dr(t)),        // ← 补丁10 加了隔离
+  __bbtSafe(&quot;interactions&quot;,()=&gt;ds(t)),    // ← 卡片渲染器（链尾）
+  g.details…||xn(), yn(t), Xr(t), Cn(t), F.sessionChanges.update(…), uo(), …
+}
+</code></pre>
+<p>补丁10 只保证了 <code>sl/dr/ds</code> <strong>三者互不影响</strong>，但链路上<strong>其余语句（<code>dl/pt/Eg/g.*/yn/Xr/Cn/uo/_i/Qr/po</code> 等）依旧无隔离</strong> ——
+任一步抛错，后面的 <code>ds(t)</code> 仍被跳过，卡片依旧永不出现。<strong>这正是本次线上形态</strong>（harness 实测复现：在 <code>ds</code> 之前抛错 ⇒ 卡片数 = 0，见 §5 对照表）。</p>
+<h3>B. <code>ds()</code> 的渲染指纹写入<strong>早于</strong> DOM 更新 ⇒ 一次失败即<strong>永久短路</strong></h3>
+<pre><code class="language-js">function ds(e){ let t=JSON.stringify({sessionId:e?.id,approvals:…,questions:…});
+  if(t===pi) return;        // ← 内容未变则直接 return（memo）
+  $r(t);                    // ← 指纹**先**写入
+  let n=document.createDocumentFragment(); …构建卡片…;
+  g.interactions.replaceChildren(n);   // ← 真正的 DOM 更新在后
+}
+</code></pre>
+<p><code>pi</code> 只在 <code>ds</code> 里被写入、<strong>没有任何地方复位</strong>。因此在 <code>$r(t)</code> 之后、<code>replaceChildren</code> 之前抛错（或 <code>g.interactions</code> 已脱离文档）⇒
+指纹已更新、DOM 未更新；而问句 pending 期间 <strong>state 内容不变</strong> ⇒ 后续每次 <code>ds</code> 都在 <code>if(t===pi)return</code> 处短路
+⇒ 卡片<strong>永久</strong>不出现（补丁10 的 <code>__bbtSafe</code> 还会把异常吞掉，界面看不出任何异常）。</p>
+<h3>C. 异常只留在 webview 内存 ⇒ 事后无法定位</h3>
+<p>补丁10 把异常塞进 <code>window.__bbtRenderErrors</code>（webview 内），<strong>没有通道送到 host/磁盘</strong> ⇒ 事后只知道「没卡片」，不知道「哪个 tag 抛的」。</p>
+<h2>4. 方案（补丁12，走唯一入口 <code>scripts/repatch_vscode_changes_bar.py</code>）</h2>
+<blockquote>
+<p>编号说明：<code>补丁11</code> 已被「压缩阈值调紧」占用，故本条编号跳到 <strong>12</strong>。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>改动</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. webview <code>chat.js</code></td>
+<td><code>fr</code> → 包装器：原函数体改名 <code>__bbtFrOrig</code>；<code>fr()</code> = <code>try{__bbtFrOrig()}catch{上报}finally{__bbtEnsureCards(z)}</code></td>
+<td><strong>链路上任何一步抛错都不再阻止卡片渲染</strong></td>
+</tr>
+<tr>
+<td>B. webview <code>chat.js</code></td>
+<td>新增 <code>__bbtEnsureCards(snap)</code>：<code>state</code> 说该有卡片（<code>questions+approvals&gt;0</code>）而 DOM 里没有 ⇒ 清 <code>pi</code> 指纹 + 强制 <code>ds(active)</code> 重绘；并用 <code>document.querySelector("#interactions")</code> <strong>实时查找</strong>（若与缓存 <code>g.interactions</code> 不同则改指实时节点）</td>
+<td>修复 B（memo 永久短路）与「画进已脱离文档的幽灵节点」</td>
+</tr>
+<tr>
+<td>C. webview + host</td>
+<td>新增 <code>__bbtQDiag(tag,err,extra)</code>（节流 2.5s）→ <code>U("bbtDiag", …)</code>（含 <code>window.__bbtRenderErrors</code> 最近 6 条）；<code>__bbtSafe</code> 的 catch 也调用它；host <code>handleMessage</code> 新增 <code>case"bbtDiag"</code> 落 <code>/tmp/dsh_question_debug.log</code>；publish 日志追加 pending 问句的 <code>key</code> 列表</td>
+<td><strong>下次再卡，日志里直接给出是哪个 tag 抛的</strong></td>
+</tr>
+<tr>
+<td>D. host <code>extension.cjs</code></td>
+<td>问句 pending 期间<strong>有限次</strong>（3s × ≤20 次）重发 state；问句不再是 pending 时计数复位</td>
+<td>兜底「webview 后创建 / 漏收该帧」</td>
+</tr>
+</tbody>
+</table>
+<p>设计原则不变：<strong>只加隔离、兜底与诊断，不改协议、不改语义</strong>；补丁幂等、可 <code>--revert</code>、可 <code>--no-question-guarantee</code> 单跳过。</p>
+<h2>5. 验收口径</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>手段</th>
+<th>通过标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>node --check dist/webview/chat.js</code> / <code>dist/extension.cjs</code></td>
+<td>均 ok（脚本内置）</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>--selftest</code> 新增「补丁12」用例（node + 最小 DOM stub，12 条断言）</td>
+<td>卡片缺失 ⇒ 强制重绘一次 / 重绘后卡片在 DOM / <strong>渲染指纹已清</strong> / 上报 <code>cards-restored</code>；卡片已在 ⇒ 零副作用；无问句 / 快照空 ⇒ 零副作用；<code>ds</code> 抛错不外泄且上报 <code>ds-forced</code>；<code>bbtDiag</code> 节流；<strong><code>fr</code> 链路上游抛错不外泄 + 卡片仍渲染 + 上报 <code>fr</code></strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>headless Chrome 隔离 harness（真实模板 + <code>chat.css</code> + 真实 <code>chat.js</code>，合成 state 含 <code>question:S1:rpc1</code>）</td>
+<td>四组对照见下</td>
+</tr>
+<tr>
+<td>4</td>
+<td>幂等</td>
+<td>复跑输出 <code>[补丁12] … 已打过, 跳过 ✓</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>回滚演练</td>
+<td><code>--revert</code> 后 <code>__bbtSafe/__bbtEnsureCards/__bbtQLog</code> 全部归零；重跑脚本后全部回位 + <code>node --check</code> ok</td>
+</tr>
+<tr>
+<td>6</td>
+<td>线上确认</td>
+<td><strong>重载窗口</strong>后发起一次 <code>ask_user_question</code>：卡片出现、可作答；若仍不出现，<code>/tmp/dsh_question_debug.log</code> 应出现 <code>webview diag {"tag":"…"}</code> 指明抛错点</td>
+</tr>
+</tbody>
+</table>
+<p><strong>harness 对照表（决定性证据）</strong></p>
+<table>
+<thead>
+<tr>
+<th>变体</th>
+<th>卡片数</th>
+<th>webview 上报</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>补丁10-only，正常 state</td>
+<td>1</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>补丁10-only + 链路抛错</strong></td>
+<td><strong>0</strong></td>
+<td>—（<strong>复现线上故障</strong>）</td>
+</tr>
+<tr>
+<td><strong>补丁12 + 链路抛错</strong></td>
+<td><strong>1</strong></td>
+<td><code>fr</code> + <code>cards-restored</code></td>
+</tr>
+<tr>
+<td>补丁12，正常 state</td>
+<td>1</td>
+<td>（harness 自身的 <code>composer</code> 异常被隔离并上报，证明诊断通道有效）</td>
+</tr>
+</tbody>
+</table>
+<h2>6. 风险与回滚</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>改 minified 代码引入语法错误</td>
+<td>脚本内置 <code>node --check</code> + 锚点唯一性断言（不匹配即中止不写）；补丁12 的锚点断言在应用前先跑 <code>--dry-run</code></td>
+</tr>
+<tr>
+<td><code>fr</code> 包装引入递归</td>
+<td>包装器对 <code>fr</code> 语义透明（<code>apply(this,arguments)</code> + 原体改名）；若原链自递归，行为与改前一致（未新增递归点）</td>
+</tr>
+<tr>
+<td>兜底反而刷屏</td>
+<td><code>__bbtQDiag</code> 2.5s 同 tag+msg 去重；<code>cards-restored/cards-failed</code> 仅在<strong>需要且缺卡</strong>时上报；host 重发上限 20 次后停</td>
+</tr>
+<tr>
+<td>生效条件</td>
+<td><strong>必须重载窗口</strong>（<code>Cmd+Shift+P</code> → <code>Developer: Reload Window</code>）—— webview 与 extension host 都要重新加载；<code>--dry-run</code> 不会写盘</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td><code>python3 scripts/repatch_vscode_changes_bar.py --revert</code>（从 <code>*.bbt-bak</code> 还原全部补丁）；或重跑时 <code>--no-question-guarantee</code> 只跳过补丁12</td>
+</tr>
+</tbody>
+</table></div></div></body></html>

@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 平衡日边界机制 v2 实施与交易手册重构（趋势门控 · 评分器 v2 · 命名统一 balanced_day）</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">平衡日边界机制 v2 实施与交易手册重构（趋势门控 · 评分器 v2 · 命名统一 balanced_day）</h1>
+<div class="meta">
+<span>Saved: 2026-09-13 22:07:42</span>
+<span>Topic: balanced_day_v2_trend_gate_and</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#会话总览与交付清单">会话总览与交付清单</a></li><li><a href="#§1.2-三段式重构（数据源-→-指标-→-合成判定）">§1.2 三段式重构（数据源 → 指标 → 合成判定）</a><ul><li><a href="#重构后的章节结构">重构后的章节结构</a></li><li><a href="#1.2.3-内部（原-1.2.1~1.2.7-正文逐字保留，仅改编号-+-加数据源徽标）">1.2.3 内部（原 1.2.1~1.2.7 正文逐字保留，仅改编号 + 加数据源徽标）</a></li><li><a href="#索引表数据源统计（实测-31-行）">索引表数据源统计（实测 31 行）</a></li><li><a href="#元数据小节的字段口径（据代码实测）">元数据小节的字段口径（据代码实测）</a></li></ul></li><li><a href="#§1.4-压缩为判读层（由-8-节压缩到-3-节）">§1.4 压缩为判读层（由 8 节压缩到 3 节）</a><ul><li><a href="#处理原则">处理原则</a></li><li><a href="#压缩结果">压缩结果</a></li><li><a href="#保留的独有决策内容（§1.2-无等价物）">保留的独有决策内容（§1.2 无等价物）</a></li><li><a href="#补回的定义缺口">补回的定义缺口</a></li></ul></li><li><a href="#§3.1.4-按-§3.1.3-模板重构（并迁入-§3.1.1.6）">§3.1.4 按 §3.1.3 模板重构（并迁入 §3.1.1.6）</a><ul><li><a href="#重构后的结构">重构后的结构</a></li><li><a href="#内容归属映射（旧-→-新，阈值一字未改）">内容归属映射（旧 → 新，阈值一字未改）</a></li><li><a href="#§3.1.1.6-迁移细节">§3.1.1.6 迁移细节</a></li></ul></li><li><a href="#命名统一：机制-③-全线用-balanced_day">命名统一：机制 ③ 全线用 balanced_day</a><ul><li><a href="#背景核对结果（代码事实）">背景核对结果（代码事实）</a></li><li><a href="#命名改造清单（新名权威-+-旧名兼容）">命名改造清单（新名权威 + 旧名兼容）</a></li><li><a href="#配置迁移实现（零中断）">配置迁移实现（零中断）</a></li><li><a href="#兼容薄壳（保留，显式标注）">兼容薄壳（保留，显式标注）</a></li></ul></li><li><a href="#§3.1.4.1-开仓规则具体化（L0-之外全部具体规则）">§3.1.4.1 开仓规则具体化（L0 之外全部具体规则）</a><ul><li><a href="#判定链（正文首行）">判定链（正文首行）</a></li><li><a href="#取数口径（§3.1.4.1.1）">取数口径（§3.1.4.1.1）</a></li><li><a href="#方向与动作（§3.1.4.1.4）">方向与动作（§3.1.4.1.4）</a></li><li><a href="#执行参数（§3.1.4.1.5）">执行参数（§3.1.4.1.5）</a></li></ul></li><li><a href="#趋势日门控（新增实现）">趋势日门控（新增实现）</a><ul><li><a href="#采用的判据">采用的判据</a></li><li><a href="#引擎改造（向后兼容）">引擎改造（向后兼容）</a></li><li><a href="#机制侧门控实现（通道内）">机制侧门控实现（通道内）</a></li><li><a href="#门控档位">门控档位</a></li></ul></li><li><a href="#评分器-v2（P45-/-M20-/-B25-/-E10-·-D-停用-·-一律-1-组）">评分器 v2（P45 / M20 / B25 / E10 · D 停用 · 一律 1 组）</a><ul><li><a href="#v1-→-v2-对照">v1 → v2 对照</a></li><li><a href="#v2-关键实现">v2 关键实现</a></li><li><a href="#边界确认收紧">边界确认收紧</a></li></ul></li><li><a href="#数据评估证据（12-个交易日回放）">数据评估证据（12 个交易日回放）</a><ul><li><a href="#证据-1：两套趋势日判据的判别力（在产生信号的行上）">证据 1：两套趋势日判据的判别力（在产生信号的行上）</a></li><li><a href="#证据-2：v1-评分器的有效性问题（v2-修订依据）">证据 2：v1 评分器的有效性问题（v2 修订依据）</a></li><li><a href="#证据-3：v2-+-趋势门控标定网格（门槛-×-门控）">证据 3：v2 + 趋势门控标定网格（门槛 × 门控）</a></li><li><a href="#方法学限制与残余风险">方法学限制与残余风险</a></li></ul></li><li><a href="#文档↔代码一致性审计（6-处修复-+-35-项机器校验）">文档↔代码一致性审计（6 处修复 + 35 项机器校验）</a><ul><li><a href="#审计发现的-6-处遗漏（已修复）">审计发现的 6 处遗漏（已修复）</a></li><li><a href="#机器校验结果（/tmp/audit_doc_code.py）">机器校验结果（/tmp/audit_doc_code.py）</a></li><li><a href="#数据复刻校验（用当前生产决策序重放-12-交易日，核对-§3.1.4.4.5-每一行）">数据复刻校验（用当前生产决策序重放 12 交易日，核对 §3.1.4.4.5 每一行）</a></li><li><a href="#有意义保留的差异（非漏改）">有意义保留的差异（非漏改）</a></li></ul></li><li><a href="#配置键总表（生产真值）">配置键总表（生产真值）</a></li><li><a href="#全部改动文件清单">全部改动文件清单</a><ul><li><a href="#文档">文档</a></li><li><a href="#代码（PyTools-/-bbt_data_web-未被-git-跟踪，故均自备份）">代码（PyTools / bbt_data_web 未被 git 跟踪，故均自备份）</a></li><li><a href="#配置">配置</a></li></ul></li><li><a href="#回滚点与复现脚本">回滚点与复现脚本</a><ul><li><a href="#回滚点">回滚点</a></li><li><a href="#复现-/-复检脚本">复现 / 复检脚本</a></li></ul></li><li><a href="#遗留事项与后续改进入口">遗留事项与后续改进入口</a></li><li><a href="#口径速查（避免混比）">口径速查（避免混比）</a></li></ul></div>
+<section class="main-content">
+<h1 id="平衡日边界机制-v2-实施与交易手册重构（完整技术报告）">平衡日边界机制 v2 实施与交易手册重构（完整技术报告）</h1>
+<blockquote>
+<p>本报告完整记录本轮会话对 <strong>交易系统核心规则手册</strong> 与 <strong>期权卖家系统（option_seller）代码</strong> 的全部改动：结构性重构、命名统一、机制规则具体化、评分器 v2、趋势日门控，以及全部数据评估证据与机器校验结果。所有参数、阈值、代码片段、文件路径、回滚点均按原始精度保留。</p>
+</blockquote>
+<hr/>
+<h2 id="会话总览与交付清单">会话总览与交付清单</h2>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>任务</th>
+<th>产物</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>手册 §1.2 三段式重构 + §1.4 压缩为判读层</td>
+<td>手册 HTML</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>2</td>
+<td>§3.1.4 按 §3.1.3 模板重构 + §3.1.1.6 迁入为 3.1.4.4.4</td>
+<td>手册 HTML</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>3</td>
+<td>命名统一：机制 ③ 全线用 <code>balanced_day</code>（废弃 <code>move_end</code>）</td>
+<td>代码 + 配置 + 文档</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>4</td>
+<td>§3.1.4.1「开仓规则」具体化（L0 之外全部具体规则）</td>
+<td>手册 HTML</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>5</td>
+<td>趋势日门控实现（SPY 全局引擎 + 方向匹配否决 + fail-closed）</td>
+<td>代码 + 配置 + 文档</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>6</td>
+<td>评分器 v2（P45/M20/B25/E10 · D 停用 · 一律 1 组）+ v1 影子对照</td>
+<td>代码 + 配置 + 文档</td>
+<td>已完成</td>
+</tr>
+<tr>
+<td>7</td>
+<td>文档↔代码一致性审计与修复（6 处遗漏）+ 机器校验 35 项</td>
+<td>手册 HTML + 审计脚本</td>
+<td>已完成</td>
+</tr>
+</tbody>
+</table>
+<p><strong>涉及文件</strong>：手册 1 份、Python 代码 9 个、前端接口 1 个、外置配置 1 个（新增）+ 1 个（保留）。</p>
+<hr/>
+<h2 id="§1.2-三段式重构（数据源-→-指标-→-合成判定）">§1.2 三段式重构（数据源 → 指标 → 合成判定）</h2>
+<h3 id="重构后的章节结构">重构后的章节结构</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>标题</th>
+<th>数据源徽标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.2.1</td>
+<td>TICK 元数据（成交流原始层）</td>
+<td><code>源：TICK</code></td>
+</tr>
+<tr>
+<td>1.2.2</td>
+<td>DOM 元数据（200 档挂单原始层）</td>
+<td><code>源：DOM</code></td>
+</tr>
+<tr>
+<td>1.2.3</td>
+<td>指标与衍生指标（逐项标注数据源）</td>
+<td>—</td>
+</tr>
+<tr>
+<td>1.2.4</td>
+<td>合成与判定层（非指标）</td>
+<td><code>性质：判定</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="1.2.3-内部（原-1.2.1~1.2.7-正文逐字保留，仅改编号-+-加数据源徽标）">1.2.3 内部（原 1.2.1~1.2.7 正文逐字保留，仅改编号 + 加数据源徽标）</h3>
+<table>
+<thead>
+<tr>
+<th>新编号</th>
+<th>原编号</th>
+<th>标题</th>
+<th>数据源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.2.3.1</td>
+<td>—（吸收原 §1.4.1 索引表）</td>
+<td>指标全量索引表（数据源 × 指标 × 计算模型 × 判读 · 600×500ms / 366 快照）</td>
+<td>逐行标注</td>
+</tr>
+<tr>
+<td>1.2.3.2</td>
+<td>1.2.1</td>
+<td>DPER（价格推进效率）</td>
+<td>TICK</td>
+</tr>
+<tr>
+<td>1.2.3.3</td>
+<td>1.2.2</td>
+<td>dom_bull_book_flip / dom_bear_book_flip</td>
+<td>DOM</td>
+</tr>
+<tr>
+<td>1.2.3.4</td>
+<td>1.2.3</td>
+<td>冰山单（Iceberg Orders）</td>
+<td>DOM + both</td>
+</tr>
+<tr>
+<td>1.2.3.5</td>
+<td>1.2.4</td>
+<td>vacuum_ask_sec / vacuum_bid_sec</td>
+<td>DOM</td>
+</tr>
+<tr>
+<td>1.2.3.6</td>
+<td>1.2.5</td>
+<td>weighted_imbalance + imb_momentum</td>
+<td>DOM</td>
+</tr>
+<tr>
+<td>1.2.3.7</td>
+<td>1.2.6</td>
+<td>其他核心微观量化指标</td>
+<td>TICK + DOM（逐项标注）</td>
+</tr>
+<tr>
+<td>1.2.3.8</td>
+<td>1.2.7</td>
+<td>5m/10m 早期背离预警 + 三大正统衍生指标</td>
+<td>TICK + DOM + both（逐项标注）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="索引表数据源统计（实测-31-行）">索引表数据源统计（实测 31 行）</h3>
+<table>
+<thead>
+<tr>
+<th>数据源</th>
+<th>行数</th>
+<th>具体项目</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DOM</strong></td>
+<td>20</td>
+<td><code>imb_near</code> <code>imb_mid</code> <code>imb_deep</code> <code>weighted_imbalance</code> <code>early_w_imb</code> <code>late_w_imb</code> <code>imb_momentum</code> <code>early_book_ratio</code> <code>late_book_ratio</code> <code>book_flip_bull</code> <code>book_flip_bear</code> <code>spoof_bid</code> <code>spoof_ask</code> <code>stack_bid</code> <code>stack_ask</code> <code>iceberg_bull/bear</code> <code>iceberg_refill_detail</code> <code>vacuum_bid_sec</code> <code>vacuum_ask_sec</code> <code>order_wall_total_net</code></td>
+</tr>
+<tr>
+<td><strong>TICK</strong></td>
+<td>6</td>
+<td><code>DPER</code> <code>dper_low_count</code> <code>price_position_pct</code> <code>big_trade_net_2h</code> <code>early_divergence_bull/_bear</code> <code>delta_footprint_net</code></td>
+</tr>
+<tr>
+<td><strong>both</strong></td>
+<td>5</td>
+<td><code>absorption_bull</code> <code>absorption_bear</code> <code>absorption_extreme_*</code> <code>cancel_trade_ratio</code> 价位级证据字段（PAW / 逐价吸收 / 击穿-收复）</td>
+</tr>
+</tbody>
+</table>
+<p><strong><code>both</code> 的定义</strong>：定义本身要求同时读两侧——<code>cancel_trade_ratio</code> 分子为 DOM 撤单计数（<code>spoof_bid+spoof_ask</code>）、分母为 TICK 主动成交次数；<code>absorption_*</code> 测量在 TICK、结论在 DOM；击穿-收复为「DOM 墙位 × TICK 价格路径」。</p>
+<h3 id="元数据小节的字段口径（据代码实测）">元数据小节的字段口径（据代码实测）</h3>
+<p><strong>§1.2.1 TICK 元数据</strong></p>
+<ul>
+<li>原始逐笔（MW 导出 CSV）：<code>Timestamp</code>（毫秒）/ <code>Price</code> / <code>Size</code>（手）/ <code>Side</code>；<code>Side = ASK</code> = 主动买（消耗卖盘），<code>Side = BID</code> = 主动卖（消耗买盘）</li>
+<li>时间轴统一毫秒；秒/毫秒/微秒混用会导致窗口判定恒 False，曾被误判为「成交流缺失 <code>NO_TICK_FLOW</code>」</li>
+<li>落格：<code>bin_idx = (t_ts − start_ts) // 500</code>（<code>sample_interval_ms = 500</code>）；逐格产出 <code>had_buy[]</code> / <code>had_sell[]</code>（布尔成交标记）、<code>buy_vol_bins[]</code> / <code>sell_vol_bins[]</code></li>
+<li>价格路径：<code>price_change</code>、<code>rth_high</code> / <code>rth_low</code>、<code>ATR</code></li>
+<li>大单：单笔 ≥ 500 手，2 小时窗口 + 半衰期指数衰减</li>
+<li>价格轴索引：<code>traded_by_price</code>（5 分钟）/ <code>traded_by_price_lb</code>（30 分钟回看）</li>
+<li>代码位置：<code>PyTools/order_flow_analysis/order_flow_feature_generator.py</code>、<code>dom_sentinel_evaluator.py</code></li>
+</ul>
+<p><strong>§1.2.2 DOM 元数据</strong></p>
+<ul>
+<li>原始逐档行：<code>Timestamp</code> / <code>Side(BID·ASK)</code> / <code>Level(0..199)</code> / <code>Price(绝对价)</code> / <code>Size(手)</code></li>
+<li>快照结构：<code>ts -&gt; {bids:{level:size}, asks:{level:size}, bid_px:{level:px}, ask_px:{level:px}}</code></li>
+<li>网格重采样：<code>sample_interval_ms = 500</code>、<code>600 点 = 5 分钟</code>；<code>覆盖率 = 实际读到快照数 ÷ 理论应有快照数</code>；记录快照数、最大间断、来源回退</li>
+<li><strong>档位梯队列（全章权重与阈值的公共口径）</strong>：近端 <code>0-5</code> / 中端 <code>5-20</code> / 深层 <code>20-120</code> / 远端 <code>&gt;= 120</code></li>
+<li>逐格中间量：<code>near_bids_500ms[]</code> / <code>near_asks_500ms[]</code>、<code>diff_bids[]</code> / <code>diff_asks[]</code>（±50 手为撤单/加单判别阈值）</li>
+<li>价格轴索引：按绝对价格分桶（<code>bid_px</code> / <code>ask_px</code>）；<code>Level</code> 是相对盘口偏移、会随盘口移动，跨时对齐必须用绝对价</li>
+<li>远端墙：<code>Level &gt;= 120 且 Size &gt;= 800 手</code></li>
+<li>代码位置：<code>PyTools/option_seller/balanced_day_data.py</code>（原 <code>move_end_data.py</code>）、<code>PyTools/order_flow_analysis/dom_sentinel_evaluator.py</code></li>
+</ul>
+<p><strong>§1.2.4 合成与判定层（非指标）</strong>：13 项方向加权聚合（§1.3.1/§1.3.2）、DOM 微观综合研判投票 <code>DOM 综合多 N/4 空 M/4</code>、<code>spoof_*</code> 一票否决、方向裁决与中性细分（§1.6/§1.6.5/§1.7）、DOM 侧速查表。</p>
+<hr/>
+<h2 id="§1.4-压缩为判读层（由-8-节压缩到-3-节）">§1.4 压缩为判读层（由 8 节压缩到 3 节）</h2>
+<h3 id="处理原则">处理原则</h3>
+<ul>
+<li>§1.4 保留为「<strong>页面卡片层</strong>」（其引言明确对应信号页面「第四位：DOM 盘口微观结构与底层指标详情」卡片）</li>
+<li>原 §1.4.1 字段索引表<strong>整表并入 §1.2.3.1</strong>（并新增「数据源」列），§1.4 从 8 节压缩为 3 节</li>
+<li>删除与 §1.2 重复的「计算」条目，改为定义指针；保留<strong>判读规则与独有判据</strong></li>
+</ul>
+<h3 id="压缩结果">压缩结果</h3>
+<table>
+<thead>
+<tr>
+<th>新编号</th>
+<th>标题</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.4.1</td>
+<td>DOM 侧到方向的速查表（判读主干）</td>
+<td>原 §1.4.8 速查表 + 使用顺序建议</td>
+</tr>
+<tr>
+<td>1.4.2</td>
+<td>各模块判读要点（定义一律见 §1.2）</td>
+<td>原 §1.4.1~§1.4.7 压缩</td>
+</tr>
+<tr>
+<td>1.4.3</td>
+<td>与信号页面「第四位」卡片的对应关系</td>
+<td>原引言段</td>
+</tr>
+<tr>
+<td>章标题</td>
+<td>1.4 DOM 盘口微观结构<strong>判读规则</strong>（500ms 网格 · 上游微结构 · 字段定义见 §1.2）</td>
+<td>原标题 + 定位限定</td>
+</tr>
+</tbody>
+</table>
+<h3 id="保留的独有决策内容（§1.2-无等价物）">保留的独有决策内容（§1.2 无等价物）</h3>
+<p>速查表 9 行映射 + <strong>使用顺序</strong> + <strong>「上游盘口与订单流不一致时以订单流（§1.3）为准，但必须标注分歧」</strong>；数据质量前置纪律「先看这里再信任何结论」；<strong>堆单判据「≥8 次且 ≥2× 卖侧」</strong>；<strong>「远端权重动态上调」</strong>；极低 DPER 漂移/裸跌与冰山多空占比；07:15 实测两组；模块 7~9 表字段清单与<strong>「该行未包含挂单墙地图数据」措辞纪律</strong>；卡片徽标与对应关系。</p>
+<h3 id="补回的定义缺口">补回的定义缺口</h3>
+<p>删除模块 1 的「计算」条目后，<code>覆盖率 = 实际读到快照数 ÷ 理论应有快照数</code> 在 §1.2 无对应 → 已补写进 <strong>§1.2.2「网格重采样」</strong>。</p>
+<hr/>
+<h2 id="§3.1.4-按-§3.1.3-模板重构（并迁入-§3.1.1.6）">§3.1.4 按 §3.1.3 模板重构（并迁入 §3.1.1.6）</h2>
+<h3 id="重构后的结构">重构后的结构</h3>
+<pre><code>3.1.4 平衡日边界机制 (Balanced-Day Boundary Mechanism)
+ ├ 3.1.4.1 开仓规则 (Entry Rules)
+ │   ├ 3.1.4.1.1 平衡交易日如何判定（SPY 引擎 + 方向匹配否决）
+ │   ├ 3.1.4.1.2 五维评分细则（v2：P 45 / M 20 / B 25 / E 10 · D 停用 · 总分 100）
+ │   ├ 3.1.4.1.3 通道级硬闸门（评分之后的逐项否决，均为具体数值）
+ │   ├ 3.1.4.1.4 方向与动作（含行权价锚定）
+ │   └ 3.1.4.1.5 开仓执行参数（具体值）
+ ├ 3.1.4.2 开仓策略 (Entry Strategy / Profile)
+ ├ 3.1.4.3 止盈策略 (Take-Profit Strategy)
+ └ 3.1.4.4 其他相关 (Related Notes)
+     ├ 3.1.4.4.1 机制分工与路径范围 (Scope &amp; Path)
+     ├ 3.1.4.4.2 试运行控制与硬约束 (Dry-Run &amp; Hard Constraints)
+     ├ 3.1.4.4.3 实现沿革 (Implementation History)
+     ├ 3.1.4.4.4 v1 评分器（历史口径 · 现仅作影子对照）(Legacy v1 Scorer)   ← 原 §3.1.1.6 迁入
+     └ 3.1.4.4.5 数据评估结论与残余风险（2026-09-13 · 12 交易日回放）
+</code></pre>
+<h3 id="内容归属映射（旧-→-新，阈值一字未改）">内容归属映射（旧 → 新，阈值一字未改）</h3>
+<table>
+<thead>
+<tr>
+<th>原位置与内容</th>
+<th>新位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3.1.4.1 边界族 ±4 点容差（含 ±2→±4 标定）</td>
+<td>3.1.4.1.1 / 3.1.4.1.2</td>
+</tr>
+<tr>
+<td>3.1.4.1 EMA 缠结特例</td>
+<td>3.1.4.1.3（第 6 项边界确认）</td>
+</tr>
+<tr>
+<td>3.1.4.2 五维评分器 + <code>is_spoof_trap</code> 一票否决</td>
+<td>3.1.4.1.2</td>
+</tr>
+<tr>
+<td>3.1.4.2 上/下边界族 → BEARISH/BULLISH 与 Bear Call / Bull Put</td>
+<td>3.1.4.1.4 方向映射表</td>
+</tr>
+<tr>
+<td>3.1.4.2 反转双向对称</td>
+<td>3.1.4.1.4</td>
+</tr>
+<tr>
+<td>3.1.4.3 组数映射</td>
+<td>3.1.4.2 表（v2 起一律 1 组）</td>
+</tr>
+<tr>
+<td>3.1.4.3 结构选型（由 §3.3.1 决定）</td>
+<td>3.1.4.2</td>
+</tr>
+<tr>
+<td>3.1.4.3 硬约束「不得单独依据 SPX Gamma」+ Force Dry</td>
+<td>3.1.4.4.2</td>
+</tr>
+<tr>
+<td>3.1.4.3 开仓后移交 10 秒风控（40%/75%、2.20×、12:30 PST）</td>
+<td>3.1.4.3 表</td>
+</tr>
+<tr>
+<td>3.1.4.1 Path R 唯一 / Path T 已删除 / 归 §3.1.5</td>
+<td>3.1.4.4.1</td>
+</tr>
+<tr>
+<td>3.1.4.3 触发前置闸门（phase19 清理 3 处内联 L0 检查）</td>
+<td>3.1.4.4.3</td>
+</tr>
+<tr>
+<td>§3.1.1.6 触发层共用五维评分器</td>
+<td>3.1.4.4.4（h5→h6、编号改为 3.1.4.4.4、加锚点 <code>os-312-scorer</code>）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="§3.1.1.6-迁移细节">§3.1.1.6 迁移细节</h3>
+<ul>
+<li>原位置（§3.1.1.5 之后、§3.1.2 之前）整块移除，留一行「已迁出」指引：<strong>「原 3.1.1.6 触发层共用五维评分器是机制 ③「平衡日边界」的专属评分器，已随该机制迁入 §3.1.4.4.4，此处不再保留。（注：该处现为 v1 历史口径，生产评分器已切 v2，见 §3.1.4.1.2。）」</strong></li>
+<li>迁入位置：§3.1.4.4 下、§3.1.4.4.3 之后、§3.1.5 之前</li>
+<li>引用同步：§3.1.4.1「（评分器正文见 §3.1.1.6）」→「（评分器正文见 §3.1.4.4.4）」；§3.1.4.2 脚注追加指向 §3.1.4.4.4</li>
+</ul>
+<hr/>
+<h2 id="命名统一：机制-③-全线用-balanced_day">命名统一：机制 ③ 全线用 <code>balanced_day</code></h2>
+<h3 id="背景核对结果（代码事实）">背景核对结果（代码事实）</h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>权威命名</th>
+<th>实测证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>评分器</td>
+<td><code>balanced_day_boundary</code></td>
+<td><code>PyTools/option_seller/balanced_day_boundary.py</code>：<code>score_balanced_day_boundary()</code></td>
+</tr>
+<tr>
+<td>机制注册 / id</td>
+<td><code>balanced_day_boundary</code></td>
+<td><code>auto_mechanisms.py:395</code> → <code>MechanismSpec(LABEL_BALANCED_DAY, 3, "平衡日边界", "DIRECT", "_mech_balanced_day_boundary")</code>；标签 <code>AUTO_BALANCED_DAY_BOUNDARY</code></td>
+</tr>
+<tr>
+<td>开关配置载具（改造前）</td>
+<td><code>move_end</code></td>
+<td><code>MOVE_END_CFG = ".../Config/option_seller_move_end.json"</code>、<code>load_move_end_config()</code>、<code>/api/option_seller/move_end_config</code>、<code>evaluate_move_end_channel()</code></td>
+</tr>
+<tr>
+<td>薄壳</td>
+<td><code>move_end_evaluator.py</code></td>
+<td>文件头即写「【已更名】薄壳转发至 <code>balanced_day_boundary</code>」</td>
+</tr>
+</tbody>
+</table>
+<p><code>LEGACY_LABEL_ALIASES = {"AUTO_RANGE_BOUNDARY": LABEL_BALANCED_DAY, "AUTO_MOVE_END": LABEL_BALANCED_DAY, ...}</code>（仅历史数据归类）。</p>
+<h3 id="命名改造清单（新名权威-+-旧名兼容）">命名改造清单（新名权威 + 旧名兼容）</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>旧（move_end）</th>
+<th>新（balanced_day，权威）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>取数模块</td>
+<td><code>move_end_data.py</code></td>
+<td><strong><code>balanced_day_data.py</code></strong> → <code>load_balanced_day_context()</code></td>
+</tr>
+<tr>
+<td>影子回放</td>
+<td><code>move_end_shadow.py</code></td>
+<td><strong><code>balanced_day_shadow.py</code></strong>（输出 <code>/tmp/balanced_day_shadow_*.json</code>，新增 <code>--scorer v2/v1</code>）</td>
+</tr>
+<tr>
+<td>评分器入口</td>
+<td><code>move_end_evaluator.py</code></td>
+<td>保留为兼容薄壳（说明更新）</td>
+</tr>
+<tr>
+<td>配置常量</td>
+<td><code>MOVE_END_CFG</code> / <code>MOVE_END_DEFAULTS</code></td>
+<td><strong><code>BALANCED_DAY_CFG</code> / <code>BALANCED_DAY_DEFAULTS</code></strong>（+ <code>BALANCED_DAY_CFG_LEGACY</code> 回退路径）</td>
+</tr>
+<tr>
+<td>配置文件</td>
+<td><code>option_seller_move_end.json</code></td>
+<td><strong><code>option_seller_balanced_day.json</code></strong></td>
+</tr>
+<tr>
+<td>读写函数</td>
+<td><code>load_move_end_config()</code> / <code>save_move_end_config()</code></td>
+<td><strong><code>load_balanced_day_config()</code> / <code>save_balanced_day_config()</code></strong></td>
+</tr>
+<tr>
+<td>实例方法</td>
+<td><code>get_move_end_config()</code> / <code>set_move_end_config()</code></td>
+<td><strong><code>get_balanced_day_config()</code> / <code>set_balanced_day_config()</code></strong></td>
+</tr>
+<tr>
+<td>实例属性</td>
+<td><code>self.move_end_config</code></td>
+<td><strong><code>self.balanced_day_config</code></strong>（旧名以 <code>@property</code> 双向映射）</td>
+</tr>
+<tr>
+<td>通道函数</td>
+<td><code>evaluate_move_end_channel()</code></td>
+<td><strong><code>evaluate_balanced_day_channel()</code></strong>（类内别名保留）</td>
+</tr>
+<tr>
+<td>页面接口</td>
+<td><code>/api/option_seller/move_end_config</code></td>
+<td><strong><code>/api/option_seller/balanced_day_config</code></strong>（旧路径 = 同一处理器别名）</td>
+</tr>
+<tr>
+<td>调试载荷键</td>
+<td><code>'move_end_config'</code></td>
+<td><code>'balanced_day_config'</code>（已核实无消费方）</td>
+</tr>
+<tr>
+<td>死代码</td>
+<td><code>_move_end_minutes()</code>（从未被调用）</td>
+<td><code>_balanced_day_minutes()</code></td>
+</tr>
+<tr>
+<td>影子脚本残留</td>
+<td>打印 <code>Path R / T</code>、<code>T↑/T↓/range</code></td>
+<td><code>R（平衡日边界，Path T 已删除）</code>、<code>趋势↑/趋势↓/区间</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="配置迁移实现（零中断）">配置迁移实现（零中断）</h3>
+<pre><code class="language-python">def load_balanced_day_config() -&gt; dict:
+    """平衡日边界通道配置：新文件优先 → 旧名文件回退（并自动迁移）→ 缺省值 ✓"""
+    cfg = dict(BALANCED_DAY_DEFAULTS)
+    d = _read_json_config(BALANCED_DAY_CFG)
+    migrate = False
+    if d is None:
+        d = _read_json_config(BALANCED_DAY_CFG_LEGACY)
+        migrate = d is not None
+    for k in BALANCED_DAY_DEFAULTS:
+        if d and k in d and d[k] is not None:
+            cfg[k] = d[k]
+    if migrate:
+        try:
+            _write_json_config(BALANCED_DAY_CFG, cfg)
+            BBLog.logger_os().warning(f"OptionSeller 平衡日边界: 配置已由旧名迁移 → {BALANCED_DAY_CFG}")
+        except Exception:
+            pass
+    return cfg
+</code></pre>
+<p><strong>迁移实测（运行中系统日志）</strong>：</p>
+<pre><code>2026-09-13 20:55:41,865 WARNING: OptionSeller 平衡日边界: 配置已由旧名迁移
+  → /Users/zhijiebian/Documents/MyDoc/Finance/Current/Config/option_seller_balanced_day.json
+  [in option_seller_manager.py:139]
+</code></pre>
+<h3 id="兼容薄壳（保留，显式标注）">兼容薄壳（保留，显式标注）</h3>
+<p><code>move_end_data.py</code>：<code>from option_seller.balanced_day_data import (load_balanced_day_context, load_balanced_day_context as load_move_end_context, RTH_OPEN_MINUTES, _connect, _load_rows, _load_key_levels, _minutes_since_open)</code>；<code>__main__</code> 用 <code>runpy.run_path(...)</code> 转发。<br/>
+<code>move_end_shadow.py</code>：<code>runpy.run_path(balanced_day_shadow.py, run_name="__main__")</code>。<br/>
+<code>move_end_evaluator.py</code>：转发 <code>score_balanced_day_boundary</code> + 别名 <code>score_move_end</code>。</p>
+<hr/>
+<h2 id="§3.1.4.1-开仓规则具体化（L0-之外全部具体规则）">§3.1.4.1 开仓规则具体化（L0 之外全部具体规则）</h2>
+<h3 id="判定链（正文首行）">判定链（正文首行）</h3>
+<blockquote>
+<p><strong>机制专属开关 → 取数口径 → 平衡日判定 → v2 评分（P/M/B/E，含一票否决）→ 通道级硬闸门 → 趋势日门控 → 方向与动作 → 执行参数</strong></p>
+</blockquote>
+<p>明确声明：<strong>L0-A/B/C/D</strong>（引擎启用 · 06:35–11:30 PST 窗口 · 必需数据齐备 · spoof 与日内位置掩码 · EMA 禁区 · 本机制活跃组数 &lt; 2）由编排层 §3.1.1.1 统一执行，本机制不重复实现。</p>
+<h3 id="取数口径（§3.1.4.1.1）">取数口径（§3.1.4.1.1）</h3>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th>计算口径（代码实测）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>价格序列</td>
+<td>当日 <code>order_flow_signals</code> 中 <code>signal_time ≤ 当前时间</code> 的行（最多 120 行，按时间升序回放）；逐行取 <code>price_at_row</code>（<strong>ES 点位</strong>），为空的行剔除</td>
+</tr>
+<tr>
+<td>当日高 / 低</td>
+<td><code>day_high = max(price_at_row)</code>、<code>day_low = min(price_at_row)</code>——<strong>当日「已出现行」的运行极值</strong>（实时推进，非全天）</td>
+</tr>
+<tr>
+<td>实时振幅</td>
+<td><code>rng = day_high − day_low</code>（下限 0.01 点）</td>
+</tr>
+<tr>
+<td>开盘锚 / 最新价</td>
+<td><code>open_px = 当日首行 price_at_row</code>；<code>last_px = 最新一行 price_at_row</code></td>
+</tr>
+<tr>
+<td>关键位族</td>
+<td><code>smashelito_analysis</code> 中 <code>plan_date ≤ 当日</code> 的最近一条：<code>smashlevel</code> + <code>levels_data</code> 内全部数值（含嵌套 <code>price</code>）⇒ ut1 / fut / dt1 / fdt 等（同为 ES 点位）</td>
+</tr>
+<tr>
+<td>开盘分钟数</td>
+<td><code>minutes_since_open = 当前时钟分钟 − 06:30 PST</code></td>
+</tr>
+<tr>
+<td>当日已走幅度</td>
+<td><code>rth_move_pts = last_px − open_px</code>（带符号，用于 E 维度）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="方向与动作（§3.1.4.1.4）">方向与动作（§3.1.4.1.4）</h3>
+<table>
+<thead>
+<tr>
+<th>交易方向</th>
+<th>边界族到达判定</th>
+<th>方向与动作（行权价锚定）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空头开仓 (Bear Call Spread)</td>
+<td>上边界族到达：现价落入任一关键位 ±4 点</td>
+<td>方向 <strong>BEARISH</strong>；卖出 <strong>Bear Call Spread</strong>（顶部卖 Call，行权价锚定在<strong>上边界之外</strong>）</td>
+</tr>
+<tr>
+<td>多头开仓 (Bull Put Spread)</td>
+<td>下边界族到达：现价落入任一关键位 ±4 点</td>
+<td>方向 <strong>BULLISH</strong>；卖出 <strong>Bull Put Spread</strong>（底部卖 Put，行权价锚定在<strong>下边界之外</strong>）</td>
+</tr>
+</tbody>
+</table>
+<p>反转双向对称（上下侧使用完全相同的数据维度与阈值）；<strong>不得单独依据 SPX Gamma</strong>：调用 <code>find_optimal_spread(..., gamma_wall_strike=None)</code>。</p>
+<h3 id="执行参数（§3.1.4.1.5）">执行参数（§3.1.4.1.5）</h3>
+<ul>
+<li>标的与期权链：<strong>SPY</strong>，<code>strike_count = 40</code></li>
+<li>到期：<code>target_dte = 0</code>（<strong>0DTE</strong>）</li>
+<li>风险档位：<code>_resolve_auto_profile("BALANCED")</code>（页面设为 BALANCED/AGGRESSIVE 则强制覆盖，AUTO 时沿用建议值）</li>
+<li>组数：<strong>1 组</strong>（<code>groups_cap</code> 缺省 1；每组 = 2 手双批次）</li>
+<li>止盈模式：<code>_apply_auto_take_profit_mode(candidate)</code> 按全局模式套用（见 §3.1.4.3）</li>
+<li>试运行：不在通道写死，由页面「Force Dry 触发」多选控制</li>
+<li>触发标签：<code>AUTO_BALANCED_DAY_BOUNDARY</code>（旧别名 <code>AUTO_RANGE_BOUNDARY</code> / <code>AUTO_MOVE_END</code> 仅历史数据归类）</li>
+</ul>
+<hr/>
+<h2 id="趋势日门控（新增实现）">趋势日门控（新增实现）</h2>
+<h3 id="采用的判据">采用的判据</h3>
+<p><strong>全局统一 SPY 引擎</strong> <code>quantdata.trend_regime.evaluate_intraday_trend_regime</code>，其四条件（SPY 点位，双向对称）：</p>
+<ul>
+<li>窗口：美西 06:30–11:00</li>
+<li>多头趋势日：① 现价脱离全日低点 ≥ 1.00 点（≙SPX 10 点）② 开盘后破位回撤 <code>(rth_open − rth_low) ≤ 2.00</code> 点 ③ 高位回撤 <code>(rth_high − current) ≤ 2.00</code> 点 ④ 5m 收盘价落在 15m EMA13 反方向的次数 ≤ 1</li>
+<li>空头趋势日：严格镜像</li>
+</ul>
+<h3 id="引擎改造（向后兼容）">引擎改造（向后兼容）</h3>
+<pre><code class="language-python">def evaluate_intraday_trend_regime(target_ts, current_spx=None, day_low=None, day_high=None, connection=None,
+                                   window_end=None):
+    ...
+    # (2) 必须在 6:30 - window_end 之间（window_end 缺省 11:00，保持既有调用方行为不变 ✓）
+    _we = window_end or (11, 0)
+    _we_t = datetime.time(int(_we[0]), int(_we[1])) if isinstance(_we, (tuple, list)) else datetime.time(11, 0)
+    if target_time &lt; datetime.time(6, 30) or target_time &gt; _we_t:
+        return False, False, None
+</code></pre>
+<p>机制侧以 <code>window_end=(11, 30)</code> 调用，<strong>与机制自身 06:35–11:30 窗口对齐</strong>。</p>
+<h3 id="机制侧门控实现（通道内）">机制侧门控实现（通道内）</h3>
+<pre><code class="language-python"># ── ★ 趋势日门控（v2 新增）────────────────────────────────────────────
+gate = str(cfg.get("trend_gate", "veto_opposing") or "veto_opposing").lower()
+gate_info = {"gate": gate, "trend_up": None, "trend_dn": None, "decision": "skip"}
+if gate != "off" and direction:
+    t_up = t_dn = None
+    try:
+        from quantdata.trend_regime import evaluate_intraday_trend_regime
+        _d = str(BBDateTime.today())[:10]
+        _ts = datetime.strptime(f"{_d} {str(current_time_str)[:5]}", "%Y-%m-%d %H:%M")
+        _we_s = str(cfg.get("trend_window_end", "11:30") or "11:30")
+        _we = (int(_we_s.split(":")[0]), int(_we_s.split(":")[1]))
+        t_up, t_dn, _rth_open = evaluate_intraday_trend_regime(_ts, window_end=_we)
+        if _rth_open is None:
+            t_up = t_dn = None          # 引擎无结论（取数失败 / 越窗口）
+    except Exception as e:
+        BBLog.logger_os().warning(f"OptionSeller 平衡日边界: 趋势引擎调用失败 {e}")
+        t_up = t_dn = None
+    unknown = (t_up is None and t_dn is None)
+    opposing = bool((t_up and direction == "BEARISH") or (t_dn and direction == "BULLISH"))
+    is_trend = bool(t_up or t_dn)
+    if unknown and bool(cfg.get("trend_gate_fail_closed", True)):
+        gate_info["decision"] = "blocked_unknown(fail_closed)"
+        return None
+    if opposing:
+        gate_info["decision"] = "blocked_opposing_trend"
+        return None
+    if gate == "require_range" and is_trend:
+        gate_info["decision"] = "blocked_trend_day(require_range)"
+        return None
+    gate_info["decision"] = "pass"
+</code></pre>
+<h3 id="门控档位">门控档位</h3>
+<table>
+<thead>
+<tr>
+<th>档位</th>
+<th>语义</th>
+<th>实测（12 交易日）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>veto_opposing</code>（缺省）</td>
+<td>信号方向与趋势日方向<strong>相反</strong> ⇒ 否决</td>
+<td>4.1 次/日 · 假信号 4% · 净 +4.8</td>
+</tr>
+<tr>
+<td><code>require_range</code></td>
+<td>引擎判趋势日（任意方向）⇒ 否决</td>
+<td>4.0 次/日 · 假信号 2% · 净 +4.2</td>
+</tr>
+<tr>
+<td><code>off</code></td>
+<td>关闭门控（对照用）</td>
+<td>9.5 次/日 · 假信号 9% · 净 +2.4</td>
+</tr>
+<tr>
+<td><code>trend_gate_fail_closed</code>（缺省 true）</td>
+<td>引擎无结论（取数失败 / 越窗口）⇒ 否决不放行</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="评分器-v2（P45-/-M20-/-B25-/-E10-·-D-停用-·-一律-1-组）">评分器 v2（P45 / M20 / B25 / E10 · D 停用 · 一律 1 组）</h2>
+<h3 id="v1-→-v2-对照">v1 → v2 对照</h3>
+<table>
+<thead>
+<tr>
+<th>v1</th>
+<th>权重</th>
+<th>v2</th>
+<th>权重</th>
+<th>变更理由（数据）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A 动能衰竭</td>
+<td>35</td>
+<td><strong>M 动能衰竭</strong></td>
+<td>20</td>
+<td>A 与 C 完全共线（188/188 行 <code>A&gt;0 ⇔ C 到达</code>），其「贴边」前提并入 P；M 仅保留信息性子项（整体 ×20/35）</td>
+</tr>
+<tr>
+<td>C 位置 / 边界</td>
+<td>20</td>
+<td><strong>P 边界到位度</strong>（连续）</td>
+<td>45</td>
+<td>由二值「到达 20 / 接近 10」改为 <code>P = 45 × max(0, 1 − d/(1.5×4.0))</code>；<code>d=0⇒45</code>、<code>d≥6.0⇒0</code></td>
+</tr>
+<tr>
+<td>B 吸收与反制挂单</td>
+<td>25</td>
+<td>B 吸收与反制挂单</td>
+<td>25</td>
+<td>算术不变</td>
+</tr>
+<tr>
+<td>D 真空 / 流动性</td>
+<td>10</td>
+<td><strong>D 停用</strong></td>
+<td>0</td>
+<td>D 命中 19 行 → 假信号 21%，未命中 8%；≥70 命中集内 31% vs 5%</td>
+</tr>
+<tr>
+<td>E 时间 / 幅度</td>
+<td>10</td>
+<td>E 时间 / 幅度</td>
+<td>10</td>
+<td>算术不变</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v2-关键实现">v2 关键实现</h3>
+<pre><code class="language-python">W2 = {"P": 45, "M": 20, "B": 25, "E": 10}      # D 停用（weight 0）
+V2_SCORE_THRESHOLD = 70.0                       # 出分门槛（可由配置覆盖）
+V2_DIRECTION_GATE = 45.0                        # 方向准入门槛（P 到位即达）
+
+def _proximity(px, day_high, day_low, lv, tol):
+    """现价到「上侧边界族 / 下侧边界族」的最近距离（点）"""
+    ups = ([day_high] if day_high is not None else []) + [L for L in lv if L &gt;= px]
+    dns = ([day_low] if day_low is not None else []) + [L for L in lv if L &lt;= px]
+    du = min((abs(px - b) for b in ups), default=None)
+    dd = min((abs(px - b) for b in dns), default=None)
+    return du, dd
+</code></pre>
+<ul>
+<li><strong>方向准入</strong>：<code>bull ≥ bear 且 bull ≥ 45</code> ⇒ BULLISH；<code>bear &gt; bull 且 bear ≥ 45</code> ⇒ BEARISH（P 到位即可达 45）</li>
+<li><strong>出分门槛</strong>：<code>score ≥ 70</code> 才允许开仓 ⇒ 实际要求「到达边界（P）+ 至少 25 分的 M/B/E 佐证」</li>
+<li><strong>组数</strong>：<code>groups = 0 if final &lt; threshold else max(1, min(int(groups_cap or 1), 1))</code> ⇒ 一律 1 组</li>
+<li><strong>一票否决</strong>：<code>is_spoof_trap</code>（<code>dom_metrics.is_spoof_trap</code> 或行级）⇒ 直接出局</li>
+<li><strong>v1 影子对照</strong>：通道每次判定仍调用一次 v1，结果写入 <code>evidence.v1_shadow</code>（<code>score</code> / <code>groups</code> / <code>direction</code> / <code>veto</code>），<strong>不影响行为</strong></li>
+</ul>
+<h3 id="边界确认收紧">边界确认收紧</h3>
+<p>v1 允许 <code>C_half</code> 半额接近；v2 改为<strong>信号侧到达</strong>：</p>
+<pre><code class="language-python">if cfg.get("require_boundary_confirm", True):
+    _p = bd.get("P") or {}
+    _side_d = _p.get("dn_dist") if direction == "BULLISH" else _p.get("up_dist")
+    _tol = float(cfg.get("boundary_tol", 4.0))
+    _arrived = bool(bd.get("C") or bd.get("C_half")) or \
+        (_side_d is not None and float(_side_d) &lt;= _tol)
+    if not _arrived:
+        return None
+</code></pre>
+<hr/>
+<h2 id="数据评估证据（12-个交易日回放）">数据评估证据（12 个交易日回放）</h2>
+<p><strong>样本</strong>：2026-08-27 ~ 2026-09-11 共 12 个交易日；窗口 06:35–11:30；窗口内 <strong>446 行</strong>（v1 口径 188 行出方向 / v2 口径 283 行出方向）。<br/>
+<strong>结果口径</strong>：未来 30 分钟（6 根 5m 行）；<strong>adverse（假信号）= 方向不利偏移 MAE &gt; 12 ES 点</strong>。<br/>
+<strong>复刻校验</strong>：评估所用逐维算术与生产 <code>score_balanced_day_boundary</code> 逐行比对 <strong>0 处不一致</strong>。</p>
+<h3 id="证据-1：两套趋势日判据的判别力（在产生信号的行上）">证据 1：两套趋势日判据的判别力（在产生信号的行上）</h3>
+<table>
+<thead>
+<tr>
+<th>分组</th>
+<th>n</th>
+<th>假信号率</th>
+<th>均值 MFE</th>
+<th>均值 MAE</th>
+<th>净(MFE−MAE)</th>
+<th>MFE&gt;MAE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>旧口径「非趋势日」</td>
+<td>21</td>
+<td><strong>19%</strong></td>
+<td>9.2</td>
+<td>4.2</td>
+<td>+5.0</td>
+<td>71%</td>
+</tr>
+<tr>
+<td>旧口径「趋势日」</td>
+<td>71</td>
+<td><strong>6%</strong></td>
+<td>6.5</td>
+<td>3.3</td>
+<td>+3.2</td>
+<td>65%</td>
+</tr>
+<tr>
+<td>SPY 引擎「非趋势日」</td>
+<td>39</td>
+<td><strong>0%</strong></td>
+<td>6.3</td>
+<td>1.7</td>
+<td>+4.6</td>
+<td>82%</td>
+</tr>
+<tr>
+<td>SPY 引擎「趋势日」</td>
+<td>53</td>
+<td><strong>15%</strong></td>
+<td>7.7</td>
+<td>4.8</td>
+<td>+2.9</td>
+<td>55%</td>
+</tr>
+<tr>
+<td><strong>SPY 引擎「逆向趋势」</strong></td>
+<td>43</td>
+<td><strong>19%</strong></td>
+<td>6.1</td>
+<td>5.8</td>
+<td>+0.3</td>
+<td>44%</td>
+</tr>
+<tr>
+<td><strong>SPY 引擎「非逆向」</strong></td>
+<td>49</td>
+<td><strong>0%（0/49）</strong></td>
+<td>8.0</td>
+<td>1.4</td>
+<td><strong>+6.6</strong></td>
+<td>86%</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>两法一致率仅 <strong>65%</strong>；A 趋势但 B 非趋势 106 行、B 趋势但 A 非趋势 51 行。</li>
+<li>标记率：旧口径 47%（210/446），SPY 引擎 35%（155/446）。</li>
+<li><strong>全部 8 个假信号 100% 落在「逆向趋势」组</strong>。</li>
+<li>旧口径废弃理由：判别方向为反（"非趋势"更差）；12/12 天被标过趋势日（行占比 12–90%）；根因是「运行振幅」为自我参照量。</li>
+<li>SPY 引擎与事实一致的例证：09-03 净 +46.5 点 → 标记 88%；09-04 净 −28.5 → 标记 56%；09-07（振幅 10.2、净 −5.8，inside day）→ 标记 0%。</li>
+</ul>
+<h3 id="证据-2：v1-评分器的有效性问题（v2-修订依据）">证据 2：v1 评分器的有效性问题（v2 修订依据）</h3>
+<table>
+<thead>
+<tr>
+<th>分档（188 个已出方向样本）</th>
+<th>n</th>
+<th>假信号率</th>
+<th>95%CI</th>
+<th>MFE</th>
+<th>MAE</th>
+<th>MFE&gt;MAE</th>
+<th>净</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>45–69（组数 0，被丢弃）</td>
+<td>96</td>
+<td>10%</td>
+<td>6–18</td>
+<td>6.4</td>
+<td>4.5</td>
+<td>50%</td>
+<td>+1.9</td>
+</tr>
+<tr>
+<td>70–84（1 组）</td>
+<td>65</td>
+<td>6%</td>
+<td>2–15</td>
+<td>7.9</td>
+<td>2.7</td>
+<td>69%</td>
+<td><strong>+5.2</strong></td>
+</tr>
+<tr>
+<td>85+（原映射 2 组）</td>
+<td>27</td>
+<td><strong>15%</strong></td>
+<td>6–32</td>
+<td>5.1</td>
+<td>5.3</td>
+<td>59%</td>
+<td><strong>−0.2</strong></td>
+</tr>
+<tr>
+<td>≥70 合计（生产命中）</td>
+<td>92</td>
+<td>9%</td>
+<td>4–16</td>
+<td>7.1</td>
+<td>3.5</td>
+<td>66%</td>
+<td>+3.6</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>A 与 C 完全共线</strong>：188/188 行满足 <code>A&gt;0 ⇔ C 到达</code>；C 的「接近 / 仅突破失败」分支命中数 <strong>0</strong>。</li>
+<li><strong>D 维为负向</strong>：D 命中 19 行 → 假信号 21%（4/19）；未命中 169 行 → 8%。</li>
+<li><strong>逐维命中率（92 命中内）</strong>：A 100% ｜ C 100% ｜ E 96% ｜ B 32% ｜ D 14%。</li>
+<li><strong>维度分值 vs 结果</strong>：A 假信号均值 55.2 &gt; 真 51.1；D 5.0 &gt; 1.1；E 8.0 &gt; 5.0。</li>
+<li><strong>留一消融（LOO）</strong>：去掉 A ⇒ 命中 <strong>0</strong>；去掉 C ⇒ 2.2 次/日、15%、净 −0.8；去掉 E ⇒ 3.7 次/日、16%、−0.3；去掉 D ⇒ 85 命中、7%、+3.9；<strong>只用 A+B ⇒ 7.5 次/日、6%、+4.2</strong>（优于五维 9%/+3.6）。</li>
+<li>门槛有效性：45–69 与 ≥70 的假信号率 10% vs 9%（70 分门槛几乎不筛东西）。</li>
+</ul>
+<h3 id="证据-3：v2-+-趋势门控标定网格（门槛-×-门控）">证据 3：v2 + 趋势门控标定网格（门槛 × 门控）</h3>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>n</th>
+<th>次/日</th>
+<th>假信号率</th>
+<th>净</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v2 @70 × 无门控</td>
+<td>114</td>
+<td>9.5</td>
+<td>9%</td>
+<td>+2.4</td>
+</tr>
+<tr>
+<td><strong>v2 @70 × veto_opposing（生产缺省）</strong></td>
+<td><strong>49</strong></td>
+<td><strong>4.1</strong></td>
+<td><strong>4%（2/49）</strong></td>
+<td><strong>+4.8</strong></td>
+</tr>
+<tr>
+<td>v2 @65 × veto_opposing</td>
+<td>65</td>
+<td>5.4</td>
+<td>3%（2/65）</td>
+<td>+4.6</td>
+</tr>
+<tr>
+<td>v2 @65 × require_range</td>
+<td>48</td>
+<td>4.0</td>
+<td>2%（1/48）</td>
+<td>+4.2</td>
+</tr>
+<tr>
+<td>v2 @75 × veto_opposing</td>
+<td>23</td>
+<td>1.9</td>
+<td>0%</td>
+<td>+7.7</td>
+</tr>
+<tr>
+<td>v2 @80 × veto_opposing</td>
+<td>8</td>
+<td>0.7</td>
+<td>0%</td>
+<td>+9.0</td>
+</tr>
+</tbody>
+</table>
+<p>完整网格（门槛 45/50/55/60/65/70/75/80 × 门控 off/veto_opposing/require_range）与逐行明细存于 <code>/tmp/v2_calib.json</code>、<code>/tmp/v2_rows.json</code>。</p>
+<h3 id="方法学限制与残余风险">方法学限制与残余风险</h3>
+<ul>
+<li><strong>样本小</strong>：12 个交易日、命中 49–92 次、假信号仅 2–8 个；4% 的 95%CI 为 <strong>1–14%</strong>；n ≤ 50 时「0%」的 CI 上限仍有 7–9%，<strong>不得当作绝对保证</strong>。</li>
+<li><strong>结果是代理指标</strong>：用「未来 30 分钟 ES 点位 MFE/MAE」代替真实期权价差盈亏（未计权利金、Delta、止损/止盈实际触发与滑点）⇒ 方向可信、幅度不等于收益。</li>
+<li><strong>数据密度不均</strong>：每日 <code>order_flow_signals</code> 行数 9–59，早期日稀疏会放大旧口径抖动。</li>
+<li><strong>门控的实时可用性</strong>：依赖 yfinance SPY 1 分钟（按日缓存）；周末/节假日或取数失败 ⇒ 引擎无结论 ⇒ 缺省 fail-closed <strong>不出信号</strong>（漏做而非逆势）。</li>
+<li><strong>已知残余假信号 2 例（未覆盖）</strong>：<br/>
+  1. <code>2026-08-27 08:00</code> 空头信号 — 现价正处运行高点（边界被打穿），随后上冲 16.5 点 ⇒ 类属「边界失效」而非「逆势」，当前无维度否决；<br/>
+  2. <code>2026-09-09 06:55</code> 多头信号 — 引擎判多头趋势日且方向<strong>一致</strong>（非逆向），故 <code>veto_opposing</code> 放行、MAE 12.5 点 ⇒ 切 <code>require_range</code> 可拦。</li>
+</ul>
+<hr/>
+<h2 id="文档↔代码一致性审计（6-处修复-+-35-项机器校验）">文档↔代码一致性审计（6 处修复 + 35 项机器校验）</h2>
+<h3 id="审计发现的-6-处遗漏（已修复）">审计发现的 6 处遗漏（已修复）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>位置</th>
+<th>原（与代码不符）</th>
+<th>现（与代码一致）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td>§3.1.1.4 各机制概览表（平衡日边界行）</td>
+<td>判据来源＝「五维评分器（A35/B25/C20/D10/E10）」；备注＝「≥85→2 组、70–84→1 组」</td>
+<td>「v2 评分器（P45/M20/B25/E10 · D 停用）＋ SPY 趋势日门控」；备注＝「≥70 出分 ⇒ 一律 1 组；逆向趋势日否决（无结论 fail-closed）」</td>
+</tr>
+<tr>
+<td>②</td>
+<td>§3.1.1「原 3.1.1.6 已迁入」说明</td>
+<td>未说明现已是历史口径</td>
+<td>补注「该处现为 v1 历史口径，生产已切 v2，见 §3.1.4.1.2」</td>
+</tr>
+<tr>
+<td>③</td>
+<td>§3.1.4.1 判定链</td>
+<td>「…→ 五维评分（含一票否决）→ 通道级硬闸门 →…」</td>
+<td>「…→ v2 评分（P/M/B/E）→ 通道级硬闸门 → 趋势日门控 →…」</td>
+</tr>
+<tr>
+<td>④</td>
+<td>§3.1.4.1 缺省参数列表</td>
+<td><code>groups_cap = 2</code>，缺 5 个新键</td>
+<td>补全 <code>scorer_version = v2</code>、<code>groups_cap = 1</code>、<code>d_enabled = false</code>、<code>trend_gate = veto_opposing</code>、<code>trend_gate_fail_closed = true</code>、<code>trend_window_end = 11:30</code></td>
+</tr>
+<tr>
+<td>⑤</td>
+<td>§3.1.4.1.5 开仓执行参数</td>
+<td>「组数：1 ~ 2 组（<code>groups_cap</code> 缺省 2）」</td>
+<td>「1 组（<code>groups_cap</code> 缺省 1；原 ≥85⇒2 组已取消）」</td>
+</tr>
+<tr>
+<td>⑥</td>
+<td>§3.1.4.4.4</td>
+<td>标题「触发层共用五维评分器（生产）」+ 脚注「≥85 ⇒ 2 组」</td>
+<td>改名「v1 评分器（历史口径 · 现仅作影子对照）」+ ⚠️ 提示生产为 v2；脚注标注该映射<strong>已在 v2 取消</strong>（v1 表格原样保留作参考实现）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="机器校验结果（/tmp/audit_doc_code.py）">机器校验结果（<code>/tmp/audit_doc_code.py</code>）</h3>
+<pre><code>A 评分类     ✓ v1 表权重 A35/B25/C20/D10/E10 == 代码 W
+             ✓ v2 权重 P45/M20/B25/E10 == 代码 W2   ✓ D 停用已写明
+B 缺省值     ✓ score_threshold=70 / boundary_tol=4.0 / groups_cap=1
+C 趋势门控   ✓ veto_opposing / require_range / fail-closed / window_end 11:30
+             ✓ 引擎函数名 / 旧口径废弃在案 / 通道内确有门控实现
+D 在线配置   ✓ 11 个配置键逐一在手册有对应表述
+E 残留旧口径 ✓ 4 类旧措辞零残留；「≥85 ⇒ 2 组」仅出现在 v1 对照语境
+────────────────────────────────────────────
+结果：通过 35 项，失败 0 项
+</code></pre>
+<h3 id="数据复刻校验（用当前生产决策序重放-12-交易日，核对-§3.1.4.4.5-每一行）">数据复刻校验（用当前生产决策序重放 12 交易日，核对 §3.1.4.4.5 每一行）</h3>
+<table>
+<thead>
+<tr>
+<th>手册声称</th>
+<th>复刻结果</th>
+<th>一致</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v2@70 × veto_opposing：49 / 4.1 次/日 / 4%（2/49）/ 净 +4.8</td>
+<td>49 / 4.1 / 4%（2/49）/ +4.8</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>v2@65 × veto_opposing：65 / 5.4 / 3% / +4.6</td>
+<td>65 / 5.4 / 3% / +4.6</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>v2@65 × require_range：48 / 4.0 / 2% / +4.2</td>
+<td>48 / 4.0 / 2% / +4.2</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>v2@75 × veto_opposing：23 / 1.9 / 0% / +7.7</td>
+<td>23 / 1.9 / 0% / +7.7</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<h3 id="有意义保留的差异（非漏改）">有意义保留的差异（非漏改）</h3>
+<ol>
+<li>§3.1.4.4.4 的 v1 表格<strong>有意保留</strong>为参考实现（代码里 v1 函数仍在且每次判定被调用写 <code>v1_shadow</code>）。</li>
+<li><code>path_t_enabled</code> 历史键保留（仅为兼容既有配置文件）。</li>
+<li>手册中另一处「顶格开仓 2 组」属 <strong>§3.1.2 5m 综合信号</strong>的 L2 级规则，与本机制无关。</li>
+<li><code>move_end</code> 旧名仅存在于显式标注的兼容薄壳 / 旧配置路径。</li>
+</ol>
+<hr/>
+<h2 id="配置键总表（生产真值）">配置键总表（生产真值）</h2>
+<p>外置配置：<code>~/Documents/MyDoc/Finance/Current/Config/option_seller_balanced_day.json</code></p>
+<pre><code class="language-json">{
+  "enabled": true,
+  "scorer_version": "v2",
+  "score_threshold": 70,
+  "boundary_tol": 4.0,
+  "groups_cap": 1,
+  "d_enabled": false,
+  "trend_gate": "veto_opposing",
+  "trend_gate_fail_closed": true,
+  "trend_window_end": "11:30",
+  "path_r_enabled": true,
+  "path_t_enabled": true,
+  "require_boundary_confirm": true,
+  "updated_at": "2026-09-13 21:24:54"
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>键</th>
+<th>作用</th>
+<th>改回旧行为的方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scorer_version</code></td>
+<td><code>v2</code>（生产）/ <code>v1</code>（对照）</td>
+<td>置 <code>v1</code></td>
+</tr>
+<tr>
+<td><code>trend_gate</code></td>
+<td><code>veto_opposing</code> / <code>require_range</code> / <code>off</code></td>
+<td>置 <code>off</code></td>
+</tr>
+<tr>
+<td><code>trend_gate_fail_closed</code></td>
+<td>引擎无结论时是否否决</td>
+<td>置 <code>false</code>（不建议：放行组假信号 19%）</td>
+</tr>
+<tr>
+<td><code>trend_window_end</code></td>
+<td>与机制窗口对齐（引擎默认 11:00）</td>
+<td>改 <code>11:00</code></td>
+</tr>
+<tr>
+<td><code>groups_cap</code></td>
+<td>组数硬顶</td>
+<td>置 <code>2</code> 恢复 2 组上限</td>
+</tr>
+<tr>
+<td><code>d_enabled</code></td>
+<td>D 维（真空）计分开关</td>
+<td>置 <code>true</code> 回开原 10 分算术</td>
+</tr>
+<tr>
+<td><code>score_threshold</code></td>
+<td>出分门槛</td>
+<td>置 65/75 等（对应实测见证据 3）</td>
+</tr>
+<tr>
+<td><code>boundary_tol</code></td>
+<td>边界容差（点，ES 口径）</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>require_boundary_confirm</code></td>
+<td>是否要求到达边界</td>
+<td>置 <code>false</code> 关闭</td>
+</tr>
+</tbody>
+</table>
+<p><strong>运维要点</strong>：门控依赖 yfinance SPY 1 分钟（按日缓存）；周末/节假日或取数失败 ⇒ 引擎无结论 ⇒ fail-closed 不出信号（周日实测：引擎返回 <code>(False, False, None)</code>）。</p>
+<hr/>
+<h2 id="全部改动文件清单">全部改动文件清单</h2>
+<h3 id="文档">文档</h3>
+<ul>
+<li><code>/Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html</code></li>
+</ul>
+<h3 id="代码（PyTools-/-bbt_data_web-未被-git-跟踪，故均自备份）">代码（PyTools / bbt_data_web <strong>未被 git 跟踪</strong>，故均自备份）</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PyTools/option_seller/balanced_day_data.py</code></td>
+<td><strong>新增</strong>：<code>load_balanced_day_context()</code> 等（由 <code>move_end_data.py</code> 改名而来）</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/balanced_day_shadow.py</code></td>
+<td><strong>新增</strong>：影子回放，支持 <code>--scorer v2/v1</code>，输出 <code>/tmp/balanced_day_shadow_*.json</code></td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/move_end_data.py</code></td>
+<td>改为兼容薄壳（透出 <code>load_move_end_context</code> + 私有助手）</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/move_end_shadow.py</code></td>
+<td>改为兼容薄壳（<code>runpy</code> 转发）</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/move_end_evaluator.py</code></td>
+<td>薄壳说明更新</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/balanced_day_boundary.py</code></td>
+<td><strong>新增 <code>score_balanced_day_boundary_v2</code></strong> + <code>W2</code>/<code>V2_SCORE_THRESHOLD</code>/<code>V2_DIRECTION_GATE</code>（v1 未改动一行）</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/option_seller_manager.py</code></td>
+<td>命名统一（配置/常量/函数/属性/通道/别名）+ 新配置键 + v2 调用 + v1 影子 + 趋势门控 + 边界确认收紧 + 组数夹取</td>
+</tr>
+<tr>
+<td><code>PyTools/quantdata/trend_regime.py</code></td>
+<td>新增可选 <code>window_end</code>（默认 11:00 不变）</td>
+</tr>
+<tr>
+<td><code>bbt_data_web/data_app/bbt_option_seller.py</code></td>
+<td>新路由 <code>/api/option_seller/balanced_day_config</code> + 旧路由别名</td>
+</tr>
+<tr>
+<td><code>PyTools/order_flow_analysis/order_flow_config.py</code>、<code>of_contract.py</code>、<code>backfill_order_flow_signals.py</code></td>
+<td>注释中的旧模块名同步</td>
+</tr>
+</tbody>
+</table>
+<h3 id="配置">配置</h3>
+<ul>
+<li><strong>新增</strong>：<code>~/Documents/MyDoc/Finance/Current/Config/option_seller_balanced_day.json</code>（由旧文件自动迁移）</li>
+<li><strong>保留未改</strong>：<code>option_seller_move_end.json</code>（可作回退源）</li>
+</ul>
+<hr/>
+<h2 id="回滚点与复现脚本">回滚点与复现脚本</h2>
+<h3 id="回滚点">回滚点</h3>
+<table>
+<thead>
+<tr>
+<th>用途</th>
+<th>路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>文档（v2 手册更新前）</td>
+<td><code>/tmp/manual_pre_v2_*.html</code></td>
+</tr>
+<tr>
+<td>文档（一致性修复前）</td>
+<td><code>/tmp/manual_sync_220135.html</code></td>
+</tr>
+<tr>
+<td>文档（更早节点）</td>
+<td><code>/tmp/manual_pre_naming_205618.html</code>、<code>/tmp/manual_pre_3141_202136.html</code>、<code>/tmp/manual_pre_314_194507.html</code>、<code>/tmp/manual_pre_planA_175923.html</code>、<code>/tmp/manual_pre_restructure_173320.html</code>、<code>/tmp/manual_backup_165701.html</code></td>
+</tr>
+<tr>
+<td>代码（命名改造前）</td>
+<td><code>/tmp/bbt_rename_backup_20260913_205510/</code>（move_end_data / move_end_shadow / move_end_evaluator）、<code>/tmp/bbt_rename_backup_20260913_205539/</code>（manager）、<code>/tmp/bbt_rename_backup_20260913_205552/</code>（web + order_flow 注释）</td>
+</tr>
+<tr>
+<td>代码（v2 实施前）</td>
+<td><code>/tmp/bbt_impl2_backup_212248/</code>（<code>trend_regime.py</code> / <code>balanced_day_boundary.py</code> / <code>option_seller_manager.py</code>）</td>
+</tr>
+<tr>
+<td>配置</td>
+<td><code>/tmp/bbt_impl2_backup_*_cfg.json</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="复现-/-复检脚本">复现 / 复检脚本</h3>
+<table>
+<thead>
+<tr>
+<th>脚本</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/analyze_balanced_day.py</code></td>
+<td>趋势判据判别力 + v1 评分器有效性（证据 1、2）</td>
+</tr>
+<tr>
+<td><code>/tmp/calib_v2.py</code></td>
+<td>v2 门槛 × 门控网格标定（证据 3）</td>
+</tr>
+<tr>
+<td><code>/tmp/v2_detail.py</code></td>
+<td>v2 逐行明细与 v1/v2 取舍差异</td>
+</tr>
+<tr>
+<td><code>/tmp/audit_doc_code.py</code></td>
+<td><strong>文档↔代码一致性一键复检（35 项）</strong></td>
+</tr>
+<tr>
+<td><code>/tmp/balanced_day_eval.json</code>、<code>/tmp/v2_rows.json</code>、<code>/tmp/v2_calib.json</code>、<code>/tmp/balanced_day_shadow_recent.json</code></td>
+<td>逐行明细与标定结果</td>
+</tr>
+</tbody>
+</table>
+<hr/>
+<h2 id="遗留事项与后续改进入口">遗留事项与后续改进入口</h2>
+<ol>
+<li><strong>删除兼容层（可选）</strong>：<code>move_end_data.py</code> / <code>move_end_shadow.py</code> / <code>move_end_evaluator.py</code> 三个薄壳 + 旧接口别名 + 旧常量/方法/属性别名，已核实全库只有 <code>option_seller_manager.py</code> 曾引用（现走新名）⇒ 可删（属破坏性操作，需确认）。</li>
+<li><strong><code>path_t_enabled</code> 历史键</strong>：删除需同步改配置文件与缺省表。</li>
+<li><strong>手册 <code>.md</code> 仍未同步</strong>：其结构为旧版编号（§1.4 = 强度打分、§1.6 = DOM 200 档机制），与 HTML 差异较大，需整体对齐。</li>
+<li><strong>2 例残余假信号的处理方向</strong>：① 新增「边界被打穿 ⇒ 一票否决」；② 趋势日内顺向信号的降级或放弃（切 <code>require_range</code> 可立即生效）。</li>
+<li><strong>持续对照</strong>：<code>evidence.v1_shadow</code> 会持续记录 v1 的分数/方向/组数/veto，可用于后续 A/B；影子 CLI <code>balanced_day_shadow.py</code> 支持 <code>--scorer v1|v2</code>。</li>
+<li><strong>参数入口</strong>：所有可调项集中在 <code>option_seller_balanced_day.json</code>（见「配置键总表」），无需改代码。</li>
+</ol>
+<hr/>
+<h2 id="口径速查（避免混比）">口径速查（避免混比）</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机制内价格 / 极值 / 关键位 / 容差</td>
+<td><strong>ES 点位</strong>（<code>price_at_row</code>、<code>smashelito</code> 关键位同为 ES 点位）</td>
+</tr>
+<tr>
+<td>SPY 引擎阈值</td>
+<td><strong>SPY 点位</strong>（1 SPY ≈ 10 ES/SPX 点）；机制侧<strong>只取布尔结论</strong>，不搬运其阈值</td>
+</tr>
+<tr>
+<td>交易窗口</td>
+<td>RTH 06:35–11:30 PST（L0-A② 截断 11:30）；引擎窗口以 <code>window_end=11:30</code> 对齐</td>
+</tr>
+<tr>
+<td>结果口径（评估）</td>
+<td>未来 30 分钟（6 根 5m 行）ES 点位 MFE/MAE</td>
+</tr>
+<tr>
+<td>adverse（假信号）</td>
+<td>方向不利偏移 MAE &gt; 12 ES 点</td>
+</tr>
+<tr>
+<td>组数</td>
+<td>一律 1 组；每组 = 2 手双批次</td>
+</tr>
+<tr>
+<td>触发标签</td>
+<td><code>AUTO_BALANCED_DAY_BOUNDARY</code>（旧别名 <code>AUTO_RANGE_BOUNDARY</code> / <code>AUTO_MOVE_END</code>）</td>
+</tr>
+<tr>
+<td>评分器文件</td>
+<td><code>PyTools/option_seller/balanced_day_boundary.py</code>（v1 + v2 共存）</td>
+</tr>
+<tr>
+<td>通道函数</td>
+<td><code>evaluate_balanced_day_channel()</code>（旧名 <code>evaluate_move_end_channel()</code> 为别名）</td>
+</tr>
+</tbody>
+</table>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

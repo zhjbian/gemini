@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 机制 ③ 盘中取数缺列修复（price_at_row 实时恒空）</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header style="padding:28px 32px 20px;background:#ffffff;border-bottom:1px solid var(--line);">
+<h1>卖家系统：机制 ③ 盘中取数缺列修复验收报告</h1>
+<div class="meta"><span>2026-09-14</span><span>Option Seller · 机制 ③ 取数链路</span>
+<span>模块归档 49</span><span>Light Theme</span></div>
+</header>
+<div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#1.-结论先行">1. 结论先行</a></li><li><a href="#2.-证据">2. 证据</a></li><li style="margin-left:20px;list-style:none"><a href="#2.1-缺列实测-修复前">2.1 缺列实测（修复前）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.2-兜底等值性-口径不变的依据">2.2 兜底等值性（口径不变的依据）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.3-A-B-新旧取数对照-关键回归">2.3 A/B 新旧取数对照（关键回归）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.4-探针-API-实调-同一天-同一批检测点">2.4 探针 API 实调（同一天、同一批检测点）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.5-写侧生效-实盘实测-非模拟">2.5 写侧生效（实盘实测，非模拟）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.6-回归与只读性">2.6 回归与只读性</a></li><li><a href="#3.-改动清单">3. 改动清单</a></li><li><a href="#4.-回滚">4. 回滚</a></li><li><a href="#5.-遗留与后续建议">5. 遗留与后续建议</a></li></ul></div>
+<section class="main-content">
+<h1 id="卖家系统-机制-③-盘中取数缺列修复验收报告">卖家系统：机制 ③ 盘中取数缺列修复验收报告</h1>
+<ul><li><strong>日期</strong>：2026-09-14</li><li><strong>模块</strong>：Option Seller 机制 ③「平衡日边界」取数链路（<code>price_at_row</code> 实时恒空）+ 当日高低点探针</li><li><strong>归档目录</strong>：<code>49_2026-09-14_Price_At_Row_Live_Gap_Fix</code></li><li><strong>技术栈</strong>：Python 3.11 / MySQL <code>bb_trade</code>（只读诊断 + 写侧落库列补齐）/ Flask API + Jinja2（bbt_data_web）/ 规则手册五部分级 / A-B 取数对照</li></ul>
+<h2 id="1.-结论先行">1. 结论先行</h2>
+<table><thead><tr><th>问题</th><th>结论</th></tr></thead><tbody><tr><td>页面提示 <code>③ 该时点无 order_flow_signals 行 ⇒ 无法取数</code></td><td><strong>措辞错误</strong>：行是存在的（当日 17 行）；真实原因是 <strong><code>price_at_row</code> 100% 为 NULL</strong>，取数函数过滤后返回 <code>None</code></td></tr><tr><td>根因</td><td><code>price_at_row</code> 的<strong>唯一写入方</strong>是离线批处理 backfill；<strong>实时 5m 写库路径从不写该列</strong>，且无任何定时回填</td></tr><tr><td>影响面（比一条提示严重）</td><td>机制 ③ 的生产取数走同一函数 ⇒ <strong>盘中永远静默不出信号</strong>；此前 12 交易日的标定结论都建立在<strong>回填后</strong>数据上，故未暴露</td></tr><tr><td>修复</td><td><strong>读侧兜底</strong>（<code>price_at_row</code> → <code>quantitative_metrics.es_price</code>，逐行等值、同为 ES 点位）+ <strong>写侧补齐</strong>（sentinel 落库写 <code>price_at_row</code>）+ <strong>探针失败原因三分</strong></td></tr><tr><td>结果</td><td>③ 由 <code>NOT_EVALUATED</code> 变为真实结论（今日 4 个检测点均 <code>QUALIFIED</code>）；写侧已在 <strong>08:15 槽位实测生效</strong></td></tr></tbody></table>
+<h2 id="2.-证据">2. 证据</h2>
+<h3 id="2.1-缺列实测-修复前">2.1 缺列实测（修复前）</h3>
+<pre><code>
+2026-09-14  order_flow_signals 17 行（06:35→07:55）   price_at_row 非空 **0 / 17**
+2026-09-11  79 行                                      非空 79 / 79   ← 当天 19:27 回填过
+2026-09-08/09/10  79 行                                非空 77 / 73 / 76
+es_price（quantitative_metrics）覆盖率：09-08…09-11 均 78/79 ＞ price_at_row
+</code></pre>
+<p>写入方全仓检索：<code>price_at_row</code> 仅出现在 <code>models.py</code>（列定义）、<code>backfill_order_flow_signals.py</code>（唯一写入）、<code>order_flow_direction_gate.py</code> / <code>adam_signal_deepdive.py</code>（读取）；实时路径 <code>order_flow_sentinel.py</code> <strong>无写入</strong>。<code>launchd</code> / <code>daily_jobs</code> 内<strong>无定时 backfill</strong>。</p>
+<h3 id="2.2-兜底等值性-口径不变的依据">2.2 兜底等值性（口径不变的依据）</h3>
+<pre><code>
+2026-09-11 逐行对照（price_at_row vs quantitative_metrics.es_price）：
+  06:35 7675.50 / 7675.50   06:40 7673.50 / 7673.50   06:45 7672.25 / 7672.25
+  06:50 7667.75 / 7667.75   06:55 7668.75 / 7668.75   07:00 7681.00 / 7681.00
+  平均绝对差 = 0.000
+</code></pre>
+<h3 id="2.3-A-B-新旧取数对照-关键回归">2.3 A/B 新旧取数对照（关键回归）</h3>
+<table><thead><tr><th>日期</th><th>时间</th><th>旧（仅 <code>price_at_row</code>）</th><th>新（含兜底）</th><th>一致性</th></tr></thead><tbody><tr><td>09-08</td><td>11:00</td><td>rows=53 price=7695.25</td><td>rows=53 price=7695.25</td><td><strong>逐字段一致</strong>（src=price_at_row）</td></tr><tr><td>09-09</td><td>11:00</td><td>rows=53 price=7652.50</td><td>rows=53 price=7652.50</td><td>一致</td></tr><tr><td>09-10</td><td>11:00</td><td>rows=54 price=7602.25</td><td>rows=54 price=7602.25</td><td>一致</td></tr><tr><td>09-11</td><td>11:00</td><td>rows=54 price=7674.75</td><td>rows=54 price=7674.75</td><td>一致</td></tr><tr><td>09-11</td><td>11:30</td><td>rows=60 price=7672.00</td><td>rows=60 price=7672.00</td><td>一致</td></tr><tr><td><strong>09-14</strong></td><td>07:05 / 07:55</td><td><strong>None</strong></td><td><strong>ctx</strong>（rows=7 / 17，src=es_price）</td><td><strong>由「不可判定」变「可判定」</strong></td></tr></tbody></table>
+<p>⇒ 历史日（已回填）<strong>结果完全不变</strong>；仅当日空列行由「被剔除」变「参与判定」。</p>
+<h3 id="2.4-探针-API-实调-同一天-同一批检测点">2.4 探针 API 实调（同一天、同一批检测点）</h3>
+<table><thead><tr><th>检测点</th><th>修复前</th><th>修复后</th></tr></thead><tbody><tr><td>HIGH 07:05</td><td><code>NOT_EVALUATED</code> · 该时点无 order_flow_signals 行</td><td><strong><code>QUALIFIED</code></strong> score=82.5 · BEARISH · 组数 1 · 路径 R</td></tr><tr><td>HIGH 07:10</td><td><code>NOT_EVALUATED</code></td><td><strong><code>QUALIFIED</code></strong> score=82.5 · BEARISH</td></tr><tr><td>LOW 07:40</td><td><code>NOT_EVALUATED</code></td><td><strong><code>QUALIFIED</code></strong> score=77.5 · BEARISH</td></tr><tr><td>LOW 07:55</td><td><code>NOT_EVALUATED</code></td><td><strong><code>QUALIFIED</code></strong> score=77.5 · BEARISH</td></tr></tbody></table>
+<p>新增判据行同步可见：<code>取数口径：行价格来源 = es_price（行数 7 / 窗口 7）[✓]</code>（旧文案不区分原因，现已按 <code>no_rows</code> / <code>no_price_column</code> / <code>db_error</code> 三分）。</p>
+<h3 id="2.5-写侧生效-实盘实测-非模拟">2.5 写侧生效（实盘实测，非模拟）</h3>
+<pre><code>
+sentinel 文件修改时间            2026-09-14 08:14:53
+08:10 槽位（改前落库 08:11:27）  price_at_row = NULL
+08:15 槽位（改后落库 08:16:16）  price_at_row = 7669.25  ← 等于该行 es_price（7669.25）
+</code></pre>
+<p>⇒ 写侧修复在下一次 5 分钟槽位即生效，实时行此后自带行价格。</p>
+<h3 id="2.6-回归与只读性">2.6 回归与只读性</h3>
+<table><thead><tr><th>检查</th><th>结果</th></tr></thead><tbody><tr><td><code>py_compile</code>（4 个改动文件）</td><td>OK</td></tr><tr><td><code>option_seller</code> 测试套件</td><td><code>test_isolation</code> 守卫通过；<code>force_dry_degrade</code> / <code>intraday_probe</code> / <code>journal_filter_catalog</code> / <code>l1_h1_breakeven_stop</code> 全 <strong>OK</strong></td></tr><tr><td>影子 CLI 历史日</td><td><code>balanced_day_shadow.py --date 2026-09-11 --scorer v2</code> ⇒ 18 命中 / 假信号 0 ⇒ <strong>与修复前一致</strong></td></tr><tr><td>影子 CLI 当日</td><td><code>--date 2026-09-14</code> ⇒ 17 命中 / 假信号 1（6%）⇒ 当日首次<strong>可评分</strong>（此前无上下文）</td></tr><tr><td>HTTP</td><td><code>/bbt_option_seller</code> 200 · <code>/api/option_seller/intraday_extremes_probe</code> 200</td></tr><tr><td>副作用</td><td>除<strong>写侧落库补齐一列</strong>外无其它 DB 写入；<strong>未重跑 sentinel</strong>（避免盘中重写当日行与触发自动开仓编排）；未下单</td></tr></tbody></table>
+<h2 id="3.-改动清单">3. 改动清单</h2>
+<table><thead><tr><th>层</th><th>文件</th><th>改动</th></tr></thead><tbody><tr><td>取数（读侧）</td><td><code>PyTools/option_seller/balanced_day_data.py</code></td><td>新增 <code>PRICE_FIELD_ORDER</code> / <code>row_price()</code>；<code>load_balanced_day_context(..., diag=None)</code> 回填 <code>{rows, rows_with_price, price_source, reason}</code>；上下文新增 <code>price_source</code></td></tr><tr><td>影子</td><td><code>PyTools/option_seller/balanced_day_shadow.py</code></td><td>改用 <code>row_price()</code>（实盘 / 影子同源；此前两处各一份过滤逻辑）</td></tr><tr><td>探针</td><td><code>PyTools/option_seller/intraday_probe.py</code></td><td>失败原因三分 + 新增「取数口径：行价格来源」判据行</td></tr><tr><td>写库（写侧）</td><td><code>PyTools/order_flow_analysis/order_flow_sentinel.py</code></td><td>落库时 <code>sig.price_at_row ?= float(quant_metrics['es_price'])</code>（仅主列为空时写）</td></tr><tr><td>文档</td><td>手册 HTML + MD</td><td>§3.1.4.1.2 取数口径表（价格序列 / 当日高·低 / 开盘锚·最新价 / 关键位族）与 §1.2 列填充注记；<strong>顺带修复一处既存滞后</strong>：关键位族原写「<code>smashlevel</code> + <code>levels_data</code> 全部数值」，与 2026-09-13 起的白名单 4 键（<code>ut1</code>/<code>fut</code>/<code>dt1</code>/<code>fdt</code>）不符 ⇒ 已改为白名单口径并指向 §3.1.4.1.1</td></tr></tbody></table>
+<h2 id="4.-回滚">4. 回滚</h2>
+<table><thead><tr><th>场景</th><th>操作</th></tr></thead><tbody><tr><td>全部回退</td><td>用 <code>/tmp/bbt_pricefix_backup_081305/</code>（<code>balanced_day_data.py</code> / <code>balanced_day_shadow.py</code> / <code>intraday_probe.py</code> / <code>order_flow_sentinel.py</code> 术前副本）覆盖</td></tr><tr><td>只回退读侧兜底</td><td>删 <code>row_price()</code> 的第二分支（<code>es_price</code> 段）即回到「只认 <code>price_at_row</code>」</td></tr><tr><td>只回退写侧</td><td>删 <code>order_flow_sentinel.py</code> 中 <code>if getattr(sig, 'price_at_row', None) is None:</code> 整块</td></tr></tbody></table>
+<h2 id="5.-遗留与后续建议">5. 遗留与后续建议</h2>
+<ol><li><strong>当日历史空列行未回写</strong>：09-14 08:15 之前的 17 行 <code>price_at_row</code> 仍为 NULL（读侧兜底已覆盖，故不影响判定）。如需列值自洽，可在<strong>收盘后</strong>跑一次 <code>backfill_order_flow_signals.py</code>（盘后运行，避免与实时写库竞争）。</li><li><strong>同类风险体检建议</strong>：<code>tick 侧 9 列</code>（<code>delta_5m/10m/15m/30m</code>、<code>vol_5m/15m</code>、<code>price_at_row</code>、<code>price_chg_5m/15m</code>）同属「只由 backfill 铺平」——本类缺陷已第二次出现（前一次是 2026-09-13 的 DOM 平铺列）。建议给「实时写库缺列」加一条巡检：逐列统计<strong>当日实时行</strong>的 NULL 率并在 MW 健康检查同款页面告警。</li><li><strong><code>price_chg_5m</code> / <code>delta_5m</code> 仍为空</strong>：机制 ③ 当前不依赖它们；若后续评分器要用，需同法补齐（sentinel 内有末片 <code>price_start/price_end</code> 可算）。</li><li>探针的 ③ 结论<strong>不含趋势日门控</strong>（门控只在生产通道内生效），故页面显示 <code>QUALIFIED</code> ≠ 生产必然开仓——此语义已在探针免责说明中标注，未变。</li></ol>
+</section>
+</article>
+</main>
+</body>
+</html>

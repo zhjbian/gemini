@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<title>42. MotiveWave v6→v7 升级评估·备份与回退方案</title>
+<style>
+ body{background:#f8fafc;color:#1e293b;font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;margin:0;padding:26px;line-height:1.7}
+ .wrap{max-width:1080px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:26px 30px}
+ h1{font-size:1.4rem;color:#0f172a;margin:0 0 6px}
+ h2{font-size:1.06rem;color:#0f172a;margin:24px 0 8px;padding:3px 0 3px 10px;border-left:4px solid #1d4ed8;background:#f8fafc;border-radius:0 6px 6px 0}
+ h3{font-size:0.95rem;color:#334155;margin:16px 0 6px}
+ table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:8px 0}
+ th{background:#f1f5f9;color:#475569;text-align:left;padding:7px 10px;border:1px solid #e2e8f0}
+ td{padding:7px 10px;border:1px solid #e2e8f0;vertical-align:top}
+ code,pre{background:#f1f5f9;border-radius:5px;font-size:0.83rem}
+ code{padding:1px 5px} pre{padding:10px 12px;overflow-x:auto;display:block;white-space:pre-wrap}
+ .ok{color:#047857;font-weight:700}.warn{color:#b45309;font-weight:700}.bad{color:#b91c1c;font-weight:700}
+ .meta{font-size:0.84rem;color:#64748b;margin-bottom:14px}
+ ul,ol{font-size:0.87rem}
+ blockquote{margin:8px 0;padding:8px 14px;background:#fffbeb;border-left:4px solid #fcd34d;color:#78350f;font-size:0.86rem}
+</style></head><body><div class="wrap">
+<h1>42. MotiveWave v6 → v7 升级评估 · 备份与回退方案</h1>
+<div class="meta">日期 <code>2026-09-12</code>（<b>v1.1</b>：按实测修正"必须重编译"判断 ✗ ⇒ 见 §3.1） ｜ 现状 <b>v6.9.12</b>（生产）→ 目标 <b>v7.1.0</b>（build 644，2026-09-06 发布）｜ 关联目录 <code>42_2026-09-12_MotiveWave_v7_Upgrade_Assessment</code></div>
+
+<h2>1. 需求与背景</h2>
+<ul>
+<li>生产长期使用 <code>MotiveWave_6_9_12.app</code>；v6.9.12 本身是<b>纯 bugfix 版</b>（官方 Release Notes 原文）✓</li>
+<li>曾试用 <b>7.0.x</b>（本机遗留工作区名 <code>dxFeed_7</code> / <code>dxFeed-7</code> / <code>dxFeed-7-0-22</code> 可证）但<b>问题较多</b> ✗</li>
+<li>刚安装 <b>7.1.0</b>（2026-09-06 发布）⇒ 需评估：<b>(1) 主要更新/性能</b>、<b>(2) 升级需要改动什么</b>（已知 v7 本地 Tick 文件格式与 v6 不同）</li>
+<li>硬性要求：<b>若 v7 有问题必须能快速切回 v6</b> ⇒ 回退机制 + 全面备份为前置条件 ✓</li>
+</ul>
+
+<h2>2. 官方 Release Notes 关键内容（v7.1.0 PDF 原文提取）</h2>
+<blockquote><b>官方硬声明 ①</b>：Data formats have changed in version 7 of MotiveWave. Workspaces created using older versions are forward compatible (they can be used in Version 7) but <b>once the workspace has been opened in version 7, it will not be able to be opened by older versions</b>. Please consider creating a new workspace for version 7 testing and restore from a backup of an existing workspace.</blockquote>
+<blockquote><b>官方硬声明 ②</b>：<b>SDK changes were made to the SDK in version 7. Custom studies/strategies will need to be recompiled.</b>（a. Volume Profile classes added. b. DOM Notes added.）</blockquote>
+<h3>7.1.0 三项特性（原文要点）</h3>
+<table>
+<tr><th>#</th><th>特性</th><th>原文要点</th><th>对本系统的意义</th></tr>
+<tr><td>1</td><td><b>Compressed Historical Data</b></td><td>Historical Time &amp; Sales (Tick) data is now <b>left compressed into daily files</b> stored locally ⇒ <b>8–10× improvement in storage requirements</b></td><td><b>这就是"v7 本地 Tick 文件格式不同"的根因</b> ✓；MW 内部历史库不再逐笔明文存储 ✓</td></tr>
+<tr><td>2</td><td>Smooth Scrolling</td><td>线性周期 ≤ 2 秒时启用（默认开，配合 Auto Move Bar）</td><td>盯盘体验 ✓（与本系统无耦合）</td></tr>
+<tr><td>3</td><td><b>Performance Improvements</b></td><td>Time &amp; Sales 数据加载与处理改进（用于构建 <b>Volume Profile / TPO</b>）⇒ <b>大 TPO / VP 载入快 2–4×</b></td><td>VP/TPO 类分析显著受益 ✓</td></tr>
+</table>
+<h3>7.0.x 累积要点（原文摘录）</h3>
+<ul>
+<li><b>Java 26 / JavaFX 运行时升级</b>（7.0.21）⇒ v7 的 Java 运行时与 v6 不同 ✓</li>
+<li>alerts / study signals <b>改为按需加载</b>（启动性能）</li>
+<li>Shorten Axis Values（默认开）、Import Data 监视输入文件自动重载（默认每分钟）、Study Legend 悬停按钮、DOM 文本颜色可改、Coinbase Advanced API 等</li>
+</ul>
+
+<h2>3. 本机实测事实（2026-09-12）</h2>
+<table>
+<tr><th>项</th><th>实测值</th></tr>
+<tr><td>已安装应用</td><td><code>/Applications/MotiveWave_6_9_12.app</code> ✓ · <code>/Applications/MotiveWave_7_1_0.app</code> ✓（两者结构一致：<code>Java/ Plugins/ javafx/ defaults/ etc/</code>；v7 内含 <code>MotiveWave.jar</code> + bcpkix/bcprov/commons-* 等）</td></tr>
+<tr><td><b>workspace 路径</b></td><td><code>~/Library/MotiveWave/workspaces/&lt;名称&gt;/</code> ⇒ 目录内容：<code>analysis/FUTURE/&lt;symbol&gt;.XCME.DXFEED/*.mwml</code>、<code>config/{workspace,defaults,ofa,cmp_templates}.json</code>、11 个 <code>*.mwml</code></td></tr>
+<tr><td>现有 workspace</td><td><b><code>dxFeed</code></b>（1 行 1464 KB，最后修改 2026-08-19，<b>9 个文件引用 bbt/OrderFlow/QuantPivot</b>）← 生产主库 ✓；<b><code>dxFeed-7</code></b>（444 KB，2026-08-16）← v7 试验库 ✓；另有 <code>workspaces.json</code></td></tr>
+<tr><td>MW 自动备份命名（揭示使用史）</td><td><code>BBT</code>(9) → <code>dxFeed</code>(10) → <code>dxFeed_7</code>(10)/<code>dxFeed-7-0-22</code>(10)/<code>dxFeed-7</code>(4) ⇒ <b>v7 试验早已存在</b> ✓</td></tr>
+<tr><td><b>自定义 study 部署（共享目录 ✗）</b></td><td><code>~/MotiveWave Extensions/dev/bbt/*.class</code> = <b>33 个类 / md5 <code>3118261a7b83</code></b>（<code>StudyQuantPivot</code>、<code>StudyOrderFlowReversal*</code>、<code>StudyBigTrades*</code>、<code>FlaskBridge*</code>、<code>StudyStackedLowVolumeHighLow*</code> 等）—— <b>两版共用 ⇒ v7 重编译会覆盖 v6 类</b> ✗</td></tr>
+<tr><td>study 源码/构建材料</td><td><code>~/BB_Workspace/MotiveWave Studies/</code>（bin/build/lib/src）✓ · <code>MotiveWave_Studies7.zip</code> 5.5 MB ✓ · <code>sdk_api_doc7.zip</code> 5.2 MB ✓ · <code>~/Intellj-workspace/BBT_Studies</code>（17 MB）✓</td></tr>
+<tr><td>偏置/设置</td><td><code>~/Library/Preferences/com.motivewave.platform.plist</code>（4 KB）✓ · <code>~/Library/MotiveWave/{settings.json,startup.ini,mwave_license.txt}</code> ✓ · <code>~/Library/Application Support/MotiveWave/</code>（仅 webview，0 B）</td></tr>
+<tr><td>数据规模</td><td><code>~/Library/MotiveWave</code> 合计 <b>7.7 GB</b>，其中 <code>historical_data</code> <b>7.6 GB</b>、<code>output</code> 70 MB、<code>workspaces</code> 1.9 MB</td></tr>
+<tr><td>导出目录（本系统读取层）</td><td><code>~/Documents/MyDoc/Finance/Current/MotiveWave_OrderFlow_Data/{Raw,Analysis,Realtime}</code>；已新增 <code>Raw_v7/</code> 供 v7 专用 ✓；单日 <code>TICKS</code> 32–38 MB、<code>DOM.csv.gz</code> 174–195 MB</td></tr>
+</table>
+
+<h2>3.1 关键实证：v7 期间未重编译 SDK 也能运行，且导出格式一致 ✓</h2>
+<p>本节回答两个"是否为运行前提"的关键疑问，依据是<b>本机历史导出文件</b>（8 月为 v6/v7 混用期；工作区 <code>dxFeed-7</code> 最后修改 2026-08-16 ✓）：</p>
+<table>
+<tr><th>日期</th><th>文件</th><th>TICKS 表头</th><th>DOM 表头</th></tr>
+<tr><td>2026-08-16 ~ 08-23（v6/v7 混用期 ✓）</td><td><code>ES_2026081*_TICKS.csv.gz</code> ✓ <code>_DOM.csv.gz</code> ✓（确实存在 ✓）</td><td><code>Timestamp,Price,Size,Side,Contract</code></td><td><code>Timestamp,Type,Level,Price,Size,Contract</code></td></tr>
+<tr><td>2026-09-01 ~ 09-11（v6 生产 ✓）</td><td>同名规则文件 ✓</td><td><b>与本行完全相同</b> ✓</td><td><b>与本行完全相同</b> ✓</td></tr>
+</table>
+<ul>
+<li><b>结论 1（对 A 的影响）</b>：<b>不重编译 study 也能在 v7 中运行并导出</b> ✓✓（与用户 7.0.x 实际经历一致 ✓）—— 官方"需要重编译"是<b>建议</b>（v7 SDK 为<b>新增</b> Volume Profile 类与 DOM Notes，属<b>增量改动</b>，对旧编译字节码通常二进制兼容 ✓）</li>
+<li><b>结论 2（对 B 的影响）</b>：<b>study 导出的 CSV 格式在 v7 期间未变</b> ✓✓（列名/顺序/时间戳 epoch-ms 单位/合约字段全部一致 ✓）⇒ 下游 <code>mw_gzip</code> + 各解析脚本 <b>无需 adapter</b> ✓</li>
+<li><b>仍未知（诚实标注 ✗）</b>：① 上述证据覆盖 <b>7.0.x</b>；<b>7.1.0 新增的"历史 Tick 按日压缩"</b>属 MW <b>内部存储</b>改动 ✓，理论上不影响自研导出（study 经 MW API 取数 ✓ 再自行写 CSV ✓），但<b>需一次实测确认</b> ✓；② 若未来用到 <b>v7 新 SDK 特性</b>（Volume Profile 类 / DOM Notes），届时必须重编译 ✓</li>
+</ul>
+
+<h2>4. 影响评估：升级到 v7 需要改什么</h2>
+<table>
+<tr><th>#</th><th>影响面</th><th>说明与动作</th><th>风险</th></tr>
+<tr><td><b>A</b></td><td><b>自定义 study（Java 导出器）</b></td><td>官方明文："SDK changes were made in version 7. Custom studies/strategies <b>will need to be recompiled</b>"。<b>但实测反证</b>：v7.0.x 期间<b>未升级 SDK</b> 仍正常运行并在 8/16–8/23 持续产出导出文件（见 §3.1 实证 ✓）⇒ 重编译是<b>官方建议</b>（消除 API 漂移风险）而<b>非运行前提</b>。涉及 <code>BBT_Studies/src/bbt/StudyOrderFlowDataExporter.java</code> 等；如需重编，用 v7 SDK/JDK（Java 26）重编到独立目录</td><td><span class="warn">低–中</span>（保留旧编译通常可跑 ✓；API 若被移除/改签名或行为变更才需重编 ✗）</td></tr>
+<tr><td><b>B</b></td><td><b>本地数据格式</b></td><td>v7 把 Tick 历史改为<b>按日压缩文件</b>（8–10×）。若读取器直读 <b>MW 内部历史库</b>（v6 未压缩日文件）⇒ 必须适配 ✓；若读取的是<b>自研 study 导出的 CSV</b>（<code>ES_YYYYMMDD_{TICKS.csv,DOM.csv.gz}</code>）⇒ <b>导出格式可能不变</b>，需实测比对</td><td><span class="warn">中</span>（取决于读哪一层）</td></tr>
+<tr><td><b>C</b></td><td><b>workspace</b></td><td>v6→v7 前向兼容；<b>但一旦 v7 打开过 ⇒ v6 再也打不开</b> ✗ ⇒ 必须用<b>副本</b>做 v7 测试</td><td><span class="warn">不可逆</span>（唯一真正不可逆项）</td></tr>
+</table>
+<h3>不受影响（好消息）</h3>
+<ul>
+<li>下游分析链读的是<b>文件</b>：<code>py_lib/mw_gzip.py</code>（容错读取器：多成员/空成员/截断/纯 CSV/二进制 gzip 自动识别 ✓）、<code>jobs/mw_data_health_check.py</code>、<code>order_flow_analysis/*</code>（引擎）、<code>jobs/adam_*</code>（Adam 深度分析）⇒ <b>只要导出格式不变或微变，几乎无需改动</b> ✓</li>
+<li>数据库与 Adam 信号子系统（<code>order_flow_signals</code> 71 列、<code>adam_deep_payload</code>、<code>adam_signal_verdicts</code>）<b>与 MW 版本完全无关</b> ✓</li>
+</ul>
+
+<h2>5. 迁移方案（建议顺序，每步可回退）</h2>
+<ol>
+<li><b>备份 v6</b>（见 §6）— <b>已完成 ✓</b></li>
+<li><b>复制 workspace</b>：<code>cp -R ~/Library/MotiveWave/workspaces/dxFeed ~/Library/MotiveWave/workspaces/dxFeed-v7test</code>；v7 <b>只打开副本</b>，v6 继续用 <code>dxFeed</code>（原库保持纯净 ⇒ 回退零修复 ✓）</li>
+<li><b>先用现有（v6 编译）study 直接试 v7</b> ✓（实测可行 §3.1）；<b>仅当</b>加载报错/输出异常时才用 v7 SDK 重编译（材料已有：<code>sdk_api_doc7.zip</code> ✓）→ 装到扩展目录 → 记录 <code>mw_version_switch.py --snapshot --as 7</code>；<b>两种都需先存 v7 基线以便一键回退 ✓</b></li>
+<li><b>并行导出 + 格式 diff</b>：v6 输出 <code>Raw/</code>、v7 输出 <code>Raw_v7/</code>；同日同品种逐列比对（表头/列数/时间戳单位/排序/压缩方式）</li>
+<li><b>下游试跑</b>：用 v7 单日输出跑 健康检查 → 引擎 → Adam 深度分析；全部通过后切换默认，v6 与旧解析路径保留 ≥2 周</li>
+</ol>
+
+<h2>6. 备份方案（已实施并校验）</h2>
+<p><b>脚本</b>：<code>PyTools/jobs/mw_v6_backup.py</code>（只读源 ✓ rsync -a 保元数据 ✓ 附 <code>MANIFEST.json</code> ✓）</p>
+<pre>python3 PyTools/jobs/mw_v6_backup.py                 # 完整备份（含 7.6G 历史数据 ✓ 推荐）
+python3 PyTools/jobs/mw_v6_backup.py --no-data       # 只备状态（几 MB，秒级）
+python3 PyTools/jobs/mw_v6_backup.py --zip           # 额外打 tar.gz 便于异地</pre>
+<p><b>本次结果</b>：<code>~/Documents/MyDoc/Finance/Current/MW_Backups/mw6_20260912_174434/</code>，合计 <b>8.19 GB / 50 秒</b>：</p>
+<table>
+<tr><th>项</th><th>大小</th><th>说明</th></tr>
+<tr><td><code>Library_MotiveWave/</code></td><td>7.7 GB</td><td>含 <code>historical_data</code> <b>7.6 GB</b>（<b>唯一不可逆部分</b> ✓）；<code>workspaces/dxFeed</code> 1464 KB（与原库<b>逐字节一致</b> ✓，11 mwml / 9 bbt 引用 ✓）、<code>dxFeed-7</code> 444 KB、<code>config/</code>、<code>output/</code>、<code>settings.json</code>、<code>mwave_license.txt</code></td></tr>
+<tr><td><code>MotiveWave_Extensions/</code></td><td>460 KB</td><td>33 个 study class（md5 <code>3118261a7b83</code> ✓ 与当前一致）</td></tr>
+<tr><td><code>MotiveWave_Backup/</code></td><td>1.74 MB</td><td>MW 自动备份（<code>BBT</code>/<code>dxFeed</code>/<code>dxFeed-7*</code>）</td></tr>
+<tr><td><code>prefs_com.motivewave.platform.plist</code></td><td>4 KB</td><td>校验和 <code>49ec3d8baf724831e6e9d33b</code></td></tr>
+<tr><td>study 源码与 zips</td><td>13 MB</td><td><code>MotiveWave Studies</code> + <code>MotiveWave_Studies7.zip</code> + <code>sdk_api_doc{7,}.zip</code></td></tr>
+<tr><td><code>Intellj_BBT_Studies/</code></td><td>15 MB</td><td>另一份 study 工程</td></tr>
+<tr><td><code>MANIFEST.json</code></td><td>4 KB</td><td>时间/主机/macOS 15.5/两版应用存在性/workspace 清单/<b>类指纹</b>/关键文件校验和</td></tr>
+</table>
+<h3>还原命令</h3>
+<pre># ① 关闭所有 MotiveWave 实例（v6/v7 都关）
+B=~/Documents/MyDoc/Finance/Current/MW_Backups/mw6_20260912_174434
+# ② 还原（覆盖同名文件）
+rsync -a "$B/Library_MotiveWave/"     ~/Library/MotiveWave/
+rsync -a "$B/MotiveWave_Extensions/" ~/"MotiveWave Extensions"/
+rsync -a "$B/MotiveWave_Backup/"     ~/"MotiveWave Backup"/
+cp -p "$B/prefs_com.motivewave.platform.plist" ~/Library/Preferences/com.motivewave.platform.plist
+# ③ 切回 v6 扩展类 + 打开 v6
+python3 PyTools/jobs/mw_version_switch.py --to 6
+open -a /Applications/MotiveWave_6_9_12.app</pre>
+<p class="warn">建议：把该备份目录另复制一份到<b>外置盘</b>（8.2 GB）—— 目前与源在同一块盘。</p>
+
+<h2>7. 回退机制（版本切换器）</h2>
+<p><b>脚本</b>：<code>PyTools/jobs/mw_version_switch.py</code>（维护两套扩展 class 基线 + 一键互换 ✓ <b>绝不触碰 workspace</b> ✓）</p>
+<pre>python3 PyTools/jobs/mw_version_switch.py --status            # 看当前状态
+python3 PyTools/jobs/mw_version_switch.py --snapshot --as 6   # 首次必做：存 v6 基线（已做 ✓）
+python3 PyTools/jobs/mw_version_switch.py --snapshot --as 7   # 在 v7 环境里存 v7 基线
+python3 PyTools/jobs/mw_version_switch.py --to 7              # 切 v7（自动备份当前类）
+python3 PyTools/jobs/mw_version_switch.py --to 6              # ★ 一键回退 v6
+python3 PyTools/jobs/mw_version_switch.py --prep7             # 建 Raw_v7/ + 打印 workspace 指引</pre>
+<table>
+<tr><th>当前状态（实测）</th><th>值</th></tr>
+<tr><td>配置活动版本</td><td><b>v6</b>（<code>Config/mw_version.json</code>，2026-09-12 17:39）</td></tr>
+<tr><td>扩展类实际内容 / v6 基线</td><td>33 类 / <code>md5 3118261a7b83</code> ✓ 一致</td></tr>
+<tr><td>v7 基线</td><td>尚未建立（需在 v7 环境 <code>--snapshot --as 7</code>）</td></tr>
+<tr><td>切换备份</td><td>每次切换自动备份当前类为 <code>bbt.current-&lt;时间戳&gt;</code> ✓</td></tr>
+</table>
+<h3>为什么需要切换器（三个不可逆风险）</h3>
+<table>
+<tr><th>#</th><th>风险</th><th>后果</th><th>对策</th></tr>
+<tr><td>①</td><td>workspace 单向升级</td><td>v7 打开过 ⇒ v6 打不开盘面 ✗</td><td>工具不碰 workspace；v7 只用副本 ✓</td></tr>
+<tr><td>②</td><td>扩展目录<b>两版共享</b></td><td>v7 重编译覆盖 v6 类 ⇒ v6 崩溃 ✗</td><td>两套 class 基线 + 一键互换 ✓</td></tr>
+<tr><td>③</td><td>导出格式不同</td><td>同目录混写 ⇒ 下游解析错乱 ✗</td><td>v7 输出到 <code>Raw_v7/</code> ✓</td></tr>
+</table>
+
+<h2>8. 存储治理（与本轮同日完成，相关性强）</h2>
+<ul>
+<li><b>已有清理脚本</b>：<code>PyTools/order_flow_analysis/cleanup_old_order_flow_raw.py</code>（压缩 <code>.csv→.gz</code> ✓ 按保留天数删除 ✓，默认 <b>14 天</b> ✓）—— 但此前<b>从未被调度</b> ✗</li>
+<li><b>新增安全闸</b>（默认开 ✓）：删除某日前检查 ① 该日 <code>order_flow_signals</code> 有行 ② 该日 Adam 方向性帖的 <code>adam_deep_payload</code> 全部 <code>complete=1</code>；<b>源文件已缺失 ⇒ 允许删</b>（不可恢复）✓；<b>源文件仍在而不完整 ⇒ 跳过</b>（留机会补跑）✓ —— DRY-RUN 实证：08-16（引擎行 0）✗、08-17/18/19/20（payload 不完整）✗ 均被拦下 ✓</li>
+<li><b>已挂调度</b>：launchd <code>com.bbt.mw-raw-cleanup</code> 工作日 <b>15:00</b> <code>--days 14</code> ✓（<code>daily_jobs.py</code> 内的同名调度已移除，避免重复 ✗ 单一来源 = launchd ✓）</li>
+<li><b>与 v7 的关系</b>：v7 的 8–10× 压缩是 <b>MW 内部存储</b>改进；本系统导出侧的 gz 压缩 + Adam 深度分析<b>落库</b>（<code>adam_deep_payload</code> ⇒ 原始 MW 文件 14 天后可安全删除 ✓）叠加后，磁盘压力显著下降 ✓</li>
+</ul>
+
+<h2>9. 待办与决策清单</h2>
+<table>
+<tr><th>#</th><th>事项</th><th>状态</th></tr>
+<tr><td>1</td><td>v6 全面备份（8.19 GB + MANIFEST）</td><td><span class="ok">已完成 ✓</span></td></tr>
+<tr><td>2</td><td>备份复制到外置盘</td><td><span class="warn">待办（建议）</span></td></tr>
+<tr><td>3</td><td>复制 workspace 供 v7 专用（<code>dxFeed-v7test</code>）</td><td><span class="warn">待办（一行 cp -R）</span></td></tr>
+<tr><td>4</td><td><b>条件待办</b>：先用现有 study 试 v7（实测可行 ✓）；仅当报错/输出异常才重编译 ⇒ 无论是否重编都先存 v7 基线（<code>--snapshot --as 7</code>）</td><td><span class="ok">风险已降级 ✓</span></td></tr>
+<tr><td>5</td><td>编写 <code>mw_export_diff.py</code>（v6/v7 导出格式比对：表头/列数/时间单位/排序/压缩）</td><td><span class="warn">待办</span></td></tr>
+<tr><td>6</td><td>（若格式有变）编写 <code>mw_export_adapter.py</code> 兼容两版（复用 <code>mw_gzip</code>）</td><td><span class="warn">条件待办</span></td></tr>
+<tr><td>7</td><td>下游链在 v7 单日输出上试跑（健康检查→引擎→Adam 深度）</td><td><span class="warn">待办</span></td></tr>
+</table>
+
+<h2>10. 命令速查</h2>
+<pre># 备份 / 还原
+python3 PyTools/jobs/mw_v6_backup.py [--no-data] [--zip]
+B=~/Documents/MyDoc/Finance/Current/MW_Backups/mw6_20260912_174434   # 还原见 §6
+
+# 版本切换 / 回退
+python3 PyTools/jobs/mw_version_switch.py --status | --snapshot --as 6|7 | --to 6|7 | --prep7
+
+# MW 原始文件清理（14 天 + 安全闸）
+python3 PyTools/order_flow_analysis/cleanup_old_order_flow_raw.py --days 14 --dry-run
+python3 PyTools/order_flow_analysis/cleanup_old_order_flow_raw.py --days 14
+#   launchd：com.bbt.mw-raw-cleanup（工作日 15:00）
+
+# 关键路径
+#   应用        /Applications/MotiveWave_{6_9_12,7_1_0}.app
+#   workspace   ~/Library/MotiveWave/workspaces/{dxFeed,dxFeed-7,...}
+#   扩展类      ~/MotiveWave Extensions/dev/bbt/*.class
+#   历史数据    ~/Library/MotiveWave/historical_data（7.6 GB）
+#   导出        .../MotiveWave_OrderFlow_Data/{Raw,Raw_v7}
+#   配置        Config/{mw_version.json,mw_ext_store/}</pre>
+
+<h2>11. 风险登记</h2>
+<table>
+<tr><th>风险</th><th>等级</th><th>缓解</th></tr>
+<tr><td>不重编译 study 就用 v7 ⇒ 无法运行/无导出 <b>(原判为高，已按实测修正 ✗)</b></td><td><span class="warn">低–中</span></td><td><b>实测 v7.0.x 未重编译即可运行且导出正常</b> ✓（§3.1）；如遇加载报错或输出异常 ⇒ 再用 v7 SDK 重编（<code>sdk_api_doc7.zip</code> 已备 ✓）</td></tr>
+<tr><td>v7 打开了 v6 主库 ⇒ 不可逆</td><td><span class="bad">高（不可逆）</span></td><td>只用副本；切换器不碰 workspace ✓</td></tr>
+<tr><td>v7 重编译覆盖共享 class ⇒ v6 崩溃</td><td><span class="warn">中</span></td><td>两套 class 基线 + <code>--to 6</code> ✓（v6 基线已存 ✓）</td></tr>
+<tr><td>v7 迁移 historical_data 后 v6 读不了</td><td><span class="warn">中</span></td><td>已备份 7.6 GB 数据 ⇒ 可整目录还原 ✓</td></tr>
+<tr><td>导出格式变化污染下游</td><td><span class="warn">中</span></td><td>v7 独立输出目录 + 格式 diff + （必要）adapter ✓</td></tr>
+</table>
+</div></body></html>

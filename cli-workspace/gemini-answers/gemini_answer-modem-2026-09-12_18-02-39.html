@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 网络速度实测与 modem 新旧对比方案</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">网络速度实测与 modem 新旧对比方案</h1>
+<div class="meta">
+<span>Saved: 2026-09-12 18:02:39</span>
+<span>Topic: modem</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#网络测速与modem对比基线首次基线">网络测速与modem对比基线（首次基线）</a><ul><li><a href="#一、当前网络实测（你的旧-modem基线）">一、当前网络实测（你的"旧 modem"基线）</a></li><li><a href="#二、诊断：瓶颈很可能不是-modem（关键结论）">二、诊断：瓶颈很可能不是 modem（关键结论）</a></li><li><a href="#三、可复现的对比工具（已建好）">三、可复现的对比工具（已建好）</a></li><li><a href="#四、建议的对比流程（否则结论会失真）">四、建议的对比流程（否则结论会失真）</a></li><li><a href="#五、顺带两条与盘面相关的建议">五、顺带两条与盘面相关的建议</a></li></ul></li><li><a href="#S34-换机前后速度对比追加">S34 换机前后速度对比（追加）</a><ul><li><a href="#结论">结论</a></li><li><a href="#一、换机前后完整数据（均为-Wi-Fi-实测，未插网线）">一、换机前后完整数据（均为 Wi-Fi 实测，未插网线）</a></li><li><a href="#二、三点解读">二、三点解读</a></li><li><a href="#三、顺带诊断">三、顺带诊断</a></li><li><a href="#四、与本机交易/数据管线的关系">四、与本机交易/数据管线的关系</a></li><li><a href="#五、后续建议（按收益排序）">五、后续建议（按收益排序）</a></li><li><a href="#逐次精确数值">逐次精确数值（完整表格）</a></li><li><a href="#六、一致性与可信度检查">六、一致性与可信度检查</a></li><li><a href="#七、命令与路径">七、命令与路径</a></li></ul></li><li><a href="#大品牌中支持-SQM-的路由器对比追加">大品牌中支持 SQM 的路由器对比（追加）</a><ul><li><a href="#本节要点">本节要点</a></li><li><a href="#判定标准">判定标准</a></li><li><a href="#一、大品牌-SQM-支持情况">一、大品牌 SQM 支持情况</a></li><li><a href="#二、明确不满足的大牌">二、明确不满足的大牌</a></li><li><a href="#三、按需求（250-Mbps-+-低延迟-+-2.5G）的排序">三、按需求（250 Mbps + 低延迟 + 2.5G）的排序</a></li><li><a href="#四、替代路线">四、替代路线</a></li></ul></li><li><a href="#SQM-路由器完整实施方案UniFi--MikroTik--Netgear追加">SQM 路由器完整实施方案（UniFi / MikroTik / Netgear）（追加）</a><ul><li><a href="#五、结论与最短决策路径">五、结论与最短决策路径</a></li><li><a href="#本节要点">本节要点</a></li><li><a href="#说明">说明</a></li><li><a href="#方案-A（首选）：UniFi-UCG-Ultra-+-U6-Pro/U6+">方案 A（首选）：UniFi UCG-Ultra + U6 Pro/U6+</a></li><li><a href="#方案-B-/-C：另两条路的同款三件套">方案 B / C：另两条路的同款三件套</a></li><li><a href="#零成本且必须先做的两件事">零成本且必须先做的两件事</a></li><li><a href="#最终建议（并列四选）">最终建议（并列四选）</a></li></ul></li><li><a href="#路由器位置与天线朝向的实测影响含-dB-释义追加">路由器位置与天线朝向的实测影响（含 dB 释义）（追加）</a><ul><li><a href="#一、位置变化的效果（前后对比实测）">一、位置变化的效果（前后对比实测）</a></li><li><a href="#二、dB-是什么：衡量两个功率之间的比值">二、dB 是什么：衡量两个功率之间的比值</a></li><li><a href="#三、木箱各因素的实际贡献（材质不是主因）">三、木箱各因素的实际贡献（材质不是主因）</a></li><li><a href="#四、天线朝向的正确规则">四、天线朝向的正确规则</a></li><li><a href="#五、位置规则（比天线姿态更重要）">五、位置规则（比天线姿态更重要）</a></li><li><a href="#六、实操标准">六、实操标准</a></li><li><a href="#七、验证是不是箱子的锅的-A/B-方法">七、验证"是不是箱子的锅"的 A/B 方法</a></li><li><a href="#八、结论">八、结论</a></li></ul></li><li><a href="#2-楼覆盖实测信道优化与-MoCA-有线方案调研追加">2 楼覆盖实测、信道优化与 MoCA 有线方案调研（追加）</a><ul><li><a href="#一、2-楼实测：从不可用到可用">一、2 楼实测：从"不可用"到"可用"</a></li><li><a href="#二、与-1-楼的差距（结构衰减是硬事实）">二、与 1 楼的差距（结构衰减是硬事实）</a></li><li><a href="#三、2-楼还可榨取的免费增益（可选）">三、2 楼还可榨取的免费增益（可选）</a></li><li><a href="#四、如何查-2-楼是否有可用同轴口（软件查不到）">四、如何查 2 楼是否有可用同轴口（软件查不到）</a></li><li><a href="#五、MoCA-选型（3-个硬条件）">五、MoCA 选型（3 个硬条件）</a></li><li><a href="#六、接法（拓扑）">六、接法（拓扑）</a></li><li><a href="#七、权衡（当前可以不做）">七、权衡（当前可以不做）</a></li><li><a href="#八、当前最终状态">八、当前最终状态</a></li></ul></li></ul></div>
+<section class="main-content">
+<h2 id="网络测速与modem对比基线首次基线">网络测速与modem对比基线（首次基线）</h2>
+<h3 id="一、当前网络实测（你的旧-modem基线）">一、当前网络实测（你的"旧 modem"基线）</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>第 1 次</th>
+<th>第 2 次</th>
+<th>判读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>下行</strong></td>
+<td><strong>75.95 Mbps</strong></td>
+<td><strong>58.73 Mbps</strong></td>
+<td>⚠️ 波动 23%（Wi-Fi 特性，单次不可信）</td>
+</tr>
+<tr>
+<td><strong>上行</strong></td>
+<td><strong>29.57 Mbps</strong></td>
+<td><strong>22.49 Mbps</strong></td>
+<td>⚠️ 同样波动</td>
+</tr>
+<tr>
+<td><strong>空闲延迟</strong></td>
+<td>25.9 ms</td>
+<td>25.1 ms</td>
+<td>✅ 良好（2315 RPM）</td>
+</tr>
+<tr>
+<td><strong>负载响应性</strong></td>
+<td><strong>404.6 ms / Low</strong></td>
+<td><strong>513.1 ms / Low</strong></td>
+<td>❌ 缓冲膨胀严重（下载时延迟飙到 0.4–0.5 秒）</td>
+</tr>
+<tr>
+<td><strong>丢包</strong></td>
+<td><strong>0.0%</strong></td>
+<td><strong>0.0%</strong></td>
+<td>✅ 很好</td>
+</tr>
+<tr>
+<td>WAN 延迟（1.1.1.1 / 8.8.8.8）</td>
+<td>17.3 / 16.4 ms</td>
+<td>15.6 / <strong>27.2 ms（抖动 26 ms）</strong></td>
+<td>⚠️ 抖动偏高</td>
+</tr>
+</tbody>
+</table>
+<p>测量工具：macOS 自带 <code>networkQuality -v</code>（Apple 官方，含响应性/RPM 指标，精度标记 High）+ <code>ping</code>（网关 / 1.1.1.1 / 8.8.8.8，各 15 包）。测速端点 <code>ussea4-edge-fx-014.aaplimg.com</code>，传输层 ECN 100% 禁用、L4S 100% 禁用。</p>
+<h3 id="二、诊断：瓶颈很可能不是-modem（关键结论）">二、诊断：瓶颈很可能不是 modem（关键结论）</h3>
+<table>
+<thead>
+<tr>
+<th>发现</th>
+<th>实测值</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>你在走 Wi-Fi</strong></td>
+<td><code>en0</code> → <strong><code>TP-LINK_BX_5G</code></strong>（5GHz ch36 / 80MHz / 802.11ac）</td>
+<td>测速结果<strong>受无线链路限制</strong></td>
+</tr>
+<tr>
+<td><strong>Wi-Fi 信号极弱</strong></td>
+<td><strong>−81 dBm / 噪声 −89 dBm ⇒ SNR 仅 8–9 dB</strong>（良好应 &gt;25 dB）</td>
+<td>直接解释：发送速率只有 <strong>260 Mbps（MCS 3）</strong>、网关抖动 4.4 ms、WAN 抖动偶发 26 ms</td>
+</tr>
+<tr>
+<td><strong>路由器是旧款</strong></td>
+<td>网关标题 = <strong><code>Archer C7</code></strong>（TP-Link 2013 年代 <strong>Wi-Fi 5</strong>，<strong>无 SQM/QoS</strong>）</td>
+<td>缓冲膨胀（404–513 ms）符合无 SQM 的特征</td>
+</tr>
+<tr>
+<td>你有<strong>有线口</strong>但未用</td>
+<td><code>Ethernet Adapter (en4/en5/en6)</code>（当前未连接）</td>
+<td>⇒ <strong>对比测试必须上有线</strong></td>
+</tr>
+<tr>
+<td>ISP / 地区</td>
+<td><strong>Comcast</strong>（73.254.34.30，Sammamish WA）</td>
+<td>计划档位待确认（上行 30 附近）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>一句话</strong>：现在测出的 59–76 / 22–30 Mbps 与"0.4 秒缓冲膨胀"，<strong>主因是弱 Wi-Fi + 老路由器</strong> —— 换 modem 很可能改善有限，除非你用<strong>有线</strong>测或同时解决无线问题。</p>
+</blockquote>
+<h3 id="三、可复现的对比工具（已建好）">三、可复现的对比工具（已建好）</h3>
+<pre><code class="language-bash"># 建基线（已记录 2 次）
+python3 PyTools/jobs/net_speed_test.py --label "旧modem-WiFi基线"
+# 换 modem 后（★ 建议插网线再测）
+python3 PyTools/jobs/net_speed_test.py --label "新modem-有线"
+# 快速模式（只测延迟与链路，几秒）
+python3 PyTools/jobs/net_speed_test.py --label "新modem-WiFi" --skip-speed
+</code></pre>
+<p><strong>脚本路径</strong>：<code>PyTools/jobs/net_speed_test.py</code>；<strong>日志</strong>：<code>Config/net_speed_log.json</code>（每次追加，并自动打印历史对比表）。</p>
+<p>采集项：① <code>networkQuality</code> 下行/上行 capacity（含精度）+ Idle Latency + Responsiveness（缓冲膨胀）；② ping 网关 / 1.1.1.1 / 8.8.8.8 的平均/最大/<strong>抖动(stddev)</strong>/丢包；③ 链路信息：活动接口（有线/无线）、Wi-Fi 的 PHY/信道/信号与噪声(SNR)/发送速率，或以太网 media。</p>
+<h3 id="四、建议的对比流程（否则结论会失真）">四、建议的对比流程（否则结论会失真）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>做法</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><strong>插上网线</strong>（任一 Ethernet Adapter）再测</td>
+<td>排除 Wi-Fi 干扰，最关键一步</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>每个配置<strong>连测 3 次</strong>取中位数</td>
+<td>实测单次波动达 23%</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>同一时段</strong>测（避开晚高峰）</td>
+<td>Comcast 高峰降速常见</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>测<strong>延迟与抖动</strong>同样重要（不只是 Mbps）</td>
+<td>你的 <strong>DOM/Tick 管道 + 实时提醒</strong>吃的是延迟稳定性</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>关注 <strong>Responsiveness</strong> 指标（&gt;1000 RPM 为佳，现在 148）</td>
+<td>缓冲膨胀会让盘中操作"顿"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="五、顺带两条与盘面相关的建议">五、顺带两条与盘面相关的建议</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Wi-Fi 太弱应先解决</strong></td>
+<td>−81 dBm 意味着丢包重传与抖动；与路由器同处一室或用有线，比换 modem 更有效</td>
+</tr>
+<tr>
+<td><strong>Archer C7 升级</strong></td>
+<td>若换新 modem 也顺手换 <strong>Wi-Fi 6 路由器（支持 SQM）</strong> ⇒ 缓冲膨胀可从 ~400 ms 降到 <strong>&lt;30 ms</strong>（对实时数据流收益巨大）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>后续</strong>：换完 modem（或插上网线）后再跑一次并给出前后对比表，直接给标签即可（例如 <code>--label "新modem-有线"</code>）。</p>
+</section>
+<section><h2 id="S34-换机前后速度对比追加">S34 换机前后速度对比（追加）</h2><h3 id="结论">结论</h3>
+<p>ARRIS Surfboard S34 换上后，<strong>下行 58.7 → 207–230 Mbps（约 3.5×）</strong>、<strong>上行 22.5 → 42–43 Mbps（约 1.9×）</strong>、<strong>缓冲膨胀 404–513 ms → 207–246 ms（改善约 2×）</strong>。原先的判断得到证实：套餐本身 ≥200–250 Mbps，是旧 modem <strong>SB6141（DOCSIS 3.0，8×4 通道）</strong> 把速率压在 ~75 Mbps；同时换机重启后路由器重选信道（36 → 157），Wi-Fi 信号由 −81 dBm / SNR 8–9 dB 改善为 −70 dBm / SNR 19–25 dB。残留的缓冲膨胀（246 ms，Medium）几乎可确定来自 <strong>Archer C7 路由器无 SQM</strong>。</p>
+<h3 id="一、换机前后完整数据（均为-Wi-Fi-实测，未插网线）">一、换机前后完整数据（均为 Wi-Fi 实测，未插网线）</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>旧 SB6141（DOCSIS 3.0）</th>
+<th>新 S34（DOCSIS 3.1）</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>下行</td>
+<td>58.7 / 59（最好一次 76）Mbps</td>
+<td><strong>207.5 · 230.3 · 215.1</strong> Mbps</td>
+<td><strong>约 3.5×</strong></td>
+</tr>
+<tr>
+<td>上行</td>
+<td>22.5（最好 29.6）Mbps</td>
+<td><strong>42.1 · 42.4 · 43.2</strong> Mbps</td>
+<td><strong>约 1.9×</strong></td>
+</tr>
+<tr>
+<td>负载响应（缓冲膨胀）</td>
+<td><strong>404–513 ms（Low）</strong></td>
+<td><strong>207 · 243 · 246 ms（Medium）</strong></td>
+<td><strong>改善 ≈2×</strong></td>
+</tr>
+<tr>
+<td>空闲延迟</td>
+<td>25.9 / 25.1 ms</td>
+<td><strong>21.6 · 23.6 · 49.6</strong> ms</td>
+<td>略优（run1 为瞬时波动）</td>
+</tr>
+<tr>
+<td>网关 ping（LAN）</td>
+<td>平均 5.0–5.1 ms · 抖动 4.3–4.6 ms</td>
+<td><strong>平均 3.3 ms · 抖动 1.6–3.6 ms</strong></td>
+<td>更稳</td>
+</tr>
+<tr>
+<td>WAN 1.1.1.1</td>
+<td>17.3 / 15.6 ms</td>
+<td>16.0 ms · 抖动 3.0</td>
+<td>持平偏好</td>
+</tr>
+<tr>
+<td>WAN 8.8.8.8</td>
+<td>16.4 ms · 抖动 2.9（曾 27.2 ms / 抖动 26.2）</td>
+<td><strong>14.2 ms · 抖动 1.9</strong></td>
+<td>更稳</td>
+</tr>
+<tr>
+<td>丢包</td>
+<td>0.0%</td>
+<td><strong>0.0%</strong></td>
+<td>保持</td>
+</tr>
+<tr>
+<td>Wi-Fi 信道 / PHY</td>
+<td>ch36（5GHz/80MHz）/ 802.11ac</td>
+<td><strong>ch157（5GHz/80MHz）/ 802.11ac</strong></td>
+<td>换机后重选，更干净</td>
+</tr>
+<tr>
+<td>Wi-Fi 信号 / SNR</td>
+<td><strong>−81 dBm / SNR 8–9 dB</strong></td>
+<td><strong>−70 dBm / SNR 19–25 dB</strong></td>
+<td>意外改善</td>
+</tr>
+<tr>
+<td>Wi-Fi 发送速率</td>
+<td>260 Mbps（MCS 3）</td>
+<td><strong>390 Mbps（MCS 4）</strong></td>
+<td>提升</td>
+</tr>
+</tbody>
+</table>
+<p>测量工具：macOS 自带 <code>networkQuality -v</code>（Apple 官方，含 Responsiveness/RPM 指标，精度 High）+ <code>ping</code>（网关 / 1.1.1.1 / 8.8.8.8，各 15 包，间隔 0.3 s）。换后连测 3 次。</p>
+<h3 id="二、三点解读">二、三点解读</h3>
+<ol>
+<li><strong>套餐速度被旧 modem 压住了</strong>：SB6141 为 <strong>DOCSIS 3.0 / 8×4 通道绑定</strong>（2013 年机型），实际只能送达约 75–150 Mbps。换 S34（DOCSIS 3.1）后立刻解锁到 207–230 Mbps，说明套餐本身就 ≥200–250 Mbps。<strong>换机收益超出预期：不只是延迟改善，而是速率量级提升。</strong></li>
+<li><strong>缓冲膨胀改善但未根治</strong>：513 → 246 ms，评级由 Low 升为 Medium。剩余部分几乎可确定来自 <strong>TP-Link Archer C7（Wi-Fi 5，无 SQM/QoS 智能队列）</strong>，而非 modem。</li>
+<li><strong>Wi-Fi 意外改善</strong>：信号 −81 → −70 dBm、SNR 8 → 19–25 dB、发送速率 260 → 390 Mbps、信道由 36 变为 157。原因为换机断电重启后路由器重新选信道（避免拥挤频段）。但 −70 dBm 仍偏弱（理想应 &gt;30 dB SNR），属位置问题。</li>
+</ol>
+<h3 id="三、顺带诊断">三、顺带诊断</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>结果</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S34 状态页</td>
+<td><code>https://192.168.100.1/</code> 返回 302 跳转；常见子路径（cmconnectionstatus.html / cmstatus.html / cmswinfo.html）均 404</td>
+<td>新固件改用其他入口（多为 <code>/at_a_glance.html</code> 或需登录）。需要查看下行/上行信道数与 SNR 时可再试；当前实测速率已证明链路健康，非必需</td>
+</tr>
+<tr>
+<td>有线口</td>
+<td><code>en1</code>–<code>en6</code> 全部 <strong>inactive</strong></td>
+<td>本次结果全部为 Wi-Fi 下的数据，未插网线</td>
+</tr>
+</tbody>
+</table>
+<h3 id="四、与本机交易/数据管线的关系">四、与本机交易/数据管线的关系</h3>
+<table>
+<thead>
+<tr>
+<th>管线</th>
+<th>换机影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MotiveWave（本地数据采集、DOM/Tick 导出）</td>
+<td>不依赖外网，换机期间不受影响</td>
+</tr>
+<tr>
+<td>QD WebSocket / TOS·Schwab API / yfinance 抓取 / 邮件提醒</td>
+<td>依赖外网，换机激活期间短暂中断；因此建议避开美东 RTH 时段操作</td>
+</tr>
+<tr>
+<td>盘中实时性</td>
+<td>负载响应 246 ms 仍偏高（Medium），在网络被占满时会体现为界面/数据延迟；空闲延迟 21–24 ms 与抖动 1.6–3.6 ms 已属良好</td>
+</tr>
+</tbody>
+</table>
+<h3 id="五、后续建议（按收益排序）">五、后续建议（按收益排序）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>动作</th>
+<th>预期收益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>插网线复测一次</strong>，验证套餐真实上限与 Wi-Fi 是否仍为瓶颈</td>
+<td>若结果 &gt;230 Mbps，说明 Wi-Fi 仍压着上限</td>
+</tr>
+<tr>
+<td>2</td>
+<td>解决 Archer C7 的缓冲膨胀：① 官方固件开启 QoS/带宽控制（部分有效）；② 或刷 OpenWrt（C7 v2 支持良好）并启用 SQM（cake / fq_codel）</td>
+<td>负载响应 246 ms 有望降至 &lt;30 ms，对盘中数据流收益最大</td>
+</tr>
+<tr>
+<td>3</td>
+<td>长期：更换支持 SQM 的 Wi-Fi 6 路由器（C7 已约 12 年）</td>
+<td>延迟、信号、多设备并发全面提升</td>
+</tr>
+<tr>
+<td>4</td>
+<td>保留 SB6141 ≥30 天（S34 也可退）</td>
+<td>回退保障；目前看无退货必要</td>
+</tr>
+</tbody>
+</table>
+<h3 id="逐次精确数值">逐次精确数值（完整表格）</h3><table><thead><tr><th>记录</th><th>下行 Mbps</th><th>上行 Mbps</th><th>空闲延迟 ms</th><th>负载响应 ms</th><th>评级</th><th>网关 avg/jitter ms</th><th>1.1.1.1 avg ms</th><th>8.8.8.8 avg/jitter ms</th><th>SNR dB</th></tr></thead><tbody><tr><td>旧modem-WiFi基线（SB6141）</td><td>58.731</td><td>22.49</td><td>25.05</td><td>513.102</td><td>Low</td><td>5.11 / 4.629</td><td>17.315</td><td>16.370 / 2.924</td><td>8（−81 dBm）</td></tr><tr><td>旧modem 首测（同日更早）</td><td>75.954</td><td>29.572</td><td>25.909</td><td>404.642</td><td>Low</td><td>12.019 / 21.041</td><td>17.315</td><td>16.370 / 2.924</td><td>8</td></tr><tr><td>新modem-S34-WiFi run1</td><td>207.492</td><td>42.081</td><td>49.630</td><td>206.713</td><td>Medium</td><td>17.316 / 31.762</td><td>16.0</td><td>14.2 / 1.9</td><td>25（−70 dBm）</td></tr><tr><td>新modem-S34-WiFi run2</td><td>230.297</td><td>42.443</td><td>23.631</td><td>243.055</td><td>Medium</td><td>4.535 / 3.607</td><td>16.0</td><td>14.2 / 1.9</td><td>19</td></tr><tr><td>新modem-S34-WiFi run3</td><td>215.123</td><td>43.238</td><td>21.641</td><td>246.404</td><td>Medium</td><td>3.279 / 1.587</td><td>16.0</td><td>14.2 / 1.9</td><td>20</td></tr></tbody></table><h3 id="六、一致性与可信度检查">六、一致性与可信度检查</h3>
+<p>换后 3 次下行 207.5 / 230.3 / 215.1 Mbps，离散度约 ±5%；旧机在相同 Wi-Fi 条件下波动达 23%（58.7 ↔ 76）。上行 42.1 / 42.4 / 43.2 几乎无波动。结论：链路稳定性显著改善。</p>
+<h3 id="七、命令与路径">七、命令与路径</h3>
+<pre><code class="language-bash"># 换后复测（本次实际使用）
+/usr/local/bin/python3 /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/jobs/net_speed_test.py --label "新modem-S34-WiFi"
+
+# 有线复测（建议下一步）
+/usr/local/bin/python3 /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/jobs/net_speed_test.py --label "新modem-S34-有线"
+
+# 快速模式（只测延迟与链路）
+/usr/local/bin/python3 /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/jobs/net_speed_test.py --label "新modem-S34-WiFi" --skip-speed
+</code></pre>
+<p>日志：<code>/Users/zhijiebian/Documents/MyDoc/Finance/Current/Config/net_speed_log.json</code>（脚本每次追加并自动打印历史对比表）</p>
+<p>硬件：旧 ARRIS SURFboard <strong>SB6141</strong>（DOCSIS 3.0，HFC MAC <code>A7A4A2002F93</code>，P/N <code>581901-022-00</code>）→ 新 <strong>ARRIS Surfboard S34</strong>（DOCSIS 3.1 Multi-Gig，2.5Gbps + 1Gbps Ethernet 口）；路由器维持 <strong>TP-Link Archer C7 v2（AC1750 / Wi-Fi 5）</strong>，其 WAN 口为 1 Gbps，故 S34 的 2.5G 口当前未完全利用。</p></section><section><h2 id="大品牌中支持-SQM-的路由器对比追加">大品牌中支持 SQM 的路由器对比（追加）</h2>
+<h3 id="本节要点">本节要点</h3><h3 id="判定标准">判定标准</h3>
+<p>「支持 SQM」= 支持真 AQM（cake 或 fq_codel），不是"限速式 QoS"、不是"游戏加速/设备优先"。</p>
+<h3 id="一、大品牌-SQM-支持情况">一、大品牌 SQM 支持情况</h3>
+<table>
+<thead>
+<tr>
+<th>品牌</th>
+<th>品牌体量</th>
+<th>SQM 类型</th>
+<th>是否真 AQM</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ubiquiti（UniFi）</td>
+<td>上市公司 · prosumer 头部</td>
+<td>Smart Queues</td>
+<td>是，fq_codel 系</td>
+<td>UCG 系列 / UDM / UDR；UDR 自带 Wi-Fi，其余需另配 AP</td>
+</tr>
+<tr>
+<td>MikroTik</td>
+<td>网络设备大厂（ISP/企业广泛使用）</td>
+<td>RouterOS 原生 cake</td>
+<td>是，cake + fq_codel + codel</td>
+<td>必须处理 FastTrack 会绕过队列的问题；学习曲线陡</td>
+</tr>
+<tr>
+<td>Netgear Nighthawk Pro Gaming（DumaOS）</td>
+<td>消费大牌</td>
+<td>Anti-Bufferbloat</td>
+<td>是</td>
+<td>仅 XR 系列（XR1000/XR500 等）；普通 Nighthawk 无</td>
+</tr>
+<tr>
+<td>Firewalla</td>
+<td>中大型 prosumer</td>
+<td>Smart Queue</td>
+<td>是，cake/fq_codel</td>
+<td>开 SQM 后吞吐有折损；价格偏高</td>
+</tr>
+<tr>
+<td>Netgate（pfSense/OPNsense）</td>
+<td>企业级</td>
+<td>cake/fq_codel limiter</td>
+<td>是，最强</td>
+<td>最灵活稳定；需自行配置 + 另配 AP</td>
+</tr>
+<tr>
+<td>GL.iNet</td>
+<td>细分专业厂（小）</td>
+<td>OpenWrt SQM</td>
+<td>是，cake</td>
+<td>内置网页开关，不用刷机</td>
+</tr>
+</tbody>
+</table>
+<h3 id="二、明确不满足的大牌">二、明确不满足的大牌</h3>
+<table>
+<thead>
+<tr>
+<th>品牌</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TP-Link（消费级）</td>
+<td>只有限速式 QoS；实测启用后上行 −43%、延迟零改善；Omada 企业线也没有 cake</td>
+</tr>
+<tr>
+<td>ASUS</td>
+<td>Adaptive QoS 口碑差；原生固件无 cake</td>
+</tr>
+<tr>
+<td>Netgear 非 XR 系列</td>
+<td>只有常规 QoS，无 Anti-Bufferbloat</td>
+</tr>
+<tr>
+<td>Synology / Linksys / Google Nest / eero</td>
+<td>无用户可用的真 AQM</td>
+</tr>
+<tr>
+<td>ISP 网关（Xfinity 自带）</td>
+<td>无用户可控 AQM（另有 LLD 路线，见下）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="三、按需求（250-Mbps-+-低延迟-+-2.5G）的排序">三、按需求（250 Mbps + 低延迟 + 2.5G）的排序</h3>
+<table>
+<thead>
+<tr>
+<th>排序</th>
+<th>方案</th>
+<th>体量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>UniFi UCG-Ultra + U6 Pro/U6+</td>
+<td>大厂（上市）</td>
+<td>Smart Queues 省心 + 2.5G WAN + 稳定；缺点两个设备、需 Unifi 生态</td>
+</tr>
+<tr>
+<td>2</td>
+<td>MikroTik（hAP ax³ / RB5009）</td>
+<td>网络大厂</td>
+<td>原生 cake、性能余量足、便宜；配置门槛高</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Netgear Nighthawk Pro Gaming（XR）</td>
+<td>消费大牌</td>
+<td>Anti-Bufferbloat、一体化、界面友好；Wi-Fi 世代偏旧、2.5G 口要挑型号</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Firewalla（Gold/Purple）</td>
+<td>prosumer</td>
+<td>功能强；开 SQM 掉吞吐、价高</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Netgate + pfSense/OPNsense + AP</td>
+<td>企业级</td>
+<td>最强最自由；最折腾</td>
+</tr>
+</tbody>
+</table>
+<h3 id="四、替代路线">四、替代路线</h3>
+<p>Comcast 新一代网关（XB8 等）在支持 Low Latency DOCSIS（LLD）的档位上由 ISP 侧做 AQM，即"不买路由器也能降缓冲膨胀"。但这与自购 S34（DOCSIS 3.1 modem）的路线互斥：用自有 modem 就没有 ISP 侧 AQM。属需核实套餐/设备支持情况的备选。</p>
+<h2 id="SQM-路由器完整实施方案UniFi--MikroTik--Netgear追加">SQM 路由器完整实施方案（UniFi / MikroTik / Netgear）（追加）</h2>
+<h3 id="五、结论与最短决策路径">五、结论与最短决策路径</h3>
+<ul>
+<li>又大又省心：UniFi（上市公司 + Smart Queues 一键）</li>
+<li>又大又强：MikroTik（原生 cake）/ Netgate（最灵活）</li>
+<li>最接近原品牌的消费大牌：Netgear Nighthawk Pro Gaming（有 Anti-Bufferbloat）</li>
+<li>需要避开：TP-Link 消费级 / ASUS / 普通 Nighthawk / Synology / Google / eero</li>
+</ul>
+<p>最短决策路径：<br/>
+1. 省心 + 低延迟 ⇒ UniFi UCG-Ultra + U6+<br/>
+2. 性价比 + 原生 cake（愿意学）⇒ MikroTik<br/>
+3. 一台搞定 + 大牌 ⇒ Netgear Nighthawk Pro Gaming（XR 系列）</p></section><section><h3 id="本节要点">本节要点</h3><h3 id="说明">说明</h3>
+<p>Ubiquiti 官网商店为 JS 渲染，规格页无法直接抓取，端口数量请下单页再核对一次；其余参数为确定值。</p>
+<h3 id="方案-A（首选）：UniFi-UCG-Ultra-+-U6-Pro/U6+">方案 A（首选）：UniFi UCG-Ultra + U6 Pro/U6+</h3>
+<h4 id="①-与-S34-的接线">① 与 S34 的接线</h4>
+<pre><code>S34（2.5G 口）──2.5G 网线──▶ UCG-Ultra 的 2.5G WAN 口
+UCG-Ultra 的 LAN 口 ──▶ PoE 交换机（或 PoE 注入器）──▶ U6 Pro / U6+
+                        └─▶ 交换机其余口 ──▶ 交易 Mac / 其它有线设备
+</code></pre>
+<p>三个必须提前知道的点：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>事项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>UCG-Ultra 只有 1 个 LAN 口（约 1×2.5G WAN + 1×GbE LAN）</td>
+<td>多台有线设备必须再配交换机（建议带 PoE）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>UCG-Ultra 不带 PoE</td>
+<td>U6 系列 AP 走 PoE 供电，需 PoE 交换机或注入器</td>
+</tr>
+<tr>
+<td>3</td>
+<td>管理方式</td>
+<td>UCG-Ultra 自带控制器，无需另买 Cloud Key；手机 App / 网页即可</td>
+</tr>
+</tbody>
+</table>
+<h4 id="②-SQM-参数（UniFi-Smart-Queues）">② SQM 参数（UniFi Smart Queues）</h4>
+<p>路径：UniFi Network → Settings → Internet →（你的 WAN）→ Smart Queues</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>填什么</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enable Smart Queues</td>
+<td>开</td>
+<td>即 fq_codel 系 AQM</td>
+</tr>
+<tr>
+<td>Download</td>
+<td>先填 225 Mbps（实测 207–230 的约 95%）</td>
+<td>UniFi 内部再按比例整形</td>
+</tr>
+<tr>
+<td>Upload</td>
+<td>先填 40 Mbps（实测 41–49 的约 90%）</td>
+<td>上行是丢包主因</td>
+</tr>
+<tr>
+<td>若仍有膨胀</td>
+<td>两个值各再降 10%（≈200 / 36）后复测</td>
+<td>直到负载增量 &lt;10 ms</td>
+</tr>
+<tr>
+<td>若吞吐被压太低</td>
+<td>先把 Download 调回实测值，上行保持保守</td>
+<td>下行整形对 CPU 更重</td>
+</tr>
+</tbody>
+</table>
+<p>验收命令：</p>
+<pre><code class="language-bash">/usr/local/bin/python3 /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/jobs/net_speed_test.py --label "UniFi-SQM"
+/usr/local/bin/python3 /Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/PyTools/jobs/net_bufferbloat_test.py --label "UniFi-SQM" --load-sec 25
+</code></pre>
+<p>目标：负载下 LAN 增量 &lt;10 ms、公网增量 &lt;15 ms、丢包 ≈0%（当前负载丢包 8–16%）。</p>
+<h4 id="③-买前核对清单">③ 买前核对清单</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>核对项</th>
+<th>要求</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2.5G WAN 口</td>
+<td>必须有（UCG-Ultra 有）</td>
+<td>配 S34 的 2.5G 口</td>
+</tr>
+<tr>
+<td>2</td>
+<td>LAN 口数量</td>
+<td>数清要接几台有线设备（UCG-Ultra 只 1 个）</td>
+<td>否则要买交换机；想省事选 LAN 口多的网关（下单页确认）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PoE 支持</td>
+<td>UCG-Ultra 无 PoE，需 PoE 交换机/注入器</td>
+<td>AP 供电</td>
+</tr>
+<tr>
+<td>4</td>
+<td>SQM 吞吐上限</td>
+<td>需 ≥250 Mbps（看该型号 Smart Queues 实测报告）</td>
+<td>套餐 200–250 Mbps</td>
+</tr>
+<tr>
+<td>5</td>
+<td>AP 型号</td>
+<td>弱信号场景选 U6 Pro（5GHz 4×4）而非 U6+（2×2）</td>
+<td>覆盖更强</td>
+</tr>
+<tr>
+<td>6</td>
+<td>AP 摆放位置</td>
+<td>不要放在木制机柜里</td>
+<td>现用 C7 就在柜内（照片可见），是 −70 dBm 的主因之一；新 AP 放柜里同样差</td>
+</tr>
+</tbody>
+</table>
+<p>预算参考：UCG-Ultra ≈129 + U6 Pro ≈159 + PoE 交换机/注入器 ≈20–60 ≈ 310–350。</p>
+<h3 id="方案-B-/-C：另两条路的同款三件套">方案 B / C：另两条路的同款三件套</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>MikroTik（hAP ax³ / RB5009）</th>
+<th>Netgear Nighthawk Pro Gaming（XR 系列）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 接线</td>
+<td>S34 → MikroTik 的 2.5G/WAN 口（多数型号多个 GbE LAN，可直接接有线设备，无需额外交换机）</td>
+<td>S34 → XR 的 WAN 口（4 个 GbE LAN；XR 系列多为 1G 口，2.5G 需挑型号）</td>
+</tr>
+<tr>
+<td>② SQM 参数</td>
+<td>queue type=cake + bandwidth=225M/40M；必须关掉/绕过 FastTrack（否则队列不生效）</td>
+<td>DumaOS → Anti-Bufferbloat → 选 Always + 带宽滑块设 80–90%（≈200/36）</td>
+</tr>
+<tr>
+<td>③ 买前核对</td>
+<td>原生 cake（RouterOS queue type）；CPU 余量 ≥500 Mbps；是否需另配 AP</td>
+<td>必须是 XR 系列（普通 Nighthawk 无 Anti-Bufferbloat）；2.5G 口型号；Wi-Fi 世代</td>
+</tr>
+<tr>
+<td>优点/缺点</td>
+<td>最便宜最灵活 / 门槛高</td>
+<td>一体化、界面友好 / Wi-Fi 偏旧、2.5G 要挑</td>
+</tr>
+</tbody>
+</table>
+<h3 id="零成本且必须先做的两件事">零成本且必须先做的两件事</h3>
+<table>
+<thead>
+<tr>
+<th>动作</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>把路由器/AP 从木柜里挪出来，放到开放位置、离交易 Mac 更近</td>
+<td>当前 −70 dBm / SNR 18–23 很大程度来自柜体遮挡；挪出来 SNR 可能直接上一个档次</td>
+</tr>
+<tr>
+<td>交易 Mac 走有线</td>
+<td>绕开 Wi-Fi 重传层，网关延迟抖动再降</td>
+</tr>
+</tbody>
+</table>
+<h3 id="最终建议（并列四选）">最终建议（并列四选）</h3>
+<table>
+<thead>
+<tr>
+<th>偏好</th>
+<th>选择</th>
+<th>总价</th>
+<th>关键点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>最省心 + 大牌 + 低延迟</td>
+<td>UniFi UCG-Ultra + U6 Pro (+PoE 交换机)</td>
+<td>≈$310–350</td>
+<td>Smart Queues、自带控制器；注意 LAN 口只有 1 个</td>
+</tr>
+<tr>
+<td>性价比 + 原生 cake（愿意学）</td>
+<td>MikroTik</td>
+<td>≈$100–160</td>
+<td>cake 最强；注意 FastTrack</td>
+</tr>
+<tr>
+<td>一台搞定 + 消费大牌</td>
+<td>Netgear Nighthawk Pro Gaming（XR）</td>
+<td>≈$200–300</td>
+<td>Anti-Bufferbloat；注意 2.5G 口要挑型号</td>
+</tr>
+<tr>
+<td>参考（更省钱）</td>
+<td>GL.iNet GL-MT6000</td>
+<td>≈$150–180</td>
+<td>内置 SQM、2×2.5G、不用刷机；但仍建议别放柜里</td>
+</tr>
+</tbody>
+</table></section><section><h2 id="路由器位置与天线朝向的实测影响含-dB-释义追加">路由器位置与天线朝向的实测影响（含 dB 释义）（追加）</h2><h3 id="一、位置变化的效果（前后对比实测）">一、位置变化的效果（前后对比实测）</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>木箱内（原位置）</th>
+<th>移出木箱后</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wi-Fi 信号</td>
+<td>−70 / −72 dBm</td>
+<td>−42 dBm</td>
+<td>+28 dB</td>
+</tr>
+<tr>
+<td>SNR</td>
+<td>18–23 dB</td>
+<td>47 / 49 dB</td>
+<td>极佳</td>
+</tr>
+<tr>
+<td>Wi-Fi 发射速率</td>
+<td>260–390 Mbps</td>
+<td>866 Mbps</td>
+<td>满档（MCS 9）</td>
+</tr>
+<tr>
+<td>下行</td>
+<td>161–230 Mbps</td>
+<td>434.3 / 411.1 Mbps</td>
+<td>约 2 倍</td>
+</tr>
+<tr>
+<td>上行</td>
+<td>41–49 Mbps</td>
+<td>37.7–40.7 Mbps</td>
+<td>持平</td>
+</tr>
+<tr>
+<td>负载响应</td>
+<td>232–294 ms</td>
+<td>113.2 / 109.4 ms</td>
+<td>约 1/2</td>
+</tr>
+<tr>
+<td>网关 ping（空闲）</td>
+<td>2.3–5.3 ms</td>
+<td>2.4–3.0 ms（抖动 0.6–1.3）</td>
+<td>更稳</td>
+</tr>
+<tr>
+<td>负载下丢包（LAN / WAN）</td>
+<td>8–16%</td>
+<td>0% / 4%</td>
+<td>明显改善</td>
+</tr>
+</tbody>
+</table>
+<h3 id="二、dB-是什么：衡量两个功率之间的比值">二、dB 是什么：衡量两个功率之间的比值</h3>
+<p>dB 不是绝对单位，是两个功率比值的对数：</p>
+<pre><code>dB = 10 × log10( P1 / P2 )
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>变化</th>
+<th>功率含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+3 dB</td>
+<td>×2</td>
+</tr>
+<tr>
+<td>−3 dB</td>
+<td>×1/2</td>
+</tr>
+<tr>
+<td>+10 dB</td>
+<td>×10</td>
+</tr>
+<tr>
+<td>+20 dB</td>
+<td>×100</td>
+</tr>
+<tr>
+<td>+30 dB</td>
+<td>×1000</td>
+</tr>
+</tbody>
+</table>
+<p>为什么用对数：Wi-Fi 信号动态范围极大；取对数后多级损耗可以直接相加，这正是本次能"加"到 28 dB 的原因。</p>
+<table>
+<thead>
+<tr>
+<th>单位</th>
+<th>含义</th>
+<th>本次实测</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dBm</td>
+<td>绝对功率（相对 1 mW）</td>
+<td>信号 −42 dBm（原 −70 dBm）</td>
+</tr>
+<tr>
+<td>dB</td>
+<td>相对变化/增益/损耗</td>
+<td>变化 +28 dB</td>
+</tr>
+<tr>
+<td>SNR（dB）</td>
+<td>信号比噪声高多少</td>
+<td>47 dB（原 18 dB）</td>
+</tr>
+</tbody>
+</table>
+<p>5 GHz 常见 RSSI 阈值：</p>
+<table>
+<thead>
+<tr>
+<th>RSSI</th>
+<th>体验</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>−30 ~ −50 dBm</td>
+<td>极佳（本次 −42）</td>
+</tr>
+<tr>
+<td>−50 ~ −60 dBm</td>
+<td>很好</td>
+</tr>
+<tr>
+<td>−60 ~ −67 dBm</td>
+<td>可用，高 MCS 基本能跑</td>
+</tr>
+<tr>
+<td>−67 ~ −75 dBm</td>
+<td>开始掉档（原 −70 掉到 MCS 3）</td>
+</tr>
+<tr>
+<td>&lt; −80 dBm</td>
+<td>基本不可用</td>
+</tr>
+</tbody>
+</table>
+<p>SNR 一般需 ≥25 dB 才算健康（当时 18，改善后 47）。</p>
+<p>+28 dB 的直觉换算：功率 ×630；等效"距离"约 25 倍（自由空间每翻倍距离 +6 dB，28÷6≈4.7 次翻倍）；链路档位 MCS 3 → MCS 9；下行 161–230 → 411–434 Mbps（一致）。</p>
+<h3 id="三、木箱各因素的实际贡献（材质不是主因）">三、木箱各因素的实际贡献（材质不是主因）</h3>
+<table>
+<thead>
+<tr>
+<th>因素</th>
+<th>大致量级</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>箱内近场金属：电源插排、适配器、网线</td>
+<td>5–20 dB</td>
+<td>距离天线 10–20 cm 内的导体与开关电源会吸收、反射并使天线失谐，最容易被忽视且最狠</td>
+</tr>
+<tr>
+<td>四面围合形成的腔体</td>
+<td>5–15 dB</td>
+<td>能量被困住并被箱体吸收；腔体内形成驻波，某些方向出现零点(null)，朝 Mac 方向可能瞬时掉 20+ dB</td>
+</tr>
+<tr>
+<td>低位 + 天线朝向受限</td>
+<td>3–10 dB</td>
+<td>放在箱底、周边杂物多，主瓣被挡</td>
+</tr>
+<tr>
+<td>信道拥挤（当时 ch36）</td>
+<td>取决于环境</td>
+<td>36 是常用低信道，干扰多；改到 157 / 149 后明显改善</td>
+</tr>
+<tr>
+<td>木材材质本身</td>
+<td>约 2–6 dB/层（穿越 1–2 层即 4–8 dB）</td>
+<td>干木是低损耗介质；湿木/含水木材差很多（水对 2.4/5 GHz 吸收强）</td>
+</tr>
+</tbody>
+</table>
+<p>结论：观察到的是"近场金属 + 腔体 + 低位朝向 + 信道"合计约 28 dB，木材本身只占几分贝；换成塑料箱、金属箱只会更糟（金属箱等于法拉第笼）。</p>
+<p>5 GHz 更敏感的原因：频率更高，穿透更差、被水与木材吸收更多、方向性更强、绕射更弱；好处是信道多、干扰少、速率高。</p>
+<h3 id="四、天线朝向的正确规则">四、天线朝向的正确规则</h3>
+<p>偶极子天线的辐射规律：最强的方向垂直于天线本体，沿天线轴向是零点(null)。</p>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>天线姿态</th>
+<th>原理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要覆盖楼上（正上方）</td>
+<td>至少 1 根天线放平（水平）</td>
+<td>水平偶极子的最大辐射方向是上下</td>
+</tr>
+<tr>
+<td>兼顾同层四周</td>
+<td>其余 2 根竖直</td>
+<td>竖直时水平四周最强</td>
+</tr>
+<tr>
+<td>两层都要</td>
+<td>一横两竖（推荐，已采用）</td>
+<td>上下 + 四周都有覆盖</td>
+</tr>
+<tr>
+<td>想都沾一点</td>
+<td>三根 45° 斜放</td>
+<td>折中，但每个方向都不够强</td>
+</tr>
+</tbody>
+</table>
+<p>极化匹配：手机/笔记本（开盖时）多为竖直极化，因此至少保留竖直天线，即"一横两竖"而非"三根全横"。</p>
+<h3 id="五、位置规则（比天线姿态更重要）">五、位置规则（比天线姿态更重要）</h3>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>放在 1 楼靠近天花板的高处（约 2 m，开放层板/柜顶）</td>
+<td>缩短到 2 楼的路径</td>
+</tr>
+<tr>
+<td>位置正对你 2 楼最需要覆盖房间的正下方</td>
+<td>垂直方向距离最短</td>
+</tr>
+<tr>
+<td>不要贴金属：空调/暖气风管、冰箱、金属柜、镜子、水管、配电箱</td>
+<td>强衰减/强反射源</td>
+</tr>
+<tr>
+<td>不要紧贴瓷砖卫生间/厨房墙体</td>
+<td>瓷砖加金属背网衰减大</td>
+</tr>
+<tr>
+<td>不要放回木箱</td>
+<td>已用 +28 dB 的实测验证过</td>
+</tr>
+</tbody>
+</table>
+<p>楼板材质（决定能漏多少）：</p>
+<table>
+<thead>
+<tr>
+<th>楼板结构</th>
+<th>5 GHz 穿透损耗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>木结构 + 石膏板（美式住宅常见）</td>
+<td>约 5–15 dB</td>
+</tr>
+<tr>
+<td>混凝土/带钢筋</td>
+<td>20–40 dB（基本只能靠 2.4 GHz 或加 AP）</td>
+</tr>
+</tbody>
+</table>
+<p>频段分工：</p>
+<table>
+<thead>
+<tr>
+<th>频段</th>
+<th>穿楼层</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.4 GHz</td>
+<td>更强（波长长、绕射好）</td>
+<td>楼上用 2.4 GHz 的 SSID（TP-LINK_BX）更稳，速率低但能连</td>
+</tr>
+<tr>
+<td>5 GHz</td>
+<td>穿楼层弱但速率高</td>
+<td>楼上 RSSI ≥ −65 dBm 才用 5 GHz</td>
+</tr>
+</tbody>
+</table>
+<h3 id="六、实操标准">六、实操标准</h3>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RSSI</td>
+<td>≥ −60 dBm（理想 −40 ~ −55）</td>
+</tr>
+<tr>
+<td>SNR</td>
+<td>≥ 25–30 dB</td>
+</tr>
+<tr>
+<td>与金属/电源的距离</td>
+<td>≥ 30 cm（电源适配器、插排、USB 线、显示器背板）</td>
+</tr>
+<tr>
+<td>摆放</td>
+<td>开放层板/柜顶，离地 1.2–1.5 m，居中；不放封闭柜/箱/织物堆</td>
+</tr>
+<tr>
+<td>天线</td>
+<td>同层全部竖直；两层用"一横两竖"</td>
+</tr>
+<tr>
+<td>量化工具</td>
+<td>net_speed_test.py 会打印 wifi_signal_noise、snr_db、wifi_tx_rate</td>
+</tr>
+</tbody>
+</table>
+<h3 id="七、验证是不是箱子的锅的-A/B-方法">七、验证"是不是箱子的锅"的 A/B 方法</h3>
+<ul>
+<li>A：现在的位置（开放），记 RSSI / SNR</li>
+<li>B：把路由器放回木箱，但把插排和线缆全部移出 30 cm 外，记 RSSI / SNR</li>
+<li>若 B 只掉几分贝 ⇒ 主因是箱内金属与线缆；若 B 掉 15 dB 以上 ⇒ 围合腔体也是大头</li>
+</ul>
+<h3 id="八、结论">八、结论</h3>
+<p>位置的收益（+28 dB）大于更换任何天线或路由器；本轮对比是该结论的直接证明。唯一需要额外注意的是不要用织物包住路由器（散热与稳定性）。</p></section><section><h2 id="2-楼覆盖实测信道优化与-MoCA-有线方案调研追加">2 楼覆盖实测、信道优化与 MoCA 有线方案调研（追加）</h2><h3 id="一、2-楼实测：从不可用到可用">一、2 楼实测：从"不可用"到"可用"</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>2 楼调整前</th>
+<th>2 楼调整后</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5G 信道</td>
+<td>44（5 个邻居，拥挤）</td>
+<td>149（1 个邻居）</td>
+<td>已优化</td>
+</tr>
+<tr>
+<td>RSSI</td>
+<td>−80 / −82 dBm</td>
+<td>−74 dBm</td>
+<td>+7 dB</td>
+</tr>
+<tr>
+<td>SNR</td>
+<td>6 / 8 dB</td>
+<td>16 dB</td>
+<td>+9 dB</td>
+</tr>
+<tr>
+<td>PHY 速率</td>
+<td>195–234 Mbps</td>
+<td>234–260 Mbps</td>
+<td>略升</td>
+</tr>
+<tr>
+<td>下行</td>
+<td>30.9 / 33.0 Mbps</td>
+<td>151.9 / 171.4 Mbps</td>
+<td>约 5 倍</td>
+</tr>
+<tr>
+<td>上行</td>
+<td>25–30 Mbps</td>
+<td>41.4 / 43.7 Mbps</td>
+<td>恢复满值</td>
+</tr>
+<tr>
+<td>网关延迟（LAN）</td>
+<td>14–31 ms（抖动 22–47）</td>
+<td>2.9 / 3.1 ms（抖动 1.0–1.1）</td>
+<td>质变</td>
+</tr>
+<tr>
+<td>WAN 延迟</td>
+<td>29–118 ms</td>
+<td>13.6–16.0 ms</td>
+<td>恢复</td>
+</tr>
+<tr>
+<td>负载响应</td>
+<td>589 / 591 ms（Low）</td>
+<td>160 / 190 ms（Medium）</td>
+<td>改善约 3.7 倍</td>
+</tr>
+</tbody>
+</table>
+<h3 id="二、与-1-楼的差距（结构衰减是硬事实）">二、与 1 楼的差距（结构衰减是硬事实）</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>1 楼</th>
+<th>2 楼</th>
+<th>差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RSSI</td>
+<td>−42 dBm</td>
+<td>−74 dBm</td>
+<td>−32 dB</td>
+</tr>
+<tr>
+<td>SNR</td>
+<td>45–47 dB</td>
+<td>16 dB</td>
+<td>—</td>
+</tr>
+<tr>
+<td>下行</td>
+<td>411–434 Mbps</td>
+<td>152–171 Mbps</td>
+<td>约 40%</td>
+</tr>
+<tr>
+<td>负载响应</td>
+<td>109–113 ms</td>
+<td>160–190 ms</td>
+<td>略差</td>
+</tr>
+</tbody>
+</table>
+<h3 id="三、2-楼还可榨取的免费增益（可选）">三、2 楼还可榨取的免费增益（可选）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>动作</th>
+<th>预期</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>天线改"一横两竖"（已完成）</td>
+<td>楼上 +3–10 dB</td>
+<td>三根全竖时正上方是零点，这是对 2 楼最大的单项杠杆</td>
+</tr>
+<tr>
+<td>2</td>
+<td>路由器移到 2 楼目标房间正下方并尽量高</td>
+<td>+3–10 dB</td>
+<td>若尚未做，值得试</td>
+</tr>
+<tr>
+<td>3</td>
+<td>5G 带宽 80 → 40 MHz 试一次</td>
+<td>更稳</td>
+<td>SNR 仅 16 时窄带每子载波功率更高，抖动减小，上限降低</td>
+</tr>
+<tr>
+<td>4</td>
+<td>楼上改用 2.4 GHz SSID（TP-LINK_BX）</td>
+<td>穿楼层更强</td>
+<td>常见可到 −65 ~ −72 dBm，优于 5G 的 −74</td>
+</tr>
+</tbody>
+</table>
+<p>信道扫描实测（本次）：ch44 有 5 个网络、ch116 有 1 个、ch149 有 1 个。路由器自动选到了最拥挤的 44，且 44 属低功率段；固定到 149–165 可获得更高允许功率与更少干扰。</p>
+<h3 id="四、如何查-2-楼是否有可用同轴口（软件查不到）">四、如何查 2 楼是否有可用同轴口（软件查不到）</h3>
+<p>同轴是无源介质，没有任何信号能让电脑探到，只能靠物理检查加一次 5 分钟实测。</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>做法</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 目视找口</td>
+<td>找圆形带螺纹的 F 型接头（墙面面板，常见于卧室/客厅电视后方/壁橱，面板常标 CATV / TV / SATV）</td>
+<td>只知道有没有口</td>
+</tr>
+<tr>
+<td>2. 看是否已接</td>
+<td>小心拆开面板，看线是否接在分配器(splitter)上</td>
+<td>有 splitter 说明大概率在分配树里</td>
+</tr>
+<tr>
+<td>3. 决定性测试（推荐）</td>
+<td>把 S34 搬到该口接上，通电等 2–5 分钟，看 Online/DS 灯</td>
+<td>常亮 = 该口是活的（与 Comcast 同一条线路树），MoCA 可用；不亮/闪烁 = 未接通，需在入户分配器处接上</td>
+</tr>
+</tbody>
+</table>
+<p>搬机测试注意：盘后做（会短暂断网，影响 dxFeed/邮件）；判读 Power 常亮 + Online 常亮为锁定成功，闪烁为未锁定；测完搬回原位等重新锁定。</p>
+<p>辅助工具（可选）：同轴线缆测试器（如 Hitron DSS-01）能判断线通不通/短路，但不能判断是否连到 ISP，因此第 3 步不可替代。</p>
+<h3 id="五、MoCA-选型（3-个硬条件）">五、MoCA 选型（3 个硬条件）</h3>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>要求</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. MoCA 2.5</td>
+<td>必须</td>
+<td>实际可达约 1 Gbps，匹配 400+ Mbps 套餐</td>
+</tr>
+<tr>
+<td>2. 至少买 2 只</td>
+<td>必须</td>
+<td>一只在 modem 侧，一只在 2 楼</td>
+</tr>
+<tr>
+<td>3. MoCA 兼容分配器 + POE 滤波器</td>
+<td>最容易被忽略</td>
+<td>老 splitter 只到 1 GHz 会挡掉 MoCA；POE 滤波器必须装在入户点，防信号外泄与干扰邻居</td>
+</tr>
+</tbody>
+</table>
+<p>常被推荐的型号（2026）：ScreenBeam ECB7250、Hitron HTEM4/HTEM5、goCoax WF-803M、Actiontec / ASUS MA-25。</p>
+<p>与 DOCSIS 3.1 共存注意：MoCA 占 1125–1675 MHz，而 D3.1 下行可到 1218 MHz；若出现干扰或降速，换用支持 D-High 频段（1350–1675 MHz）的适配器或调整滤波器位置。</p>
+<h3 id="六、接法（拓扑）">六、接法（拓扑）</h3>
+<pre><code>入户 coax ──[MoCA POE 滤波器]──[MoCA 兼容分配器]──┬── S34（modem，原样不动）
+                                                  └── MoCA 适配器① ──网线── Archer C7 的 LAN 口
+2 楼 coax 口 ── MoCA 适配器② ──网线── 2 楼电脑（或接交换机给多台设备）
+</code></pre>
+<p>要点：适配器① 接 C7 的 LAN 口（不是 WAN）——MoCA 是二层桥接，等于凭空多一根网线，2 楼电脑与 1 楼设备处于同一局域网；2 楼侧建议接一台小交换机，便于将来加 AP。</p>
+<h3 id="七、权衡（当前可以不做）">七、权衡（当前可以不做）</h3>
+<ul>
+<li>已接受 2 楼 Wi-Fi 速度（152–171 Mbps），MoCA 非必需。</li>
+<li>唯一值得做的理由：2 楼若要做对延迟/抖动敏感的操作（下单、dxFeed 实时行情），当前短板是偶发抖动 18 ms 与负载 160 ms。</li>
+<li>成本：MoCA 2.5 双只装约 $120–180；若家里能拉网线则 $0–20 且效果最好。</li>
+<li>有利条件：家里已有同轴（S34 在用），若 2 楼有活口，MoCA 是最省事的"网线"。</li>
+</ul>
+<h3 id="八、当前最终状态">八、当前最终状态</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>下行 / 上行（1 楼）</td>
+<td>411–434 / 37.7–40.7 Mbps</td>
+</tr>
+<tr>
+<td>下行 / 上行（2 楼）</td>
+<td>151.9–171.4 / 41.4–43.7 Mbps（已接受）</td>
+</tr>
+<tr>
+<td>5G 信道</td>
+<td>149（已从拥挤的 44 改出）</td>
+</tr>
+<tr>
+<td>天线</td>
+<td>一横两竖（已采用）</td>
+</tr>
+<tr>
+<td>位置</td>
+<td>已移出木箱，远离插排与线缆</td>
+</tr>
+<tr>
+<td>网关延迟</td>
+<td>2.9–3.1 ms（抖动 1.0–1.1）</td>
+</tr>
+<tr>
+<td>负载响应</td>
+<td>1 楼 109–113 ms；2 楼 160–190 ms</td>
+</tr>
+<tr>
+<td>后续可选</td>
+<td>MoCA 或拉网线为 2 楼提供有线级稳定性</td>
+</tr>
+</tbody>
+</table></section></article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

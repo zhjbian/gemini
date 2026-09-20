@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>DOM 250ms 特征值 · 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>ES DOM 250ms 特征值：提取 · 展示 · 跟踪统计（实施计划）</h1>
+<ul><li><b>日期</b>：2026-09-15</li><li><b>模块</b>：<code>PyTools/order_flow_analysis/dom_features.py</code> + <code>backfill_dom_features.py</code> + <code>dom_feature_stats.py</code>；<code>bbt_data_web</code> API/页面</li><li><b>锚点定义（用户澄清）</b>：<b>既有 pattern 案例</b>（<code>of_deep_pattern_cases</code>，如 <code>ES_2026-09-14_0825</code> = 07:25→08:25 bull / P1 medium / 前向 +17.25/+23.75/+29.5）——要提取的是该案例<b>底部盘整阶段</b>的 DOM/order flow 特征值。</li><li><b>落位（用户指定）</b>：<code>http://127.0.0.1:5005/bbt_signals_large_timeframe</code> →「Order Flow 深度分析（pattern 匹配）」+「Adam 信号研究进展（每日 / 每周）」</li></ul>
+<h2>1. 前置事实（2026-09-15 DOM 可信度审计，决定本模块口径）</h2>
+<p>工具 <code>audit_dom_data.py</code>（26 个交易日）：<b>可用 0 · 部分可用 3 · 不可用 23</b>。</p>
+<table><thead><tr><th>事实</th><th>数值</th></tr></thead><tbody><tr><td>真正 250ms 档</td><td><b>只有 2026-09-14</b>（中位 316ms，38/60 窗口达标）；08-24（23/60）、08-21（19/60）为过渡档</td></tr><tr><td>其余交易日</td><td>500ms 档（中位 514–613ms），每 5min 窗口 380–650 快照（标称 600）⇒ 10–20% 空洞</td></tr><tr><td>09-15（今天）</td><td>已回到 ~500ms（中位 538ms）⇒ <b>250ms 是偶发，不是稳定配置</b></td></tr><tr><td>无 RTH 数据</td><td>9 天（08-23、08-30、09-01/02/03/06/09/13 等）</td></tr><tr><td>09-14 内部</td><td>06:30–07:35 为 500ms；07:50 后才 ~300ms；08:45–09:05 p90 高达 1914ms</td></tr></tbody></table>
+<p>⇒ <b>三条硬约束</b>：① 特征在<b>真实快照时间轴</b>上算（Δt 归一，不建等距网格）；② 每槽带<b>质量门禁</b>；③ <b>cohort 分开</b>（c250: iv≤350ms / c500: 350–700ms），绝不混算。</p>
+<h2>2. 设计</h2>
+<h3>2.1 阶段切分（回答"底部时盘口什么样"）</h3>
+<p>用 TICKS 的 1 分钟价格路径把案例窗口切成 <code>decline → base（底部盘整）→ rally</code>：</p>
+<p><code>base_start</code> = 低点前最后一段仍贴近低点（≤low+1.5 点）的起点；<code>base_end</code> = 低点后首次上行 &gt;low+3 点。</p>
+<p>底部常常包含<b>数据空洞</b> ⇒ 另取 base 内<b>最长连续块</b>（<code>base_block</code>）单独出特征（隔离空洞）。</p>
+<h3>2.2 特征集（全部 Δt 归一）</h3>
+<ul><li><b>档位/盘口</b>：近端(±5)买卖挂单、深度(±20)买卖挂单、<code>imb_near</code>、<code>w_imb</code>、价差(tick)、真空档位、挂单墙。</li><li><b>速率（每秒）</b>：加单/减单（买/卖两侧）、净变化、深度净变化；<b>撤/吃分解</b>——减量按同区间<b>主动方成交量</b>占比归因（MW TICKS 的 <code>Side</code> = 主动方：<code>ASK</code>=买方主动、<code>BID</code>=卖方主动 ⇒ 2026-09-15 修正，原先按 <code>BUY/SELL</code> 匹配导致成交量恒 0）。</li><li><b>补单</b>：大幅减量（≥3×中位|Δ|）后回到 80% 前值的时间（中位/占比）。</li><li><b>持续性</b>：失衡符号持续率、翻转次数/分钟、|imb| p90/max、失衡变化率 p90。</li><li><b>质量</b>：快照数、间隔中位/p90、覆盖率（以<b>本段自身节奏</b>为分母）、空洞占比、最大空洞。</li></ul>
+<h3>2.3 质量门禁</h3>
+<p><code>n_snaps ≥ 40</code> ∧ <code>iv_med ≤ cohort 上限</code> ∧ <code>iv_p90 ≤ cohort 上限</code> ∧ <code>coverage ≥ 60%</code> ∧ <code>hole_pct ≤ 10%</code>。</p>
+<p>不达标 ⇒ <code>quality_ok=0</code>（照实入库，但<b>不得</b>进入统计）。</p>
+<h3>2.4 存储与任务</h3>
+<ul><li>表 <code>order_flow_dom_features</code>（唯一键 <code>(feature_date, slot_time, kind, ref_id)</code>，<code>kind ∈ {case, slot}</code>，特征以 JSON 落 <code>features</code>）。</li><li><code>backfill_dom_features.py --mode cases</code>（案例，2 行）/ <code>--mode slots</code>（逐日逐 5 分钟槽，滚动 60 分钟窗口，与案例同口径）。</li><li><b>性能</b>：逐槽各读一次 DOM 需 ~53s/槽（gzip 必须从流头解压）⇒ 改为<b>单遍流式 + 逐槽切片</b>（<code>stream_day_series</code> / <code>extract_day_slots</code>），并把撤/吃归因从"每区间重扫全部成交（O(区间×成交)，单日会挂死）"改为<b>单次指针推进 O(成交+区间)</b> ⇒ 单日 <b>~20–60s</b>。</li></ul>
+<h3>2.5 跟踪统计与 pattern 发现（<code>dom_feature_stats.py</code>）</h3>
+<p>三条统计纪律：① 基准率<b>逐日</b>（不跨日平均）；② 基准<b>同时段配对</b>（只用该日"有 DOM 数据的时段"内的 5 分钟 bar 算基准 ⇒ 消除数据可得性选择偏差）；③ <b>cohort 分开</b>。</p>
+<p>分桶：每个特征按三分位切 low/mid/high，逐桶给 <code>n / n_days / 上行% / 基准% / edge</code>；<code>n &lt; min_bucket_n</code> 或<b>只有 1 天有配对基准</b> ⇒ 打 <code>n_low</code> / <code>single_day</code> 标记，<b>不下结论</b>。</p>
+<p>复合「底部特征分」<code>base_signature</code>：<code>imb_mean</code>、<code>deep_near_div(=w_imb−imb)</code>、<code>cancel_share_bid</code> 三轴按<b>当日横截面</b>标准化后等权。</p>
+<h3>2.6 展示（两个卡片）</h3>
+<ul><li><b>Order Flow 深度分析</b>：每个 case 行展开区追加「🧱 DOM 250ms 特征（底部盘整）」——质量徽标 + 摘要行 + level/rate/persistence 两列小表 + 免责行；无数据显示回填命令。</li><li><b>Adam 信号研究进展</b>：新增「🧱 DOM 250ms 特征跟踪」——每日/每周切换 + 九列表（槽位/达标/覆盖中位/上行%15·30·60/对照基准%/edge）+ 特征分桶表 + 脚注（n 与对照口径）。</li><li>两个板块均为<b>懒加载 + try/catch 降级</b>，接口异常不影响原卡片。</li></ul>
+<h2>3. 改动清单</h2>
+<table><thead><tr><th>文件</th><th>内容</th></tr></thead><tbody><tr><td><code>PyTools/order_flow_analysis/dom_features.py</code>（新）</td><td>真实时间轴特征提取（snap_row / stream_day_series / extract_day_slots / assemble_window / 阶段切分 / 质量门禁）+ CLI + 浅色 HTML</td></tr><tr><td><code>.../backfill_dom_features.py</code>（新）</td><td>建表 + cases/slots 两模式回填（幂等 UPSERT + dry-run）</td></tr><tr><td><code>.../dom_feature_stats.py</code>（新）</td><td>cohort 感知门禁 + 配对基准 + 每日/每周 + 特征分桶</td></tr><tr><td><code>.../audit_dom_data.py</code>（新）</td><td>DOM 可信度审计（准入清单，先行条件）</td></tr><tr><td><code>bbt_data_web/data_app/bbt_signals.py</code></td><td><code>GET /data/dom_features</code>、<code>GET /data/dom_feature_stats</code>（只读）</td></tr><tr><td><code>bbt_data_web/templates/bbt_signals_large_timeframe.html</code></td><td>两个卡片的展示板块（+307 行，纯增量）</td></tr></tbody></table>
+<h2>4. 验收标准</h2>
+<ol><li>案例 <code>ES_2026-09-14_0825</code> 能给出底部段特征值（含质量与空洞如实暴露）；</li><li>逐日逐 5min 槽回填可跑完（单日 ≤ 2 分钟）；</li><li>统计层<b>不产出</b>任何在样本不足时的 pattern 结论（n/天数门槛 + single_day 标记）；</li><li>两个页面板块可用，接口异常时优雅降级且不影响原卡片；</li><li>全程只读原始数据、只写自有表；<b>只标注、不进决策</b>（不接入下单，不写规则手册——非决策性规则）。</li></ol>
+<h3>2.7 追加：短期口径（当天余下 / 次日）——用户 2026-09-15 指定</h3>
+<ul><li>目标变量层 <code>dom_day_targets.py</code>：TICKS 1 分钟价路径 → <code>rest_ret/rest_up/rest_mfe/rest_mae/rest_pos_pct</code></li></ul>
+<p>与 <code>next_ret/next_up/next_open_ret</code>（次日交易日自动向后查找，无 TICKS 则 NULL，不插补）。</p>
+<ul><li><b>次日收益在同一交易日内是常量 ⇒ 次日只能做日级检验</b>（日指标 = 当日原始均值 / 日高值占比 / 日级复合分，</li></ul>
+<p>附留一天 min|ρ| 脆弱性标记）；槽位级只用于<b>同日配对</b>的当天余下检验。</p>
+<ul><li>复合"底部特征分"的日级版本必须用<b>原始日均跨日 z</b>（当日内 z 分的日均恒为 0，会产出人工 ρ）。</li><li>验收：① 当天/次日目标 958 行全部回填；② 槽位级当天余下 edge 与同日配对口径一致；</li></ul>
+<p>③ 日级检验给出 ρ + 留一天敏感性；④ 页面显示当天/次日表与日级检验表（标注 cohort）。</p></div></div></body></html>

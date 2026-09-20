@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>交易系统核心技术模块实施计划与交付总结全集 (按时间排序)</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #e2e8f0;
+      --accent: #0284c7;
+      --accent-soft: #f0f9ff;
+      --code-bg: #f1f5f9;
+      --primary: #0369a1;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 24px 24px 40px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    header {
+      padding: 32px 36px 24px;
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+      color: #ffffff;
+    }
+
+    header h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #ffffff;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .global-toc {
+      background: #f8fafc;
+      border-bottom: 1px solid var(--line);
+      padding: 20px 36px;
+    }
+
+    .global-toc .toctitle {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 8px 24px;
+    }
+
+    .global-toc li {
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .global-toc a {
+      color: #334155;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    section.manual-body {
+      padding: 32px 36px 48px;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+      margin-top: 36px;
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      color: #0369a1;
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.90rem;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 12px 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #1e293b;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    tr:hover {
+      background: #f0f9ff;
+    }
+
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      background: #e2e8f0;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      color: #0369a1;
+      font-size: 0.80rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-link:hover {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <article class="card">
+      <header>
+        <h1><i class="fas fa-timeline"></i> 交易系统核心技术模块实施计划与交付总结全集</h1>
+        <div class="meta">
+          <span><i class="fas fa-clock"></i> 排序方式: 按时间发生先后排序 (Chronological Order)</span>
+          <span><i class="fas fa-folder-tree"></i> 涵盖模块: 41 大核心量化子系统</span>
+          <span><i class="fas fa-code-branch"></i> 架构: Java (MotiveWave) + Python (AI &amp; Rules) + MySQL + Web</span>
+        </div>
+      </header>
+      <div class="global-toc">
+        <div class="toctitle"><i class="fas fa-list-ol"></i> 模块时间线目录 (Timeline Index)</div>
+        <ul>
+          <li><a href="#mod-01"><i class="fas fa-calendar-day"></i> [2026-06-06] 01. SPX 0DTE Gamma 架构与目标水位距离量化</a></li>
+          <li><a href="#mod-02"><i class="fas fa-calendar-day"></i> [2026-06-06] 02. 订单流大单方向独立 Rule-based 决策引擎</a></li>
+          <li><a href="#mod-03"><i class="fas fa-calendar-day"></i> [2026-06-07] 03. 综合交易决策重构与追涨杀跌防范</a></li>
+          <li><a href="#mod-04"><i class="fas fa-calendar-day"></i> [2026-06-07] 04. 多源实时数据流健康监控 (Data Stream Monitor)</a></li>
+          <li><a href="#mod-05"><i class="fas fa-calendar-day"></i> [2026-06-10] 05. 订单流实时信号强度判定集成</a></li>
+          <li><a href="#mod-06"><i class="fas fa-calendar-day"></i> [2026-06-13] 06. 机构大单案例库分析模块 (Whale Trade)</a></li>
+          <li><a href="#mod-07"><i class="fas fa-calendar-day"></i> [2026-06-14] 07. ES 日内关键 Pivot 识别与计算模块</a></li>
+          <li><a href="#mod-08"><i class="fas fa-calendar-day"></i> [2026-06-16] 08. 期货季度移仓周交易方向修正算法</a></li>
+          <li><a href="#mod-09"><i class="fas fa-calendar-day"></i> [2026-06-18] 09. 订单流历史数据导出器边界与类型纠偏</a></li>
+          <li><a href="#mod-10"><i class="fas fa-calendar-day"></i> [2026-08-29] 10. DOM 200档深度盘口与Adam Set多空偏见增强分析</a></li>
+          <li><a href="#mod-11"><i class="fas fa-calendar-day"></i> [2026-08-29] 11. 基于规则的DOM 5分钟周期实时哨兵系统</a></li>
+          <li><a href="#mod-12"><i class="fas fa-calendar-day"></i> [2026-08-29] 12. 期权卖方日内交易自动化引擎架构</a></li>
+          <li><a href="#mod-13"><i class="fas fa-calendar-day"></i> [2026-08-29] 13. 期权卖方5分钟周期订单流顺势合成引擎</a></li>
+          <li><a href="#mod-14"><i class="fas fa-calendar-day"></i> [2026-08-30] 14. MotiveWave QuantPivot 自适应跳空缺口增强研究</a></li>
+          <li><a href="#mod-15"><i class="fas fa-calendar-day"></i> [2026-08-30] 15. Option Seller 实盘预埋限价止盈 (Resting Limit Order) 与本地双轨风控守护模块</a></li>
+          <li><a href="#mod-16"><i class="fas fa-calendar-day"></i> [2026-08-30] 16. Option Seller 异步单会话邮件通知引擎 (BBT_OptionSeller Threaded Notifier)</a></li>
+          <li><a href="#mod-17"><i class="fas fa-calendar-day"></i> [2026-08-30] 17. 深度 DOM 200 档梯级吸收与日内顶底预判引擎 (DOM Point Prediction Engine)</a></li>
+          <li><a href="#mod-18"><i class="fas fa-calendar-day"></i> [2026-08-31] 18. Option Seller QuantPivot 权重扩充与 EMA 均线乖离回归四层漏斗重构 (Option Seller QuantPivot &amp; EMA Extension Arbitration Refactor)</a></li>
+          <li><a href="#mod-19"><i class="fas fa-calendar-day"></i> [2026-09-03] 19. Option Seller 条件开仓控制台与触发展开引擎 (Option Seller Conditional Order Console &amp; Trigger Engine)</a></li>
+          <li><a href="#mod-20"><i class="fas fa-calendar-day"></i> [2026-09-03] 20. Option Seller 极值耗竭与震荡边界反向开仓独立引擎 (Counter-Trend Terminal &amp; Range Boundary Engine)</a></li>
+          <li><a href="#mod-21"><i class="fas fa-calendar-day"></i> [2026-09-04] 21. SPX Gamma 结构形态（极佳单边三角形态）前置硬性过滤引擎 (SPX Gamma Clean Triangle Profile Filter Engine)</a></li>
+          <li><a href="#mod-22"><i class="fas fa-calendar-day"></i> [2026-09-04] 22. QuantPivot SPY 标的统一与期权卖方自动触发隔离修复模块 (QuantPivot SPY Unification &amp; Auto Trade Capacity Isolation Engine)</a></li>
+          <li><a href="#mod-23"><i class="fas fa-calendar-day"></i> [2026-09-04] 23. QuantPivot L1/H1 30% 浮盈双批次保本止损引擎 (QuantPivot L1/H1 30% Breakeven Stop Engine)</a></li>
+          <li><a href="#mod-24"><i class="fas fa-calendar-day"></i> [2026-09-04] 24. Option Seller 交易流水账本类型过滤器与 TradingView 筛选导出引擎 (Execution Journal Type Filter &amp; Filtered TradingView Pine Script Generator)</a></li>
+          <li><a href="#mod-25"><i class="fas fa-calendar-day"></i> [2026-09-05] 25. Option Seller 历史回溯 5 分钟周期数据库直连与微观盘口对齐引擎 (Option Seller Backfill 5m DB Order Flow Integration Engine)</a></li>
+          <li><a href="#mod-26"><i class="fas fa-calendar-day"></i> [2026-09-05] 26. Option Seller 风格权利金门槛优化与回溯 SPY 真实盘口对齐引擎 (Option Seller Dynamic Credit Threshold &amp; SPY Spot Backfill Refactor)</a></li>
+          <li><a href="#mod-27"><i class="fas fa-calendar-day"></i> [2026-09-05] 27. Option Seller QuantPivot 边界多次开仓与三维准入准出风控引擎 (QuantPivot Triple-Barrier Multi-Entry Engine)</a></li>
+          <li><a href="#mod-28"><i class="fas fa-calendar-day"></i> [2026-09-05] 28. SPX Gamma 5分钟周期结构研判与决策树重构引擎 (SPX Gamma 5m Structural Decision Tree &amp; Neutral Taxonomy Engine)</a></li>
+          <li><a href="#mod-29"><i class="fas fa-calendar-day"></i> [2026-09-05] 29. BBT 信号图 SPX Gamma 周期过滤拆分与 5 分钟 Order Flow 信号 Sentinel 标记彻底清理引擎 (BBT Signals SPX Gamma Filter Split &amp; 5m Sentinel Cleanup)</a></li>
+          <li><a href="#mod-30"><i class="fas fa-calendar-day"></i> [2026-09-05] 30. BBT 信号图 Order Flow 与 SPX Gamma 实时信号表格整段折叠收起交互引擎 (BBT Signals Collapsible Table Sections Engine)</a></li>
+          <li><a href="#mod-31"><i class="fas fa-calendar-day"></i> [2026-09-05] 31. BBT 信号图微观时段快捷筛选按钮与全周期穿透引擎 (BBT Signals Quick Time-Range Buttons &amp; Cross-Timeframe Penetration Engine)</a></li>
+          <li><a href="#mod-32"><i class="fas fa-calendar-day"></i> [2026-09-05] 32. SPX Gamma 底层现价时钟与数据源高精度分钟级对齐重构引擎 (SPX Gamma Spot Price Clock &amp; Minute-Precision Alignment Engine)</a></li>
+          <li><a href="#mod-33"><i class="fas fa-calendar-day"></i> [2026-09-05] 33. SPX Gamma 非趋势日顺势 Cushion 空间动态拓宽引擎 (SPX Gamma Non-Trend Day Cushion Expansion Engine)</a></li>
+          <li><a href="#mod-34"><i class="fas fa-calendar-day"></i> [2026-09-05] 34. 全局统一 SPY 单边强趋势日判定引擎 (Global Unified SPY Trend Day Regime Engine)</a></li>
+          <li><a href="#mod-35"><i class="fas fa-calendar-day"></i> [2026-09-05] 35. 5分钟 SPX Gamma 多空分级评级引擎 (5m SPX Gamma Graded Rating Engine)</a></li>
+          <li><a href="#mod-36"><i class="fas fa-calendar-day"></i> [2026-09-06] 36. 期权卖方 5分钟全自动开仓漏斗仲裁机制 - 维度 2 (SPX Gamma 结构) 极简重构 (Option Seller Funnel Arbitration Simplification)</a></li>
+          <li><a href="#mod-37"><i class="fas fa-calendar-day"></i> [2026-09-06] 37. 5分钟周期 Order Flow 规则化信号系统深度重构与 1~10 强度评分引擎 (5m Order Flow Two-Step Evaluation &amp; 1-10 Strength Scoring Engine)</a></li>
+          <li><a href="#mod-38"><i class="fas fa-calendar-day"></i> [2026-09-06] 38. 订单流两步法（方向准入判定与底层强度打分）展开详情卡片 UI 组件重构 (Order Flow Two-Step Evaluation UI Visualization Engine)</a></li>
+          <li><a href="#mod-39"><i class="fas fa-calendar-day"></i> [2026-09-06] 39. 全局统一 SPY 单边强趋势日判定引擎规则重构与容忍度优化 (Global Unified SPY Trend Day Regime Thresholds Refactor)</a></li>
+          <li><a href="#mod-40"><i class="fas fa-calendar-day"></i> [2026-09-06] 40. 订单流盘中分析去除 30 分钟 AI 调用全面统一 5 分钟规则引擎与全量回填 (Order Flow 5m Rule-Based Unification &amp; Backfill Engine)</a></li>
+          <li><a href="#mod-41"><i class="fas fa-calendar-day"></i> [2026-09-12] 41. Adam 帖文信号上下文分析（当日叙事链 + 当日价格语境 + 反转事件提醒） (Adam Signal Context Analysis (Same-Day Narrative Thread, Price Context, Reversal Event Alerts))</a></li>
+        </ul>
+      </div>
+      <section class="manual-body">
+
+        <p>本目录对量化交易平台各个核心子系统在研发与迭代过程中的 <strong>技术实施计划 (<code>implementation_plan.md</code>)</strong> 与 <strong>验收总结报告
+            (<code>walkthrough.md</code>)</strong> 按照时间发生先后（Chronological Order）进行了系统化整理与标准化归档。</p>
+        <hr />
+        <h2>核心模块演进总览 (Chronological Modules Catalog)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th style="text-align: center;">序号</th>
+              <th style="text-align: center;">发生日期</th>
+              <th style="text-align: left;">核心模块名称</th>
+              <th style="text-align: left;">职责定位与核心逻辑</th>
+              <th style="text-align: center;">实施计划 (Plan)</th>
+              <th style="text-align: center;">验收报告 (Walkthrough)</th>
+              <th style="text-align: left;">涉及技术栈</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center;"><strong>01</strong></td>
+              <td style="text-align: center;"><code>2026-06-06</code></td>
+              <td style="text-align: left;"><strong>SPX 0DTE Gamma 架构与目标水位距离量化</strong></td>
+              <td style="text-align: left;">分析做市商动态对冲机制与两大市场状态（正/负 Gamma）；量化计算现货距 Call Wall / Put Wall 距离并提供追涨杀跌防范。</td>
+              <td style="text-align: center;"><em>(包含在后续交付)</em></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/01_2026-06-06_SPX_Gamma_and_Target_Distance/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>02</strong></td>
+              <td style="text-align: center;"><code>2026-06-06</code></td>
+              <td style="text-align: left;"><strong>订单流大单方向独立 Rule-based 决策引擎</strong></td>
+              <td style="text-align: left;">建立 ES/NQ 机构大单方向独立研判引擎，基于时间衰减加权得分与大额成交量分布，提供不依赖期权的独立订单流视角。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><em>(包含在后续交付)</em></td>
+              <td style="text-align: left;">Python<br />Rule Engine</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>03</strong></td>
+              <td style="text-align: center;"><code>2026-06-07</code></td>
+              <td style="text-align: left;"><strong>综合交易决策重构与追涨杀跌防范</strong></td>
+              <td style="text-align: left;">重构 3 输入综合决策引擎（SPX Gamma + 大单流向 + 盘面状态）；建立 27 种情况映射矩阵与 7
+                大定性决策；引入日内振幅与时段追高追空防护。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Rule Engine<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>04</strong></td>
+              <td style="text-align: center;"><code>2026-06-07</code></td>
+              <td style="text-align: left;"><strong>多源实时数据流健康监控 (Data Stream Monitor)</strong></td>
+              <td style="text-align: left;">实时监控 SPX Gamma (ws_client.py) 与订单流 Java Exporter 的心跳状态、延迟及文件大小，前端可视化警示。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/04_2026-06-07_Data_Stream_Status_Monitoring/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><em>(包含在后续交付)</em></td>
+              <td style="text-align: left;">Python<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>05</strong></td>
+              <td style="text-align: center;"><code>2026-06-10</code></td>
+              <td style="text-align: left;"><strong>订单流实时信号强度判定集成</strong></td>
+              <td style="text-align: left;">在实时信号中加入 Low / Medium / High 量化等级判定，融合 Delta%Vol 预筛选与微观 4 项突破/吸收验证条件。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/05_2026-06-10_OrderFlow_Signal_Strength_Integration/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><em>(包含在后续交付)</em></td>
+              <td style="text-align: left;">Python<br />MySQL<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>06</strong></td>
+              <td style="text-align: center;"><code>2026-06-13</code></td>
+              <td style="text-align: left;"><strong>机构大单案例库分析模块 (Whale Trade)</strong></td>
+              <td style="text-align: left;">建立期权/订单流大单案例分析技能；支持图文解析、策略归类与数据库存取；并在前端仪表盘实现案例管理与真实行情复盘。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python (Agent Skill)<br />MySQL<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>07</strong></td>
+              <td style="text-align: center;"><code>2026-06-14</code></td>
+              <td style="text-align: left;"><strong>ES 日内关键 Pivot 识别与计算模块</strong></td>
+              <td style="text-align: left;">结合前日结清价、隔夜高低点、大单聚集与价值区（VAH/VAL），自动化量化计算 ES 日内多空分水岭 Pivot 与阻力支撑点位。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Algorithm<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>08</strong></td>
+              <td style="text-align: center;"><code>2026-06-16</code></td>
+              <td style="text-align: left;"><strong>期货季度移仓周交易方向修正算法</strong></td>
+              <td style="text-align: left;">针对移仓周前后月合约差价导致的 BID/ASK 判定失真，引入 Lee-Ready (Tick Test) 算法对交易方向进行动态纠偏。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Java<br />Python</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>09</strong></td>
+              <td style="text-align: center;"><code>2026-06-18</code></td>
+              <td style="text-align: left;"><strong>订单流导出引擎与实时 Tick 逻辑修复</strong></td>
+              <td style="text-align: left;">修复 MotiveWave Java 端 StudyOrderFlowDataExporter 实时 Tick
+                导出中的去重、时间戳对齐与盘口买卖方向错位问题。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Java (MotiveWave SDK)<br />Ant Deploy</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>10</strong></td>
+              <td style="text-align: center;"><code>2026-08-29</code></td>
+              <td style="text-align: left;"><strong>DOM 200 档全景深度与 Adam Set 四大特征落地</strong></td>
+              <td style="text-align: left;">采集上下 50 点原生 200 档盘口；流式 GZIP 压缩；Python 识别多梯队失衡、堆撤单、冰山与真空；大模型 Prompt Section 9
+                注入与 Web 卡片自适应渲染。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a><br /><a class="btn-link" style="margin-top: 4px; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/dom_features_evaluation_report.html"><i
+                    class="fas fa-chart-line"></i> 实盘效果评测报告</a></td>
+              <td style="text-align: left;">Java (MotiveWave)<br />Python<br />GZIP<br />MySQL<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>11</strong></td>
+              <td style="text-align: center;"><code>2026-08-29</code></td>
+              <td style="text-align: left;"><strong>5分钟 DOM 哨兵规则引擎 (Sentinel Rule-Based Engine)</strong></td>
+              <td style="text-align: left;">在 order_flow_sentinel.py 中建立纯规则毫秒级 DOM
+                扫描引擎，实现真空滑移逼空/破位预警、冰山密集吸收覆写与撤单诱多陷阱过滤，异常驱动唤醒大模型深度研判。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Rule Engine<br />Sentinel<br />GZIP</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>12</strong></td>
+              <td style="text-align: center;"><code>2026-08-29</code></td>
+              <td style="text-align: left;"><strong>Option Seller 日内自动化交易系统 (SPY 0DTE Spread Engine)</strong></td>
+              <td style="text-align: left;">基于 BBT.AI 工业化闭环理念，融合 5分钟哨兵双引擎、Gamma 水位与趋势日防护罩，构建 SPY 0DTE/1DTE
+                两腿垂直价差（支持保守/平衡/激进三种开仓策略），支持信号全自动自适应与实时看盘手动快捷开仓双场景，分级止盈 (T1 40% / T2 75%) 与 2.2x 硬止损，提供多维交易流水账本与 Web 驾驶舱。
+              </td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />Schwab API<br />SPY 0DTE/1DTE<br />Dual
+                Scenarios<br />Web UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>13</strong></td>
+              <td style="text-align: center;"><code>2026-08-29</code></td>
+              <td style="text-align: left;"><strong>5分钟多维共振期权卖方综合决策引擎 (5-Min Multi-Factor Option Seller Synthesis Engine)</strong></td>
+              <td style="text-align: left;">彻底突破对突发哨兵脉冲的死锁限制，以 5 分钟为主周期（06:35~11:30 PST 巡检），深度聚合 5m 订单流、SPX 0DTE Gamma 结构、Smashelito Pivot 与 EMA 13-21 趋势盾牌四维要素，实现双向稳态共振评分、自适应三档选型与空仓状态硬锁。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/13_2026-08-29_Option_Seller_5Min_Synthesis_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/13_2026-08-29_Option_Seller_5Min_Synthesis_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />5-Min Cycle<br />Multi-Factor Synthesis<br />Schwab API<br />MySQL</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>14</strong></td>
+              <td style="text-align: center;"><code>2026-08-30</code></td>
+              <td style="text-align: left;"><strong>MotiveWave QuantPivot 指标与跳空跨时段自适应计算模块 (MW Study: BBT Quant Pivot)</strong></td>
+              <td style="text-align: left;">基于 30 日真实日线波幅（True Daily Range）动态计算 H1/H2/L1/L2 波动率边界；首创跳空非对称跨时段自适应机制（Gap-Adaptive Hybrid Anchoring，高开以 24H 抓顶、RTH 抓底；低开以 24H 抓底、RTH 抓反弹）；修正 MotiveWave 与 TradingView 达到 100% 精确对齐并完成 Ant 自动编译部署热重载。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/14_2026-08-30_MW_Study_QuantPivot_Gap_Adaptive_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/14_2026-08-30_MW_Study_QuantPivot_Gap_Adaptive_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Java (MotiveWave SDK)<br />Ant Deploy<br />Python<br />True Daily Range<br />Gap-Adaptive Hybrid</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>15</strong></td>
+              <td style="text-align: center;"><code>2026-08-30</code></td>
+              <td style="text-align: left;"><strong>Option Seller 实盘预埋限价止盈 (Resting Limit Order) 与本地双轨风控守护模块</strong></td>
+              <td style="text-align: left;">构建 Dry-Run（纯本地 10s 线程模拟演练）与 Live-Trading（开仓即向 Schwab/TOS 预挂 Limit Buy-to-Close 止盈单并进驻交易所 Book）双轨分流架构；实现交易所 Filled 自动结案、以及触碰 2.2x 止损或 12:30 PST 强平时“先撤券商挂单 ➜ 确认释放仓位锁定 ➜ 立即市价平仓”的原子防爆仓时序。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+            <tr>
+              <td style="text-align: center;"><strong>16</strong></td>
+              <td style="text-align: center;"><code>2026-08-30</code></td>
+              <td style="text-align: left;"><strong>Option Seller 异步单会话邮件通知引擎 (BBT_OptionSeller Threaded Notifier)</strong></td>
+              <td style="text-align: left;">为期权卖方构建高时效、异步非阻塞的专属邮件通知体系；全流程覆盖开仓、分批止盈 T1/T2、保本激活与强平止损；固定 Thread 汇集会话。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />Gmail SMTP<br />Threading Daemon</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>17</strong></td>
+              <td style="text-align: center;"><code>2026-08-30</code></td>
+              <td style="text-align: left;"><strong>深度 DOM 200 档梯级吸收与日内顶底预判引擎 (DOM Point Prediction Engine)</strong></td>
+              <td style="text-align: left;">梯级冰山吸收体系（<=1.0点单档、<=3.0点微观、<=5.0点广义）；引入 DPER 转化率监控；自动推演输出日内阻力/支撑（Target High/Low）与流动性真空回补目标。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />DOM 200 Levels<br />Tiered Absorption<br />DPER<br />Gemini AI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>18</strong></td>
+              <td style="text-align: center;"><code>2026-08-31</code></td>
+              <td style="text-align: left;"><strong>Option Seller QuantPivot 权重扩充与 EMA 均线乖离回归四层漏斗重构 (Option Seller QuantPivot &amp; EMA Extension Arbitration Refactor)</strong></td>
+              <td style="text-align: left;">彻底打破 EMA 均线在底部反转点的滞后性死锁与站上均线限制；重构四维微观共振评分（QuantPivot 权重扩充至 20 分，EMA 重构为 10 分超卖/超买乖离率均值回归加分）；精准实现底部极值敏锐抄底开仓。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/18_2026-08-31_Option_Seller_QuantPivot_EMA_Extension_Arbitration_Refactor/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/18_2026-08-31_Option_Seller_QuantPivot_EMA_Extension_Arbitration_Refactor/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />QuantPivot 20pts<br />EMA Extension 10pts<br />Mean Reversion<br />Multi-Factor Synthesis</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>19</strong></td>
+              <td style="text-align: center;"><code>2026-09-03</code></td>
+              <td style="text-align: left;"><strong>Option Seller 条件开仓控制台与触发展开引擎 (Option Seller Conditional Order Console &amp; Trigger Engine)</strong></td>
+              <td style="text-align: left;">在 Option Seller 顶栏增设【🎯 设置条件开仓】浅色交互控制台；支持设定 ES/SPX/SPY 标的、价格触碰阈值（&gt;= 上涨或 &lt;= 下跌）、开仓方向（看多卖 Put / 看空卖 Call）及保守/平衡/激进三档风格；后端实现 MySQL 条件单持久化与后台 10s 常驻比对触发执行。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/19_2026-09-03_Option_Seller_Conditional_Order_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/19_2026-09-03_Option_Seller_Conditional_Order_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />Conditional Order<br />Schwab API Quotes<br />MySQL<br />Web Console UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>20</strong></td>
+              <td style="text-align: center;"><code>2026-09-03</code></td>
+              <td style="text-align: left;"><strong>Option Seller 极值耗竭与震荡边界反向开仓独立引擎 (Counter-Trend Terminal &amp; Range Boundary Engine)</strong></td>
+              <td style="text-align: left;">打造独立于主趋势顺势突破的第二套全自动开仓通道：覆盖（1）趋势日冲顶（SPX 距 Call Wall &lt;= 4点）卖 Call 与探底（距 Put Wall &lt;= 4点）卖 Put；（2）震荡日 QuantPivot H1/H2 与 L1/L2 触碰反向收租。全量锚定平衡型（Balanced，宽 2.0点），叠加刚性外侧行权价防线。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/20_2026-09-03_Option_Seller_Counter_Trend_Boundary_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/20_2026-09-03_Option_Seller_Counter_Trend_Boundary_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />Max Gamma Wall<br />QuantPivot<br />Counter-Trend<br />Terminal Pinning</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>21</strong></td>
+              <td style="text-align: center;"><code>2026-09-04</code></td>
+              <td style="text-align: left;"><strong>SPX Gamma 结构形态（极佳单边三角形态）前置硬性过滤引擎 (SPX Gamma Clean Triangle Profile Filter Engine)</strong></td>
+              <td style="text-align: left;">为期权卖方【场景一：单边大趋势极限终点反向开仓】增设四维形态刚性准入准则：严格要求红绿零轴完全隔绝无穿插（Sign Flips == 1）、优势方单峰三角形收敛（Triangular Score &gt;= 0.60）、最大优势柱绝对高度 &gt;= 2.0 倍最大劣势柱。精准放行高阻力终结形态，彻底拦截多空交错的虚假单边。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/21_2026-09-04_SPX_Gamma_Profile_Structure_Filter/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/21_2026-09-04_SPX_Gamma_Profile_Structure_Filter/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />SPX Gamma<br />Clean Triangle<br />Profile Detector<br />Option Seller<br />Scenario 1 Veto</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>22</strong></td>
+              <td style="text-align: center;"><code>2026-09-04</code></td>
+              <td style="text-align: left;"><strong>QuantPivot SPY 标的统一与期权卖方自动触发隔离修复模块 (QuantPivot SPY Unification &amp; Auto Trade Capacity Isolation Engine)</strong></td>
+              <td style="text-align: left;">全面打通场景二（非趋势震荡日 QuantPivot 边界反转）自动化闭环：统一所有模块 QuantPivot L1/L2/H1/H2 计算与价格检查严格锚定 SPY 实时盘口，纠正 SPX/ES 混淆与语义 Bug；解除 5m Sentinel 外部持仓锁，底层实现 MANUAL 手动单与 AUTO 自动开仓限额（2 组）彻底隔离，确保条件单与自动化开仓毫秒级畅通触发。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/22_2026-09-04_QuantPivot_SPY_Unification_And_Auto_Trade_Isolation/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/22_2026-09-04_QuantPivot_SPY_Unification_And_Auto_Trade_Isolation/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />QuantPivot SPY<br />Auto Trade Isolation<br />Schwab API<br />Sentinel Bugfix</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>23</strong></td>
+              <td style="text-align: center;"><code>2026-09-04</code></td>
+              <td style="text-align: left;"><strong>QuantPivot L1/H1 30% 浮盈双批次保本止损引擎 (QuantPivot L1/H1 30% Breakeven Stop Engine)</strong></td>
+              <td style="text-align: left;">针对 QuantPivot L1 与 H1 一级波动率边界容易出现假反弹、冲高/探底后迅速衰竭向 L2/H2 移动的微观特征，在 10 秒监控周期中实现动态保护：一旦浮盈 &gt;= 30%，系统立即同时将两手持仓（Tranche 1 与 Tranche 2）的条件止损价提升至开仓净权利金价格（$0.00 保本），阶梯止盈（40% 与 75%）保持不变，回踩时以 CLOSED_BREAKEVEN_L1_H1 零亏损安全离场。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/23_2026-09-04_Option_Seller_QuantPivot_L1_H1_Breakeven_Stop_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/23_2026-09-04_Option_Seller_QuantPivot_L1_H1_Breakeven_Stop_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />QuantPivot L1/H1<br />Dual-Tranche Breakeven<br />10s Surveillance<br />Capital Protection</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>24</strong></td>
+              <td style="text-align: center;"><code>2026-09-04</code></td>
+              <td style="text-align: left;"><strong>Option Seller 交易流水账本类型过滤器与 TradingView 筛选导出引擎 (Execution Journal Type Filter &amp; Filtered TradingView Pine Script Generator)</strong></td>
+              <td style="text-align: left;">在期权卖方账本顶栏增设多维类型过滤器（全部、自动全集、5m共振、条件单、边界/耗竭、盘前大单、纯手动）与动态数量计数器；深度改造 TradingView 指标导出闭环，支持 POST 传输当前过滤后的交易 ID 集合，在 TradingView 端精准复盘特定策略流水。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/24_2026-09-04_Option_Seller_Journal_Type_Filter_And_TV_Filtered_Export/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/24_2026-09-04_Option_Seller_Journal_Type_Filter_And_TV_Filtered_Export/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller Web UI<br />TradingView Pine v5<br />Dynamic Filter<br />Targeted Export</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>25</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>Option Seller 历史回溯 5 分钟周期数据库直连与微观盘口对齐引擎 (Option Seller Backfill 5m DB Order Flow Integration Engine)</strong></td>
+              <td style="text-align: left;">重构期权卖方历史回测与模拟回溯逻辑，废除依赖本地 CSV 粗算 Delta 的落后机制，全面直连数据库 <code>order_flow_signals</code> 表提取权威 5 分钟周期研判；深度无损还原 DOM 200 档盘口撤单陷阱、冰山及多因子特征，修复决策引擎撤单陷阱误判缺陷，实现历史回溯与实盘 Sentinel 监控决策 100% 精确对齐。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/25_2026-09-05_Option_Seller_Backfill_5m_DB_Order_Flow_Integration/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/25_2026-09-05_Option_Seller_Backfill_5m_DB_Order_Flow_Integration/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller<br />Order Flow Signals<br />MySQL DB Link<br />DOM 200 Microstructure<br />Backfill Precision</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>26</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>Option Seller 风格权利金门槛优化与回溯 SPY 真实盘口对齐引擎 (Option Seller Dynamic Credit Threshold &amp; SPY Spot Backfill Refactor)</strong></td>
+              <td style="text-align: left;">全面调优期权卖方三大风格最低净权利金门槛（平衡型 $0.05，保守型 $0.03，激进型 $0.12），攻克低波动日极值支撑位（QuantPivot L1/L2）因权利金过薄频频弃单的痛点；在回溯脚本中废除 ES/10 粗算，直连 1 分钟真实 SPY 盘口现价，成功实现 2026-09-04 08:30 L1 处双批次 Bull Put Spread 精准开仓与全胜止盈（+$6.00）。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/26_2026-09-05_Option_Seller_Dynamic_Credit_Threshold_And_SPY_Spot_Backfill_Refactor/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/26_2026-09-05_Option_Seller_Dynamic_Credit_Threshold_And_SPY_Spot_Backfill_Refactor/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller Engine<br />Min Credit Floor<br />SPY Spot Precision<br />QuantPivot L1/L2<br />Backtest Perfect Fill</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>27</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>Option Seller QuantPivot 边界多次开仓与三维准入准出风控引擎 (QuantPivot Triple-Barrier Multi-Entry Engine)</strong></td>
+              <td style="text-align: left;">针对非趋势震荡日行情多次往返拉锯的微观特性，彻底废除“单日仅触发一次”的僵化限制，将场景一单边大趋势极限反转与场景二震荡边界反弹物理解耦；针对具体点位（L1、L2、H1、H2）建立三维硬性开仓准入准出铁律：（1）当前该点位无未完全平仓的活跃仓位；（2）该点位当日历史无已平仓亏损记录（一旦破位击穿止损永久熔断）；（3）距上次开仓间隔时间 &gt; 45 分钟；并修正单边趋势日净涨跌幅方向对齐缺陷，实现 2026-09-04 震荡日 L1 处两轮双批次全胜止盈（4 笔全部止盈出场）。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/27_2026-09-05_Option_Seller_QuantPivot_Multi_Entry_And_Triple_Barrier_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/27_2026-09-05_Option_Seller_QuantPivot_Multi_Entry_And_Triple_Barrier_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller Manager<br />QuantPivot Boundary<br />Triple Barrier Guard<br />Circuit-Breaker<br />Multi-Entry Replay</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>28</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>SPX Gamma 5分钟周期结构研判与决策树重构引擎 (SPX Gamma 5m Structural Decision Tree &amp; Neutral Taxonomy Engine)</strong></td>
+              <td style="text-align: left;">彻底根除原有 5m Gamma 判定“随波逐流（顺势臆测）”与“极值撞墙继续追单致期权卖方爆仓”两大致命隐患：（1）打造三阶梯结构决策树状态机（纯净度 -&gt; 优势压制 -&gt; 空间充盈与极值禁区）；（2）以 Gamma 绝对位置 Cushion 为核心主导，收敛冲顶/探底撞墙禁区至 <code>&lt; 8.0点</code>（一票否决顺势追单），放宽日内位置 Pos 至 90%/10%；（3）细分 6 大中性（Neutral）子类型（Exhaustion-Top/Bottom, Compression-Top/Bottom, Conflicted, Balanced）并输出期权卖方落地风控指引；（4）研发 ATM 柱自适应外层阻力天花板识别（resolve_call/put_wall），通过 09-03 与 09-04 实盘回测全量验证。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/28_2026-09-05_SPX_Gamma_5m_Structural_Decision_Tree_And_Neutral_Taxonomy/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/28_2026-09-05_SPX_Gamma_5m_Structural_Decision_Tree_And_Neutral_Taxonomy/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />SPX Gamma 5m<br />Decision Tree<br />Neutral Taxonomy<br />Cushion Guard &lt;8pts<br />Option Seller Veto</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>29</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>BBT 信号图 SPX Gamma 周期过滤拆分与 5 分钟 Order Flow 信号 Sentinel 标记彻底清理引擎 (BBT Signals SPX Gamma Filter Split &amp; 5m Sentinel Cleanup)</strong></td>
+              <td style="text-align: left;">在 BBT 信号图顶栏将单一的 SPX Gamma 信号拆分为 <code>SPX Gamma 30分钟内信号</code> 与 <code>SPX Gamma 5分钟内信号</code> 两个独立复选框，与 Order Flow 保持精准对称；彻底清理 5 分钟信号生成时被强行赋值 <code>is_sentinel=True</code> 的致命缺陷，批量重置数据库历史 215 条 5m 信号为 False；在前端图表与表格全面废除 5m 信号的 Sentinel 判定与卫星高亮徽章，使 5m Order Flow 信号 100% 恢复 High/Medium/Low 真实强度与多空渲染。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/29_2026-09-05_BBT_Signals_SPX_Gamma_Filter_Split_And_5m_Sentinel_Cleanup/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/29_2026-09-05_BBT_Signals_SPX_Gamma_Filter_Split_And_5m_Sentinel_Cleanup/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">HTML / Vanilla JS<br />ECharts<br />SPX Gamma 30m/5m Filters<br />Order Flow 5m Cleanup<br />Sentinel Reset<br />Database Sync</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>30</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>BBT 信号图 Order Flow 与 SPX Gamma 实时信号表格整段折叠收起交互引擎 (BBT Signals Collapsible Table Sections Engine)</strong></td>
+              <td style="text-align: left;">针对 5 分钟高密度信号引入后两大数据表格垂直高度过大占用大半屏的痛点，创新设计并实现整段展开/收起（Collapsible Section）交互：（1）卡片式折叠标题栏结合动态数量徽章，收起状态下依然洞悉过滤记录总数；（2）自适应 DataTables 列宽重绘（columns.adjust），杜绝折叠后展开表头挤压错位；（3）接入 LocalStorage 记忆用户展开/收起偏好，兼顾全景概览与微观追溯；（4）全面遵循极简现代浅色质感（Light Theme）。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/30_2026-09-05_BBT_Signals_Collapsible_Table_Sections_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/30_2026-09-05_BBT_Signals_Collapsible_Table_Sections_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">HTML / CSS / JS<br />Collapsible Sections<br />DataTables Adjust<br />LocalStorage State<br />Live Count Badges<br />Light Theme</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>31</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>BBT 信号图微观时段快捷筛选按钮与全周期穿透引擎 (BBT Signals Quick Time-Range Buttons &amp; Cross-Timeframe Penetration Engine)</strong></td>
+              <td style="text-align: left;">为 Order Flow 与 SPX Gamma 实时信号的 Timeframe 下拉框注入 3 大微观时段快捷胶囊按钮（6:30-8:00 开盘冲高回落、8:00-10:00 欧美盘博弈波段、10:00-13:00 午后收敛尾盘定向）：（1）后端接口全面支持 <code>timeRange</code> 边界闭包比对（<code>HH:MM:00</code>）；（2）实现“全周期穿透”逻辑——点击快捷时段后自动跳过 Timeframe 过滤，完整呈现该时段内所有 5m 与 30m 信号；（3）前端按钮支持 Toggle 互斥切换与高亮激活，若主动切换下拉框则自动解除时段高亮；（4）全面采用浅色天蓝主题质感（Light Theme）。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/31_2026-09-05_BBT_Signals_Quick_Time_Range_Buttons_And_Cross_Timeframe_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/31_2026-09-05_BBT_Signals_Quick_Time_Range_Buttons_And_Cross_Timeframe_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">HTML / CSS / JS<br />Python Flask API<br />Time-Range Fast Filter<br />Cross-Timeframe Penetration<br />Toggle State<br />Light Theme</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>32</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>SPX Gamma 底层现价时钟与数据源高精度分钟级对齐重构引擎 (SPX Gamma Spot Price Clock &amp; Minute-Precision Alignment Engine)</strong></td>
+              <td style="text-align: left;">彻底解决无实时 TOS 时底层现价冻结在半小时前旧快照导致缓冲空间（Cushion）严重虚高、局部高点错误诱多看涨的重大隐患：（1）彻底废除数据库陈旧快照回退；（2）无缝直连 <code>yfinance</code> 1 分钟历史 K 线并实施秒级严格对齐（误差 &lt; 0.1 点）；（3）坚决捍卫 SPX Gamma 模块内部判定物理独立性（纯粹依据 Gamma 与现价，不杂糅外部均线与技术指标）；（4）成功将 2026-09-04 09:55:00 局部高点错误看多信号纠偏为 <code>Neutral:Compression-Top</code>（上行空间压缩观望），并完成连续两日全天 5m 数据高精度全量重塑。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/32_2026-09-05_SPX_Gamma_Spot_Price_Clock_And_Minute_Precision_Alignment_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/32_2026-09-05_SPX_Gamma_Spot_Price_Clock_And_Minute_Precision_Alignment_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />SPX Gamma Core<br />fetch_spx_price_from_tos<br />yfinance 1m Alignment<br />Cushion Precision<br />Pure Gamma Isolation</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>33</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>SPX Gamma 非趋势日顺势 Cushion 空间动态拓宽引擎 (SPX Gamma Non-Trend Day Cushion Expansion Engine)</strong></td>
+              <td style="text-align: left;">针对非单边强趋势日（Non-Trend Day）做市商正 Gamma 压制强劲、标的反弹/下探极难触及最外层大 Gamma 墙导致局部高点误判顺势看多的弊端，实施自适应动态门限升级：（1）纯粹基于 RTH 06:30 开盘价与日内高低极值客观判定单边趋势日（Trend Day）与非趋势日；（2）趋势日维持 <code>Cushion &gt;= 15.0点</code> 宽松门限；（3）非趋势日将顺势空间门限硬性提升至 <code>23.0点</code>（多空双向严格对称），不足 23 点一票否决顺势追单并输出 <code>Neutral:Compression-Top/Bottom</code>；（4）成功将 2026-09-04 09:10~09:45 死猫反弹局部高点错误看多信号全量纠偏为上行空间压缩观望。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/33_2026-09-05_SPX_Gamma_Non_Trend_Day_Cushion_Expansion_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/33_2026-09-05_SPX_Gamma_Non_Trend_Day_Cushion_Expansion_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />SPX Gamma Core<br />Trend Day Regime<br />Dynamic Cushion 23pt<br />Pure Price Isolation<br />Neutral Compression</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>34</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>全局统一 SPY 单边强趋势日判定引擎 (Global Unified SPY Trend Day Regime Engine)</strong></td>
+              <td style="text-align: left;">全局统一 SPX Gamma 分析、Order Flow 实时盘面与 AI Tape Analyst 等子系统的 Trend Day 判定引擎：（1）一律以 SPY 现货为判定标的；（2）时间窗口严格限定在美西时间 <code>06:30 - 11:00</code> 之间（超出此区间直接返回非趋势日）；（3）点位按 SPY 比例严格量化：现价显著偏离 RTH 开盘价 <code>&gt;= 0.80点</code>（多头）/ <code>&lt;= -0.80点</code>（空头），开盘逆向破位 <code>&lt;= 1.20点</code>，极值回撤 <code>&lt;= 1.50点</code>；（4）核心技术结构过滤铁律：5 分钟 bar 收盘价在 15 分钟 13EMA 反方向的次数 <code>&lt;= 1</code>；（5）严格双向对称，全系统解耦复用公共模块 <code>quantdata.trend_regime</code>。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/34_2026-09-05_Global_Unified_SPY_Trend_Regime_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/34_2026-09-05_Global_Unified_SPY_Trend_Regime_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Global Trend Regime<br />SPY 1m/5m/15m EMA13<br />Time Window 6:30-11:00<br />Adverse Count &lt;= 1<br />Bi-directional Symmetric</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>35</strong></td>
+              <td style="text-align: center;"><code>2026-09-05</code></td>
+              <td style="text-align: left;"><strong>5分钟 SPX Gamma 多空分级评级引擎 (5m SPX Gamma Graded Rating Engine)</strong></td>
+              <td style="text-align: left;">将原本三元粗粒度的 5 分钟 SPX Gamma 顺势单边信号成功升级为四级精细化分层评级体系：（1）以现有第三层决策树顺势推进规则为基础判定 <code>L0</code>（基准）；（2）设立三大独立加分项：多空主力集群 Gamma 规模比率 <code>&gt;= 3.0</code>、开盘黄金布局时段 <code>06:30 - 08:30 PT</code>、开盘以来集群规模整体单调持续扩张 <code>Trend Up</code>；（3）根据加分项满足数量输出 <code>Bullish_L0~L3</code> 与 <code>Bearish_L0~L3</code>（多空双向严格对称）；（4）后端 API 与前端 DataTable 渲染升级，提供渐进式高亮徽章与加分明细卡片展示。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />SPX Gamma Core<br />Graded Rating L0~L3<br />Bonus Factors Engine<br />Cluster Trend Up Detection<br />DataTable Badges</td>
+            <tr>
+              <td style="text-align: center;"><strong>36</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>期权卖方 5分钟全自动开仓四层漏斗仲裁机制 - 维度 2 (SPX Gamma 结构) 极简重构 (Option Seller Funnel Arbitration Simplification)</strong></td>
+              <td style="text-align: left;">彻底简化期权卖方全自动开仓第二层四维矩阵打分中“维度 2：SPX Gamma 结构 (权重 30分)”的判定规则：废除冗长的多空集群比率阶梯打分、期权大墙物理屏障与安全垫 Cushion 比例折算等细碎计算，直接无缝对接最新的 5m SPX Gamma 多空分级评级结果：<code>Bullish_L0 / Bearish_L0</code> 得 20 分（基准顺势）；<code>L1</code> 得 24 分（单项加分强化）；<code>L2</code> 得 27 分（高确信主升/主跌浪）；<code>L3</code> 得 30 分（极强力爆发主升浪）。若评级为中性防守（<code>Neutral:...</code>）或方向相反，得 0 分，未达 15 分门槛直接一票否决顺势开仓。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Option Seller Engine<br />Arbitration Funnel Tier 2<br />SPX Gamma Graded L0-L3<br />Direct Score Mapping<br />Zero-Score Gatekeeper</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>37</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>5分钟周期 Order Flow 规则化信号系统深度重构与 1~10 强度评分引擎 (5m Order Flow Two-Step Evaluation &amp; 1-10 Strength Scoring Engine)</strong></td>
+              <td style="text-align: left;">彻底重构 5m Order Flow 规则化研判机制：（1）建立“两步判定法”：第一步通过三大看多形态 (Setup 1A/2A/3A) 与三大看空形态 (Setup 1B/2B/3B) 严格准入，强制植入反追高 (Pos &lt;= 65%)、反杀跌 (Pos &gt;= 35%) 及 DOM 虚假撤单诱捕过滤，常态输出中性防守 (Neutral，0分)；（2）第二步设立 9 大底层客观数据加分项，层层累加输出 1~10 强度分与复合代码（<code>Bullish_S1~S10</code> / <code>Bearish_S1~S10</code>）；（3）期权卖方开仓引擎维度 1 全面挂接 1~10 强度直接映射（S10 得 40 分，S8 得 34 分，S3 得 20 分，中性得 0 分）；（4）系统交易规则手册第一部分全面重写，旧版完整独立归档。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Order Flow Sentinel<br />Two-Step Evaluation<br />Setup 1/2/3 Qualifying<br />1-10 Strength Scoring<br />Anti-Chasing Veto</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>38</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>订单流两步法（方向准入判定与底层强度打分）展开详情卡片 UI 组件重构 (Order Flow Two-Step Evaluation UI Visualization Engine)</strong></td>
+              <td style="text-align: left;">依据《订单流分析规则手册》第 3 章与第 4 章，全面升级 <code>http://127.0.0.1:5005/bbt_signals</code> 订单流实时信号表格子行展开详情视图：（1）完整保留原有的 4 个基础卡片与 Adam Set 深度 DOM 微观盘口卡片；（2）追加「第一步：基本规则方向准入判定」交互卡片，包含方向徽章、触发规则指示横幅、三大前置硬性过滤红线以及 Setup 1~3 双门禁状态实时测量值与规则阈值动态比对；（3）追加「第二步：底层数据强度打分体系」交互卡片，呈现 1~10 分强度大数字徽章、多阶色彩进度条、打分公式明细（起跑分+加分项）以及 9 大客观底层特征加分项清单表；（4）严格遵循清新护眼的白底浅色主题 (Light Theme) 与纯文本公式渲染规范。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">JavaScript (ES6+)<br />HTML5 / CSS3<br />jQuery DataTable Child Rows<br />Real-time Metric Evaluator<br />Light Theme</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>39</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>全局统一 SPY 单边强趋势日判定引擎规则重构与容忍度优化 (Global Unified SPY Trend Day Regime Thresholds Refactor)</strong></td>
+              <td style="text-align: left;">彻底解决单边强趋势日（Trend Day）判定规则过于严苛导致正常趋势回踩被过早误判为震荡日的问题：（1）将现价脱离成本线基准从“RTH 开盘价”升级为“包含盘前 Pre-Market 与 RTH 在内的当日极低点（多头）/ 极高点（空头）”，解决盘前大幅拉升/下挫导致开盘基准滞后失真的问题；（2）开盘逆向破位/冲高容忍度从 <code>&lt;= 1.20点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点）；（3）高位回撤/低位反弹容忍度从 <code>&lt;= 1.50点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点），允许标的完成健康的 15m 均线带测试；（4）多空双向严格镜像对称，同步更新系统核心规则手册；（5）优化前端 Setup 2 展开面板，将“趋势日形态”与“策略时间窗 (06:30-11:00)”解耦独立展示，彻底消除时间窗未达标的视觉歧义。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Global Trend Regime<br />Pre-Market + RTH High-Low<br />Dynamic Retracement Thresholds &lt;= 2.0<br />Symmetric Dual-Directional Architecture</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>40</strong></td>
+              <td style="text-align: center;"><code>2026-09-06</code></td>
+              <td style="text-align: left;"><strong>订单流盘中分析去除 30 分钟 AI 调用全面统一 5 分钟规则引擎与全量回填 (Order Flow 5m Rule-Based Unification &amp; Backfill Engine)</strong></td>
+              <td style="text-align: left;">彻底解决订单流盘中 AI 分析延迟高、Token 消耗大且与底层两步法量化规则冲突的问题：（1）废除盘中 30 分钟（整点与半点）调度 Gemini 大模型的机制，只保留盘后收盘美西时间 13:15 的唯一 Day Type AI 研判；（2）全面统一盘中所有 5 分钟周期（包含 07:00, 07:30 等整点半点）执行基于规则的订单流研判（<code>Rule-Based-5m</code>）；（3）优化哨兵底层基准动态查找算法与变量完备性，解除 HIGH 信号盘中调用大模型覆盖；（4）全面回填 2026-09-03 与 2026-09-04 历史订单流数据，完美呈现连续一致的 5m 规则化信号流。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />Order Flow Sentinel<br />Comprehensive Signals Job<br />Daily Jobs Scheduler<br />Rule-Based-5m Architecture<br />Historical DB Backfill</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>41</strong></td>
+              <td style="text-align: center;"><code>2026-09-11</code></td>
+              <td style="text-align: left;"><strong>系统自动条件单统计引擎与 11:00 PST 时段截断自动撤单 (Auto Conditional Order Statistics Engine &amp; 11:00 PST Time-Cutoff Sweep)</strong></td>
+              <td style="text-align: left;">建立条件单「挂单/触发」全链路可观测与执行面时段纪律：（1）新增 append-only 事件流 <code>option_seller_conditional_order_events</code>，对 PLACED / TRIGGERED / CANCELLED 全程埋点（既有条件单表零改动），并回填存量 21 单历史事件；（2）新增条件单统计面板与接口，按<strong>方向双向（BULLISH 看涨 / BEARISH 看跌）</strong>、来源（系统自动 / 手动）、触发条件、子场景、小时段与按日分列，输出挂单数、触发数、触发率、平均等候（挂单→触发）、平均触发偏差与平均布防距离；（3）落地「11:00 PST 之后 0DTE 极限 Theta 衰减 + 做市商行权钉住 (Pinning) 导致无单边对冲推力」的执行面规则：<strong>每天 11:00 PST 自动撤销全部 PENDING 条件单</strong>（原因 <code>TIME_CUTOFF_1100</code>），截断区 <code>[11:00, 23:30)</code> PT 禁止新建布防，布防窗口恒为 <code>[23:30, 11:00)</code> PT；被撤销单<strong>页面保留展示并标注「未触发且不会再触发」至 23:30</strong> 供盘后复盘（DB 保留）；（4）顺带完成数据库时区标准化：mysqld 固定 <code>America/Los_Angeles</code>，误存 UTC 的历史 datetime 数据 21,983 行按证据迁移为 Seattle(PT)，并移除应用侧 +7h 补偿。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/41_2026-09-11_Conditional_Order_Stats_And_1100_Time_Cutoff/implementation_plan.md"><i
+                    class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/41_2026-09-11_Conditional_Order_Stats_And_1100_Time_Cutoff/walkthrough.md"><i
+                    class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python<br />OptionSellerManager Monitor Loop<br />MySQL Event-Stream Table<br />Seattle(PT) Timezone Standardization<br />Flask API<br />Light-Theme UI<br />Rule Manual</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>42</strong></td>
+              <td style="text-align: center;"><code>2026-09-11</code></td>
+              <td style="text-align: left;"><strong>期权卖方日历盈亏 LIVE 主显示改造 (LIVE-Primary PnL Calendar &amp; Monthly Badge)</strong></td>
+              <td style="text-align: left;">将期权卖方控制台的日历盈亏展示**切换为 LIVE（实盘）主显示**：（1）日历单元格首行为 LIVE 当日盈亏（大号），次行为 <code>DRY $x All $y</code>（小一号，且拆为两个不可拆分组，窄格整齐折两行）；（2）月度徽标显示 <code>月度盈亏: +$LIVE / $DRY</code>，其中 DRY 数值以 0.82em 小字号呈现；（3）单元格 win/loss 配色与月度色阶统一跟随主显示值 LIVE，消除"绿底显示 $0.00"的自相矛盾；（4）实施前核对接口语义 <code>pnl = All = LIVE + DRY</code>，并以 2026-09 Sep 合计 LIVE $101.00 / DRY $347.00 / All $448.00 校验口径正确。</td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/42_2026-09-11_LIVE_Primary_PnL_Calendar/implementation_plan.md"><i class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link"
+                  href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/42_2026-09-11_LIVE_Primary_PnL_Calendar/walkthrough.md"><i class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Jinja 模板内联 JS / Calendar Cell Rendering / Flask calendar_pnl 语义核对 / Light-Theme UI</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>43</strong></td>
+              <td style="text-align: center;"><code>2026-09-11</code></td>
+              <td style="text-align: left;"><strong>平仓成交价结算修正 —— 以券商实际成交净价结算 PnL (Close Fill-Price Settlement Fix)</strong></td>
+              <td style="text-align: left;">修正期权卖方系统「平仓按委托限价记账」导致 PnL 低估的缺陷：用户发现 2026-09-11 TOS P/L Day $16.00 而系统仅 $14.00，经券商原始成交腿逐笔对账定位为两笔「保本平仓」各获 1 美分价格改善（限价 0.15/0.17 实际成交 0.14/0.16）却被按限价记账。（1）`close_trade(is_broker_filled=True)` 改为按平仓单实际成交腿净价结算 PnL（按 `legId` 关联 `orderLegCollection` 取买卖方向，净支付 = −(ΣSELL−ΣBUY)），取不到再回退委托价；（2）新增 `close_limit_price` 列留档委托价，`close_price` 语义明确为实际成交净价，便于统计滑点/价格改善；（3）回补本次 2 笔历史数据。修正后系统 9/11 = $16.00 与 TOS 完全一致，9 月 LIVE 101 → 103.00。</td>
+              <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/43_2026-09-11_Close_Fill_Price_Settlement_Fix/implementation_plan.md"><i class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/43_2026-09-11_Close_Fill_Price_Settlement_Fix/walkthrough.md"><i class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python / OptionSellerManager Close Settlement / Schwab Orders API 成交腿解析 / MySQL 增量列 / Flask calendar_pnl</td>
+            </tr>
+            <tr>
+              <td style="text-align: center;"><strong>44</strong></td>
+              <td style="text-align: center;"><code>2026-09-11</code></td>
+              <td style="text-align: left;"><strong>期权卖方首页 KPI 看板优化 (Option Seller KPI Dashboard Optimization)</strong></td>
+              <td style="text-align: left;">按用户实际关注点重构卖方首页 5 张 KPI 卡：（1）删除与实际实现不符的静态副行「最大并发上限: 2 手」；（2）将基本不关注的「净 Delta 暴露」「净 Theta 收益率」替换为**今日卖出权利金 (Premium Collected)** 与 **最大亏损敞口 (Max Loss at Risk)**（后端新增 `premium_collected_today`=Σ net_credit×100×手数、`max_loss_at_risk`=Σ|max_loss|×手数、`exit_mix` 平仓构成统计）；（3）在「活跃持仓数」之后新增**未触发条件单**卡片（含系统自动/手动来源拆分与最近一单摘要，衔接 module 41 条件单事件流）；（4）修正 `_reload_conditional_orders()` 丢失 `source` 字段的问题，并把历史日期分支改为带空值保护的占位更新，消除 `getElementById(null)` 抛错风险。</td>
+              <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/44_2026-09-11_Option_Seller_KPI_Dashboard_Optimization/implementation_plan.md"><i class="fas fa-file-lines"></i> 查看 Plan</a></td>
+              <td style="text-align: center;"><a class="btn-link" href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/44_2026-09-11_Option_Seller_KPI_Dashboard_Optimization/walkthrough.md"><i class="fas fa-clipboard-check"></i> 查看 Walkthrough</a></td>
+              <td style="text-align: left;">Python / OptionSellerManager Status Summary / Jinja 模板内联 JS / Light-Theme UI / Condition Order Event Stream</td>
+            </tr>
+          </tbody>
+        </table>
+        <hr />
+        <h2>核心模块详细技术结构说明</h2>
+        <h3 id="mod-01">01. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/01_2026-06-06_SPX_Gamma_and_Target_Distance">SPX
+            0DTE Gamma 架构与目标水位距离量化</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-06</code></li>
+          <li><strong>归档目录</strong>: <code>01_2026-06-06_SPX_Gamma_and_Target_Distance</code></li>
+          <li><strong>系统职责</strong>: 分析做市商动态对冲机制与两大市场状态（正/负 Gamma）；量化计算现货距 Call Wall / Put Wall 距离并提供追涨杀跌防范。</li>
+          <li><strong>技术栈</strong>: Python / Web UI</li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/01_2026-06-06_SPX_Gamma_and_Target_Distance/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-02">02. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine">订单流大单方向独立
+            Rule-based 决策引擎</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-06</code></li>
+          <li><strong>归档目录</strong>: <code>02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine</code></li>
+          <li><strong>系统职责</strong>: 建立 ES/NQ 机构大单方向独立研判引擎，基于时间衰减加权得分与大额成交量分布，提供不依赖期权的独立订单流视角。</li>
+          <li><strong>技术栈</strong>: Python / Rule Engine</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/02_2026-06-06_OrderFlow_Big_Trade_Rule_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-03">03. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign">综合交易决策重构与追涨杀跌防范</a>
+        </h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-07</code></li>
+          <li><strong>归档目录</strong>: <code>03_2026-06-07_Comprehensive_Trading_Decision_Redesign</code></li>
+          <li><strong>系统职责</strong>: 重构 3 输入综合决策引擎（SPX Gamma + 大单流向 + 盘面状态）；建立 27 种情况映射矩阵与 7 大定性决策；引入日内振幅与时段追高追空防护。</li>
+          <li><strong>技术栈</strong>: Python / Rule Engine / Web UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/03_2026-06-07_Comprehensive_Trading_Decision_Redesign/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-04">04. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/04_2026-06-07_Data_Stream_Status_Monitoring">多源实时数据流健康监控
+            (Data Stream Monitor)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-07</code></li>
+          <li><strong>归档目录</strong>: <code>04_2026-06-07_Data_Stream_Status_Monitoring</code></li>
+          <li><strong>系统职责</strong>: 实时监控 SPX Gamma (ws_client.py) 与订单流 Java Exporter 的心跳状态、延迟及文件大小，前端可视化警示。</li>
+          <li><strong>技术栈</strong>: Python / Web UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/04_2026-06-07_Data_Stream_Status_Monitoring/implementation_plan.md">implementation_plan.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-05">05. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/05_2026-06-10_OrderFlow_Signal_Strength_Integration">订单流实时信号强度判定集成</a>
+        </h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-10</code></li>
+          <li><strong>归档目录</strong>: <code>05_2026-06-10_OrderFlow_Signal_Strength_Integration</code></li>
+          <li><strong>系统职责</strong>: 在实时信号中加入 Low / Medium / High 量化等级判定，融合 Delta%Vol 预筛选与微观 4 项突破/吸收验证条件。</li>
+          <li><strong>技术栈</strong>: Python / MySQL / Web UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/05_2026-06-10_OrderFlow_Signal_Strength_Integration/implementation_plan.md">implementation_plan.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-06">06. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module">机构大单案例库分析模块
+            (Whale Trade)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-13</code></li>
+          <li><strong>归档目录</strong>: <code>06_2026-06-13_Whale_Trade_Case_Study_Module</code></li>
+          <li><strong>系统职责</strong>: 建立期权/订单流大单案例分析技能；支持图文解析、策略归类与数据库存取；并在前端仪表盘实现案例管理与真实行情复盘。</li>
+          <li><strong>技术栈</strong>: Python (Agent Skill) / MySQL / Web UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/06_2026-06-13_Whale_Trade_Case_Study_Module/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-07">07. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification">ES
+            日内关键 Pivot 识别与计算模块</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-14</code></li>
+          <li><strong>归档目录</strong>: <code>07_2026-06-14_ES_Daily_Pivot_Point_Identification</code></li>
+          <li><strong>系统职责</strong>: 结合前日结清价、隔夜高低点、大单聚集与价值区（VAH/VAL），自动化量化计算 ES 日内多空分水岭 Pivot 与阻力支撑点位。</li>
+          <li><strong>技术栈</strong>: Python / Algorithm / Web UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/07_2026-06-14_ES_Daily_Pivot_Point_Identification/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-08">08. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction">期货季度移仓周交易方向修正算法</a>
+        </h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-16</code></li>
+          <li><strong>归档目录</strong>: <code>08_2026-06-16_Futures_Rollover_Side_Correction</code></li>
+          <li><strong>系统职责</strong>: 针对移仓周前后月合约差价导致的 BID/ASK 判定失真，引入 Lee-Ready (Tick Test) 算法对交易方向进行动态纠偏。</li>
+          <li><strong>技术栈</strong>: Java / Python</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/08_2026-06-16_Futures_Rollover_Side_Correction/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-09">09. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes">订单流导出引擎与实时
+            Tick 逻辑修复</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-06-18</code></li>
+          <li><strong>归档目录</strong>: <code>09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes</code></li>
+          <li><strong>系统职责</strong>: 修复 MotiveWave Java 端 StudyOrderFlowDataExporter 实时 Tick 导出中的去重、时间戳对齐与盘口买卖方向错位问题。
+          </li>
+          <li><strong>技术栈</strong>: Java (MotiveWave SDK) / Ant Deploy</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/09_2026-06-18_OrderFlow_Data_Exporter_Logic_Fixes/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-10">10. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set">DOM
+            200 档全景深度与 Adam Set 四大特征落地</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+          <li><strong>归档目录</strong>: <code>10_2026-08-29_DOM_200_Level_and_Adam_Set</code></li>
+          <li><strong>系统职责</strong>: 采集上下 50 点原生 200 档盘口；流式 GZIP 压缩；Python 识别多梯队失衡、堆撤单、冰山与真空；大模型 Prompt Section 9 注入与
+            Web 卡片自适应渲染。</li>
+          <li><strong>技术栈</strong>: Java (MotiveWave) / Python / GZIP / MySQL / Web UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/walkthrough.md">walkthrough.md</a>
+            | <a style="color: #0284c7; font-weight: 600;"
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/10_2026-08-29_DOM_200_Level_and_Adam_Set/dom_features_evaluation_report.html">实盘效果评测报告 (HTML Report)</a>
+          </li>
+        </ul>
+        <h3 id="mod-11">11. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine">5分钟
+            DOM 哨兵规则引擎 (Sentinel Rule-Based Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+          <li><strong>归档目录</strong>: <code>11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine</code></li>
+          <li><strong>系统职责</strong>: 在 order_flow_sentinel.py 中建立纯规则毫秒级 DOM
+            扫描引擎，实现真空滑移逼空/破位预警、冰山密集吸收覆写与撤单诱多陷阱过滤，异常驱动唤醒大模型深度研判。</li>
+          <li><strong>技术栈</strong>: Python / Rule Engine / Sentinel / GZIP</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/11_2026-08-29_DOM_5Min_Sentinel_Rule_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-12">12. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine">Option
+            Seller 日内自动化交易系统 (SPY 0DTE Spread Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+          <li><strong>归档目录</strong>: <code>12_2026-08-29_Option_Seller_Intraday_Engine</code></li>
+          <li><strong>系统职责</strong>: 基于 BBT.AI 工业化闭环，打通 DISCOVER -> STRUCTURE -> MANAGE -> REVIEW 四步，基于 TOS/Schwab API
+            自动/手动执行 SPY 0DTE/1DTE 垂直信用价差，覆盖保守/平衡/激进三种开仓策略，后台常驻线程双批次分级止盈（T1 40% / T2 75%）、止损（2.2x）与时间强平（12:30
+            PST），多维流水账本审计，双月盈亏日历，开辟独立 Web 交易监视面板；全景定时体系与后台风控守护已完整归档至系统规则手册第18章。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller / Schwab API / SPY 0DTE & 1DTE / Opening-Strategies / Web UI
+            / MySQL</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/12_2026-08-29_Option_Seller_Intraday_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-13">13. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/13_2026-08-29_Option_Seller_5Min_Synthesis_Engine">5分钟多维共振期权卖方综合决策引擎 (5-Min Multi-Factor Option Seller Synthesis Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-29</code></li>
+          <li><strong>归档目录</strong>: <code>13_2026-08-29_Option_Seller_5Min_Synthesis_Engine</code></li>
+          <li><strong>系统职责</strong>: 突破对突发微秒级哨兵脉冲的死锁限制，以 5 分钟为主周期（06:35~11:30 PST 巡检），聚合 5m 订单流、SPX 0DTE Gamma 结构、Smashelito Pivot 与 EMA 13-21 趋势盾牌四维要素，实现双向稳态共振评分、自适应三档选型与空仓状态硬锁。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller / 5-Min Cycle / Multi-Factor Synthesis / Schwab API / MySQL</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/13_2026-08-29_Option_Seller_5Min_Synthesis_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/13_2026-08-29_Option_Seller_5Min_Synthesis_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-14">14. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/14_2026-08-30_MW_Study_QuantPivot_Gap_Adaptive_Engine">MotiveWave QuantPivot 指标与跳空跨时段自适应计算模块 (MW Study: BBT Quant Pivot)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-30</code></li>
+          <li><strong>归档目录</strong>: <code>14_2026-08-30_MW_Study_QuantPivot_Gap_Adaptive_Engine</code></li>
+          <li><strong>系统职责</strong>: 归属于 <strong>MotiveWave Study (MW Study)</strong> 核心指标库。基于标的过去 30 个交易日真实日线波幅动态计算 H1/H2/L1/L2 波动率边界；首创期货跳空非对称跨时段自适应机制（Gap-Adaptive Hybrid Anchoring，高开以 24H 抓顶、RTH 抓底；低开以 24H 抓底、RTH 抓反弹）；修正 MotiveWave 与 TradingView 达到 100% 精确对齐并完成 Ant 编译部署热重载。</li>
+          <li><strong>技术栈</strong>: Java (MotiveWave SDK) / Ant Deploy / Python / True Daily Range / Gap-Adaptive Hybrid</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/14_2026-08-30_MW_Study_QuantPivot_Gap_Adaptive_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/14_2026-08-30_MW_Study_QuantPivot_Gap_Adaptive_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-15">15. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine">Option Seller 实盘预埋限价止盈 (Resting Limit Order) 与本地双轨风控守护模块</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-30</code></li>
+          <li><strong>归档目录</strong>: <code>15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine</code></li>
+          <li><strong>系统职责</strong>: 彻底解决传统仅依赖本地 10 秒轮询在真实资金实盘中错失期权交易所撮合排队优势、断线风险以及 TOS 界面无在途单的问题。在实盘开仓成交后，自动向 Schwab 提交 Limit Buy-to-Close 挂单进驻交易所 Order Book；本地 10 秒守护线程优先轮询并在交易所 Filled 时自动结案；遇 2.2x 止损或 12:30 强平时严格执行“先撤券商在途挂单 ➜ 确认释放仓位锁定 ➜ 立即提交市价/盘口单平仓”的时序防爆仓保护；同时集成方案 A 动态保本推损机制，在 Tranche 1 止盈 40% 兑现后自动将 Tranche 2 止损线移至开仓保本价（net_credit），锁定整轮回合 100% 绝对正收益。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller / Schwab API / Resting Limit Order / Trailing Breakeven Stop / Order Status Polling / Precedence Cancel / MySQL</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/15_2026-08-30_Option_Seller_Live_Resting_Limit_Order_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-16">16. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine">Option Seller 异步单会话邮件通知引擎 (BBT_OptionSeller Threaded Notifier)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-30</code></li>
+          <li><strong>归档目录</strong>: <code>16_2026-08-30_Option_Seller_Email_Notification_Engine</code></li>
+          <li><strong>系统职责</strong>: 为 Option Seller 期权卖方交易系统构建高时效、异步非阻塞的专属邮件通知体系。全面覆盖仓位核心生命周期（开仓成功、分批止盈 T1/T2、伴生保本激活通知、2.2x 硬止损、美西 12:30 时间强平与手动平仓）。所有邮件通知强制绑定固定主题 <code>BBT_OptionSeller</code>，并配置专属 <code>In-Reply-To</code> 与 <code>References</code> 标识头，实现 Gmail 邮箱手机/桌面端 100% 自动归拢至单一连续会话 Thread，方便历史翻阅与上下文追踪；网络发信完全隔离于后台守护线程，确保交易执行零时延。</li>
+          <li><strong>技术栈</strong>: Python / smtplib / MIME Multipart & HTML / Threading Daemon / Gmail SMTP Threading / Option Seller Lifecycle</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/16_2026-08-30_Option_Seller_Email_Notification_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        <h3 id="mod-17">17. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine">深度 DOM 200 档梯级吸收与日内顶底预判引擎 (DOM Point Prediction & Tiered Absorption Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-30</code></li>
+          <li><strong>归档目录</strong>: <code>17_2026-08-30_DOM_Point_Prediction_Engine</code></li>
+          <li><strong>系统职责</strong>: 结合顶级专业交易员 DOM 读盘实战与 Adam Set 日内顶底提前预判机制，在原生 200 档 DOM 采集基础上全面构建顶底点位预判与分层吸收量化体系。废除单一硬编码 1.0 点的价格位移限制，创新落地梯级冰山吸收体系（极致冰山 <=1.0点单档死守、主流波段吸收 <=3.0点微观换手、广义拦截 <=5.0点动能衰竭）；引入 DPER (Delta-Price Efficiency Ratio) 监控价格移动与净 Delta 的转化率，在 DPER 归零且成交巨量时确证被动吸收；结合 50 点静态挂单壁垒与实时吸收特征，自动推演输出日内潜在阻力（Target High）与潜在支撑（Target Low），并将单边击穿留下的流动性真空带（Vacuum Pockets / Zero Prints）锁定为反手止盈回补目标。</li>
+          <li><strong>技术栈</strong>: Python / Order Flow / DOM 200 Levels / Tiered Iceberg Absorption / DPER / Zero Prints / Liquidity Vacuum / Gemini AI Tape Prompt / Dynamic S/R</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/17_2026-08-30_DOM_Point_Prediction_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        <h3 id="mod-18">18. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/18_2026-08-31_Option_Seller_QuantPivot_EMA_Extension_Arbitration_Refactor">Option Seller QuantPivot 权重扩充与 EMA 均线乖离回归四层漏斗重构 (Option Seller QuantPivot &amp; EMA Extension Arbitration Refactor)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-08-31</code></li>
+          <li><strong>归档目录</strong>: <code>18_2026-08-31_Option_Seller_QuantPivot_EMA_Extension_Arbitration_Refactor</code></li>
+          <li><strong>系统职责</strong>: 彻底打破 EMA 均线在底部反转点的滞后性死锁与“价格必须站上均线”的前置限制。将 100 分制四维共振仲裁架构进行重构升级：维度 3（QuantPivot 统计学反转边界与 Smashelito 拍卖位）权重扩充至 20 分（L1/H1 触碰 +10分，穿入 L2/H2 极值超跌/超买带追加至 16~20分）；维度 4 精简重构为 10 分超卖/超买均线乖离回归机制（EMA Extension &amp; Exhaustion），在价格发生超跌负乖离率（&lt;= -0.15%）时判定为极佳均值回归窗口直接赋予满分 10分。实盘回测验证完美覆盖 2026-08-31 早盘 07:40 底部抄底与盘中 08:10/08:30/09:30 四次稳健开仓。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Engine / QuantPivot 20pts / EMA Extension Reversion 10pts / 4-Tier Funnel Arbitration / Backtesting</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/18_2026-08-31_Option_Seller_QuantPivot_EMA_Extension_Arbitration_Refactor/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/18_2026-08-31_Option_Seller_QuantPivot_EMA_Extension_Arbitration_Refactor/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-19">19. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/19_2026-09-03_Option_Seller_Conditional_Order_Engine">Option Seller 条件开仓控制台与触发展开引擎 (Option Seller Conditional Order Console &amp; Trigger Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-03</code></li>
+          <li><strong>归档目录</strong>: <code>19_2026-09-03_Option_Seller_Conditional_Order_Engine</code></li>
+          <li><strong>系统职责</strong>: 在期权卖方交易平台顶栏【⚡ 手动开仓】旁增设【🎯 设置条件开仓】浅色控制台；支持交易员预埋 ES / SPX / SPY 关键点位触发单（GTE &gt;= 或 LTE &lt;=）；设定看多卖 Put 或看空卖 Call，并提供保守、平衡、激进三档风格与 0DTE/1DTE 及降级偏好选择；后端持久化至 MySQL 并在后台 10 秒守护循环中持续盯盘实时价格，条件达成时自动寻优开仓 2 手双批次垂直价差。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Engine / Conditional Orders / Schwab Quotes API / MySQL / Web Console UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/19_2026-09-03_Option_Seller_Conditional_Order_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/19_2026-09-03_Option_Seller_Conditional_Order_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-20">20. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/20_2026-09-03_Option_Seller_Counter_Trend_Boundary_Engine">Option Seller 极值耗竭与震荡边界反向开仓独立引擎 (Counter-Trend Terminal &amp; Range Boundary Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-03</code></li>
+          <li><strong>归档目录</strong>: <code>20_2026-09-03_Option_Seller_Counter_Trend_Boundary_Engine</code></li>
+          <li><strong>系统职责</strong>: 针对期权卖方在“单边大趋势启动顺势开仓”以外的两大高胜率盈利场景打造独立开仓通道：（1）大单边趋势日极限终点反向开仓（当 SPX 距离做市商单日 Max Gamma Bar 距离 &lt;= 4.0 点，且微观 Order Flow 呈现衰竭吸收时，站在终点大墙外侧反向卖出 Bear Call Spread 或 Bull Put Spread）；（2）非趋势震荡日边界反向开仓（结合 QuantPivot H1/H2 与 L1/L2 波动率边界，在触及 1 倍标准差极值时反向收租）。所有开仓严格以平衡型（Balanced，宽 2.0 点）为基准，并实施单日单向防重入与 10 秒盯市守护闭环。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Engine / Max Gamma Wall Strike / QuantPivot Reversion / Counter-Trend Arbitration / One-Shot Guard</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/20_2026-09-03_Option_Seller_Counter_Trend_Boundary_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/20_2026-09-03_Option_Seller_Counter_Trend_Boundary_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        <h3 id="mod-21">21. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/21_2026-09-04_SPX_Gamma_Profile_Structure_Filter">SPX Gamma 结构形态（极佳单边三角形态）前置硬性过滤引擎 (SPX Gamma Clean Triangle Profile Filter Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-04</code></li>
+          <li><strong>归档目录</strong>: <code>21_2026-09-04_SPX_Gamma_Profile_Structure_Filter</code></li>
+          <li><strong>系统职责</strong>: 针对期权卖方【场景一：大单边趋势日极限终点反向开仓】增设刚性 SPX Gamma 柱状图形态四维检测体系：（1）红绿完全隔绝无穿插（Sign Flips == 1，且优势侧零异色穿插）；（2）优势方主峰单峰突出（主次峰比 &gt;= 1.20）且呈现平滑收敛三角形包络（Triangular Score &gt;= 0.60）；（3）最大优势柱绝对高度达到最大劣势柱的 2.0 倍以上；（4）Zero Gamma Flip 点精确位于零轴交接处。通过算法拦截多空反复拉扯穿插的劣质形态，仅在具备做市商极强钉住与反转阻力的完美单边形态下准许反向开仓。</li>
+          <li><strong>技术栈</strong>: Python / SPX Gamma / Clean Triangle Profile / Peak Ratio / Interleaving Veto / Option Seller Engine</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/21_2026-09-04_SPX_Gamma_Profile_Structure_Filter/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/21_2026-09-04_SPX_Gamma_Profile_Structure_Filter/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-22">22. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/22_2026-09-04_QuantPivot_SPY_Unification_And_Auto_Trade_Isolation">QuantPivot SPY 标的统一与期权卖方自动触发隔离修复模块 (QuantPivot SPY Unification &amp; Auto Trade Capacity Isolation Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-04</code></li>
+          <li><strong>归档目录</strong>: <code>22_2026-09-04_QuantPivot_SPY_Unification_And_Auto_Trade_Isolation</code></li>
+          <li><strong>系统职责</strong>: 彻底攻克 QuantPivot 边界反转在实盘各执行环节遇到的全部阻断问题：（1）在 QuantPivotCalculator 中新增统一 SPY 实时盘口提取工具，杜绝将 SPX/ES 点位与 SPY QuantPivot 混淆比对并内置量级防御；（2）纠正 5m Sentinel 内部当前价取最高点的语义 Bug；（3）放行 5m Sentinel 入口的人工持仓拦截，允许已有 MANUAL 单时持续进行自动化宏观审查；（4）在底层 open_trade 中将持仓检查严格收敛为 active AUTO 仓位，彻底解除 MANUAL 仓位对条件单及自动单的挤占。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Manager / QuantPivot SPY / Schwab Live Chain / Sentinel Flow Fix / Capacity Isolation</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/22_2026-09-04_QuantPivot_SPY_Unification_And_Auto_Trade_Isolation/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/22_2026-09-04_QuantPivot_SPY_Unification_And_Auto_Trade_Isolation/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-23">23. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/23_2026-09-04_Option_Seller_QuantPivot_L1_H1_Breakeven_Stop_Engine">QuantPivot L1/H1 30% 浮盈双批次保本止损引擎 (QuantPivot L1/H1 30% Breakeven Stop Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-04</code></li>
+          <li><strong>归档目录</strong>: <code>23_2026-09-04_Option_Seller_QuantPivot_L1_H1_Breakeven_Stop_Engine</code></li>
+          <li><strong>系统职责</strong>: 针对 QuantPivot 一级统计边界 L1 与 H1 假反弹风险，构建 10 秒级动态双批次保本联动体系：（1）在 option_seller_engine 中为 Case 2A/2B 注入 L1/H1 识别标签；（2）在 option_seller_manager 中开仓和恢复时穿透维护标签；（3）10 秒守护线程轮询发现浮盈比例 &gt;= 30% 时，自动触发 _activate_l1_h1_breakeven_stops，同步将 Tranche 1 与 Tranche 2 的 stop_loss_price 改为 net_credit 并更新数据库；（4）40% 和 75% 阶梯止盈保持不变；（5）回踩止损时以 CLOSED_BREAKEVEN_L1_H1 退出，已实现损益精确为 $0.00，杜绝由盈翻亏。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Manager / QuantPivot L1/H1 / Dual-Tranche Breakeven / 10s Monitor / Risk Guard / Email Notifier</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/23_2026-09-04_Option_Seller_QuantPivot_L1_H1_Breakeven_Stop_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/23_2026-09-04_Option_Seller_QuantPivot_L1_H1_Breakeven_Stop_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-24">24. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/24_2026-09-04_Option_Seller_Journal_Type_Filter_And_TV_Filtered_Export">Option Seller 交易流水账本类型过滤器与 TradingView 筛选导出引擎 (Execution Journal Type Filter &amp; Filtered TradingView Pine Script Generator)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-04</code></li>
+          <li><strong>归档目录</strong>: <code>24_2026-09-04_Option_Seller_Journal_Type_Filter_And_TV_Filtered_Export</code></li>
+          <li><strong>系统职责</strong>: 针对交易员对不同交易策略（5m共振、条件单、极值耗竭、震荡边界、盘前大单、手动单）分类复盘的需求，打造端到端筛选与精准导出闭环：（1）在流水账本操作栏嵌入浅色主题类型过滤器与实时筛选笔数徽标；（2）前端动态匹配过滤流水并无缝兼顾两批次（Tranche 1 与 Tranche 2）组合计算；（3）复制 TradingView 指标按钮自动提取当前展示交易的数据库主键，通过 POST 接口仅对筛选后的交易生成专属 Pine Script v5 指标代码，杜绝多余交易干扰，极大提升策略复盘效率。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Web UI / TradingView Pine v5 / Dynamic Filter / Targeted Export</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/24_2026-09-04_Option_Seller_Journal_Type_Filter_And_TV_Filtered_Export/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/24_2026-09-04_Option_Seller_Journal_Type_Filter_And_TV_Filtered_Export/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-25">25. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/25_2026-09-05_Option_Seller_Backfill_5m_DB_Order_Flow_Integration">Option Seller 历史回溯 5 分钟周期数据库直连与微观盘口对齐引擎 (Option Seller Backfill 5m DB Order Flow Integration Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>25_2026-09-05_Option_Seller_Backfill_5m_DB_Order_Flow_Integration</code></li>
+          <li><strong>系统职责</strong>: 彻底解决期权卖方历史回溯（backfill）使用本地 Tick CSV 粗算单根 5m Delta 导致研判失真、频发虚假开仓（如 2026-09-04 07:25:00 在空头单边日误开 Bull Put Spread）的痛点：（1）直接查询 MySQL <code>order_flow_signals</code> 表，精确获取对应时间截面的权威 5 分钟多因子方向（direction）、评语（verdict）及 <code>recent_micro_5m</code>；（2）无损透传 DOM 200 档撤单陷阱、冰山委托与挂单深度；（3）修复 <code>option_seller_engine.py</code> 中撤单陷阱文本匹配导致的假阳性判定 Bug；（4）在开仓证据中完整记录 <code>DB_OrderFlowSignal_5m</code> 与因子评分明细，确保历史回溯与实盘运行逻辑 100% 严丝合缝。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Backfill / OrderFlowSignal DB / DOM Microstructure / Spoof Trap Fix / Precise Replay</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/25_2026-09-05_Option_Seller_Backfill_5m_DB_Order_Flow_Integration/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/25_2026-09-05_Option_Seller_Backfill_5m_DB_Order_Flow_Integration/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-26">26. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/26_2026-09-05_Option_Seller_Dynamic_Credit_Threshold_And_SPY_Spot_Backfill_Refactor">Option Seller 风格权利金门槛优化与回溯 SPY 真实盘口对齐引擎 (Option Seller Dynamic Credit Threshold &amp; SPY Spot Backfill Refactor)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>26_2026-09-05_Option_Seller_Dynamic_Credit_Threshold_And_SPY_Spot_Backfill_Refactor</code></li>
+          <li><strong>系统职责</strong>: 针对期权卖方在低波动率日或关键统计边界（QuantPivot L1/L2、H1/H2）极值反转时，0DTE 远端价差权利金被压缩至 $0.05 左右导致无法跨越原有高门槛（$0.18）的痛点：（1）全面重构最低权利金风控标准：平衡型降至 <code>$0.05</code>，保守型降至 <code>$0.03</code>，激进型降至 <code>$0.12</code>；（2）在回溯脚本中废除 <code>ES / 10</code> 粗算，直接调用 QuantData 底层 1 分钟真实 SPY 现价，彻底根除 2.5 点期货基差失真；（3）实测验证 2026-09-04 08:30:00 在 SPY 下探 769.06（L1 支撑）时成功开出 765/763 Bull Put Spread（Net Credit $0.05），并在 08:41 与 08:55 自动双批次全胜止盈。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Engine / Min Credit Floor / SPY Spot Ground Truth / QuantPivot Boundary Reversal / Dual-Tranche Full Profit</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/26_2026-09-05_Option_Seller_Dynamic_Credit_Threshold_And_SPY_Spot_Backfill_Refactor/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/26_2026-09-05_Option_Seller_Dynamic_Credit_Threshold_And_SPY_Spot_Backfill_Refactor/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-27">27. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/27_2026-09-05_Option_Seller_QuantPivot_Multi_Entry_And_Triple_Barrier_Engine">Option Seller QuantPivot 边界多次开仓与三维准入准出风控引擎 (QuantPivot Triple-Barrier Multi-Entry Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>27_2026-09-05_Option_Seller_QuantPivot_Multi_Entry_And_Triple_Barrier_Engine</code></li>
+          <li><strong>系统职责</strong>: 全面放开非趋势震荡日 QuantPivot 边界反弹开仓的单日单次限制，针对每个独立点位（L1、L2、H1、H2）实行严密的三维硬性风控准入：（1）条件一：无未完全平仓的活跃单据（双批次必须全部平仓关闭）；（2）条件二：零历史已平仓亏损（发生亏损即永久熔断关闭该点位）；（3）条件三：距上一次开仓严格大于 45 分钟；并对齐 OptionSellerManager、OptionSellerEngine 与历史回溯脚本，在 2026-09-04 成功实现 08:30 与 10:45 两轮 L1 支撑位 Bull Put Spread 完美开仓与双批次全胜止盈。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Manager / QuantPivot L1/L2/H1/H2 / Triple Barrier Engine / Cooldown Guard / Multi-Entry Backfill</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/27_2026-09-05_Option_Seller_QuantPivot_Multi_Entry_And_Triple_Barrier_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/27_2026-09-05_Option_Seller_QuantPivot_Multi_Entry_And_Triple_Barrier_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-28">28. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/28_2026-09-05_SPX_Gamma_5m_Structural_Decision_Tree_And_Neutral_Taxonomy">SPX Gamma 5分钟周期结构研判与决策树重构引擎 (SPX Gamma 5m Structural Decision Tree &amp; Neutral Taxonomy Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>28_2026-09-05_SPX_Gamma_5m_Structural_Decision_Tree_And_Neutral_Taxonomy</code></li>
+          <li><strong>系统职责</strong>: 彻底解决原有 SPX Gamma 5分钟周期判定中存在的随波逐流（跌时看空、涨时看多）与逼近做市商极值天花板继续追单导致期权卖方爆仓的严重弊端：（1）全面重构为三阶梯硬性决策树状态机（第一层结构纯净度 -&gt; 第二层优势方压制 -&gt; 第三层空间充盈与极值禁区）；（2）以 Gamma 绝对位置 Cushion 为核心主导，收敛冲顶/探底撞墙禁区至 <code>&lt; 8.0点</code>（一票否决顺势追单），放宽日内分位数 Pos 至 90%/10%；（3）细分定义 6 大中性子类型（Neutral:Exhaustion-Top, Exhaustion-Bottom, Compression-Top, Compression-Bottom, Conflicted, Balanced）并形成期权卖方精准风控闭环；（4）创新研发 ATM 柱自适应外层阻力天花板识别（resolve_call_wall / resolve_put_wall），通过 2026-09-03 单边大涨与 2026-09-04 震荡洗盘多截面实盘回测全量验证；（5）完成 2026-09-03 与 2026-09-04 连续两个交易日全天 5分钟周期（RTH 06:30 至 13:00 全时段）的高置信度决策树推演入库与 API 独立周期隔离验证。</li>
+          <li><strong>技术栈</strong>: Python / SPX Gamma 5m / 3-Tier Decision Tree / Neutral Taxonomy / Cushion Veto &lt;8pts / Wall Resolver / Option Seller Shield</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/28_2026-09-05_SPX_Gamma_5m_Structural_Decision_Tree_And_Neutral_Taxonomy/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/28_2026-09-05_SPX_Gamma_5m_Structural_Decision_Tree_And_Neutral_Taxonomy/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-29">29. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/29_2026-09-05_BBT_Signals_SPX_Gamma_Filter_Split_And_5m_Sentinel_Cleanup">BBT 信号图 SPX Gamma 周期过滤拆分与 5 分钟 Order Flow 信号 Sentinel 标记彻底清理引擎 (BBT Signals SPX Gamma Filter Split &amp; 5m Sentinel Cleanup)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>29_2026-09-05_BBT_Signals_SPX_Gamma_Filter_Split_And_5m_Sentinel_Cleanup</code></li>
+          <li><strong>系统职责</strong>: 彻底解决用户在日内看盘时微观信号被误判覆盖及过滤粒度不足的两大痛点：（1）在 BBT 信号图顶部工具栏中，将原有的单个“SPX Gamma 信号”拆解为“SPX Gamma 30分钟内信号”与“SPX Gamma 5分钟内信号”两个独立复选框，与 Order Flow 过滤逻辑完全对齐；（2）彻底排查并剔除 5 分钟 Order Flow 信号生成逻辑中强行赋值 <code>is_sentinel=True</code> 的遗留 Bug；（3）批量迁移并重置 MySQL 数据库中已有的 215 条 5 分钟历史信号为 <code>is_sentinel=False</code>；（4）在前端 ECharts 散点映射与数据表格中彻底消除 5 分钟信号的 Sentinel 判定与卫星高亮徽章，使 5 分钟信号恢复为标准 High/Medium/Low 强度及红绿多空原貌。</li>
+          <li><strong>技术栈</strong>: HTML / Vanilla JS / ECharts / SPX Gamma 30m/5m Filters / Order Flow 5m Cleanup / Sentinel Reset / Database Sync</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/29_2026-09-05_BBT_Signals_SPX_Gamma_Filter_Split_And_5m_Sentinel_Cleanup/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/29_2026-09-05_BBT_Signals_SPX_Gamma_Filter_Split_And_5m_Sentinel_Cleanup/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-30">30. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/30_2026-09-05_BBT_Signals_Collapsible_Table_Sections_Engine">BBT 信号图 Order Flow 与 SPX Gamma 实时信号表格整段折叠收起交互引擎 (BBT Signals Collapsible Table Sections Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>30_2026-09-05_BBT_Signals_Collapsible_Table_Sections_Engine</code></li>
+          <li><strong>系统职责</strong>: 针对引入 5 分钟微观周期后每日信号激增至 80~90+ 条、页面垂直高度极度拉长的视觉与交互痛点：（1）将“Order Flow 实时信号”与“SPX Gamma 实时信号”两大核心 Section 封装为独立可折叠容器；（2）卡片式折叠标题栏支持整行点击与胶囊按钮折叠，内置动态数量微章（如 90 条记录），深度绑定 DataTables 的 drawCallback 钩子实现实时映射；（3）在展开动画完成后自动触发 DataTables columns.adjust()，彻底根治隐藏展开后的列宽与表头不对齐问题；（4）借助 localStorage 自动持久化保存用户的展开/折叠状态偏好；（5）严格遵守浅色主题规范（Light Theme），保持视觉纯净护眼。</li>
+          <li><strong>技术栈</strong>: HTML / Vanilla CSS / jQuery / DataTables Column Adjust / LocalStorage Persistence / Live Count Badges / Light Theme</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/30_2026-09-05_BBT_Signals_Collapsible_Table_Sections_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/30_2026-09-05_BBT_Signals_Collapsible_Table_Sections_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-31">31. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/31_2026-09-05_BBT_Signals_Quick_Time_Range_Buttons_And_Cross_Timeframe_Engine">BBT 信号图微观时段快捷筛选按钮与全周期穿透引擎 (BBT Signals Quick Time-Range Buttons &amp; Cross-Timeframe Penetration Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>31_2026-09-05_BBT_Signals_Quick_Time_Range_Buttons_And_Cross_Timeframe_Engine</code></li>
+          <li><strong>系统职责</strong>: 在 5 分钟微观信号全面铺开后，为 Order Flow 和 SPX Gamma 两大实时信号表格增加关键时段快速聚焦能力：（1）在 Timeframe 下拉框后增设 <code>6:30 - 8:00</code>、<code>8:00 - 10:00</code>、<code>10:00 - 13:00</code> 三个快速胶囊按钮；（2）实现“全周期时段穿透”铁律——点击时段按钮后，自动解除 Timeframe 限制（重置为 all 并优先应用时段），同时呈现该时段内所有的 5m 与 30m 信号，与其他维度过滤参数（方向、强度、日期）协同生效；（3）前端按钮支持 Toggle（再次点击取消激活并还原全天），当手动修改下拉框时自动取消时段高亮；（4）采用极简浅色主题设计（白底蓝字、浅蓝边框、激活深蓝），全面护眼且轻量高效。</li>
+          <li><strong>技术栈</strong>: HTML / CSS / JS / Python Flask API / Time-Range Fast Filter / Cross-Timeframe Penetration / Toggle State / Light Theme</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/31_2026-09-05_BBT_Signals_Quick_Time_Range_Buttons_And_Cross_Timeframe_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/31_2026-09-05_BBT_Signals_Quick_Time_Range_Buttons_And_Cross_Timeframe_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-32">32. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/32_2026-09-05_SPX_Gamma_Spot_Price_Clock_And_Minute_Precision_Alignment_Engine">SPX Gamma 底层现价时钟与数据源高精度分钟级对齐重构引擎 (SPX Gamma Spot Price Clock &amp; Minute-Precision Alignment Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>32_2026-09-05_SPX_Gamma_Spot_Price_Clock_And_Minute_Precision_Alignment_Engine</code></li>
+          <li><strong>系统职责</strong>: 彻底解决 SPX Gamma 分析系统在无实时 TOS 接口时底层现价“时间冻结在半小时前旧快照”的重大隐患，实现了基于 <code>yfinance</code> 1 分钟历史 K 线的分钟级严密对齐（误差 &lt; 0.1 点）：（1）彻底重构 <code>fetch_spx_price_from_tos</code>，废除任何非当前分钟的旧数据库快照回退；（2）严格遵循模块化隔离铁律，确保 SPX Gamma 子系统仅依据期权链分布与纯粹现价做物理研判，不渗入外部技术指标；（3）精准纠偏 2026-09-04 09:55:00 局部高点错误多头信号为 <code>Neutral:Compression-Top</code>（上行空间收窄至 12.9 点，提示停止顺势追多）；（4）全量重回填并检验 2026-09-03 与 2026-09-04 连续两天 5m 周期数据库信号。</li>
+          <li><strong>技术栈</strong>: Python / SPX Gamma Core / fetch_spx_price_from_tos / yfinance 1m Alignment / Cushion Precision / Pure Gamma Isolation</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/32_2026-09-05_SPX_Gamma_Spot_Price_Clock_And_Minute_Precision_Alignment_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/32_2026-09-05_SPX_Gamma_Spot_Price_Clock_And_Minute_Precision_Alignment_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-33">33. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/33_2026-09-05_SPX_Gamma_Non_Trend_Day_Cushion_Expansion_Engine">SPX Gamma 非趋势日顺势 Cushion 空间动态拓宽引擎 (SPX Gamma Non-Trend Day Cushion Expansion Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>33_2026-09-05_SPX_Gamma_Non_Trend_Day_Cushion_Expansion_Engine</code></li>
+          <li><strong>系统职责</strong>: 彻底解决在非单边强趋势日（如区间宽幅震荡、早盘大跌后的死猫反弹）由于固定 15 点 Cushion 导致在局部反弹高点诱多追涨的微观结构弊端：（1）引入纯价格日内形态量化判定函数 <code>evaluate_intraday_trend_regime</code>，严格依据 RTH 06:30 开盘价、日内高低极值与现价相对位置，客观区分单边趋势日与非趋势日，坚决捍卫 Gamma 子系统物理隔离；（2）自适应动态分级顺势推进门限：趋势日维持 <code>Cushion &gt;= 15.0点</code>，非趋势日顺势推进空间要求从 15.0 点硬性提升至 <code>23.0点</code>（多空双向严格对称）；（3）非趋势日若缓冲空间未达到 23 点，一票否决顺势推进，强制输出 <code>Neutral:Compression-Top/Bottom</code>（空间压缩中性观望）；（4）全量重回填并检验数据库，成功将 2026-09-04 09:10~09:45 期间的死猫反弹诱多信号全部纠偏拦截。</li>
+          <li><strong>技术栈</strong>: Python / SPX Gamma Core / Trend Day Regime / Dynamic Cushion 23pt / Pure Price Isolation / Neutral Compression</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/33_2026-09-05_SPX_Gamma_Non_Trend_Day_Cushion_Expansion_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/33_2026-09-05_SPX_Gamma_Non_Trend_Day_Cushion_Expansion_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-34">34. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/34_2026-09-05_Global_Unified_SPY_Trend_Regime_Engine">全局统一 SPY 单边强趋势日判定引擎 (Global Unified SPY Trend Day Regime Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>34_2026-09-05_Global_Unified_SPY_Trend_Regime_Engine</code></li>
+          <li><strong>系统职责</strong>: 全局统一 SPX Gamma 分析、Order Flow 实时盘面与 AI Tape Analyst 等子系统的 Trend Day 判定引擎：（1）一律以 SPY 现货为判定标的；（2）时间窗口严格限定在美西时间 <code>06:30 - 11:00</code> 之间（超出此区间直接返回非趋势日）；（3）点位按 SPY 比例严格量化：现价显著偏离 RTH 开盘价 <code>&gt;= 0.80点</code>（多头）/ <code>&lt;= -0.80点</code>（空头），开盘逆向破位 <code>&lt;= 1.20点</code>，极值回撤 <code>&lt;= 1.50点</code>；（4）核心技术结构过滤铁律：5 分钟 bar 收盘价在 15 分钟 13EMA 反方向的次数 <code>&lt;= 1</code>；（5）严格双向对称，全系统解耦复用公共模块 <code>quantdata.trend_regime</code>。</li>
+          <li><strong>技术栈</strong>: Python / Global Trend Regime / SPY 1m/5m/15m EMA13 / Time Window 6:30-11:00 / Adverse Count &lt;= 1 / Bi-directional Symmetric</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/34_2026-09-05_Global_Unified_SPY_Trend_Regime_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/34_2026-09-05_Global_Unified_SPY_Trend_Regime_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-35">35. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine">5分钟 SPX Gamma 多空分级评级引擎 (5m SPX Gamma Graded Rating Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-05</code></li>
+          <li><strong>归档目录</strong>: <code>35_2026-09-05_SPX_Gamma_Graded_Rating_Engine</code></li>
+          <li><strong>系统职责</strong>: 将原本三元粗粒度的 5 分钟 SPX Gamma 顺势单边信号成功升级为四级精细化分层评级体系：（1）以现有第三层决策树顺势推进规则为基础判定 <code>L0</code>（基准）；（2）设立三大独立加分项：多空主力集群 Gamma 规模比率 <code>&gt;= 3.0</code>、开盘黄金布局时段 <code>06:30 - 08:30 PT</code>、开盘以来集群规模整体单调持续扩张 <code>Trend Up</code>；（3）根据加分项满足数量输出 <code>Bullish_L0~L3</code> 与 <code>Bearish_L0~L3</code>（多空双向严格对称）；（4）后端 API 与前端 DataTable 渲染升级，提供渐进式高亮徽章与加分明细卡片展示。</li>
+          <li><strong>技术栈</strong>: Python / SPX Gamma Core / Graded Rating L0~L3 / Bonus Factors Engine / Cluster Trend Up Detection / DataTable Badges</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/35_2026-09-05_SPX_Gamma_Graded_Rating_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-36">36. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification">期权卖方 5分钟全自动开仓四层漏斗仲裁机制 - 维度 2 (SPX Gamma 结构) 极简重构 (Option Seller Funnel Arbitration Simplification)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification</code></li>
+          <li><strong>系统职责</strong>: 彻底简化期权卖方全自动开仓第二层四维矩阵打分中“维度 2：SPX Gamma 结构 (权重 30分)”的判定规则：（1）废除原本繁琐的多空集群名义金额分时门限阶梯打分、大墙距离安全垫 Cushion 百分比折算等重复细碎计算；（2）全面直连 5m SPX Gamma 分级评级引擎输出的 <code>Bullish_L0~L3</code> / <code>Bearish_L0~L3</code> 结果；（3）顺势开仓得分标准统一为：L0 得 20 分、L1 得 24 分、L2 得 27 分、L3 得 30 分（多空双向严格对称）；（4）中性状态（<code>Neutral:...</code>）或方向相反直赋 0 分，由于第二层漏斗要求维度 2 必须 &gt;= 15 分，0 分将直接触发风控一票否决，坚决杜绝在做市商中性、震荡压缩或冲顶撞墙时盲目追单。</li>
+          <li><strong>技术栈</strong>: Python / Option Seller Engine / Arbitration Funnel Tier 2 / SPX Gamma Graded L0-L3 / Direct Score Mapping / Zero-Score Gatekeeper</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/36_2026-09-06_Option_Seller_Funnel_Arbitration_Simplification/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-37">37. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine">5分钟周期 Order Flow 规则化信号系统深度重构与 1~10 强度评分引擎 (5m Order Flow Two-Step Evaluation &amp; 1-10 Strength Scoring Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine</code></li>
+          <li><strong>系统职责</strong>: 彻底解决旧版 5 分钟订单流粗糙动量跟随（追涨杀跌）导致的胜率退化问题，建立严密的两步判定法（结构准入 + 9 大客观底层数据加分）：（1）备份并归档旧版规则至专用备份文件；（2）第一步「结构准入」设立三大严密 Setup：Setup 1 (反转 - 极值反向吞没 + 冰山吸收)、Setup 2 (趋势日 10m 双柱顺势 EMA13 支撑回踩)、Setup 3 (30m 突破点火顺势跟随)；（3）第二步「1~10 强度评分」基于 9 大独立底层微观数据打分（Delta 占比、Cumulative Delta 爆发、冰山被吃穿、主动大单占比等）；（4）期权卖方后台开仓漏斗「维度 1：订单流与 DOM」无缝简化对接 1~10 分直接映射（S10=40分, S9=37分, S8=34分... 中性=0分）；（5）前端信号表格与展开面板全面适配，呈现专属 5m 订单流两步分析卡片与加分明细。</li>
+          <li><strong>技术栈</strong>: Python / Order Flow Analysis / Two-Step Evaluation / 3 Setups Admission / 9 Bonus Factors / 1-10 Scoring / Option Seller Funnel Tier 1 / Light Theme UI</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/37_2026-09-06_5m_Order_Flow_Two_Step_Scoring_Engine/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-38">38. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization">订单流两步法（方向准入判定与底层强度打分）展开详情卡片 UI 组件重构 (Order Flow Two-Step Evaluation UI Visualization Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>38_2026-09-06_OrderFlow_Two_Step_UI_Visualization</code></li>
+          <li><strong>系统职责</strong>: 依据《订单流分析规则手册》第 3 章与第 4 章，全面升级 <code>http://127.0.0.1:5005/bbt_signals</code> 订单流实时信号表格子行展开详情视图：（1）完整保留原有的 4 个基础卡片（Recent 5-Min Micro、Recent 30-Min Metrics、RTH Cumulative、PM Metrics）与 Adam Set 深度 DOM 微观盘口卡片；（2）追加「第一步：基本规则方向准入判定」交互卡片，包含方向徽章、触发规则指示横幅、三大前置硬性过滤红线（Price Position 极值红线、Spoofing 虚假诱多诱空红线、机构大单/趋势日反向阻断护盾）以及 Setup 1~3 双门禁状态实时测量值与规则阈值动态比对；（3）追加「第二步：底层数据强度打分体系」交互卡片，呈现 1~10 分强度大数字徽章、多阶色彩进度条、打分公式明细（起跑分+加分项）以及 9 大客观底层特征加分项清单表（Delta 占比、Cumulative Delta 爆发、反向冰山吃穿、主动大单占比等）；（4）严格遵循清新护眼的白底浅色主题 (Light Theme) 与纯文本公式渲染规范。</li>
+          <li><strong>技术栈</strong>: JavaScript (ES6+) / HTML5 / CSS3 (Light Theme) / jQuery DataTable Child Rows / Real-time Metric Evaluator / Dynamic DOM Rendering</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/38_2026-09-06_OrderFlow_Two_Step_UI_Visualization/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-39">39. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor">全局统一 SPY 单边强趋势日判定引擎规则重构与容忍度优化 (Global Unified SPY Trend Day Regime Thresholds Refactor)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor</code></li>
+          <li><strong>系统职责</strong>: 彻底解决单边强趋势日（Trend Day）判定规则过于严苛导致正常趋势回踩被过早误判为震荡日的问题：（1）将现价脱离成本线基准从“RTH 开盘价”升级为“包含盘前 Pre-Market 与 RTH 在内的当日极低点（多头）/ 极高点（空头）”，解决盘前大幅拉升/下挫导致开盘基准滞后失真的问题；（2）开盘逆向破位/冲高容忍度从 <code>&lt;= 1.20点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点）；（3）高位回撤/低位反弹容忍度从 <code>&lt;= 1.50点</code> 全面放宽至 <code>&lt;= 2.00点</code>（对应 SPX 20.0点），允许标的完成健康的 15m 均线带测试；（4）多空双向严格镜像对称，同步更新系统核心规则手册；（5）优化前端 Setup 2 展开面板，将“趋势日形态”与“策略时间窗 (06:30-11:00)”解耦独立展示，彻底消除时间窗未达标的视觉歧义。</li>
+          <li><strong>技术栈</strong>: Python / Global Trend Regime Engine / Pre-Market + RTH High-Low / Dynamic Retracement Thresholds &lt;= 2.0 / Symmetric Dual-Directional Architecture / Manual Documentation</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/39_2026-09-06_SPY_Trend_Regime_Thresholds_Refactor/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-40">40. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill">订单流盘中分析去除 30 分钟 AI 调用全面统一 5 分钟规则引擎与全量回填 (Order Flow 5m Rule-Based Unification &amp; Backfill Engine)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-06</code></li>
+          <li><strong>归档目录</strong>: <code>40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill</code></li>
+          <li><strong>系统职责</strong>: 彻底解决订单流盘中 AI 分析延迟高、Token 消耗大且与底层两步法量化规则冲突的问题：（1）废除盘中 30 分钟（整点与半点）调度 Gemini 大模型的机制，只保留盘后收盘美西时间 13:15 的唯一 Day Type AI 研判；（2）全面统一盘中所有 5 分钟周期（包含 07:00, 07:30 等整点半点）执行基于规则的订单流研判（<code>Rule-Based-5m</code>）；（3）优化哨兵底层基准动态查找算法与变量完备性，解除 HIGH 信号盘中调用大模型覆盖；（4）全面回填 2026-09-03 与 2026-09-04 历史订单流数据，完美呈现连续一致的 5m 规则化信号流。</li>
+          <li><strong>技术栈</strong>: Python / Order Flow Sentinel / Comprehensive Signals Job / Daily Jobs Scheduler / Rule-Based-5m Architecture / Historical DB Backfill</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/40_2026-09-06_Order_Flow_5m_Rule_Unification_And_Backfill/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-41">41. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/41_2026-09-11_Conditional_Order_Stats_And_1100_Time_Cutoff">系统自动条件单统计引擎与 11:00 PST 时段截断自动撤单 (Auto Conditional Order Statistics Engine &amp; 11:00 PST Time-Cutoff Sweep)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-11</code></li>
+          <li><strong>归档目录</strong>: <code>41_2026-09-11_Conditional_Order_Stats_And_1100_Time_Cutoff</code></li>
+          <li><strong>系统职责</strong>: 建立条件单「挂单/触发」全链路可观测与执行面时段纪律：（1）新增 append-only 事件流 <code>option_seller_conditional_order_events</code>，对 PLACED / TRIGGERED / CANCELLED 全程埋点（既有条件单表零改动），并回填存量 21 单历史事件；（2）新增条件单统计面板与接口，按<strong>方向双向（BULLISH 看涨 / BEARISH 看跌）</strong>、来源（系统自动 / 手动）、触发条件、子场景、小时段与按日分列，输出挂单数、触发数、触发率、平均等候（挂单→触发）、平均触发偏差与平均布防距离；（3）落地「11:00 PST 之后 0DTE 极限 Theta 衰减 + 做市商行权钉住 (Pinning) 导致无单边对冲推力」的执行面规则：<strong>每天 11:00 PST 自动撤销全部 PENDING 条件单</strong>（原因 <code>TIME_CUTOFF_1100</code>），截断区 <code>[11:00, 23:30)</code> PT 禁止新建布防，布防窗口恒为 <code>[23:30, 11:00)</code> PT；被撤销单<strong>页面保留展示并标注「未触发且不会再触发」至 23:30</strong> 供盘后复盘（DB 保留）；（4）顺带完成数据库时区标准化：mysqld 固定 <code>America/Los_Angeles</code>，误存 UTC 的历史 datetime 数据 21,983 行按证据迁移为 Seattle(PT)，并移除应用侧 +7h 补偿。</li>
+          <li><strong>技术栈</strong>: Python / OptionSellerManager Monitor Loop / MySQL Event-Stream Table / Seattle(PT) Timezone Standardization / Flask API / Light-Theme UI / Rule Manual</li>
+          <li><strong>实施计划</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/41_2026-09-11_Conditional_Order_Stats_And_1100_Time_Cutoff/implementation_plan.md">implementation_plan.md</a>
+          </li>
+          <li><strong>验收总结</strong>: <a
+              href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/41_2026-09-11_Conditional_Order_Stats_And_1100_Time_Cutoff/walkthrough.md">walkthrough.md</a>
+          </li>
+        </ul>
+        <h3 id="mod-42">42. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/42_2026-09-11_LIVE_Primary_PnL_Calendar">期权卖方日历盈亏 LIVE 主显示改造 (LIVE-Primary PnL Calendar &amp; Monthly Badge)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-11</code></li>
+          <li><strong>归档目录</strong>: <code>42_2026-09-11_LIVE_Primary_PnL_Calendar</code></li>
+          <li><strong>系统职责</strong>: 将期权卖方控制台的日历盈亏展示**切换为 LIVE（实盘）主显示**：（1）日历单元格首行为 LIVE 当日盈亏（大号），次行为 <code>DRY $x All $y</code>（小一号，且拆为两个不可拆分组，窄格整齐折两行）；（2）月度徽标显示 <code>月度盈亏: +$LIVE / $DRY</code>，其中 DRY 数值以 0.82em 小字号呈现；（3）单元格 win/loss 配色与月度色阶统一跟随主显示值 LIVE，消除"绿底显示 $0.00"的自相矛盾；（4）实施前核对接口语义 <code>pnl = All = LIVE + DRY</code>，并以 2026-09 Sep 合计 LIVE $101.00 / DRY $347.00 / All $448.00 校验口径正确。</li>
+          <li><strong>技术栈</strong>: Jinja 模板内联 JS / Calendar Cell Rendering / Flask calendar_pnl 语义核对 / Light-Theme UI</li>
+          <li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/42_2026-09-11_LIVE_Primary_PnL_Calendar/implementation_plan.md">implementation_plan.md</a></li>
+          <li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/42_2026-09-11_LIVE_Primary_PnL_Calendar/walkthrough.md">walkthrough.md</a></li>
+        </ul>
+        <h3 id="mod-43">43. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/43_2026-09-11_Close_Fill_Price_Settlement_Fix">平仓成交价结算修正 —— 以券商实际成交净价结算 PnL (Close Fill-Price Settlement Fix)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-11</code></li>
+          <li><strong>归档目录</strong>: <code>43_2026-09-11_Close_Fill_Price_Settlement_Fix</code></li>
+          <li><strong>系统职责</strong>: 修正期权卖方系统「平仓按委托限价记账」导致 PnL 低估的缺陷：用户发现 2026-09-11 TOS P/L Day $16.00 而系统仅 $14.00，经券商原始成交腿逐笔对账定位为两笔「保本平仓」各获 1 美分价格改善（限价 0.15/0.17 实际成交 0.14/0.16）却被按限价记账。（1）`close_trade(is_broker_filled=True)` 改为按平仓单实际成交腿净价结算 PnL（按 `legId` 关联 `orderLegCollection` 取买卖方向，净支付 = −(ΣSELL−ΣBUY)），取不到再回退委托价；（2）新增 `close_limit_price` 列留档委托价，`close_price` 语义明确为实际成交净价，便于统计滑点/价格改善；（3）回补本次 2 笔历史数据。修正后系统 9/11 = $16.00 与 TOS 完全一致，9 月 LIVE 101 → 103.00。</li>
+          <li><strong>技术栈</strong>: Python / OptionSellerManager Close Settlement / Schwab Orders API 成交腿解析 / MySQL 增量列 / Flask calendar_pnl</li>
+          <li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/43_2026-09-11_Close_Fill_Price_Settlement_Fix/implementation_plan.md">implementation_plan.md</a></li>
+          <li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/43_2026-09-11_Close_Fill_Price_Settlement_Fix/walkthrough.md">walkthrough.md</a></li>
+        </ul>
+        <h3 id="mod-44">44. <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/44_2026-09-11_Option_Seller_KPI_Dashboard_Optimization">期权卖方首页 KPI 看板优化 (Option Seller KPI Dashboard Optimization)</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-11</code></li>
+          <li><strong>归档目录</strong>: <code>44_2026-09-11_Option_Seller_KPI_Dashboard_Optimization</code></li>
+          <li><strong>系统职责</strong>: 按用户实际关注点重构卖方首页 5 张 KPI 卡：（1）删除与实际实现不符的静态副行「最大并发上限: 2 手」；（2）将基本不关注的「净 Delta 暴露」「净 Theta 收益率」替换为**今日卖出权利金 (Premium Collected)** 与 **最大亏损敞口 (Max Loss at Risk)**（后端新增 `premium_collected_today`=Σ net_credit×100×手数、`max_loss_at_risk`=Σ|max_loss|×手数、`exit_mix` 平仓构成统计）；（3）在「活跃持仓数」之后新增**未触发条件单**卡片（含系统自动/手动来源拆分与最近一单摘要，衔接 module 41 条件单事件流）；（4）修正 `_reload_conditional_orders()` 丢失 `source` 字段的问题，并把历史日期分支改为带空值保护的占位更新，消除 `getElementById(null)` 抛错风险。</li>
+          <li><strong>技术栈</strong>: Python / OptionSellerManager Status Summary / Jinja 模板内联 JS / Light-Theme UI / Condition Order Event Stream</li>
+          <li><strong>实施计划</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/44_2026-09-11_Option_Seller_KPI_Dashboard_Optimization/implementation_plan.md">implementation_plan.md</a></li>
+          <li><strong>验收总结</strong>: <a href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/44_2026-09-11_Option_Seller_KPI_Dashboard_Optimization/walkthrough.md">walkthrough.md</a></li>
+        </ul>
+              <h3 id="mod-41">41. <a
+            href="file:///Users/zhijiebian/.gemini/cli-workspace/gemini-answers/system_modules/41_2026-09-12_Adam_Signal_Context_Analysis">Adam 帖文信号上下文分析（当日叙事链 + 当日价格语境 + 反转事件提醒） (Adam Signal Context Analysis (Same-Day Narrative Thread, Price Context, Reversal Event Alerts))</a></h3>
+        <ul>
+          <li><strong>演进时间</strong>: <code>2026-09-12</code></li>
+          <li><strong>归档目录</strong>: <code>41_2026-09-12_Adam_Signal_Context_Analysis</code></li>
+          <li><strong>系统职责</strong>: 把 X(Twitter) 上 Adam(@Adaamset) 的帖文转化为<b>可统计、可回溯、可分用途</b>的结构化信号：（1）<b>taxonomy 分类</b>（<code>x_posts_adam_signal_v2.py</code>，DeepSeek 默认、Gemini 通路保留）：方向、类别（反转顶/底、趋势延续、日内 0DTE、价位地图、仓位动作、闲聊）、周期、确信度、条件性、价位、原文证据，并派生用途（swing_reversal / swing_trend / intraday_0dte / intraday_directional / level_map / position_mgmt）；（2）<b>当日叙事链</b>（<code>x_posts_thread_v3.py</code>）：按交易日升序串联，输出叙事角色（论点开启/确认/更新/价位引用/离场/证伪/独立）、当日基调、论点状态（intact/weakening/invalidated）、关键位与核心论点，修正旧版把"止盈/减仓"误判为看空的缺陷；（3）<b>当日价格语境</b>（<code>py_lib/day_price_context.py</code>）：以帖文自带 ES 现货采样构建首末价、当日高低与 15 分钟压缩路径，支持 cutoff <b>无前视</b>，使"关键位是否真的触及/守住"可被价格核实；（4）<b>通知</b>（<code>py_lib/adam_post_notify.py</code>）：固定主题 <code>BBT Adam信号</code>（同线程）浅色 HTML 邮件 + 桌面横幅（仅信号帖），基调翻转/论点失效时发高优先级事件提醒；（5）<b>实时链路</b>：入库钩子异步触发 单帖分类→当日叙事→事件检测，配 120 秒兜底守护与单实例锁；（6）<b>事件研究</b>（<code>adam_reversal_event_study.py</code>）：以 invalidated / 基调翻转为事件，统计 d5/d10/d20 方向调整收益、20 日内最大有利位移与是否创 20 日新高/低，并按趋势日/区间日分层，内置《规则手册》第 11 条门槛判定。<b>重要：本模块不接入自动下单</b>（Adam 链路无任何下单/条件单调用），仅输出分析与提醒。</li>
+          <li><strong>技术栈</strong>: Python 3.11 / DeepSeek Chat (OpenAI 兼容) / Gemini (保留通路) / MySQL (bb_trade: x_posts, x_day_threads) / Flask-SQLAlchemy ORM / launchd (120s 守护) / HTML Email (Light Theme) / 事件研究（无前视 · 方向调整 · Welch 检验 · 分层）</li>
+</section>
+    </article>
+  </main>
+</body>
+
+</html>

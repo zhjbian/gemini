@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>MotiveWave「Saty ATR Levels」实算 ATR 关卡口径精简与符号解析修复 —— 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+</style></head><body><div class='page'><div class='card'><h1>MotiveWave「Saty ATR Levels」实算 ATR 关卡口径精简与符号解析修复 —— 实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：66 <code>Saty_ATR_Real_ATR_And_Level_Filter</code>（归属能力域：<strong>M18 交易基础设施与开发环境工具链</strong> · MotiveWave 终端 Java SDK 研究基础设施）</li>
+<li><strong>触发事件</strong>：用户对 MotiveWave Java 研究指标 <code>BBT Saty ATR Levels</code>（<code>StudySatyATR</code>，对标 TradingView 指标 <code>BB_Saty_ATR</code> / Saty Mahajan Saty ATR Levels）本轮提出两项口径调整要求；核查过程中同批暴露两个必须一并修复的缺陷（详见第 2 节）。</li>
+<li><strong>用户口径（本轮，原文要点）</strong>：
+  <ol>
+  <li>「不要依赖 Ticker_ATR.csv，请实算 ATR」；</li>
+  <li>「改成只显示 ±61.8%、±100%」（即精简为 <strong>+61.8% / +100% / −61.8% / −100%</strong> 四个关口，去掉 ±50%）。</li>
+  </ol>
+</li>
+<li><strong>技术栈</strong>：Java（JDK 22）· MotiveWave Java SDK（<code>lib/mwave_sdk.jar</code>）· Java 研究指标 <code>StudySatyATR</code> / <code>FlaskBridge</code> · Flask（<code>bbt_data_web</code>）· TOS/Schwab 日线 API · yfinance（兜底）· Wilder RMA（Wilder 平滑 ATR）</li>
+</ul>
+<hr />
+<h2>1. 背景与目标</h2>
+<p>标的指标为 MotiveWave 终端内的 Java 研究指标 <code>BBT Saty ATR Levels</code>（类 <code>StudySatyATR</code>），其语义为：以「昨收」（PC 线）为锚点，按 ATR 的固定百分比倍率向外投射若干条价格关卡（对标 TradingView 指标 <code>BB_Saty_ATR</code>，即 Saty Mahajan 的 Saty ATR Levels）。</p>
+<p>本轮目标有三项，其中前两项来自用户明确口径，第三项为核查中发现的同批必修缺陷：</p>
+<ol>
+<li><strong>弃用 CSV 数据源，改为实算 ATR</strong>：不再读取 <code>Ticker_ATR.csv</code>，改由后端实算 ATR 并供给指标；</li>
+<li><strong>关卡精简</strong>：只保留 ±61.8% 与 ±100% 四个关口，删除 ±50%，PC（昨收）锚点线保留；</li>
+<li><strong>同批修复两个缺陷</strong>：① ES 昨收取到了 Eversource Energy（NYSE 电力股）而非 ES 期货；② <code>Ticker_ATR.csv</code> 数值与真实 ATR 严重不符（第 2 节逐条复核）。</li>
+</ol>
+<h2>2. 缺陷复核（先钉事实，再定设计）</h2>
+<h3>2.1 缺陷一：ES 的昨收取到了 Eversource Energy（NYSE 电力股）</h3>
+<ul>
+<li><strong>现象</strong>：<code>/mw_api/prev_ohlc?ticker=ES&amp;date=2026-09-15</code> 返回 <code>{"open":68.87,"high":69.1,"low":67.93,"close":68.33}</code>。裸符号 <code>ES</code> 在 Schwab 上是股票代码（Eversource Energy，价格约 $68），<strong>不是 ES 期货</strong>。</li>
+<li><strong>实测对照</strong>（2026-09-14 交易日 RTH）：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>传入符号</th>
+<th>取数结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ES</code></td>
+<td><code>68.33</code>（错误标的：Eversource Energy）</td>
+</tr>
+<tr>
+<td><code>/ES</code></td>
+<td><code>{"open":7673.5,"high":7719.75,"low":7662.25,"close":7682.25}</code>（ES 期货，正确）</td>
+</tr>
+<tr>
+<td><code>NQ</code></td>
+<td>无数据</td>
+</tr>
+<tr>
+<td><code>/NQ</code></td>
+<td><code>29416.25</code></td>
+</tr>
+<tr>
+<td><code>SPX</code></td>
+<td>无数据</td>
+</tr>
+<tr>
+<td><code>$SPX</code></td>
+<td><code>7620.37</code></td>
+</tr>
+<tr>
+<td><code>NDX</code></td>
+<td>无数据</td>
+</tr>
+<tr>
+<td><code>$NDX</code></td>
+<td><code>29128.62</code></td>
+</tr>
+<tr>
+<td><code>MES</code> / <code>MNQ</code></td>
+<td>无数据</td>
+</tr>
+<tr>
+<td><code>/MES</code> / <code>/MNQ</code></td>
+<td><code>7682.25</code> / <code>29415.75</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>影响</strong>：ES 图上四条关卡以 $68 级别的股票价为锚，关卡数值完全失真。示例：以锚 <code>68.33</code> 与实算 ATR 组合计算，<code>−100%</code> 关卡落到零轴以下（<strong>−2 量级</strong>，无意义）。
+  <ul>
+  <li>口径说明：核查当刻先用 yfinance 兜底口径 ATR <code>70.66</code> 试算（<code>68.33 − 70.66 = −2.33</code>）；改用 Schwab 主源 ATR <code>70.08</code> 后为 <code>68.33 − 70.08 = −1.75</code>。两个数值仅反映 ATR 来源不同，并非矛盾；两者<strong>均落于零轴以下</strong>，缺陷判定不变。</li>
+  </ul>
+</li>
+<li><strong>波及面</strong>：共用 <code>/mw_api/prev_ohlc</code> 端点的 <code>StudyPreviousLevels</code> 受同一缺陷影响，修复后一并受益。</li>
+</ul>
+<h3>2.2 缺陷二：Ticker_ATR.csv 数值与真实 ATR 严重不符（用户因此要求弃用）</h3>
+<p>2026-09-15 实测对照（CSV 值 vs 本次实算值）：</p>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>CSV</th>
+<th>实算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SPX</td>
+<td>49.31</td>
+<td>60.17</td>
+</tr>
+<tr>
+<td>SPY</td>
+<td>19.16</td>
+<td>5.98（约 3.2 倍偏差）</td>
+</tr>
+<tr>
+<td>QQQ</td>
+<td>18.43</td>
+<td>8.77</td>
+</tr>
+<tr>
+<td>NDX</td>
+<td>274.21</td>
+<td>NQ 431.75</td>
+</tr>
+</tbody>
+</table>
+<p>表内 SPX / SPY 自身即互相矛盾（两者价差约 10 倍，而 ATR 仅差 2.6 倍），确认为过期 / 串行数据。此为要求弃用 CSV 的直接依据。</p>
+<h2>3. 设计（三个决策点）</h2>
+<h3>3.1 ATR 口径：Wilder RMA（而非简单滚动均值）</h3>
+<ul>
+<li>TradingView 的 <code>ta.atr(14)</code> 是 <strong>Wilder RMA</strong>，不是 TR 的简单滚动均值；旧链路（<code>BBTOS.atr</code> / <code>BBYF.atr</code>）用的是 <code>rolling(window).mean()</code>，本身就不等价。</li>
+<li>本轮实算口径 = <strong>Wilder RMA</strong>：首值用前 <code>period</code> 个 TR 的简单均值作种子，其后按 Wilder 递归平滑。</li>
+<li>取值口径 = <strong>「最后一根已收盘日线」的 ATR 值</strong>（盘中即等价于 Pine 的 <code>atr[1]</code>）；期货按 17:00 ET 收盘、股票按 16:00 ET 收盘判定当根是否仍在交易并剔除。</li>
+</ul>
+<h3>3.2 数据源选择：Schwab 日线为主源，yfinance 仅兜底</h3>
+<ul>
+<li>Schwab 日线时间戳 = 交易日 00:00 ET（PDT 期间为 05:00 UTC）；yfinance <code>ES=F</code> 日期标签相同。</li>
+<li>但 yfinance <code>ES=F</code> 在 <strong>2026-09-14</strong> 那根 K 线与此前收盘 / 券商日线不一致（换月 / 合约错位伪影）。</li>
+<li>故 <strong>Schwab 为主源（与昨收同源、口径内部一致）</strong>，yfinance 仅在主源失败时兜底。</li>
+</ul>
+<h3>3.3 设置变更缺陷：SDK 证据与复位方案</h3>
+<ul>
+<li><strong>SDK 证据</strong>（用 <code>javap</code> 反编译 <code>lib/mwave_sdk.jar</code> 得出）：<code>Study.onSettingsUpdated()</code> 的字节码顺序为 <code>clearFigures()</code> → <code>labelMap.clear()</code> → <code>updateDefaultGuides()</code> → <code>precalculate()</code> → <code>calculateValues()</code> → <code>postcalculate()</code>，<strong>全程不调用 <code>clearState()</code></strong>；且整个 SDK jar 中只有 <code>Study.class</code> 引用 <code>clearState</code>。</li>
+<li><strong>后果</strong>：指标内任何依赖「数据未变就早退」的守卫（size 守卫 / ticker 守卫 / <code>dataReady</code> 守卫）在改设置后会直接白屏。</li>
+<li><strong>方案</strong>：在 <code>StudySatyATR</code> 内覆写 <code>onSettingsUpdated(DataContext)</code>，先把 <code>lastSize=-1</code>、<code>lastTicker=""</code>、<code>dataReady=false</code> 复位，再调用 <code>super.onSettingsUpdated(ctx)</code>，使守卫在改设置后必然重新取数。</li>
+<li><strong>配套</strong>：新增 <code>dataReady</code> + <code>RETRY_INTERVAL_MS=15000</code> 节流重试，取数失败时不再被 size 守卫永久锁死；ATR 缓存键由 date 改为 ticker（ATR 与日期无关）。</li>
+</ul>
+<h2>4. 变更清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>/Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/StudySatyATR.java</code></td>
+<td>关卡精简为 4 条（<code>+61.8%</code> / <code>+100%</code> / <code>-61.8%</code> / <code>-100%</code>，删除 <code>UP_50_COLOR</code> / <code>DN_50_COLOR</code> 及 <code>±50%</code> 绘制与设置项，PC 昨收线保留为锚点）；ATR 改调 <code>FlaskBridge.getRealATR(ticker)</code>（<code>/mw_api/atr_real</code>）；新增 <code>onSettingsUpdated(DataContext)</code> 覆写（先复位 <code>lastSize=-1</code> / <code>lastTicker=""</code> / <code>dataReady=false</code> 再 <code>super</code>）；新增 <code>dataReady</code> + <code>RETRY_INTERVAL_MS=15000</code> 节流重试；ATR 缓存键由 date 改为 ticker</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>/Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/FlaskBridge.java</code></td>
+<td>新增 <code>getRealATR(ticker)</code> → <code>/mw_api/atr_real</code>；旧 <code>getATR()</code> 原样保留（<code>StudyPriceSpike</code> / <code>StudyOrderFlowReversal</code> 仍在用）</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>/Users/zhijiebian/Documents/Workplace/PycharmProjects/BBTrading/bbt_data_web/data_app/motivewave_data.py</code></td>
+<td>新增路由 <code>/mw_api/atr_real</code>（成功返回文本浮点 200；缺 ticker 400；period 非法 400；无数据 404）；旧 <code>/mw_api/atr</code>（CSV 路径）未改动</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>PyTools/py_lib/bb_tickers.py</code></td>
+<td>新增 <code>BBTicker.atr_real(ticker, period=14)</code> 与 <code>ATR_YF_SYMBOL_MAP</code>；<strong>先走 TOS/Schwab 日线实算，失败再退回 yfinance</strong>；完全不读 <code>Ticker_ATR.csv</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>PyTools/bb_yf/yf.py</code></td>
+<td>新增 <code>BBYF.atr_wilder(ticker, period=14, symbol=None, lookback_days=400)</code>：Wilder RMA 递归（首值用前 period 个 TR 的简单均值做种子）、剔除当日未收盘 K、兼容 yfinance MultiIndex 列、回溯 400 天</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>PyTools/tos_api/bb_tos.py</code></td>
+<td>新增 <code>BBTOS.SCHWAB_SYMBOL_MAP</code> 与 <code>resolve_symbol()</code>（<code>ES→/ES</code>、<code>MES→/MES</code>、<code>NQ→/NQ</code>、<code>MNQ→/MNQ</code>、<code>SPX→$SPX</code>、<code>NDX→$NDX</code>、<code>VIX/RUT/DJI</code>），并在 <code>get_ohlc_rth()</code> 内对 <code>symbol</code> 应用（已带 <code>/</code>、<code>$</code> 前缀的原样返回，幂等）；新增 <code>BBTOS.atr_wilder(ticker, period=14)</code>：Schwab 日线 + Wilder 平滑，剔除仍在交易的当根（期货按 17:00 ET 收盘、股票按 16:00 ET 收盘判定）</td>
+</tr>
+</tbody>
+</table>
+<h2>5. 验收标准</h2>
+<ol>
+<li>Java 侧全量编译通过：<code>javac -nowarn -d /tmp/... -cp lib/* src/bbt/*.java</code> → <strong>exit 0</strong>（JDK 22 + <code>lib/mwave_sdk.jar</code>）；</li>
+<li>Python 侧编译检查通过：<code>py_compile</code> 四个改动文件（<code>bb_tos.py</code> / <code>bb_tickers.py</code> / <code>yf.py</code> / <code>motivewave_data.py</code>）→ <strong>OK</strong>；</li>
+<li>新端点行为正确：<code>/mw_api/atr_real</code> 成功 200（文本浮点）、缺 ticker 400、period 非法 400、无数据 404；</li>
+<li>旧链路零回归：<code>/mw_api/atr</code>（CSV 路径）返回不变；<code>StudyPriceSpike</code> / <code>StudyOrderFlowReversal</code> 不受影响；</li>
+<li>符号解析幂等：<code>ES</code> 与 <code>/ES</code> 取到同一 ES 期货数据（<code>7682.25</code>）；</li>
+<li><code>StudySatyATR</code> 改设置后不再白屏（依据为 SDK 字节码 + 代码逻辑推导，<strong>未做 GUI 实测</strong>；未验证项汇总见 <code>walkthrough.md</code> 第 4 节）；</li>
+<li>归档：本目录（plan + walkthrough，<code>.md</code> / <code>.html</code> 双份）与 <code>bbt_trading_modules.html</code> M18 演进行同步。</li>
+</ol>
+<h2>6. 按设计未实现（用户本轮明确精简，不算缺陷）</h2>
+<p>以下能力按用户本轮口径精简，<strong>不作为缺陷记录</strong>：</p>
+<ul>
+<li>触发位 CT / PT（±23.6%）；</li>
+<li>中间档与扩展档（38.2 / 78.6 / 123.6 … 300）；</li>
+<li>交易日型时间框架切换（Day / Multiday / Swing / Position / Long-term）；</li>
+<li>信息表；</li>
+<li>期权 Calls / Puts 标签。</li>
+</ul>
+<h2>7. 残余偏差（如实记录，标注为待用户决策，不要写成已修复）</h2>
+<p>锚点口径与 TradingView 仍有系统性偏移：本轮采用「上一自然日 RTH（6:30–13:00 PT）收盘」为锚，TV 采用「上一根已收盘日线收盘」。</p>
+<p>以 2026-09-15 为例：</p>
+<table>
+<thead>
+<tr>
+<th>口径</th>
+<th>锚值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本实现（9/14 RTH 收盘）</td>
+<td><code>7682.25</code></td>
+</tr>
+<tr>
+<td>TradingView（9/15 日线收盘）</td>
+<td><code>7663.75</code></td>
+</tr>
+<tr>
+<td>四条线整体偏移</td>
+<td><strong>+18.50 点</strong></td>
+</tr>
+</tbody>
+</table>
+<p>偏移可拆为两项：</p>
+<ol>
+<li>按 PT 自然日换日 ⇒ 15:00–24:00 PT 仍显示上一交易日关卡（当日最近已收盘 RTH 为 9/15 的 <code>7672.75</code>，约 <strong>9.5 点</strong>）；</li>
+<li>RTH 13:00 PT 收盘 vs TV 日线 17:00 ET 收盘（约 <strong>9 点</strong>）。</li>
+</ol>
+<p>是否对齐 TV 口径<strong>待用户裁定，本轮未改</strong>。</p>
+<h2>8. 回滚方式</h2>
+<ol>
+<li><strong>文件层面</strong>：<code>git revert</code> 上述 6 个文件；</li>
+<li><strong>口径层面</strong>：仅把 <code>StudySatyATR</code> 的 <code>getRealATR</code> 换回 <code>getATR</code>，即恢复 CSV 口径；</li>
+<li><strong>影响面</strong>：<code>/mw_api/atr_real</code> 为<strong>纯新增</strong>路由，其他研究不受影响（<code>StudyPriceSpike</code> / <code>StudyOrderFlowReversal</code> 仍走旧 <code>/mw_api/atr</code>）。</li>
+</ol></div></div></body></html>

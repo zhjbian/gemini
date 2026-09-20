@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Walkthrough · TradingView 出场标签重叠修复</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#b91c1c; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.65;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1160px; margin:0 auto; padding:24px 22px 56px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 6px; color:#0f172a; }
+  h2 { font-size:1.06rem; margin:22px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.94rem; margin:16px 0 6px; color:#334155; }
+  .sub { color:var(--muted); font-size:0.84rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:8px 0 4px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.82em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  .ok { color:#047857; font-weight:700; }
+  .bad { color:#b91c1c; font-weight:700; }
+  ul { margin:6px 0 6px 18px; padding:0; }
+  li { margin:3px 0; font-size:0.86rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <h1>TradingView 出场标签重叠修复 · 验收报告</h1>
+    <div class="sub">2026-09-14 · <code>PyTools/trading_view/tv_option_seller_trades.py</code> · 归档 <code>53_2026-09-14_TV_Exit_Label_Overlap_Fix</code></div>
+    <p style="font-size:0.86rem;margin:12px 0 0;">
+      用户报障：<b>「止损的两个 label overlap 了」</b>（SPY 0DTE，G1 = 08:41 开仓 BEAR CALL 764/766，
+      两条腿 <b>08:44:16 / 08:44:18 同价止损</b>）。截图显示两个标签压成一团。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. 根因（两层，缺一不可）</h2>
+    <table>
+      <tr><th style="width:16%;">层</th><th>缺陷</th></tr>
+      <tr><td><b>Pine 侧</b></td><td>去重数组 <code>exitTimesDrawn</code> 按 <code>close_time_ms</code> <b>毫秒精确相等</b>去重；两腿相差 <b>2000 ms</b> ⇒ <code>array.includes</code> 不命中 ⇒ 两个标签都被绘制</td></tr>
+      <tr><td><b>后端侧</b></td><td>exit cluster 的<b>代表</b>挂「合并标签」（<code>[G1-T1+T2] 止损 -$28.00</code> + 两条腿明细），<b>其余成员又挂「个体标签」</b>（原注释写 fallback，但聚类判据本身就是「≤120s 且同 tranche / ≤60s 且 Δspot ≤0.30」）⇒ 必然落同一视觉位置 ✗</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. 修复前后对照（真实接口取回）</h2>
+    <p style="font-size:0.86rem;">修复前：</p>
+    <pre>id=238  exit='[G1-T1+T2] 止损 -$28.00\n• G1-T1: -$14.00\n• G1-T2: -$14.00\n08:44 | 762.09'
+id=239  exit='[G1-T2] 止损 -$14.00\n08:44 | 762.09'          ← 叠在 238 之上 ✗</pre>
+    <p style="font-size:0.86rem;">修复后（<code>POST /api/option_seller/generate_tv_script</code> · <code>trade_ids=[238,239]</code>）：</p>
+    <pre>id=238  exit='[G1-T1+T2] 止损 -$28.00\n• G1-T1: -$14.00\n• G1-T2: -$14.00\n08:44 | 762.09'
+id=239  exit=''                                              ← 不再产生第二个标签 ✓</pre>
+  </div>
+
+  <div class="card">
+    <h2>3. 关键实现</h2>
+    <h3>3.1 后端：同一 exit cluster 只留代表标签（与「开仓」侧同一约定）</h3>
+    <pre>cluster[0]['label_exit'] = cluster_text
+for item in cluster[1:]:
+    item['label_exit'] = ''      # ★ 成员标签与合并标签必然叠字 ⇒ 一律置空</pre>
+
+    <h3>3.2 Pine：容差去重 + 近邻错位</h3>
+    <pre>bool exitDup = false
+int  exitNear = 0
+int  drawnN = array.size(exitTimesDrawn)
+if drawnN &gt; 0
+    for k = 0 to drawnN - 1
+        float dtMs = math.abs(tr.close_time_ms - array.get(exitTimesDrawn, k))
+        float dPx  = math.abs(tr.close_spot     - array.get(exitSpotsDrawn, k))
+        if dtMs &lt;= 60000 and dPx &lt;= 0.12
+            exitDup := true
+            break
+        if dtMs &lt;= 300000 and dPx &lt;= 0.60
+            exitNear += 1
+if not exitDup
+    array.push(exitTimesDrawn, tr.close_time_ms)
+    array.push(exitSpotsDrawn, tr.close_spot)
+    float yNudge = exitNear == 0 ? 0.0 : 0.45 * math.ceil(exitNear / 2.0) * (exitNear % 2 == 1 ? 1 : -1)
+    label.new(x=tr.close_time_ms, y=tr.close_spot + yNudge, …)</pre>
+    <ul>
+      <li>判据只看「时间 + 价位」，不依赖组号 ⇒ 跨组同时出场（如 G4–G8 09:18 集体止损）同样只留一个合并标签；</li>
+      <li><b>近邻错位</b>而非跳过：点位相近但非同一事件的两次出场都完整可读（<b>不丢信息</b> ✓）。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4. 验收证据</h2>
+    <table>
+      <tr><th style="width:34%;">项</th><th>结果</th></tr>
+      <tr><td>新增契约测试</td><td class="ok">9/9 通过（夹具双向 + Pine 产物契约 + 真实数据不变量）</td></tr>
+      <tr><td>同时出场（Δ2s 同价）</td><td class="ok">只 1 个标签，且为<b>合并</b>标签</td></tr>
+      <tr><td>分次出场（Δ45min）</td><td class="ok">保留 <b>2 个</b>标签（不矫枉过正）</td></tr>
+      <tr><td>旧口径残留</td><td class="ok">无 <code>array.includes(exitTimesDrawn, …)</code></td></tr>
+      <tr><td>端到端（报障那一组）</td><td class="ok">238 带合并标签 · 239 空 ✓</td></tr>
+      <tr><td>无回归</td><td class="ok">账本三套件 8/8 · 9/9 · 11/11</td></tr>
+      <tr><td>语法</td><td class="ok"><code>py_compile</code> 通过</td></tr>
+      <tr><td>回退脚本实测（副本）</td><td class="ok">4 锚点全命中 · 残留标识 0 · 编译通过 · 线上未受影响</td></tr>
+    </table>
+
+    <h3>4.1 全量产物复核（2026-09-14 · 25 笔 / 13 组）</h3>
+    <table>
+      <tr><th>组</th><th>出场情形</th><th>标签归属（修复后）</th></tr>
+      <tr><td>G1 / G2 / G3 / G10</td><td>T1+T2 同刻出场（止损 / 保本）</td><td class="ok">仅代表（合并标签），伙伴空</td></tr>
+      <tr><td>G3 <span class="sub">（用户报障那组；单独导出该组时组号重编为 G1）</span></td><td>T1+T2 相差 2 秒同价止损</td><td class="ok">仅代表，伙伴空</td></tr>
+      <tr><td>G4–G8</td><td>五组 09:18 集体止损</td><td class="ok">仅代表（明细含各腿），其余全空</td></tr>
+      <tr><td>G9 / G11</td><td>分次止盈（如 09:56 / 10:41）</td><td class="ok">两个标签都保留</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>5. 用户侧操作 & 回滚</h2>
+    <ol style="font-size:0.86rem;">
+      <li>账本点「生成TradingView指标」（或组头按钮）<b>重新生成</b> Pine；</li>
+      <li>到 TV Pine Editor <b>替换</b>已保存的旧指标（旧脚本仍是旧逻辑）；</li>
+      <li>期望：同组双腿同时出场 ⇒ <b>单个合并标签</b>；分次出场 ⇒ 各自标签；近邻标签上下错开不压字。</li>
+    </ol>
+    <pre># 回退（仅在确认新逻辑有问题时）：先 dry-run 看锚点，再实跑（自动留 .bak + py_compile 校验）
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/53_2026-09-14_TV_Exit_Label_Overlap_Fix/revert_module_53.py --dry-run
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/53_2026-09-14_TV_Exit_Label_Overlap_Fix/revert_module_53.py
+# 或直接恢复快照： cp PyTools/trading_view/tv_option_seller_trades.py.bak-20260914_195934 …</pre>
+    <p class="sub">注：本仓库不跟踪 <code>PyTools/</code>（<code>git ls-files</code> 仅 2 个文件）⇒ 回退一律走归档脚本 / 就地 <code>.bak</code> 快照。</p>
+  </div>
+
+</div>
+</body>
+</html>

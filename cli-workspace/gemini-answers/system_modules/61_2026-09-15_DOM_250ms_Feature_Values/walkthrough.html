@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>DOM 250ms 特征值 · 验收报告</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>ES DOM 250ms 特征值：提取 · 展示 · 跟踪统计（验收报告 Walkthrough）</h1>
+<ul><li><b>日期</b>：2026-09-15</li><li><b>一句话结论</b>：<b>管道全部打通并跑出真实数据（958 行，17 个交易日），但样本只够"描述 + 累积"，不够"发现 pattern"</b> —— 250ms 档只有 09-14 一天完整（另有 08-21/08-24 过渡档），统计层已<b>主动拒绝</b>在样本不足时给结论。</li></ul>
+<h2>1. 你指出的两点，实测确认</h2>
+<table><thead><tr><th>你的判断</th><th>实测</th></tr></thead><tbody><tr><td>"以前的 DOM 数据不可信"</td><td>✅ 成立，且更严重：真正 250ms 只有 <b>09-14</b>；09-15 已回到 ~500ms；26 天中 23 天不可用（9 天 RTH 零快照）</td></tr><tr><td>"极值这个概念不准确，应该是特征值"</td><td>✅ 采纳：不再找"极值"，改为<b>以既有 pattern 案例为锚点</b>，提取底部盘整阶段的 Δt 归一特征向量</td></tr><tr><td>"只会[有] 2 天的数据"</td><td>✅ 数据侧确认：<b>能算出配对基准的样本日 ≈ 2 天</b>（09-14 完整 + 09-10/09-08 部分），c250 达标槽 102 个</td></tr></tbody></table>
+<h2>2. 案例实证：ES 2026-09-14 07:25→08:25（P1 低点吸收反转）</h2>
+<p>价格路径（TICKS 1 分钟）：低点 <b>07:56 @ 7663.50</b>；底部区间 07:41→07:58；其后反弹 <b>+15.25 点</b>（至 08:25）。</p>
+<table><thead><tr><th>阶段</th><th>快照</th><th>覆盖</th><th>最大空洞</th><th>质量</th><th>imb 均值</th><th>深度失衡</th><th>加买/秒</th><th>减买/秒</th><th>被吃/秒</th><th><b>真撤/秒</b></th><th>成交买/卖/秒</th></tr></thead><tbody><tr><td>下行段 07:25–07:41</td><td>899</td><td>51.3%</td><td>1628ms</td><td>★不达标</td><td>−0.0167</td><td>−0.0168</td><td>12.09</td><td>12.06</td><td>5.92</td><td>6.14</td><td>23.2 / 22.9</td></tr><tr><td><b>底部盘整（全段）07:41–07:58</b></td><td>830</td><td><b>26.7%</b></td><td>5107ms</td><td>★<b>不达标</b></td><td>+0.0150</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td><b>底部可用块 07:51:28–07:55:08</b></td><td><b>471</b></td><td><b>68.8%</b></td><td>0% 空洞</td><td><b>OK</b></td><td><b>+0.0188</b></td><td><b>−0.0445</b></td><td>12.89</td><td>13.04</td><td>4.18</td><td><b>8.85</b></td><td>20.5 / 19.9</td></tr><tr><td>反弹段 07:58–08:25</td><td>4091</td><td>78.5%</td><td>0.4% 空洞</td><td>OK</td><td>+0.0135</td><td>+0.0182</td><td>17.66</td><td>17.68</td><td>6.47</td><td>11.21</td><td>22.2 / 20.9</td></tr></tbody></table>
+<p><b>关键发现</b>：</p>
+<ol><li><b>底部时段恰好是数据空洞区</b>：07:35–07:50 <b>零快照</b>（15 分钟）⇒ 案例窗口的"底部盘整全段"只有 26.7% 覆盖，<b>不可用于统计</b>；真正可用的是 <b>07:51:28–07:55:08 这 3.7 分钟</b>（471 快照、0 空洞）。</li><li>底部可用块的结构特征与"下行/反弹"不同：<b>近端失衡轻微偏多（+0.019）但深度失衡偏空（−0.045）</b>（近端强、深处薄），且买盘减量中<b>三分之二是真撤（8.85/秒）而非被成交（4.18/秒）</b>，成交买卖基本均衡（20.5 vs 19.9）。</li><li>这三个轴（近端失衡、深度-近端背离、真撤占比）即为统计层的复合特征 <code>base_signature</code> 的来源 —— <b>只作为待检验假设，不作为结论</b>。</li></ol>
+<h2>3. 已落库 / 已打通</h2>
+<table><thead><tr><th>项</th><th>结果</th></tr></thead><tbody><tr><td>表 <code>order_flow_dom_features</code></td><td><b>958 行 / 17 个交易日</b>（<code>slot</code> 956 + <code>case</code> 2），唯一键幂等</td></tr><tr><td>逐日逐 5min 槽回填</td><td>19 个日期请求 → 15 天有数据（09-03/09/13 无 RTH 数据；09-07 仅 25 槽、09-11 仅 16 槽）；<b>单日 20–60 秒</b>（修复前一槽 53 秒 ⇒ 单日约 53 分钟，且撤/吃归因写成 O(区间×成交) 会挂死，已改为单指针 O(成交+区间)）</td></tr><tr><td>API</td><td><code>GET /data/dom_features</code>（案例/槽位特征，只读）· <code>GET /data/dom_feature_stats</code>（cohort 感知跟踪统计）</td></tr><tr><td>页面</td><td><code>bbt_signals_large_timeframe</code>：ofDeep 卡片行内展开「🧱 DOM 250ms 特征（底部盘整）」+ Adam 卡片「🧱 DOM 250ms 特征跟踪（每日/每周）」；懒加载 + try/catch 降级（接口 404/500 时原卡片不受影响，Adam 报告表实测仍渲染 2118 行）</td></tr></tbody></table>
+<h2>4. 跟踪统计现状（据实）</h2>
+<pre>样本：总 958 行 · 质量达标 102 行（c250）/ 779 行（c500）
+门禁分布：c250 102 · c500 779 · fail:iv_other 58 · fail:low_cov 12 · fail:iv_p90 5 · fail:few_snaps 2
+c250 每日：08-21 n=22 · 08-24 n=23 · 08-28 n=13 · 09-14 n=44
+            配对基准可算的仅 09-14（15m/30m/60m = 31.6% / 42.1% / 10.5%）⇒ edge +20.7 / +23.8 / +41.8
+特征分桶：无任何桶通过「n≥40 且 ≥2 天有配对基准」⇒ 不下 pattern 结论</pre>
+<p><b>为什么拒绝给结论</b>：① c250 只有 4 天达标槽，其中 3 天价格点太少（08-21 全天仅 15 根 5 分钟 bar）算不出配对基准；② 500ms cohort 虽 779 槽、16 天，但多数日同样缺价格点，桶 edge 一度<b>只由 09-10 一天贡献</b>（已加 <code>n_days</code> / <code>single_day</code> 标记拦截）；③ 因此"某特征 low 桶领先 30pp"这类数字当前<b>全部是可得性/单日 artifact</b>。</p>
+<h2>5. 验证清单</h2>
+<table><thead><tr><th>项</th><th>结果</th></tr></thead><tbody><tr><td><code>py_compile</code>（4 个新 py + bbt_signals.py）</td><td>全绿</td></tr><tr><td>案例提取</td><td>与重构前<b>逐键一致</b>（重构未改口径）；底部块质量 OK、全段如实报不达标</td></tr><tr><td>回填</td><td>958 行；<code>--mode cases</code> 幂等（重复执行行数不变）</td></tr><tr><td>API</td><td><code>/data/dom_features?date=…&amp;case_id=…</code> → <code>ok:true</code>、<code>quality_ok=1</code>、<code>coverage_pct=68.8</code>；<code>/data/dom_feature_stats</code> → <code>primary_cohort=c250</code>、cohort 拆分齐全</td></tr><tr><td>页面</td><td><code>curl</code> <b>HTTP 200</b>（187,967 字节）；4 段内联 <code>&lt;script&gt;</code> <code>node --check</code> <b>4/4 PASS</b>；headless Chrome 实测零 console 错误、接口异常时优雅降级</td></tr></tbody></table>
+<h2>6. 已知限制（据实）</h2>
+<ol><li><b>样本不足</b>：250ms 档 ≈ 1 天；即便累积，250ms 也只在 08-21/08-24/09-14 出现（09-15 已回 500ms）⇒ 需要<b>按天累积并自动分 cohort</b>（本模块已按 <code>iv_med_ms</code> 自动分）。</li><li><b>配对基准的可用性受 5 分钟价点数量限制</b>：08-21 全天仅 15 根 → 基准不可算（<code>null</code>），这类日只能进"描述"不能进 edge。</li><li><b>补单时间（refill）在 250–300ms 节奏下不可观测</b>：中位 0ms、98.5% "已补回" ⇒ 该指标只在 ≥500ms 节奏或 tick 级才有分辨力。</li><li><b>收缩/穿越等微观动作分辨率上限 ≈ 快照间隔（250–950ms）</b>，不能声称"毫秒级"（实测中位 316ms）。</li><li><b>未接入决策</b>：不写规则手册（非决策性规则）；不进入卖家系统/信号引擎。</li></ol>
+<h2>7. 回滚</h2>
+<pre># 数据：删除自有表（本模块唯一写入目标）
+mysql bb_trade -e &quot;drop table order_flow_dom_features&quot;
+# 代码：PyTools 4 个新文件 + bbt_data_web 两处改动
+cd ~/Documents/Workplace/PycharmProjects/BBTrading/PyTools &amp;&amp; rm -f order_flow_analysis/{dom_features,backfill_dom_features,dom_feature_stats,audit_dom_data}.py
+cd ../bbt_data_web &amp;&amp; git checkout -- data_app/bbt_signals.py templates/bbt_signals_large_timeframe.html</pre>
+<h2>8. 追加（2026-09-15 下半场）：短期口径 —— 当天余下 / 次日</h2>
+<h3>8.1 口径（用户指定：DOM pattern 现阶段只做短期）</h3>
+<p>目标变量改用 <b>TICKS 1 分钟价路径</b>（<code>dom_day_targets.py</code>）计算，解决引擎 5 分钟行在 08-xx 仅 14–16 根/天的问题：</p>
+<table><thead><tr><th>变量</th><th>定义</th></tr></thead><tbody><tr><td><code>rest_ret</code> / <code>rest_up</code></td><td>槽位时刻 → <b>当日收盘</b>（当天余下走势，点 / 是否上涨）</td></tr><tr><td><code>rest_mfe</code> / <code>rest_mae</code></td><td>当天余下最大有利/不利偏移</td></tr><tr><td><code>rest_pos_pct</code></td><td>槽位时刻在当日 [low, high] 的分位</td></tr><tr><td><code>next_ret</code> / <code>next_up</code></td><td><b>当日收盘 → 次日收盘</b>（第二天走势）</td></tr><tr><td><code>next_open_ret</code></td><td>次日收盘 − 次日开盘（区分跳空 vs 日内延续）</td></tr></tbody></table>
+<p>回填：<code>dom_day_targets.py --apply</code>（ALTER 加 9 列 + 幂等 UPDATE，958 行 / 12.7 秒）。</p>
+<h3>8.2 ★ 关键方法论点：<b>次日只能做日级检验</b></h3>
+<p><code>next_ret</code> 在同一交易日内是<b>常量</b> ⇒ 槽位级"次日 edge"只能反映<b>桶落在哪些日子</b>（day-mix artifact）。</p>
+<p>实测：未加同日配对时，槽位级桶出现 +26.6pp / −24.0pp 的"次日 edge"；加入同日配对与日级口径后，</p>
+<p><b>这些 edge 全部塌到 ±7.4pp 以内</b>（当天余下最强的 <code>近端卖盘挂单中位 mid</code> = −7.4pp，且只在 2/14 天为正）。</p>
+<p>⇒ 已实现：① 槽位级只用<b>同日配对</b>测当天余下；② 次日一律走<b>日级检验</b>（日指标 = 当日该特征的原始均值 /</p>
+<p>日高值占比 = 当日高于全局 67 分位的槽位占比 / 日级复合分）；③ 每项附<b>留一天 min|ρ|</b> 脆弱性标记。</p>
+<p>同时修掉一个自检发现的伪结论：早先"日级复合分"用<b>当日内 z 分</b>求日均，而日内 z 分的日均恒为 0</p>
+<p>⇒ 排名只在数值残差上做，产出的 ρ=−0.80 是<b>纯人工产物</b>（已废弃并改为原始日均跨日 z）。</p>
+<h3>8.3 结果（c500 cohort，779 达标槽 / 16 个交易日）</h3>
+<p>对照：当天涨 <b>36.1%</b> · 次日涨 <b>52.9%</b>。</p>
+<table><thead><tr><th>检验</th><th>最强结果</th><th>判读</th></tr></thead><tbody><tr><td>当天余下（槽位级，同日配对）</td><td><code>近端卖盘挂单中位 mid</code> edge <b>−7.4pp</b>（n=263、14 天、仅 2/14 天为正）</td><td><b>无可用判定力</b></td></tr><tr><td>当天余下（日级 ρ）</td><td><code>日高值占比·cut_bid_per_s</code> ρ=−0.383（留一天 min 0.307）</td><td>弱且脆弱</td></tr><tr><td><b>次日（日级 ρ）</b></td><td><code>日高值占比·深度-近端背离</code> <b>ρ=+0.755</b>（留一天 min <b>0.709</b> ⇒ 稳健，n=12 天）</td><td><b>唯一值得跟踪的候选</b></td></tr><tr><td>次日（日级 ρ）</td><td><code>深度-近端背离</code>（日均）ρ=+0.622（min 0.545）；<code>价差(tick)中位</code> ρ=−0.521（min 0.400）</td><td>候选，方向一致</td></tr></tbody></table>
+<p>含义（<b>候选假设，不是结论</b>）：<b>当日"近端比深度更强"的程度越高，次日越容易上涨</b>。</p>
+<p>必须保留的保留意见：n=12 个交易日、同批检验约 50 个指标（未做多重比较校正）、该轴最初来自</p>
+<p>2026-09-14 <b>单一案例</b>的事后观察 ⇒ 需<b>样本外</b>验证（例如前 8 天定阈值、后 8 天验证）后才可讨论"天信号"。</p>
+<h3>8.4 案例对照</h3>
+<p>ES 2026-09-14 07:25→08:25（P1）：当天余下 <b>+15.0 点（涨）</b>，<b>次日 −47.0 点（跌）</b></p>
+<p>⇒ 该 P1 案例对<b>当天</b>方向有效、对<b>次日</b>方向相反；与 8.3 的日级候选<b>不可混为一谈</b>（样本、口径、检验层级都不同）。</p>
+<h3>8.5 展示</h3>
+<p>Adam 卡片新增「📅 DOM pattern 的当天 / 次日判定力（短期口径）」：逐日表（当天涨% / 当天均 / 次日涨% / 次日均 / 次日日期）</p>
+<p>+ 对照行 + <b>日级检验表</b>（ρ / 留一天 min|ρ| / n 天 / 当天 ρ / 稳健性徽标），并标注所用 cohort</p>
+<p>（次日视图自动取"日数最多"的 cohort，当前为 c500 并显示 <code>cohort=c500（500ms 档 · 达标槽 779）</code>）。</p>
+<h2>9. 追加（2026-09-15 收尾）：修次日标签缺陷 + <b>样本外检验（候选被否）</b></h2>
+<h3>9.1 修掉一个数据缺陷：次日标签缺 4 天</h3>
+<p><code>next_trading_day()</code> 原实现只判断"次日 TICKS 文件是否存在"，而 08-22/08-23/08-30/09-06/09-13 存在</p>
+<p><b>0 字节空文件</b> ⇒ 返回这些日子、<code>next_ret</code> 全 NULL，导致 c500 次日样本从 16 天被砍到 12 天。</p>
+<p>修正为"要求候选日的 1 分钟价路径 ≥30 分钟"。重跑 <code>dom_day_targets.py --apply</code>（13 秒）后：</p>
+<p><b>958 行全部有次日标签（17 个不同次日）</b>。</p>
+<h3>9.2 ★ 关键后果：先前"次日候选"经不起样本外检验</h3>
+<p>补全 4 天后，全样本与样本外结果同时变化（<code>oos_split_test</code>，train = 前 10 天 08-17..08-28，test = 后 6 天 08-31..09-14）：</p>
+<table><thead><tr><th>日级指标（次日 ρ）</th><th>补全前（n=12）</th><th>全样本（n=16）</th><th>ρ_train</th><th><b>ρ_test</b></th><th>结论</th></tr></thead><tbody><tr><td>日高值占比·深度-近端背离</td><td>ρ=+0.755</td><td>显著下降</td><td>+0.590</td><td><b>+0.029</b></td><td><b>未通过</b></td></tr><tr><td>深度-近端背离（日均）</td><td>ρ=+0.622</td><td>+0.350</td><td>+0.553</td><td><b>+0.200</b></td><td>同号但弱（未通过）</td></tr><tr><td>价差(tick)中位</td><td>ρ=−0.521</td><td>—</td><td>−0.407</td><td>−0.655</td><td>同号达标（但 train 弱）</td></tr><tr><td>★底部特征分（复合·日级）</td><td>ρ=+0.385</td><td>—</td><td>−0.602</td><td>−0.486</td><td>同号达标（n=6 不显著）</td></tr></tbody></table>
+<p>⇒ **结论：先前那个 +0.755 的"次日候选"是那 4 天缺失标签造成的假象，样本外不成立。当前没有任何 DOM 特征</p>
+<p>通过样本外检验。**（test 仅 6 天时 |ρ|≥0.4 无判别力：n=6 双侧 α=0.05 需 |ρ|≥0.886。）</p>
+<h3>9.3 已定死"完成下一步"的验收关（避免无限复核）</h3>
+<ol><li><b>数据门槛</b>：可用于样本外的交易日 ≥25 天（train ≥15 / test ≥10）；当前 16 天。</li><li><b>检验</b>：train 定方向 → test 验证，要求<b>同号</b>且 <b>|ρ_test| ≥ 0.648</b>（n=10、双侧 α=0.05）；</li></ol>
+<p>再要求<b>留一天 min|ρ| ≥ 0.4</b>。</p>
+<ol><li><b>多重比较</b>：预注册候选 ≤3 个；若遍历全部候选，须置换检验且 FDR ≤ 10%。</li><li><b>通过后的处置</b>：仅进"日级参考/标注"；要成为天信号（进决策）必须另立规则并写入规则手册（第 11 条）。</li><li><b>每日运维</b>（收盘后，各约 20–60 秒 / 13 秒，幂等）：</li></ol>
+<p><code>backfill_dom_features.py --mode slots --dates &lt;当日&gt; --apply</code> → <code>dom_day_targets.py --apply</code>（次日标签次日再跑一次）。</p>
+<h3>9.4 展示补充</h3>
+<p>Adam 卡片新增「🧪 样本外切分（train→test · 次日 ρ）」面板（含 ρ_train / ρ_test / 结论徽标与 n=6 判别力提示），</p>
+<p>接口 <code>/data/dom_feature_stats</code> 增加 <code>oos_split</code> 字段。</p></div></div></body></html>

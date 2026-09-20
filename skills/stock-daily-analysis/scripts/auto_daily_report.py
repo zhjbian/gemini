@@ -334,8 +334,8 @@ def generate_report(ticker, date_str, send_email=False):
         return html
 
     if send_email:
-        BBSms.send_to_gmail_html_from_ai(colorize(final_html), title="Stock Analysis Daily")
-        print(f"V8 Architecture report dispatched.")
+        # BBSms.send_to_gmail_html_from_ai(colorize(final_html), title="Stock Analysis Daily")
+        print(f"Email sending disabled per user request.")
 
 if __name__ == "__main__":
     # If no ticker is provided, default to the master list
@@ -343,7 +343,8 @@ if __name__ == "__main__":
     # default_tickers = ["MU"]
     
     target_tickers = default_tickers
-    send_email = "--send-email" in sys.argv
+    # send_email = "--send-email" in sys.argv
+    send_email = False  # Disabled email sending per user request
     
     # Check if a specific ticker was passed as the first argument
     # (Checking if it's not a flag)

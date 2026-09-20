@@ -1,0 +1,230 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>MotiveWave「Saty ATR Levels」实算 ATR 关卡口径精简与符号解析修复 —— 验收报告 (Walkthrough)</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+</style></head><body><div class='page'><div class='card'><h1>MotiveWave「Saty ATR Levels」实算 ATR 关卡口径精简与符号解析修复 —— 验收报告 (Walkthrough)</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：66 <code>Saty_ATR_Real_ATR_And_Level_Filter</code>（归属能力域：<strong>M18 交易基础设施与开发环境工具链</strong> · MotiveWave 终端 Java SDK 研究基础设施）</li>
+<li><strong>对应计划</strong>：<code>implementation_plan.md</code>（同目录）</li>
+<li><strong>状态</strong>：✅ 6 个文件改动全部落盘，Java 全量编译与 Python 编译检查通过，新端点与符号解析经真实 HTTP 验证通过；<strong>编译产物已部署</strong>到 <code>~/MotiveWave Extensions/dev</code>（<code>ant deploy</code> / <code>BUILD SUCCESSFUL</code>）</li>
+<li><strong>影响面</strong>：MotiveWave 研究指标 <code>StudySatyATR</code> + 指标-后端取数链路（<code>FlaskBridge</code> / <code>/mw_api/atr_real</code> / Schwab 符号解析）+ 共用昨收端点的 <code>StudyPreviousLevels</code></li>
+</ul>
+<hr />
+<h2>1. 交付物清单（代码）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>交付内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/StudySatyATR.java</code></td>
+<td>关卡精简为 4 条（<code>+61.8%</code> / <code>+100%</code> / <code>-61.8%</code> / <code>-100%</code>），删除 <code>UP_50_COLOR</code> / <code>DN_50_COLOR</code> 与 <code>±50%</code>；PC 昨收锚点保留；ATR 改调 <code>getRealATR</code>；新增 <code>onSettingsUpdated</code> 复位覆写 + <code>dataReady</code> / <code>RETRY_INTERVAL_MS=15000</code> 重试；ATR 缓存键由 date 改为 ticker</td>
+</tr>
+<tr>
+<td><code>/Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/FlaskBridge.java</code></td>
+<td>新增 <code>getRealATR(ticker)</code> → <code>/mw_api/atr_real</code>；旧 <code>getATR()</code> 原样保留</td>
+</tr>
+<tr>
+<td><code>bbt_data_web/data_app/motivewave_data.py</code></td>
+<td>新增路由 <code>/mw_api/atr_real</code>（200 / 400 / 400 / 404 四态）；旧 <code>/mw_api/atr</code>（CSV 路径）未改动</td>
+</tr>
+<tr>
+<td><code>PyTools/py_lib/bb_tickers.py</code></td>
+<td>新增 <code>BBTicker.atr_real(ticker, period=14)</code> 与 <code>ATR_YF_SYMBOL_MAP</code>（Schwab 实算优先，yfinance 兜底，不读 CSV）</td>
+</tr>
+<tr>
+<td><code>PyTools/bb_yf/yf.py</code></td>
+<td>新增 <code>BBYF.atr_wilder(...)</code>：Wilder RMA 递归、剔除未收盘 K、兼容 MultiIndex、回溯 400 天</td>
+</tr>
+<tr>
+<td><code>PyTools/tos_api/bb_tos.py</code></td>
+<td>新增 <code>SCHWAB_SYMBOL_MAP</code> / <code>resolve_symbol()</code>（<code>get_ohlc_rth()</code> 内应用，幂等）与 <code>BBTOS.atr_wilder(ticker, period=14)</code>（Schwab 日线 + Wilder 平滑）</td>
+</tr>
+</tbody>
+</table>
+<h2>2. 关键机制（最终口径）</h2>
+<ul>
+<li><strong>ATR 口径</strong>：Wilder RMA（等价 TradingView <code>ta.atr(14)</code>），首值 = 前 <code>period</code> 个 TR 的简单均值种子；旧链路（<code>BBTOS.atr</code> / <code>BBYF.atr</code>）的 <code>rolling(window).mean()</code> 本身与 Pine 不等价。</li>
+<li><strong>取值口径</strong>：<strong>最后一根已收盘日线</strong>的 ATR（盘中即 Pine 的 <code>atr[1]</code>）；期货按 17:00 ET、股票按 16:00 ET 判定并剔除仍在交易的当根。</li>
+<li><strong>数据源优先级</strong>：Schwab 日线（主源，与昨收同源、口径内部一致）→ yfinance（兜底）。依据：yfinance <code>ES=F</code> 的 2026-09-14 那根与此前收盘 / 券商日线不一致（换月 / 合约错位伪影）。</li>
+<li><strong>符号解析</strong>：<code>resolve_symbol()</code> 把裸符号映射为券商口径（<code>ES→/ES</code>、<code>NQ→/NQ</code>、<code>MES→/MES</code>、<code>MNQ→/MNQ</code>、<code>SPX→$SPX</code>、<code>NDX→$NDX</code>），已带前缀的输入原样返回（幂等）。</li>
+<li><strong>设置变更复位</strong>：<code>Study.onSettingsUpdated()</code> 的 SDK 字节码顺序（<code>clearFigures()</code> → <code>labelMap.clear()</code> → <code>updateDefaultGuides()</code> → <code>precalculate()</code> → <code>calculateValues()</code> → <code>postcalculate()</code>）<strong>不含 <code>clearState()</code></strong> ⇒ 依赖「数据未变就早退」的守卫会白屏；已在 <code>StudySatyATR.onSettingsUpdated()</code> 内自行复位 <code>lastSize=-1</code> / <code>lastTicker=""</code> / <code>dataReady=false</code> 后调 <code>super</code>。</li>
+<li><strong>容错重试</strong>：<code>dataReady</code> + <code>RETRY_INTERVAL_MS=15000</code> 节流重试，取数失败不再被 size 守卫永久锁死；ATR 缓存键改为 ticker（ATR 与日期无关）。</li>
+<li><strong>纯新增面</strong>：<code>/mw_api/atr_real</code> 为新增路由；旧 <code>/mw_api/atr</code> 保持 CSV 语义不动。</li>
+</ul>
+<h2>3. 验证证据</h2>
+<h3>3.1 Java 全量编译</h3>
+<pre><code>javac -nowarn -d /tmp/... -cp lib/* src/bbt/*.java
+→ exit 0
+</code></pre>
+<p>环境：JDK 22 + <code>lib/mwave_sdk.jar</code>。</p>
+<h3>3.2 Python 编译检查</h3>
+<p><code>py_compile</code> 四个改动文件：<code>bb_tos.py</code> / <code>bb_tickers.py</code> / <code>yf.py</code> / <code>motivewave_data.py</code> → <strong>OK</strong>。</p>
+<h3>3.3 实算 ATR（Schwab 日线主源）</h3>
+<table>
+<thead>
+<tr>
+<th>标的</th>
+<th>实算 ATR（Schwab 主源）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ES</td>
+<td>70.08</td>
+</tr>
+<tr>
+<td>NQ</td>
+<td>431.75</td>
+</tr>
+<tr>
+<td>MES</td>
+<td>70.17</td>
+</tr>
+<tr>
+<td>SPY</td>
+<td>5.98</td>
+</tr>
+<tr>
+<td>QQQ</td>
+<td>8.77</td>
+</tr>
+<tr>
+<td>TSLA</td>
+<td>13.11</td>
+</tr>
+<tr>
+<td>SPX</td>
+<td>60.17</td>
+</tr>
+</tbody>
+</table>
+<p>yfinance 兜底口径：<code>ES 70.66</code> / <code>SPY 6.12</code>（与主源差约 1% 以内，交叉一致）。</p>
+<h3>3.4 真实 HTTP 端到端（服务 <code>127.0.0.1:5005</code> 在跑）</h3>
+<table>
+<thead>
+<tr>
+<th>请求</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/mw_api/atr_real?ticker=ES</code></td>
+<td>200 <code>70.08</code></td>
+</tr>
+<tr>
+<td><code>/mw_api/atr_real?ticker=SPY</code></td>
+<td>200 <code>5.98</code></td>
+</tr>
+<tr>
+<td><code>/mw_api/atr_real?ticker=ES&amp;period=abc</code></td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>/mw_api/atr_real</code>（缺 ticker）</td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>/mw_api/atr_real?ticker=&lt;未知标的&gt;</code></td>
+<td>404</td>
+</tr>
+<tr>
+<td><code>/mw_api/atr?ticker=ES</code>（旧路径）</td>
+<td>200 <code>49.31</code>（旧路径未受影响）</td>
+</tr>
+<tr>
+<td><code>/mw_api/prev_ohlc?ticker=ES</code></td>
+<td><code>7682.25</code>（修复前为 <code>68.33</code>）</td>
+</tr>
+<tr>
+<td><code>/mw_api/prev_ohlc?ticker=SPY</code></td>
+<td><code>760.77</code></td>
+</tr>
+<tr>
+<td><code>/mw_api/prev_ohlc?ticker=NQ</code></td>
+<td><code>29416.25</code></td>
+</tr>
+<tr>
+<td><code>/mw_api/prev_ohlc?ticker=SPX</code></td>
+<td><code>7620.37</code></td>
+</tr>
+<tr>
+<td><code>/mw_api/prev_ohlc?ticker=/ES</code></td>
+<td><code>7682.25</code>（幂等，与 <code>ES</code> 一致）</td>
+</tr>
+</tbody>
+</table>
+<p>Flask <code>test_client</code> 另跑一遍，结果与上述一致（确认路由层行为）。</p>
+<h3>3.5 当前四条关卡数值（ATR 70.08，锚 7682.25）</h3>
+<table>
+<thead>
+<tr>
+<th>关卡</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>+61.8%</code></td>
+<td><code>7725.56</code></td>
+</tr>
+<tr>
+<td><code>+100%</code></td>
+<td><code>7752.33</code></td>
+</tr>
+<tr>
+<td><code>-61.8%</code></td>
+<td><code>7638.94</code></td>
+</tr>
+<tr>
+<td><code>-100%</code></td>
+<td><code>7612.17</code></td>
+</tr>
+</tbody>
+</table>
+<h2>4. 未验证项（如实说明）</h2>
+<ol>
+<li><strong>MotiveWave 终端内的实际渲染</strong>未做 GUI 实测；</li>
+<li><strong>「改设置后不再白屏」未做 GUI 实测</strong> —— 依据为 SDK 字节码（<code>javap</code> 反编译 <code>lib/mwave_sdk.jar</code>）+ 代码逻辑推导；</li>
+<li><strong>编译产物已部署</strong>到 <code>~/MotiveWave Extensions/dev</code>（2026-09-15 21:45 执行 <code>ant deploy</code>：<code>BUILD SUCCESSFUL</code>，34 个 class 文件，<code>.last_updated</code> 已 touch 触发终端热加载；部署前已备份旧目录到 <code>/tmp/mw_dev_backup_20260915_214517</code>）；<strong>终端热加载后的实际显示仍未做 GUI 实测</strong>；</li>
+<li><strong>未做多标的 / 多周期在终端内的遍历验证</strong>；</li>
+<li>缺陷一章节中两个 <code>−100%</code> 数值分别对应不同 ATR 来源：<code>−2.33</code> 出自 yfinance 兜底口径 ATR <code>70.66</code>，<code>−1.75</code> 出自 Schwab 主源 ATR <code>70.08</code>；非矛盾，且两者均在零轴以下，缺陷判定不变。</li>
+</ol>
+<h2>5. 残余偏差（待用户决策，本轮未改）</h2>
+<p>本轮锚点口径 = 「上一自然日 RTH（6:30–13:00 PT）收盘」；TradingView = 「上一根已收盘日线收盘」。以 2026-09-15 为例：本实现锚 <code>7682.25</code>（9/14 RTH 收盘），TV 口径锚 <code>7663.75</code>（9/15 日线收盘）⇒ 四条线整体偏 <strong>+18.50 点</strong>。可拆为：① 按 PT 自然日换日（15:00–24:00 PT 仍显示上一交易日关卡，约 9.5 点）；② RTH 13:00 PT 收盘 vs TV 日线 17:00 ET 收盘（约 9 点）。是否对齐 TV 待用户裁定。</p>
+<h2>6. 归档与回滚</h2>
+<ul>
+<li><strong>归档</strong>：本目录 <code>66_2026-09-15_Saty_ATR_Real_ATR_And_Level_Filter/</code>（plan + walkthrough，<code>.md</code> / <code>.html</code> 双份）；<code>bbt_trading_modules.html</code> M18 演进行新增 1 行 + 计数同步。</li>
+<li><strong>回滚</strong>：
+  <ol>
+  <li>文件层面：<code>git revert</code> 上述 6 个文件；</li>
+  <li>口径层面：把 <code>StudySatyATR</code> 的 <code>getRealATR</code> 换回 <code>getATR</code>，即恢复 CSV 口径；</li>
+  <li>影响面：<code>/mw_api/atr_real</code> 为纯新增路由，<code>StudyPriceSpike</code> / <code>StudyOrderFlowReversal</code> 仍走旧 <code>/mw_api/atr</code>，不受影响。</li>
+  </ol>
+</li>
+</ul></div></div></body></html>

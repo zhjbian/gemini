@@ -1,0 +1,188 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>L0-F⑨「SPX Gamma 单边结构方向掩码」—— 验收报告 (Walkthrough)</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+</style></head><body><div class='page'><div class='card'><h1>L0-F⑨「SPX Gamma 单边结构方向掩码」—— 验收报告 (Walkthrough)</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：65 <code>Layer0_Gamma_One_Sided_Gate</code>（归属能力域：<strong>Option Seller 自动交易系统 · 第 0 层统一门槛</strong>）</li>
+<li><strong>对应计划</strong>：<code>implementation_plan.md</code>（同目录）</li>
+<li><strong>状态</strong>：✅ 全部实现并验证通过（用户口径 Q4 = 直接启用，<strong>无影子期</strong>）</li>
+<li><strong>影响面</strong>：期权卖家自动开仓链路（布防侧 / 触发侧 / choke point）+ 手动开仓控制台 + 探针 + 规则手册</li>
+</ul>
+<hr />
+<h2>1. 交付物清单（代码）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>交付内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PyTools/option_seller/auto_mechanisms.py</code></td>
+<td>L0-F⑨ 判定与编排接线：<code>gamma_bias_side()</code> / <code>gamma_cycle_bucket()</code> / <code>spx_gamma_one_sided_mask()</code> / <code>_gamma_inputs_brief()</code> + 4 个常量；<code>check_layer0()</code> 第 9 个闸门；<code>evaluate_auto_entry_cycle()</code> 掩码下传</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/option_seller_manager.py</code></td>
+<td><code>resolve_l0f_gamma_mask()</code>（内存 → DB 直读）、<code>l0f_gate_decision()</code>（决策表）、<code>open_trade()</code> choke point、机制③ 消费掩码、触发侧兜底复校、<code>gamma_history</code> 透传</td>
+</tr>
+<tr>
+<td><code>PyTools/order_flow_analysis/order_flow_sentinel.py</code></td>
+<td>实时装配 <code>gamma_dict.history</code>（最近 3 条 5m）+ 墙位 Gamma + <code>signal_time</code></td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/backfill_option_seller_simulated_trades.py</code></td>
+<td>回放装配同口径窗口</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/intraday_probe.py</code></td>
+<td>探针装载 5m 窗口；机制③ 判据表新增 L0 掩码行并计入 verdict</td>
+</tr>
+<tr>
+<td><code>bbt_data_web/data_app/bbt_option_seller.py</code></td>
+<td>手动控制台：预检返回 <code>gamma_one_sided_warning</code>；执行分支 <code>rejected_gamma_one_sided</code> + <code>override_gamma_gate</code> 留痕</td>
+</tr>
+<tr>
+<td><code>bbt_data_web/templates/bbt_option_seller.html</code></td>
+<td>红色预检提示 + 确认弹窗逆势警告 + 逆势覆盖二次确认 + 拦截分支处理</td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/test_l0_gamma_one_sided_gate.py</code></td>
+<td><strong>新增契约测试 31 项</strong></td>
+</tr>
+<tr>
+<td><code>PyTools/option_seller/test_intraday_probe.py</code></td>
+<td>闸门清单断言 + 掩码行不变式</td>
+</tr>
+<tr>
+<td><code>scratch/validate_l0f_gamma_gate.py</code></td>
+<td>历史回放校验脚本（只读）</td>
+</tr>
+</tbody>
+</table>
+<h2>2. 判定语义（最终口径）</h2>
+<pre><code>每条 5m 读数 → gamma_bias_side(rec)：
+   树前缀 Bullish            → BULLISH
+   树前缀 Bearish            → BEARISH
+   否则 |PutWallγ|/|CallWallγ| &gt;= 2.5 且 PutWall &lt;= 现价   → BEARISH
+   否则 |CallWallγ|/|PutWallγ| &gt;= 2.5 且 CallWall &gt;= 现价  → BULLISH
+   其余（含全部 Neutral:*） → None（不判）
+
+周期掩码 = 最近 3 条 5m 读数中「最新一条非中性读数」的反向
+   BULLISH 偏向 → 掩码 BEARISH（禁卖 Call）｜BEARISH 偏向 → 掩码 BULLISH（禁卖 Put）
+   每周期最多掩码一个方向；缺数/陈旧&gt;15min/异常 → 不掩码（fail-open，留痕）
+</code></pre>
+<p><strong>执行点（三处，缺一即漏网）</strong>：① 布防侧（<code>check_layer0</code> → 下发全部机制）② 触发侧（<code>_evaluate_conditional_orders</code> 复校，不消费条件单）③ <code>open_trade()</code> choke point（决策表）。
+<strong>适用范围</strong>：自动机制单 ①–⑥ + 自动条件单触发 + <strong>UI 扫描单</strong> = 硬拦截；<strong>纯手工单</strong> = 红色警示 + 可「逆势覆盖」（二次确认 + <code>gamma_gate_override</code> 留痕）。</p>
+<h2>3. 验证证据</h2>
+<h3>3.1 契约测试（全部通过）</h3>
+<table>
+<thead>
+<tr>
+<th>套件</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_l0_gamma_one_sided_gate.py</code>（新增）</td>
+<td><strong>31 / 31 OK</strong></td>
+</tr>
+<tr>
+<td><code>test_intraday_probe.py</code></td>
+<td>34 / 34 OK</td>
+</tr>
+<tr>
+<td><code>test_qp_boundary_integrity_gate.py</code></td>
+<td>29 / 29 OK</td>
+</tr>
+<tr>
+<td><code>test_conditional_order_trigger_3131.py</code></td>
+<td>9 / 9 OK</td>
+</tr>
+<tr>
+<td><code>test_balanced_day_boundary_integrity_gate.py</code></td>
+<td>25 / 25 OK</td>
+</tr>
+<tr>
+<td><code>test_balanced_day_prev_close_gate.py</code></td>
+<td>24 / 24 OK</td>
+</tr>
+<tr>
+<td><code>test_force_dry_degrade.py</code></td>
+<td>18 / 18 OK</td>
+</tr>
+<tr>
+<td><code>test_live_resting_limit_order.py</code></td>
+<td>13 / 14 —— <strong>1 项失败为改动前既有</strong>（已用改动前基线文件回放确认同项失败，与本轮无关）</td>
+</tr>
+</tbody>
+</table>
+<p>关键回归用例（锁定事故）：
+- <code>test_incident_0652_current_neutral_still_masked</code>：06:52 单条读数已翻回 <code>Neutral:Balanced</code>，但 15 分钟窗口含 06:49 <code>Bearish_L1</code> ⇒ <strong>仍掩码 BULLISH</strong> ✅
+- <code>test_current_only_neutral_is_not_masked</code>：对照证明「无窗口 ⇒ 06:52 判不出来」⇒ 粘滞窗口是必要条件 ✅
+- <code>test_never_masks_both_sides</code> / <code>test_latest_non_neutral_reading_wins</code>：任意窗口组合最多掩码一侧 ✅
+- <code>test_masked_direction_blocks_trigger_and_keeps_order</code>：触发侧拦截并落 <code>SKIPPED_GUARD</code> 且<strong>不消费</strong>条件单 ✅
+- <code>test_masked_direction_is_blocked_before_chain</code>：机制③ 在<strong>取期权链之前</strong>被拦（验证接线缺口已修复）✅</p>
+<h3>3.2 历史回放校验（<code>scratch/validate_l0f_gamma_gate.py</code>，只读、用真实实现复算）</h3>
+<pre><code>交易窗口内 5m 周期总数 : 1068
+命中方向掩码的周期     : 829 (77.6%)
+双向同时掩码（死锁）   : 0          ← 必须为 0
+流水影响（105 笔，纸面）:
+   AUTO_BALANCED_DAY_BOUNDARY   n=16 拦截=6  被拦PnL= -62   ← 接线缺口修复的直接收益
+   AUTO_COUNTER_TREND_BOUNDARY  n=10 拦截=2  被拦PnL=  +6
+   AUTO_QUANT_PIVOT_BOUNDARY    n= 6 拦截=2  被拦PnL=  +8
+   AUTO_CONDITIONAL_ORDER       n= 2 拦截=2  被拦PnL=   0
+   AUTO_5M_SYNTHESIS            n= 2 拦截=0
+   → 自动机制合计被拦 12/36，净避免亏损 $48
+   MANUAL_UI_SCAN               n=60 拦截=36 被拦PnL= +72   ← 含用户临场人工判断 ⇒ 默认拦截 + 覆盖通道
+事故点校验:
+   06:50 周期 ⇒ 掩码 ['BULLISH']  bias=BEARISH  ✓ 已拦下 Bull Put
+   06:55 周期 ⇒ 掩码 ['BULLISH']  bias=BEARISH  ✓ 已拦下 Bull Put
+</code></pre>
+<h3>3.3 规则手册与归档</h3>
+<ul>
+<li><code>gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html</code>：§3.1.1.1 L0 表新增 <strong>L0-F</strong> 行 + 完整明细块；§3.1 概览 bullet 补 L0-F；<strong>§2.4 决策树末尾新增「↳ 决策树下游消费者（卖方侧）」交叉引用</strong>；</li>
+<li>同名 <code>.md</code> 同步（表格行 + 明细块 + §2.4 交叉引用）；</li>
+<li>本归档目录 <code>65_2026-09-15_Layer0_Gamma_One_Sided_Gate/</code>（plan + walkthrough，md/html 双份）；</li>
+<li><code>bbt_trading_modules.html</code>：Option Seller 模块演进行新增 1 行 + 计数/日期同步。</li>
+</ul>
+<h2>4. 运行与回滚</h2>
+<ul>
+<li><strong>生效方式</strong>：代码已落盘；<code>bbt_data_web</code>（5005，debug+reloader）与 5m 哨兵进程<strong>下次启动/热重载即生效</strong>。本次实施期间两个服务<strong>均未运行</strong>（已确认无进程），故无热重载副作用。</li>
+<li><strong>前端</strong>：模板已改（预检提示 / 二次确认 / 拦截分支）⇒ 浏览器需<strong>硬刷新</strong>。</li>
+<li><strong>验证入口</strong>：页面 <code>/bbt_option_seller</code>「当日自动触发机制检测（探针）」⇒ 逐点 L0 读数含 <code>L0-F⑨</code> 行与窗口读数；手动开仓控制台 ⇒ 逆 Gamma 单边结构时红色预警 + 二次确认。</li>
+<li><strong>回滚</strong>：
+  1. 阈值/开关层面：调 <code>GAMMA_MASK_WALL_DEPTH_MIN</code>（放宽到很大 ⇒ 等价关闭结构证据）、<code>GAMMA_MASK_FAIL_OPEN</code>；
+  2. 闸门层面：移除 <code>auto_mechanisms.check_layer0()</code> 中 L0-F 调用块（其余接线为纯消费方，无掩码即无行为）；
+  3. 文件层面：改动前原始副本在 <code>/tmp/bbt_backup_20260915_2033/</code>（7 个文件）。</li>
+<li><strong>已知取舍（供后续复议）</strong>：77.6% 周期存在单侧掩码（顺势侧不受影响）；<code>Compression-*</code> / <code>Exhaustion-*</code> 未计入偏向（与树文案语义冲突，需用户另行定夺）；自动单样本仅 36 笔（多为 Force Dry 纸面），统计证据强度有限，需实盘继续累积。</li>
+</ul>
+<h2>5. 后续可选增强（未实施）</h2>
+<ol>
+<li>把 <code>Compression-*</code> / <code>Exhaustion-*</code> 纳入偏向判定（需先裁定「以柱色支配侧为准」还是「以树禁令侧为准」）；</li>
+<li>「墙位顺手豁免」（价格已在敌对墙容差带内时不掩码）—— 更贴 Gamma 物理，但需新增回归面；</li>
+<li>掩码命中率的日度看板（<code>layer0.l0f</code> 落库统计）。</li>
+</ol></div></div></body></html>

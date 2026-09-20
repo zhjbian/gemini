@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DSH VS Code 扩展「确认信息必达」修复 —— 验收报告</title>
+<style>
+  :root{color-scheme:light;}
+  body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC',sans-serif;background:#f8fafc;color:#0f172a;line-height:1.62;}
+  .page{max-width:1080px;margin:0 auto;padding:26px 20px 70px;}
+  header.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 26px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  header.card h1{margin:0;font-size:1.32rem;font-weight:800;}
+  header.card .sub{margin-top:6px;font-size:.82rem;color:#64748b;}
+  section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 24px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  h2{font-size:1.06rem;font-weight:800;margin:6px 0 8px;padding:3px 0 3px 11px;border-left:5px solid #1d4ed8;background:#f8fafc;border-radius:0 6px 6px 0;}
+  h3{font-size:.94rem;font-weight:800;margin:16px 0 6px;}
+  table{border-collapse:collapse;font-size:.82rem;width:auto;max-width:100%;margin:6px 0;}
+  th,td{border:1px solid #e2e8f0;padding:6px 9px;text-align:left;vertical-align:top;}
+  th{background:#f1f5f9;color:#475569;white-space:nowrap;}
+  code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 5px;font-size:.82em;}
+  pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;overflow:auto;font-size:.8rem;line-height:1.55;}
+  ul,ol{margin:4px 0 4px 18px;padding:0;}
+  li{margin:2px 0;}
+  .ok{color:#047857;font-weight:700;}
+  .bad{color:#b91c1c;font-weight:700;}
+  .warn{color:#b45309;font-weight:700;}
+  .note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 12px;color:#b45309;}
+  .kv{font-size:.82rem;color:#334155;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="card">
+  <h1>DSH VS Code 扩展「确认信息必达」修复 —— 验收报告</h1>
+  <div class="sub">2026-09-14 · 模块 59 <code>Question_Delivery_Guarantee</code> ·
+    第三方扩展补丁（唯一入口 <code>scripts/repatch_vscode_changes_bar.py</code>）·
+    headless Chrome 隔离 harness · WebSocket mux 探针 · 会话日志取证</div>
+</header>
+
+<section class="card">
+<h2>1. 结论先行</h2>
+<table>
+<thead><tr><th>项</th><th>结果</th></tr></thead>
+<tbody>
+<tr><td>现象</td><td>VS Code 面板里 <code>ask_user_question</code> 卡片<b>从不出现在 UI</b>，工具挂起直到用户按 Esc 中断</td></tr>
+<tr><td>取证</td><td>5 个会话共 <b>11 次调用 / 10 次失败</b>（<code>Error: ask_user_question was aborted before the user answered</code>，Δ≈464s，<code>turn/end reason=user</code>）</td></tr>
+<tr><td>服务端</td><td><span class="ok">✅ 正常</span> —— 自建 WS 探针在 gateway mux 上<b>抓到 <code>question/requested</code></b></td></tr>
+<tr><td>客户端 schema</td><td><span class="ok">✅ 不会丢帧</span>（前后端 <code>askUserQuestionItemSchema</code> 逐字一致）—— 但 <code>readSocket()</code> 的 <code>catch{}</code> 属<b>静默丢帧</b>隐患</td></tr>
+<tr><td>webview 渲染能力</td><td><span class="ok">✅ 有能力</span> —— 隔离 harness 中可直接渲染出 <code>.question-card</code></td></tr>
+<tr><td>本地既有补丁</td><td><span class="ok">✅ 无罪</span> —— <code>fr()/ds()/fd()</code> 与 <code>.bbt-bak</code> 逐字节一致</td></tr>
+<tr><td><b>根因</b></td><td><b>A. webview <code>fr()</code> 渲染链无错误隔离 ⇒ <code>ds()</code>（唯一卡片渲染器）被前面的异常跳过；B. host 问句只在当前会话才记录、切会话即清空，且只在 mux 重连时重放 ⇒ 一次漏渲染/一次会话切换即永久丢失</b></td></tr>
+<tr><td>修复</td><td>补丁10：<code>__bbtSafe()</code> 隔离 <code>sl/dr/ds</code> 三步 + 问句按 <code>(sessionId,rpcId)</code> 全量缓冲 + 快照按当前会话投放 + 诊断日志</td></tr>
+<tr><td>验证</td><td><code>node --check</code> ×2 通过；harness 修前 <code>cards=0</code> → 修后 <b><code>cards=1</code></b></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>2. 取证链（每一步都可复现）</h2>
+
+<h3>2.1 会话日志（权威）</h3>
+<pre>tool/call    seq=158007  name=ask_user_question
+  args={"questions":[{"id":"next_action","header":"下一步",
+        "question":"ES 图缺 bar 的修复走哪条路？","options":[A/B/A+B 三项]}]}
+tool/result  seq=158011  Error: ask_user_question was aborted before the user answered   ← Δ=463.6s
+turn/end     seq=158013  reason={kind:'aborted', reason:{kind:'user'}}</pre>
+<p class="kv">⇒ 用户不是「没点」，而是<b>根本没看到卡片</b>，等不下去才中断。</p>
+
+<h3>2.2 服务端确实发出（自建 mux 探针）</h3>
+<pre>const ws = new WebSocket('ws://127.0.0.1:59793/api/events.mux');
+// … 9.5s 收到：
+// ★ question/requested rpcId=91370822-… session=dsh-mu0gxyzz-qpsl52
+//   questions=[{id:'probe2',header:'决定性探针',options:[A,B]}]
+// 75s 后探针自动 POST /api/respond 选 B → HTTP 200 {"accepted":true}</pre>
+<p class="kv"><b>关键判据</b>：工具最终返回的正是探针的 <b>B</b>（「界面上没有显示」）而不是用户会选的 A
+⇒ 用户界面<b>确实没有渲染卡片</b>（故障当场复现）。</p>
+
+<h3>2.3 webview 有能力渲染（隔离 harness）</h3>
+<pre>state.active = {id:'S1', …, questions:[{key:'question:r1',
+  questions:[{id:'q1',question:'测试问题？',header:'测试头',
+              options:[{label:'A 选项'},{label:'B 选项'}]}]}]}</pre>
+<table>
+<thead><tr><th>版本</th><th>harness 结果</th></tr></thead>
+<tbody>
+<tr><td>原始 <code>fr()</code></td><td><span class="bad">cards:0</span>（<code>sl(t)</code> 先抛 <code>Cannot read properties of undefined (reading 'split')</code> ⇒ <code>ds()</code> 被跳过）</td></tr>
+<tr><td><b>补丁10 后</b></td><td><span class="ok">cards:1</span>，文本 <code>Harness needs your input / 测试头 / 测试问题？/ A 选项 / B 选项 / Submit answer</code></td></tr>
+</tbody>
+</table>
+<p class="kv">⇒ <b>webview 渲染能力没问题，问题在「渲染链被前面的异常打断」。</b></p>
+
+<h3>2.4 排除本地补丁</h3>
+<pre>function fr(){   patched@317387  bak@317331  identical=True
+function ds(e){  patched@52973   bak@52973   identical=True
+function fd(e){  patched@53746   bak@53746   identical=True</pre>
+<p class="kv">⇒ 卡片渲染相关代码与补丁前<b>逐字节一致</b>，故障来自上游设计。</p>
+</section>
+
+<section class="card">
+<h2>3. 根因细节</h2>
+<h3>A. webview（<code>chat.js</code> · <code>fr()</code> 渲染链无隔离）</h3>
+<pre>g.loadOlder.classList.toggle("hidden",!t?.hasMore),
+dr(t),      // ← 消息列表：可能抛
+ds(t),      // ← ★ 唯一的 approval/question 卡片渲染器
+g.details.classList.contains("hidden")||xn(), yn(t), Xr(t), …</pre>
+<p class="kv">前面还有 <code>sl(t)</code>（composer 配置，同样可能抛）。<b>任何一步抛错 ⇒ 后续语句全跳过 ⇒ 卡片不渲染</b>，而问句只投递一次、<b>无重试</b> ⇒ 永久挂起。</p>
+
+<h3>B. host（<code>extension.cjs</code> · 问句作用域过窄 + 无重放兜底）</h3>
+<pre>else if(r.type==="question/requested" &amp;&amp; String(r.sessionId)===this.activeSessionId){ … }
+…
+selectSession(){ … this.questions.clear(); … }</pre>
+<p class="kv">服务端只在 <b>mux 重连</b>时重放 pending 问句 ⇒ 落错会话/切过一次会话即永久丢失。
+另外 <code>readSocket()</code> 的 <code>catch{}</code> 会把任何解析失败帧<b>静默丢弃且无日志</b>（本次 payload 校验通过，但该隐患已记录）。</p>
+</section>
+
+<section class="card">
+<h2>4. 修复内容（补丁10）</h2>
+<table>
+<thead><tr><th>文件</th><th>定点改动（全部带锚点唯一性断言）</th></tr></thead>
+<tbody>
+<tr><td><code>dist/webview/chat.js</code></td><td>① 注入 <code>__bbtSafe(tag,fn)</code>；② <code>sl(t),</code> → <code>__bbtSafe("composer",()=&gt;sl(t)),</code>；③ <code>dr(t),ds(t),</code> → <code>__bbtSafe("messages",()=&gt;dr(t)),__bbtSafe("interactions",()=&gt;ds(t)),</code>；④ <code>ds</code> 渲染后若 <code>#interactions</code> 非空则移除 <code>hidden</code> 并打 <code>data-bbt-interactions="visible"</code></td></tr>
+<tr><td><code>dist/extension.cjs</code></td><td>① 去掉 <code>question/requested</code> 的 <code>activeSessionId</code> 过滤；② 键 <code>question:&lt;sessionId&gt;:&lt;rpcId&gt;</code> 且记录 <code>sessionId</code>；③ <code>question/resolved</code> 按 rpcId 后缀清理；④ 快照 <code>questions</code> 只投放当前会话；⑤ <code>selectSession</code> 不再 <code>questions.clear()</code>；⑥ 注入 <code>__bbtQLog()</code> 写 <code>/tmp/dsh_question_debug.log</code>（收帧 + publish 计数）</td></tr>
+</tbody>
+</table>
+<p class="kv"><b>原则</b>：只加隔离与缓冲，<b>不改协议、不改交互语义</b>；幂等、可 <code>--revert</code>、可 <code>--no-question-fix</code> 单跳过。</p>
+</section>
+
+<section class="card">
+<h2>5. 实测</h2>
+<pre>$ python3 scripts/repatch_vscode_changes_bar.py --dry-run
+  [补丁10] webview 渲染隔离(ds 必达): 应用中 (dry-run) | 复用已有备份
+  [补丁10] host 问句按会话缓冲: 应用中 (dry-run) | 复用已有备份
+
+$ python3 scripts/repatch_vscode_changes_bar.py
+  [校验] node --check extension.cjs: ok
+  ✅ 补丁完成。请重载窗口: Cmd+Shift+P -&gt; Developer: Reload Window
+
+$ node --check dist/webview/chat.js   → chat.js syntax OK
+$ node --check dist/extension.cjs     → extension.cjs syntax OK</pre>
+<p class="kv">harness 回归（同一合成 state，故意让 <code>sl(t)</code> 抛错）：修前 <code>.question-card</code> = 0；<b>修后 = 1</b> ✅</p>
+</section>
+
+<section class="card">
+<h2>6. 用户侧生效步骤</h2>
+<ol>
+<li><code>Cmd+Shift+P</code> → <b>Developer: Reload Window</b>（宿主半区必须重载才会生效；会话持久化在 <code>harness-home/sessions</code>，重载后可继续）。</li>
+<li>重载后随便问一次（或让我再跑一次探针）⇒ 面板应出现「Harness needs your input」卡片，可点选项 / 填自定义答案。</li>
+<li>事后核对 <code>tail /tmp/dsh_question_debug.log</code>：
+<pre>… recv question session=dsh-… active=dsh-… pending=1
+… publish active=dsh-… questions=1</pre>
+两条都在 ⇒ 全链路通；只有 <code>recv</code> 没有 <code>publish</code> ⇒ 问题在快照；两条都没有 ⇒ 帧没到 host。</li>
+</ol>
+</section>
+
+<section class="card">
+<h2>7. 回滚</h2>
+<table>
+<thead><tr><th>范围</th><th>命令 / 位置</th></tr></thead>
+<tbody>
+<tr><td>全部补丁</td><td><code>python3 scripts/repatch_vscode_changes_bar.py --revert</code>（从 <code>*.bbt-bak</code> 还原）</td></tr>
+<tr><td>只撤补丁10</td><td>重跑时加 <code>--no-question-fix</code>（或从 <code>chat.js.bbt-bak</code> / <code>extension.cjs.bbt-bak</code> 局部还原）</td></tr>
+<tr><td>补丁脚本本体</td><td>修改前快照 <code>/tmp/repatch_pre_mu0gxyzz.py.bak</code></td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>8. 遗留</h2>
+<ol>
+<li><b>上游应修的两处</b>（建议反馈给扩展作者）：<code>fr()</code> 渲染链错误隔离；<code>question/requested</code> 不应依赖会话作用域，且问句应有「未答则重放/超时提示」机制。</li>
+<li><b>静默丢帧隐患</b>：<code>readSocket()</code> 的 <code>catch{}</code> 建议改为「记日志 + 计数」，否则任何 schema 演进都会静默黑掉某类帧。</li>
+<li><b>工具侧无超时提示</b>：<code>ask_user_question</code> 挂起期间 UI 只有 <code>Worked for …</code>，建议在 host 侧对 pending 问句加<b>桌面提醒兜底</b>（可复用补丁5 的 <code>/task-notify</code> 通道），本次未做以免过度打扰。</li>
+</ol>
+</section>
+
+</div>
+</body>
+</html>

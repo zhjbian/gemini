@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 卖家系统：按触发机制分别设置自动开仓组数（组数控制台）</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header style="padding:28px 32px 20px;background:#ffffff;border-bottom:1px solid var(--line);">
+<h1>卖家系统：按触发机制分别设置自动开仓组数（组数控制台）验收报告</h1>
+<div class="meta"><span>2026-09-14</span><span>Option Seller · 自动开仓组数</span>
+<span>模块归档 48</span><span>Light Theme</span></div>
+</header>
+<div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#1.-交付结果-结论先行">1. 交付结果（结论先行）</a></li><li><a href="#2.-语义-唯一口径">2. 语义（唯一口径）</a></li><li><a href="#3.-改动清单">3. 改动清单</a></li><li><a href="#4.-验证证据">4. 验证证据</a></li><li style="margin-left:20px;list-style:none"><a href="#4.1-配置语义-离线单测-Python-3.11">4.1 配置语义（离线单测，Python 3.11）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.2-API-往返-真实-127.0.0.1-5005">4.2 API 往返（真实 127.0.0.1:5005）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.2.1-端到端-UI-流程-headless-Chrome-真跑页面-JS">4.2.1 端到端 UI 流程（headless Chrome 真跑页面 JS）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.3-页面实渲染-headless-Chrome-独立-user-data-dir-用后即删">4.3 页面实渲染（headless Chrome，独立 `--user-data-dir`，用后即删）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.3.1-一次实现缺陷与修复-记录在案">4.3.1 一次实现缺陷与修复（记录在案）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.3.2-头部-全局默认组数-删除后的复测-用户追加指令">4.3.2 头部「全局默认组数」删除后的复测（用户追加指令）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.3.3-头部布局改为纵向堆叠-用户追加指令">4.3.3 头部布局改为纵向堆叠（用户追加指令）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.4-回归与静态检查">4.4 回归与静态检查</a></li><li style="margin-left:20px;list-style:none"><a href="#4.5-代码审计-无旁路">4.5 代码审计（无旁路）</a></li><li><a href="#5.-回滚">5. 回滚</a></li><li><a href="#6.-遗留与后续建议">6. 遗留与后续建议</a></li></ul></div>
+<section class="main-content">
+<h1 id="卖家系统-按触发机制分别设置自动开仓组数-组数控制台-验收报告">卖家系统：按触发机制分别设置自动开仓组数（组数控制台）验收报告</h1>
+<ul><li><strong>日期</strong>：2026-09-14</li><li><strong>模块</strong>：Option Seller 自动开仓组数（逐机制 <code>groups_for()</code> + 页面「组数控制台」）</li><li><strong>归档目录</strong>：<code>48_2026-09-14_Per_Mechanism_Auto_Groups_Console</code></li><li><strong>技术栈</strong>：Python 3.11 / Flask API + Jinja2（<code>bbt_data_web</code>，127.0.0.1:5005）/ <code>PyTools/option_seller/option_seller_manager.py</code> / MySQL <code>bb_trade</code>（<strong>本轮零写入</strong>）/ 规则手册五部分级 / headless Chrome 实渲染校验</li></ul>
+<h2 id="1.-交付结果-结论先行">1. 交付结果（结论先行）</h2>
+<table><thead><tr><th>需求</th><th>结果</th></tr></thead><tbody><tr><td>把「单一全局自动开仓组数」改为<strong>不同触发机制可不同组数</strong></td><td>✅ 新增 <code>Config/option_seller_auto_groups.json</code> + 唯一取值入口 <code>groups_for(触发标签)</code>；7 个机制（含 ⑦ 执行层）逐行可配</td></tr><tr><td>设计 UI，可考虑新建设置控制台</td><td>✅ 页面顶部「<strong>组数控制台</strong>」按钮 → 与「Force Dry 触发」<strong>同款弹窗</strong>（浅色主题，条目卡片 + 底栏保存/关闭）；每机制一行：名称 + 中文名标签 + 代码标签 + 组数步进 + 当前活跃 + 说明 + 「继承默认/单独设置」标签 + 「↺ 还原继承」；另含全局默认行与口径页脚</td></tr><tr><td><strong>删除头部原「全局默认组数」步进器</strong>（用户追加指令）</td><td>✅ 头部仅保留「组数控制台」一个入口；全局默认值的唯一设置处在弹窗内的「全局默认组数」行（避免同一旋钮两处入口）；<code>stepAutoGroups()</code> 与其 status 回填一并删除</td></tr><tr><td><strong>头部改为纵向堆叠</strong>（用户追加指令）</td><td>✅ 控制区从「标题右侧」移到「标题下方」，仍分两行：① 品牌标题 → ② 状态与控制 → ③ 交易操作（纯 CSS，三处 <code>justify-content</code>/<code>align-items</code> 调整）</td></tr><tr><td>不破坏既有行为</td><td>✅ 旧接口 <code>set_auto_groups</code> 保留（写 <code>default</code>，后端兼容入口、页面已无调用方），旧行为 <code>default=1</code> 下与改造前<strong>完全一致</strong></td></tr><tr><td>文档同步（规则定义维护）</td><td>✅ 手册新增 <strong>§3.1.4.1.7 组数控制（按触发机制分别设置）</strong>，并更新 §3.1.4.1.6「组数」条目与交叉引用；HTML/MD 均标注「头部原「全局默认组数」步进器已删除」</td></tr></tbody></table>
+<h2 id="2.-语义-唯一口径">2. 语义（唯一口径）</h2>
+<p><strong>开仓组数 = 该机制单次自动开仓的组数上限</strong>；未「单独设置」的机制继承全局默认。</p>
+<table><thead><tr><th>机制</th><th>本次开仓组数</th></tr></thead><tbody><tr><td>①②④⑤⑥</td><td><code>groups_for(标签)</code>（该机制上限值本身）</td></tr><tr><td>③ 平衡日边界</td><td><code>min(五维评分器分档, 通道硬顶 groups_cap, groups_for(标签))</code> ⇒ 控制台<strong>只能收紧、不能放宽</strong></td></tr></tbody></table>
+<ul><li>标签先 <code>normalize_label()</code> 归一、再<strong>前缀匹配</strong>落机制（<code>AUTO_PM_BIG_TRADE_UT1_…</code> ⇒ ⑤）；未匹配 ⇒ 回落 <code>default</code></li><li>取值 <strong>1–5</strong>（与 L0-E <code>GLOBAL_GROUP_CAP</code> 对齐）</li><li><strong>不绕过任何 L0</strong>：机制级 / 机制数 / 全局并发仍由 L0-C / L0-D / L0-E 把关（面板页脚显式标注 <code>机制级活跃 &lt; 2 组、全局活跃 &lt; 5 组</code>）</li><li>配置文件<strong>只写显式项</strong>：继承值不固化 ⇒「改全局默认」能真正带动未单独设置的机制</li></ul>
+<h2 id="3.-改动清单">3. 改动清单</h2>
+<table><thead><tr><th>层</th><th>文件</th><th>关键改动</th></tr></thead><tbody><tr><td>配置层</td><td><code>PyTools/option_seller/option_seller_manager.py</code></td><td><code>AUTO_GROUPS_CFG</code> / <code>AUTO_GROUPS_MIN=1</code> / <code>AUTO_GROUPS_MAX=5</code>、<code>clamp_auto_groups()</code>、<code>_read_auto_groups_raw()</code>、<code>load_auto_groups_config()</code>、<code>save_auto_groups_config()</code>（支持 <code>default</code> / <code>per_mechanism</code> / <code>null</code> 删除 / <code>clear_per_mechanism</code>）</td></tr><tr><td>取值层</td><td>同上</td><td><code>groups_for(trigger_label, scorer_groups=None)</code>、<code>get_active_groups_by_mechanism()</code>、<code>_auto_groups_status_payload()</code></td></tr><tr><td>接线</td><td>同上</td><td><code>__init__</code> 载入配置（<code>self.auto_groups</code> 降级为兼容镜像）；<code>_open_from_engine</code> 由 <code>self.auto_groups</code> 改读 <code>groups_for(trigger_label)</code>；机制 ③ 的 <code>cap = min(groups_cap, groups_for(LABEL_BALANCED_DAY))</code></td></tr><tr><td>兼容</td><td>同上</td><td><code>set_auto_groups(n)</code> ⇒ 写 <code>default</code>；<code>status.auto_groups</code> 保留</td></tr><tr><td>API</td><td><code>bbt_data_web/data_app/bbt_option_seller.py</code></td><td>新增 <code>GET/POST /api/option_seller/auto_groups_config</code>；<code>POST /set_auto_groups</code> 回包补 <code>auto_groups_config</code></td></tr><tr><td>页面</td><td><code>bbt_data_web/templates/bbt_option_seller.html</code></td><td><strong>头部布局改为纵向堆叠</strong>（标题在上、控制区在下，控制区两行；<code>.header</code> / <code>.header-actions</code> / <code>.header-col-controls</code> / <code>.header-col-actions</code> 四处 CSS）；<strong>头部删除原「全局默认组数」步进器</strong>（连带 <code>stepAutoGroups()</code> 与 <code>autoGroupsVal</code> status 回填），仅保留「组数控制台」按钮（文案带默认值与单独设置项数）；<code>#autoGroupsModal</code> <strong>弹窗</strong>（与 Force Dry 同款 <code>.modal-overlay/.modal-card</code> 结构）+ <code>.agc-*</code> 浅色样式 + JS（<code>openAutoGroupsModal</code> / <code>closeAutoGroupsModal</code> / <code>handleAutoGroupsOverlayClick</code> / <code>loadAutoGroupsConsole</code> / <code>renderAutoGroupsConsole</code> / <code>agcUpdateHeaderState</code> / <code>stepAgcDefault</code> / <code>stepAgcMechanism</code> / <code>unsetAgcMechanism</code> / <code>resetAutoGroupsConsole</code> / <code>saveAutoGroupsConsole</code> / <code>syncAutoGroupsConsole</code>），并挂入 <code>fetchStatus</code> 的 status 同步</td></tr><tr><td>API 补充</td><td><code>bbt_data_web/data_app/bbt_option_seller.py</code></td><td><code>GET /auto_groups_config</code> 回包新增 <code>meta</code>（与 <code>status.auto_groups_config</code> <strong>同结构</strong>，由模块级 <code>auto_groups_meta()</code> 生成）⇒ 弹窗打开即可独立渲染，不依赖 status 轮询时序</td></tr><tr><td>手册</td><td><code>gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html</code></td><td>新增 §3.1.4.1.7（锚点 <code>os-groups-ctrl</code>）、更新 §3.1.4.1.6 组数条、新增 §3.1.1.1 锚点 <code>os-l0-gates</code> 供交叉引用</td></tr></tbody></table>
+<h2 id="4.-验证证据">4. 验证证据</h2>
+<h3 id="4.1-配置语义-离线单测-Python-3.11">4.1 配置语义（离线单测，Python 3.11）</h3>
+<pre><code>
+A. default=2      -&gt; 全部机制继承 2；文件只写 {&quot;default&quot;:2,&quot;per_mechanism&quot;:{}}
+B. 5m=3           -&gt; 文件 {&quot;default&quot;:2,&quot;per_mechanism&quot;:{&quot;AUTO_5M_SYNTHESIS&quot;:3}}
+C. default=4      -&gt; 5m 保持 3，其余随默认升到 4
+D. 5m=null        -&gt; 5m 回到继承（4）
+E. clear+default=1-&gt; 全部回归 1，per_mechanism 清空
+groups_for: 5m=1 / PM子场景标签(AUTO_PM_BIG_TRADE_UT1_…)=1 / QP=1 / 未知标签=1(default)
+③ 只收紧：min(2, 控制台1)=1 · min(1, 控制台5)=1 · min(2, 控制台5)=2
+clamp: 99-&gt;5 · -3-&gt;1 · &#x27;x&#x27;-&gt;1
+</code></pre>
+<h3 id="4.2-API-往返-真实-127.0.0.1-5005">4.2 API 往返（真实 127.0.0.1:5005）</h3>
+<pre><code>
+GET  /api/option_seller/auto_groups_config → success=true, limits={min:1,max:5},
+     path=/Users/.../Config/option_seller_auto_groups.json
+POST {&quot;default&quot;:2,&quot;per_mechanism&quot;:{&quot;AUTO_5M_SYNTHESIS&quot;:3},&quot;clear_per_mechanism&quot;:true}
+     → config.default=2, 5m=3, 其余=2
+     文件实际内容 = {&quot;default&quot;:2,&quot;per_mechanism&quot;:{&quot;AUTO_5M_SYNTHESIS&quot;:3},&quot;updated_at&quot;:&quot;...&quot;}
+GET  /api/option_seller/status → auto_groups=2（兼容镜像）；
+     auto_groups_config.mechanisms[0] = {label:AUTO_5M_SYNTHESIS, name:5分钟综合信号,
+     groups:3, explicit:true, active:0, exec:false}；其余 explicit=false/groups=2
+恢复：POST {&quot;default&quot;:1,&quot;per_mechanism&quot;:{},&quot;clear_per_mechanism&quot;:true}
+     → 文件 {&quot;default&quot;:1,&quot;per_mechanism&quot;:{}}，status explicit 计数 = 0
+</code></pre>
+<p><code>POST</code> 回包亦带 <code>meta</code>（与 GET / status 同结构），使页面保存后<strong>立即</strong>刷新 explicit 标记与头部文案。</p>
+<h3 id="4.2.1-端到端-UI-流程-headless-Chrome-真跑页面-JS">4.2.1 端到端 UI 流程（headless Chrome 真跑页面 JS）</h3>
+<p>在真实页面上注入脚本执行「打开弹窗 → 步进 5分钟综合信号 +1 → 全局默认 +1 → 保存 → 关闭 → 重开」：</p>
+<pre><code>
+保存后 title:  AGC_DONE default=2 draftExplicit={&quot;AUTO_5M_SYNTHESIS&quot;:2} explicitRows=1
+               header=组数控制台 (默认 2 组 · 单独设置 1 项)
+关闭再打开:    reopenedDraft={&quot;AUTO_5M_SYNTHESIS&quot;:2}   ← 关闭弃稿后按后端真值重建，显式项保留
+配置文件:      {&quot;default&quot;:2,&quot;per_mechanism&quot;:{&quot;AUTO_5M_SYNTHESIS&quot;:2}}
+</code></pre>
+<p>即：UI 改值 → 保存 → 落盘 → 重开弹窗，全链路一致；测试后已恢复 <code>default=1</code> / 无显式项。</p>
+<h3 id="4.3-页面实渲染-headless-Chrome-独立-user-data-dir-用后即删">4.3 页面实渲染（headless Chrome，独立 <code>--user-data-dir</code>，用后即删）</h3>
+<p><strong>按用户追加指令改为「与 Force Dry 触发同款弹窗」后重测</strong>：以 <code>--virtual-time-budget=5000</code> 渲染并在 <code>load</code> 后调用 <code>openAutoGroupsModal()</code>，对渲染后 DOM 逐行断言，<strong>7 行机制全部正确</strong>：</p>
+<table><thead><tr><th>机制</th><th>组数</th><th>当前活跃</th><th>标签</th></tr></thead><tbody><tr><td>5分钟综合信号</td><td>1</td><td>活跃 0 组</td><td>继承默认</td></tr><tr><td>QuantPivot边界反向</td><td>1</td><td>活跃 0 组</td><td>继承默认</td></tr><tr><td>平衡日边界</td><td>1</td><td>活跃 0 组</td><td>继承默认 · 受评分器约束 · 只收紧</td></tr><tr><td>趋势日极限终点</td><td>1</td><td>活跃 0 组</td><td>继承默认</td></tr><tr><td>ES盘前大单开盘回调</td><td>1</td><td>活跃 0 组</td><td>继承默认</td></tr><tr><td>洗盘反转-双向</td><td>1</td><td>活跃 0 组</td><td>继承默认</td></tr><tr><td>自动条件单触发</td><td>1</td><td>活跃 0 组</td><td>继承默认 · 执行层</td></tr></tbody></table>
+<ul><li>弹窗容器：<code>class="modal-overlay active" id="autoGroupsModal"</code>（与 Force Dry 弹窗同一套 <code>.modal-overlay/.modal-card/.modal-header/.modal-body/.modal-footer</code> 结构；浅色主题，白底卡片 + 浅蓝标题栏）</li><li>全局默认行：<code>全局默认组数 = 1</code> + 右侧「全机制活跃 0 组」</li><li>头部按钮文案：<code>组数控制台 (默认 1 组)</code>（显式项数按后端 <code>meta.explicit</code> 统计，非 <code>per_mechanism</code> 键数）</li><li>页脚：<code>口径：开仓组数 = 该机制单次自动开仓的组数上限；未「单独设置」的机制继承全局默认（当前 1 组）。③ 平衡日边界另受五维评分器分档与通道硬顶约束，只能收紧。并发仍受 L0 闸门把关：机制级活跃 &lt; 2 组、全局活跃 &lt; 5 组（本配置不绕过任何 L0）；已单独设置 0 项。 已与配置文件一致</code></li><li><code>#agcSaveBtn</code> 在无改动时可点但置灰提示（<code>opacity</code> 0.6）；改动后高亮</li><li>渲染截图人工核对：弹窗居中、条目卡片圆角浅灰边、步进器右对齐、「继承默认 / 执行层 / 受评分器约束·只收紧」标签配色清晰；无深色元素</li></ul>
+<h3 id="4.3.1-一次实现缺陷与修复-记录在案">4.3.1 一次实现缺陷与修复（记录在案）</h3>
+<p>首版弹窗<strong>打开后列表为空</strong>：<code>renderAutoGroupsConsole()</code> 依赖 <code>status.auto_groups_config</code>（含机制中文名），而弹窗在 <code>load</code> 后立即打开时 <code>status</code> 尚未返回 ⇒ <code>mechs = []</code>。修复：<strong>GET 接口自带 <code>meta</code></strong>（新增模块级 <code>auto_groups_meta()</code>，status 与 API 共用同一份结构，避免两份逻辑漂移），<code>loadAutoGroupsConsole()</code> 优先取 <code>res.meta</code>，活跃组数仍由 4 秒 status 轮询刷新。该修复同时消除了「必须等 status 才能打开控制台」的时序耦合。</p>
+<h3 id="4.3.2-头部-全局默认组数-删除后的复测-用户追加指令">4.3.2 头部「全局默认组数」删除后的复测（用户追加指令）</h3>
+<ul><li>DOM 断言：页面内 <code>id="autoGroupsVal"</code> 出现 <strong>0 次</strong>；<code>stepAutoGroups</code> 仅在注释中出现；头部保留 <code>组数控制台</code> 单一入口</li><li>弹窗复测：7 行机制完整渲染（含 2 项「单独设置」浅蓝高亮行与 <code>↺ 还原继承</code> 按钮）、全局默认行 <code>− 1 ＋</code> 与「全机制活跃 0 组」正常</li><li><strong>真实使用验证</strong>：复测时读到线上配置已被用户在控制台内实际修改并保存 ——</li></ul>
+<p><code>{"default":1,"per_mechanism":{"AUTO_QUANT_PIVOT_BOUNDARY":2,"AUTO_WASHOUT_REVERSAL":2}}</code>，</p>
+<p>弹窗头部随之显示 <code>组数控制台 (默认 1 组 · 单独设置 2 项)</code>、页脚「已单独设置 2 项」、两行高亮为「单独设置」——</p>
+<p>即 <strong>UI→落盘→回填</strong> 在生产页面上真实闭环（该配置为用户的生产设置，<strong>未被测试改动</strong>）。</p>
+<h3 id="4.3.3-头部布局改为纵向堆叠-用户追加指令">4.3.3 头部布局改为纵向堆叠（用户追加指令）</h3>
+<p>用户要求：右上角的按钮<strong>移到标题下方</strong>（不是右侧），控制区<strong>仍分两行</strong>显示。改动（纯 CSS，无 JS）：</p>
+<ul><li><code>.header</code>：<code>display:flex</code> 由「左右分栏」改为 <code>flex-direction: column; align-items: stretch; gap: 10px</code></li><li><code>.header-actions</code>：<code>align-items: flex-end</code> → <code>stretch</code>（两行各自占满宽度）</li><li><code>.header-col-controls</code> / <code>.header-col-actions</code>：保持 <code>justify-content: flex-end</code>（<strong>两行按钮靠右对齐</strong>，均保留 <code>flex-wrap: wrap</code>）</li></ul>
+<p>结果三行结构：<strong>① 品牌标题</strong>（OPTION SELLER LAB • BBT.AI / SPY 0DTE Vertical Credit Spread Engine，左对齐）→ <strong>② 状态与控制</strong>（右对齐：LIVE TRADING · 自动单检测 · Force Dry 触发 · 自动开仓策略 · 自动止盈模式 · 组数控制台）→ <strong>③ 交易操作</strong>（右对齐：手动开仓 · 设置条件开仓 · 一键全平 · 取消全部）。</p>
+<p>复核：无任何 JS 依赖头部高度（<code>offsetHeight</code> / <code>--header-height</code> / <code>scroll-margin</code> 全无引用），故加高不影响滚动定位；实渲染截图核对三行左对齐、无换行错位。</p>
+<h3 id="4.4-回归与静态检查">4.4 回归与静态检查</h3>
+<table><thead><tr><th>检查</th><th>结果</th></tr></thead><tbody><tr><td><code>py_compile</code>（manager / web app）</td><td>OK</td></tr><tr><td>模板内联 JS <code>node --check</code></td><td>0 failure</td></tr><tr><td><code>option_seller</code> 测试套件（逐个模块运行）</td><td><code>conditional_order_trigger</code> / <code>force_dry_degrade</code> / <code>intraday_probe</code> / <code>journal_filter_catalog</code> / <code>l1_h1_breakeven_stop</code> / <code>qp_meta_parse</code> / <code>strike_anchor</code> 全 <strong>OK</strong></td></tr><tr><td>既存失败</td><td><code>test_live_resting_limit_order</code> 1 例（<code>get_order_status</code> 批处理断言，<strong>与组数无关</strong>，前序模块已记录为既存失败）</td></tr><tr><td>HTTP</td><td><code>/bbt_option_seller</code> 200 · <code>/api/option_seller/status</code> 200 · <code>/api/option_seller/auto_groups_config</code> 200</td></tr><tr><td>业务表写入</td><td><strong>0</strong>（本轮无任何 DB 写操作；仅写配置文件）</td></tr><tr><td>生产值</td><td>测试后已恢复 <code>default=1</code>、无显式项（与改造前逐机制行为一致）</td></tr><tr><td>模板残留</td><td>旧面板标识 <code>agcPanel</code> / <code>toggleAutoGroupsConsole</code> 残留 <strong>0</strong>；<strong>头部 stepper 标识 <code>autoGroupsVal</code> / <code>stepAutoGroups</code> 残留 0</strong>（仅注释说明删除原因）；临时验证页 <code>static/_agc*_verify.html</code> 已删除 <strong>0</strong></td></tr></tbody></table>
+<h3 id="4.5-代码审计-无旁路">4.5 代码审计（无旁路）</h3>
+<p><code>grep self\.auto_groups</code> ⇒ 仅剩：<code>__init__</code> 载入、<code>get/set_auto_groups_config</code> 镜像同步、<code>set_auto_groups</code> 兼容入口、<code>status</code> 回包；<strong>没有任何机制再直读全局值</strong>。唯一开仓取值入口为 <code>_open_from_engine</code> 的 <code>groups_for(trigger_label)</code> 与机制 ③ 通道的 <code>min(groups_cap, groups_for(...))</code>。</p>
+<h2 id="5.-回滚">5. 回滚</h2>
+<table><thead><tr><th>场景</th><th>操作</th></tr></thead><tbody><tr><td>恢复「全部 1 组」旧行为</td><td><code>POST /api/option_seller/auto_groups_config {"default":1,"per_mechanism":{},"clear_per_mechanism":true}</code>，或直接删除 <code>Config/option_seller_auto_groups.json</code>（缺失即取缺省 1）</td></tr><tr><td>代码回退</td><td>三文件术前副本 <code>/tmp/bbt_autogroups_backup_062623/</code>（<code>option_seller_manager.py</code> / <code>bbt_option_seller.py</code> / <code>bbt_option_seller.html</code>）</td></tr><tr><td>页面还原</td><td>硬刷新即可（模板改动；Flask debug reloader 对 <code>.py</code> 生效，模板/静态需浏览器强刷）</td></tr></tbody></table>
+<h2 id="6.-遗留与后续建议">6. 遗留与后续建议</h2>
+<ol><li><strong>未在实盘/纸面跑过一轮触发</strong>：本轮验证覆盖「配置→API→status→页面渲染」全链路与取值函数；真实触发开仓路径（<code>_open_from_engine</code> 实际开多组）需在下一个交易日由 Force Dry 试运行观察日志中的 <code>groups=N</code> 字段确认。</li><li><strong>控制台未能显示「继承 vs 显式」的历史差异</strong>：面板已用标签区分（继承默认 / 单独设置）与「↺ 还原继承」按钮，但配置文件中显式项与默认值相同时仍会标「单独设置」——语义正确（确为显式），如需自动收敛可后续加「清理与默认同值的显式项」动作。</li><li><strong>机制 ③ 的 <code>groups_cap</code> 仍在平衡日配置内</strong>（<code>Config/option_seller_balanced_day.json</code>），与控制台形成「双重上限」：控制台只能收紧。若后续希望统一入口，可把 <code>groups_cap</code> 并入控制台并保留其数据结论说明。</li><li>既存索引缺口（非本轮引入）：<code>bbt_trading_modules.html</code> 主表仅列到 44，45 / 46 / 47 仅有详细节而无表格行。</li></ol>
+</section>
+</article>
+</main>
+</body>
+</html>

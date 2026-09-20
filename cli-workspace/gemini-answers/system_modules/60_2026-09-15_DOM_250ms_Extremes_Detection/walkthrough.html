@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>DOM 250/500ms 极值检测 · 验收报告</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>DOM 250/500ms 快照级极值 / 异常点检测 —— 验收报告（Walkthrough）</h1>
+<ul><li><b>日期</b>：2026-09-15</li><li><b>模块</b>：<code>PyTools/order_flow_analysis/dom_extremes.py</code> 系列（检测库 / CLI / 前向验证 / 回填 / API / 页面卡片）</li><li><b>归档目录</b>：<code>60_2026-09-15_DOM_250ms_Extremes_Detection</code></li><li><b>技术栈</b>：Python 3.11 · numpy · MW 原始 DOM（<code>ES_&lt;YYYYMMDD&gt;_DOM.csv.gz</code>，250/500ms 快照）· MySQL <code>bb_trade</code>（<code>order_flow_dom_extremes</code>）· Flask <code>/data/dom_extremes</code> · 浅色主题报告 · unittest 59 条</li><li><b>一句话结论</b>：毫秒级极值<b>能被稳定检出</b>（并在生产里可查、可复盘），但<b>前向验证显示它没有方向优势</b>（命中率 ≈ 46–50%，与「无技巧基准」≈ 44–52% 相当）⇒ <b>只标注、不进决策</b>。</li></ul>
+<hr/>
+<h2>1. 结论先行</h2>
+<table><thead><tr><th>需求（用户原文）</th><th>结果</th></tr></thead><tbody><tr><td>「DOM 的信号通常很快… 请实现对于 <b>250ms 或 500ms 的 snapshot 极值 / 异常点</b>的获取和分析」</td><td>✅ 检测库 <code>dom_extremes.py</code>（四类事件 + 稳健离群 + 有效性掩码 + 分级/形态/方向）</td></tr><tr><td>获取（数据通路）</td><td>✅ 哨兵实时内联摘要（<code>dom_metrics.extreme</code>，零 schema 变更）+ 盘后回填落库 <code>order_flow_dom_extremes</code>（<b>6,669 行 / 7 个交易日</b>）</td></tr><tr><td>分析（可判读）</td><td>✅ 单窗口/整日 CLI + 浅色 HTML 报告；只读 API <code>GET /data/dom_extremes</code>；<code>/bbt_signals</code> 页面卡片</td></tr><tr><td>是否可用于交易决策</td><td>❌ <b>不可以</b>（本轮前向验证结论）；已写成页面/接口内的显式免责声明</td></tr></tbody></table>
+<h2>2. 为什么必须做（问题实证）</h2>
+<p>既有 DOM 指标<b>全部是窗口均值</b>（<code>imb_near = np.mean(imb_near_500ms)</code>）。均值对瞬时事件是低通滤波。实测（2026-09-14 ES）：</p>
+<table><thead><tr><th>窗口</th><th>DB（5 分钟均值）</th><th>250ms 快照极值</th><th>倍率</th></tr></thead><tbody><tr><td>08:05</td><td><code>imb_near</code> 均值 <b>+0.007</b></td><td><b>−0.5316</b> @ 08:05:30.000</td><td><b>76×</b></td></tr><tr><td>08:40–08:45</td><td><b>+0.043</b></td><td><b>+0.3634</b> @ 08:41:43.000</td><td>8.4×（出现在该笔亏损单入场前 7 秒）</td></tr></tbody></table>
+<p>⇒ 均值口径<b>在结构上</b>无法发现毫秒级插针 / 瞬时撤单 / 挂单真空。</p>
+<h2>3. 检测机制（逐层说明）</h2>
+<h3>3.1 网格与数据来源（与哨兵<b>同源</b>）</h3>
+<ul><li>原始文件：<code>RAW_DATA_DIR/ES_&lt;YYYYMMDD&gt;_DOM.csv.gz</code>（<code>Timestamp,Type,Level,Price,Size,Contract</code>，每快照 ≈400 行 = 200 档 × 2 侧）。</li><li>快照节奏：<b>ES 自 2026-09-14 07:51:30 起 250ms</b>；此前与 NQ 相同 500ms。</li><li>网格间隔 <code>resolve_grid_interval_ms()</code> <b>跟随源</b>（ES 250 / NQ 500），不硬编码。</li><li><b>重构（单一权威）</b>：<code>load_dom_snapshots</code> / <code>build_dom_grid_series</code> / <code>map_trades_to_grid</code> 从哨兵内联代码<b>抽取为共享函数</b>，哨兵与 <code>dom_extremes</code> 调同一份实现 —— 避免"两处实现慢慢漂移"。</li></ul>
+<h3>3.2 被检测序列与四类事件</h3>
+<p>序列：<code>imb_near</code> / <code>imb_mid</code> / <code>imb_deep</code> / <code>w_imb</code> / <code>near_bids</code>（近 5 档买盘合计）/ <code>near_asks</code>（近 5 档卖盘合计）。</p>
+<table><thead><tr><th>类型</th><th>定义</th><th>参数（<code>order_flow_config.THRESHOLDS["dom_extremes"]</code>）</th></tr></thead><tbody><tr><td><code>outlier</code></td><td>稳健 z 超阈的<b>连续段</b>（允许桥接 1 格）</td><td><code>k_mad=3.5</code>、<code>min_bins=1</code>、<code>max_gap_bins=1</code></td></tr><tr><td><code>step</code></td><td>相邻格近 5 档挂单量<b>跳变</b></td><td><code>step_vol=50</code>（<b>@250ms 基准，按间隔线性缩放</b>）</td></tr><tr><td><code>flip</code></td><td><code>imb_near</code> 符号翻转</td><td><code>flip_thr=0.10</code>、<code>flip_max_bins=6</code></td></tr><tr><td><code>vacuum</code></td><td>单侧挂单真空段</td><td>由 <code>vacuum_bid/ask</code> 布尔序列导出</td></tr></tbody></table>
+<h3>3.3 稳健尺度：窗口局部 <code>median/MAD</code>（含两次失败教训）</h3>
+<p>尺度链：<b><code>MAD → IQR/1.349 → flat_floor(max(|median|×0.02, 1e-6))</code></b>，<b>刻意不退回标准差</b>。</p>
+<table><thead><tr><th>方案</th><th>结果</th><th>结论</th></tr></thead><tbody><tr><td><code>MAD</code>，MAD=0 时退回 <code>std</code></td><td>平台型异常 z 仅 <b>1.46</b>（平台自己把 std 抬高）</td><td>❌ 漏报</td></tr><tr><td><code>MAD</code>，退回 IQR/截尾 std</td><td>z 仅 <b>1.75</b>（≥15% 占比的平台污染尺度）</td><td>❌ 仍漏报</td></tr><tr><td><code>MAD → IQR/1.349 → flat_floor</code>（<b>最终</b>）</td><td>平台型异常被正确判出</td><td>✅；<b>持续/大幅异常交给绝对阈值</b>（<code>abs_imb_strong=0.30</code>、<code>abs_vol_strong=400</code>）</td></tr></tbody></table>
+<h3>3.4 数据有效性掩码 <code>data_valid_mask</code>（必须项）</h3>
+<p>网格 <code>range(start, end, interval)</code> 的<b>预热段</b>（早于第一根快照）与<b>尾部陈旧段</b>（晚于最后一根）若留零值，会被读成"挂单量 = 0 的极端异常"。</p>
+<p>⇒ 只保留真实快照覆盖的格，其余置 <code>NaN</code> 并从统计中剔除。<b>修复效果</b>：07:30 窗口伪极值 <b>32 → 3</b>；<code>near_asks z=−17</code> 消失。</p>
+<h3>3.5 分级、形态、方向</h3>
+<ul><li><b>分级</b>：L1（score ≥3）/ L2（=2）/ L3（≤1）；弱序列（<code>imb_mid</code> / <code>imb_deep</code>）计分 −1 且<b>结构性不进 L1</b>。标定：2026-09-14 08:00–09:00 的 score 直方图 <code>{0:19, 1:195, 2:191, 3:21, ≥4:0}</code> ⇒ 若 L1 门槛设 ≥4 则<b>恒空</b>，故取 ≥3。</li><li><b>形态按时长</b>（比按 z 高低更贴合用途）：<code>duration_ms ≤ 750</code> ⇒ <code>spike</code>（插针），否则 <code>plateau</code>（平台）。</li><li><b>方向</b>（<code>event_direction</code>）：失衡类按峰符号；<code>near_bids</code> 异常放大 ⇒ 多 / <code>near_asks</code> ⇒ 空；<code>step</code> <b>加单按该侧、减单取反</b>；<code>flip</code> 看翻转方向；<code>vacuum</code> 买侧⇒空 / 卖侧⇒多。</li></ul>
+<h3>3.6 ★ 间隔归一（本轮发现并修复的口径缺陷）</h3>
+<p><b>现象</b>：同一 <code>step_vol=50</code> 在 500ms 网格上比 250ms 网格<b>更易被跨越</b>（相邻两格之间累积了 2 倍挂单流）⇒ L1 密度跨日不可比（实测 08-31 <b>26 条/窗口</b> vs 09-14 <b>1 条/窗口</b>）。</p>
+<p><b>修复</b>：<code>analyze_arrays</code> 内 <code>step_vol_eff = step_vol × grid_interval_ms / 250</code>（挂单量变化随时长近似线性累积），<b>评分与检出一致使用该有效阈值</b>，并在结果中回传 <code>step_vol_eff</code>。效果：7 天总事件 <b>30,421 → 11,084</b>、入表行 <b>23,521 → 6,669</b>。已写成 4 条契约测试（250ms 用基准值、500ms 阈值 ×2、大 Δ 仍触发、显式覆盖同样归一）。</p>
+<h2>4. 生产接入（四段式）</h2>
+<table><thead><tr><th>段</th><th>内容</th><th>关键纪律</th></tr></thead><tbody><tr><td>P1 检测库</td><td><code>dom_extremes.py</code>（纯计算，可内联复用）；哨兵 <code>dom_metrics['extreme']</code> 摘要</td><td><b>热路径不写库</b>：哨兵只写 ≈2.7KB JSON 摘要，随既有行落库 ⇒ 零 schema 变更、零写放大</td></tr><tr><td>P2 CLI</td><td><code>run_dom_extremes.py</code>（单窗口/整日 + 浅色 HTML + JSON）</td><td>只读</td></tr><tr><td>P3 验证</td><td><code>validate_dom_extremes.py</code>（事件 × 前向 15/30/60 分钟，多维度分层）</td><td>只读；基准率<b>逐日</b>（见 §5.3）</td></tr><tr><td>P4 落地</td><td>① <code>backfill_dom_extremes.py</code>（DDL + 幂等 UPSERT + dry-run/apply/<code>--replace</code>/可回滚）② <code>GET /data/dom_extremes</code> ③ <code>/bbt_signals</code> 卡片</td><td><b>不进决策</b>：卖家系统与信号引擎不读该表；卡片带免责声明</td></tr></tbody></table>
+<h3>4.1 幂等与回滚</h3>
+<ul><li>唯一键 <code>(event_date, ts_ms, kind, series, side)</code> + <code>INSERT … ON DUPLICATE KEY UPDATE</code>；</li></ul>
+<p><code>series</code> / <code>side</code> 取 <b>NOT NULL DEFAULT ''</b>（MySQL 中唯一键列含 NULL 可重复 ⇒ 幂等失效）。</p>
+<ul><li><b>实测幂等</b>：09-14 重复执行 → 行数 <b>525 → 525</b>（无新增）。</li><li><b>口径变更重建</b>：<code>--replace</code> 先删该批日期旧行再写（否则"被降级到门槛以下"的旧事件会残留）；<code>--revert-sql</code> 输出受影响主键的 <code>DELETE</code>（本次 6,669 条）。</li></ul>
+<h3>4.2 页面与接口</h3>
+<ul><li><code>GET /data/dom_extremes</code>：事件清单（含分组计数 <code>by_importance</code> / <code>by_kind</code> / <code>by_series</code>）+ <b>实时摘要</b> <code>live</code>（读最近一条 ES 信号的 <code>dom_metrics.extreme</code>）+ 免责声明。</li><li><code>/bbt_signals</code> 新增卡片「DOM 毫秒极值（250/500ms 快照级）」：级别筛选、跟随全局日期、只标注警示条；表头字段 = 时间 / 级别 / 类型 / 序列 / 方向 / 幅度 / z / 时长 / 形态·性质。</li></ul>
+<h2>5. 前向验证（P3）</h2>
+<h3>5.1 方法与口径</h3>
+<ul><li>事件时刻 → 之前最近一根 5 分钟 bar 为入场价（<b>无前视</b>），前向 15 / 30 / 60 分钟，命中 = 收盘价按事件方向变动 &gt; 0。</li><li>对照组 = 现网口径的 5 分钟均值信号（<code>imb_near</code> 均值符号，窗口结束触发），<b>同一套前向价格与时点口径</b>。</li><li>样本 = 7 个有 RTH DOM 数据的交易日（2026-08-31、09-04、09-07、09-08、09-10、09-11、09-14），入样事件 16,659 条。</li></ul>
+<h3>5.2 结论</h3>
+<p><b>入样事件 16,659 条样本（7 日 × 3 个前向）</b>，全部落在"无优势"区间：</p>
+<table><thead><tr><th>分组</th><th>15m 命中 / 基准 / edge</th><th>30m</th><th>60m</th></tr></thead><tbody><tr><td><b>全样本</b></td><td>48.3 / 49.7 / <b>−1.4</b></td><td>49.2 / 51.0 / <b>−1.8</b></td><td>49.3 / 50.0 / <b>−0.7</b></td></tr><tr><td>L1（最强级）</td><td>46.2 / 49.0 / −2.8</td><td>49.3 / 51.3 / −2.0</td><td>47.4 / 49.9 / −2.5</td></tr><tr><td>对照组（现网 5 分钟均值）</td><td>48.9 / 50.3 / −1.4</td><td>42.5 / 49.2 / <b>−6.7</b></td><td>48.3 / 50.1 / −1.8</td></tr><tr><td><code>outlier</code> \</td><td>z\</td><td>≥6</td><td>45.4 / 48.9 / −3.5</td><td>50.6 / 52.7 / −2.1</td><td>48.0 / 50.1 / −2.1</td></tr><tr><td><code>step</code> \</td><td>Δ\</td><td>≥200</td><td>49.2 / 49.8 / −0.6</td><td>49.1 / 50.0 / −0.9</td><td>50.1 / 49.9 / +0.2</td></tr><tr><td>共振（outlier+step ≤2s）</td><td>47.5 / 49.1 / −1.6</td><td>49.2 / 51.3 / −2.1</td><td>49.4 / 49.8 / −0.4</td></tr><tr><td>买盘侧 <code>near_bids</code>（n 最大）</td><td>50.0 / 50.0 / 0.0</td><td>47.6 / 48.5 / −0.9</td><td>49.6 / 49.8 / −0.2</td></tr><tr><td>被成交 <code>consumed</code></td><td>49.7 / 50.2 / −0.5</td><td>48.6 / 50.0 / −1.4</td><td>50.2 / 50.1 / +0.1</td></tr><tr><td>真撤单 <code>cancelled</code>（n=354）</td><td>48.7 / 49.4 / −0.7</td><td>48.6 / 49.6 / −1.0</td><td>50.6 / 49.9 / +0.7</td></tr><tr><td>★ 候选子集（outlier·imb/w_imb）</td><td>43.7 / 47.8 / −4.1</td><td>50.1 / 54.3 / −4.2</td><td>45.6 / 49.8 / −4.2</td></tr></tbody></table>
+<ul><li><b>多空两侧一致地"无优势"</b>：BEARISH −2.5 / −3.0 / +1.7（n=2006/3807/3807）、BULLISH −0.1 / 0.0 / −4.1（n=1613/2713/2713）⇒ 不是"只对某一侧有效"。</li><li><b>强度不单调</b>：<code>|z|≥6</code> 的 edge（−3.5 / −2.1 / −2.1）<b>并不比</b> 3.5≤|z|&lt;4（−0.4 / −3.5 / −4.1）更好 ⇒ "越极端越有效"<b>不成立</b>。</li><li>唯一正 edge 出现在 <code>imb_deep</code>（+8.2 / +11.4 / +4.2），但 <b>n 仅 22–29 条</b>，属噪声量级，<b>不作为结论</b>。</li><li>对照组（现网 5 分钟均值口径）同样是 −1.4 ~ −6.7 ⇒ 该时段 ES 的 06:35–11:30 形态<b>对这批微观信号整体不利</b>，而非毫秒极值独有。</li></ul>
+<p><b>判定</b>：毫秒极值<b>是真实的</b>（数值/时刻可复现、与均值口径差 8–76 倍），但<b>不是方向性预测因子</b>。二者不矛盾 —— 它度量的是"盘口瞬时结构发生了剧烈变化"，而不是"价格接下来会往哪边走"。因此：</p>
+<ul><li>✅ 允许：标注、复盘归因（解释"为什么 5 分钟均值是 +0.007 而实际瞬时失衡 −0.53"）、事后审计（如 08:41:43 的 +0.36 出现在那笔止损单入场前 7 秒）。</li><li>❌ 禁止：作为开仓/平仓/方向判定依据；卖家系统与信号引擎<b>不读</b>该表。</li></ul>
+<h3>5.3 统计方法两次修正（<b>必须记录</b>，否则会得出相反的结论）</h3>
+<table><thead><tr><th>#</th><th>缺陷</th><th>表现</th><th>修复</th></tr></thead><tbody><tr><td>1</td><td>基准率<b>跨日取算术平均</b>后套到所有行</td><td>单边日基准极端（08-31 上行占比 98%）⇒ 出现「BEARISH 基准 1.9% / BULLISH 基准 98.1%」这种与事实无关的极端值，进而造出 <b>±50pp 的假 edge</b></td><td>基准率<b>逐日</b>计算并<b>逐行</b>取用（<code>base_per_day</code> 落档；报告新增 M 板块诊断）</td></tr><tr><td>2</td><td><code>_base_up_pct</code> 误用 <code>f[2]</code>（Δ 数值，"有变动即真"）</td><td>基准率恒 ≈93–100%，"趋势日假优势"控制<b>完全失效</b></td><td>改用 <code>f[3]</code>（方向命中布尔）；已加回归测试（单调下行 ⇒ 0%、单调上行 ⇒ 100%、锯齿 ⇒ 中间值）</td></tr></tbody></table>
+<blockquote>这两处都不是"实现细节"：修复前任何一个子集都能被算成"edge +20 ~ +50pp"。它们是本模块<b>唯一</b>可能让人误以为毫秒极值可交易的原因。</blockquote>
+<h3>5.4 数据覆盖事实（据实登记，非本模块引入）</h3>
+<table><thead><tr><th>日期</th><th>RTH DOM 可用性</th></tr></thead><tbody><tr><td>08-31 / 09-04 / 09-08 / 09-10 / 09-14</td><td>✅ 完整（60 窗口）</td></tr><tr><td>09-07</td><td>⚠️ 部分（23/60 窗口）</td></tr><tr><td>09-11</td><td>⚠️ 部分（4/60 窗口，gzip 流中段损坏，可读前缀有限）</td></tr><tr><td>09-01 / 09-02 / 09-06</td><td>❌ gzip 流损坏（首行即 <code>invalid block type</code>）</td></tr><tr><td>09-03 / 09-09</td><td>⚠️ 仅有 17:00–21:00 PT 夜盘数据 ⇒ RTH 窗口无快照</td></tr><tr><td>09-13</td><td>⚠️ 有文件但无 RTH 时间索引</td></tr><tr><td>08-31</td><td>⚠️ 当日 <code>order_flow_signals</code> 仅 <b>23</b> 根 5 分钟价点（前向统计样本薄）</td></tr></tbody></table>
+<h2>6. 验证清单（全部实跑）</h2>
+<table><thead><tr><th>项</th><th>命令 / 方式</th><th>结果</th></tr></thead><tbody><tr><td>检测库契约测试</td><td><code>/usr/local/bin/python3 PyTools/order_flow_analysis/test_dom_extremes.py</code></td><td><b>59 条 PASS</b>（1 条 live 用例默认跳过）</td></tr><tr><td>网格自适应</td><td><code>test_dom_interval_adaptive.py</code></td><td><b>19/19 PASS</b></td></tr><tr><td>哨兵回归（重构未改口径）</td><td><code>/tmp/domex/verify_after_extreme.py</code></td><td>3 个窗口（07:35 / 08:15 / 10:00）<b>除新增 <code>extreme</code> 键外逐键不变</b> ⇒ PASS</td></tr><tr><td>CLI 报告</td><td><code>run_dom_extremes.py --date 2026-09-14 --at 08:15 --json …</code></td><td>报告 + JSON 生成；窗口 08:10–08:15：L1=12 / L2=41 / L3=40</td></tr><tr><td>回填 dry-run / apply / 幂等</td><td><code>backfill_dom_extremes.py --dates … [--apply] [--replace]</code></td><td>6,669 行入表；重复执行行数不变（525→525）</td></tr><tr><td>表结构</td><td><code>SHOW CREATE TABLE order_flow_dom_extremes</code></td><td>唯一键 <code>uq_dom_extreme_event</code> 生效（<code>series</code>/<code>side</code> NOT NULL DEFAULT ''）</td></tr><tr><td>API</td><td><code>curl '…/data/dom_extremes?date=2026-08-31&amp;min_importance=L1&amp;limit=2'</code></td><td><code>ok:true</code>，L1 1122 条、分组计数与免责声明齐备</td></tr><tr><td>页面卡片</td><td><code>curl '…/bbt_signals?date=2026-09-14'</code> + <code>node --check</code>（两段内联脚本）</td><td>卡片/占位/日期钩子就位，<b>JS 语法通过</b></td></tr></tbody></table>
+<h2>7. 已知限制与后续（据实）</h2>
+<ol><li><b>无方向优势</b>（主结论）：毫秒极值不能进决策；已按"只标注"落位。</li><li><b>L1 密度仍随日波动</b>（08-31: 19 条/窗口；09-14: 0.75 条/窗口）—— 间隔归一解决了 250/500ms 之间的可比性，但<b>日内活跃度</b>差异仍在。若要让 L1 成为"每日最强 N 条"，需引入<b>活跃度自适应阈值</b>（例如按当日网格 Δ 的稳健尺度定标）或<b>当日分位</b>分级（注意分位法有轻微前视，需用盘中滚动分位替代）。</li><li><b>08-31 价点仅 23 根</b>：该日基准率与 edge 置信度低，已在报告 M 板块暴露；</li><li><b>部分交易日原始 DOM 损坏</b>（§5.4）：回填对不可读日期跳过并如实报 <code>no_snapshots</code>，不做插补；</li><li><b><code>order_flow_signals</code> ES 价格异常</b>（2026-09-14 比同日 <code>spx_gamma_signals</code> SPOT 高约 75 点）为既有数据问题，待另行复核；方向性研究不受绝对价位影响，但不可用于跨品种价格比较。</li></ol>
+<h2>8. 回滚方法</h2>
+<pre># ① 表数据：用回滚 SQL 清掉本次写入的行
+mysql bb_trade &lt; /tmp/domex/revert_dom_extremes_v2.sql          # 6,669 条 DELETE（--replace 曾删过旧行时需重跑回填）
+# ② 代码：两个仓库各自 checkout
+cd ~/Documents/Workplace/PycharmProjects/BBTrading/PyTools &amp;&amp; git checkout -- \
+   order_flow_analysis/dom_sentinel_evaluator.py order_flow_analysis/order_flow_config.py
+rm -f order_flow_analysis/{dom_extremes,run_dom_extremes,validate_dom_extremes,backfill_dom_extremes,test_dom_extremes}.py
+cd ../bbt_data_web &amp;&amp; git checkout -- data_app/bbt_signals.py templates/bbt_signals.html models.py
+# ③ 哨兵内的 extreme 摘要若需一并去掉：回滚 dom_sentinel_evaluator.py 即失效（键随代码生成）</pre>
+<blockquote>说明：<code>order_flow_dom_extremes</code> 为<b>本模块新增表</b>，删除该表即可完全清除数据侧影响；哨兵摘要写在既有 <code>dom_metrics</code> JSON 列内，回滚代码后新行不再产生 <code>extreme</code> 键，旧行保留历史（对下游只增不减、无消费方）。</blockquote></div></div></body></html>

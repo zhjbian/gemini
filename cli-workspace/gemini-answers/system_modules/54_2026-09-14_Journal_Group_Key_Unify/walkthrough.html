@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Walkthrough · 账本「订单组合」分组键统一</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#4338ca; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.65;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1160px; margin:0 auto; padding:24px 22px 56px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 6px; color:#0f172a; }
+  h2 { font-size:1.06rem; margin:22px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.94rem; margin:16px 0 6px; color:#334155; }
+  .sub { color:var(--muted); font-size:0.84rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:8px 0 4px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.82em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  .ok { color:#047857; font-weight:700; }
+  .bad { color:#b91c1c; font-weight:700; }
+  ul { margin:6px 0 6px 18px; padding:0; }
+  li { margin:3px 0; font-size:0.86rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <h1>账本「订单组合」分组键统一 · 验收报告</h1>
+    <div class="sub">2026-09-14 · 归档 <code>54_2026-09-14_Journal_Group_Key_Unify</code></div>
+    <p style="font-size:0.86rem;margin:12px 0 0;">
+      用户报障：<b>「过滤结果里 #11 #12 是一个单，但没有显示在自己的组里」</b> ——
+      同一次开仓的两批各自单独成行、<b>无组头</b>，批次徽标退化成「单批次」。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. 根因：三处分组「键」口径不一致</h2>
+    <p style="font-size:0.86rem;">
+      <code>group_order_id</code> 是开仓路径写入 <code>entry_evidence</code> 的<b>同组共享键</b>（DRY 与 LIVE 皆然）；
+      <b>仪表盘「活跃持仓」早已用它</b>，但账本与 TV 生成器只看三个启发式：
+    </p>
+    <table>
+      <tr><th style="width:22%;">位置</th><th>旧口径</th><th style="width:10%;">结果</th></tr>
+      <tr><td><b>账本</b> <code>renderHistoryTable()</code></td><td><code>order_id</code> 基名 → DRY 时间戳 → 同 strikes 且开仓 ≤ <b>3 s</b></td><td class="bad">✗</td></tr>
+      <tr><td><b>TV 生成器</b></td><td>同上（少 DRY 分支）</td><td class="bad">✗</td></tr>
+      <tr><td>仪表盘「活跃持仓」</td><td><code>group_order_id → order_id 基名 → open_time+strikes</code></td><td class="ok">✓</td></tr>
+    </table>
+    <p style="font-size:0.86rem;">
+      <b>LIVE 场景必然落空</b>：两批各自持有<b>独立券商 order_id</b>（实测 <code>1007916750080</code> / <code>1007916750091</code>，无 <code>-1/-2</code> 后缀），
+      开仓时间又差 <b>4 秒</b>（09:33:29 / 09:33:33 = 4 s &gt; 3 s 阈值）⇒ 三条启发式全不命中
+      ⇒ 同一次开仓被拆成<b>两个「单成员组」</b> ⇒ <code>isTwinGroup=false</code> ⇒ <b>组头不渲染</b>。
+      （DRY 单因 order_id 形如 <code>DRY-&lt;ts&gt;-1/-2</code> 基名相同而侥幸正常 —— 缺陷长期未被发现的原因。）
+    </p>
+    <h3>真实数据佐证（只读）</h3>
+    <pre>id 244  order_id 1007916750080  open 09:33:29  T1  764/766  group_order_id = DRY-1789403609
+id 245  order_id 1007916750091  open 09:33:33  T2  764/766  group_order_id = DRY-1789403609   ← 同键</pre>
+  </div>
+
+  <div class="card">
+    <h2>2. 修复（三处统一，权威键优先）</h2>
+    <pre>// 账本 renderHistoryTable()
+const tAuthKey = t.group_order_id || (t.entry_evidence &amp;&amp; t.entry_evidence.group_order_id) || null;
+const authGrpKey = tAuthKey ? ('GRP:' + tAuthKey) : null;
+let matchedGrpKey = (authGrpKey &amp;&amp; groupsMap.has(authGrpKey)) ? authGrpKey : null;
+…
+for (const [existingKey, existingTrades] of (matchedGrpKey ? [] : groupsMap.entries())) { …既有启发式… }
+const grpKey = matchedGrpKey || authGrpKey || tOidBase || `${t.open_time}_…`;</pre>
+    <ul>
+      <li><b>命中权威键即跳过启发式</b>（<code>? [] : …</code>）⇒ 既快又不会被错误并入别组；</li>
+      <li><b>无键历史行</b>仍走原启发式 —— 行为与改造前逐行一致（测试锁定）；</li>
+      <li><code>GRP:</code> 前缀避免与 <code>order_id</code> 基名空间冲突；单批仍自成一组（<b>不误合并</b>）；</li>
+      <li>后端 <code>/api/option_seller/trades_by_date</code> payload 同时补回 <code>group_order_id</code>（与持仓序列化同口径）；</li>
+      <li>TV 生成器同口径 ⇒ Pine 里的「订单组合」编号与账本/仪表盘<b>完全一致</b>（副带修正模块 53 的组标签）。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. 验收证据</h2>
+    <table>
+      <tr><th style="width:34%;">项</th><th>结果</th></tr>
+      <tr><td>新增契约测试 <code>test_journal_group_key.py</code></td><td class="ok">12/12 通过（模板 / 接口 / 生成器 / 真实数据不变量）</td></tr>
+      <tr><td>实渲染（headless Chrome）</td><td class="ok">10 个组头 × 每组 2 批 = 20 行；报障两批同组 <code>订单-6 (1组2手)</code>；渲染表内「单批次」<b>0</b></td></tr>
+      <tr><td>接口实调</td><td class="ok">20 笔交易 20 笔带 <code>group_order_id</code>；244/245 同键</td></tr>
+      <tr><td>TV 生成器组数</td><td class="ok">11 → <b>10</b>（== DB 权威键去重数）</td></tr>
+      <tr><td>无回归（5 套件）</td><td class="ok">12/12 · 9/9 · 8/8 · 9/9 · 11/11 全绿</td></tr>
+      <tr><td>语法</td><td class="ok"><code>py_compile</code> ×2 + <code>node --check</code>（模板 JS 246,675 字符）通过</td></tr>
+      <tr><td>回退脚本（副本实测）</td><td class="ok">5/5 锚点命中 · 残留标识 0 · 快照 3 份 · 编译/语法校验通过 · 线上未受影响</td></tr>
+    </table>
+
+    <h3>3.1 修复前后对照</h3>
+    <table>
+      <tr><th>指标</th><th>修复前</th><th>修复后</th></tr>
+      <tr><td>组头行</td><td>10（其中两个「单成员组」<b>无组头</b>）</td><td class="ok">10 个组头 × 2 批 ✓</td></tr>
+      <tr><td>报障两批</td><td>各自单行 · 徽标「单批次」</td><td class="ok">同组 <code>订单-6 (1组2手)</code> · 第1/2批 ✓</td></tr>
+      <tr><td>TV 订单组合编号</td><td>11 组（244/245 拆开）</td><td class="ok">10 组，三处一致 ✓</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. 用户侧操作 &amp; 回滚</h2>
+    <ol style="font-size:0.86rem;">
+      <li><b>硬刷新页面（⌘⇧R）</b> ⇒ 账本应显示 10 个「订单-N」组头、每组 2 批；</li>
+      <li>后端 <code>.py</code> 已由 Flask debug-reloader 自动重载（接口已实测返回新字段），无需重启服务；</li>
+      <li>若之前导出过 TV 指标，建议<b>重新生成</b>（组编号与账本现已一致）。</li>
+    </ol>
+    <pre># 回退（无 VCS 兜底）：先 dry-run 看锚点，再实跑（自动留 .bak + 编译/语法校验）
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/54_2026-09-14_Journal_Group_Key_Unify/revert_module_54.py --dry-run
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/54_2026-09-14_Journal_Group_Key_Unify/revert_module_54.py
+# 或恢复快照： *.bak-20260914_202239（模板 / 后端 / 生成器 三份）</pre>
+    <p class="sub">注：本仓库不跟踪 <code>bbt_data_web/</code> 与 <code>PyTools/</code>（<code>git ls-files</code> 仅 2 个文件）⇒ 回退一律走归档脚本 / 就地 <code>.bak</code> 快照。</p>
+  </div>
+
+</div>
+</body>
+</html>

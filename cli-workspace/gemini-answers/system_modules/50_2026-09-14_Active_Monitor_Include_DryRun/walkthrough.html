@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 活跃持仓监控纳入 DRY-RUN 单（跨进程持仓重同步）</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header style="padding:28px 32px 20px;background:#ffffff;border-bottom:1px solid var(--line);">
+<h1>卖家系统：活跃持仓监控纳入 DRY-RUN 单（跨进程持仓重同步）验收报告</h1>
+<div class="meta"><span>2026-09-14</span><span>Option Seller · 活跃持仓监控</span>
+<span>模块归档 50</span><span>Light Theme</span></div>
+</header>
+<div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#1.-结论先行">1. 结论先行</a></li><li><a href="#2.-根因-完整链路-均有证据">2. 根因（完整链路，均有证据）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.1-关键反证-意外却有力的证据">2.1 关键反证（意外却有力的证据）</a></li><li><a href="#3.-修复内容">3. 修复内容</a></li><li><a href="#4.-验证证据">4. 验证证据</a></li><li style="margin-left:20px;list-style:none"><a href="#4.1-重启后即时可见-含-DRY">4.1 重启后即时可见（含 DRY）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.2-周期性重同步按-10s-节流生效">4.2 周期性重同步按 10s 节流生效</a></li><li style="margin-left:20px;list-style:none"><a href="#4.3-DRY-单-确实在被管理-标记随行情推进">4.3 DRY 单**确实在被管理**（标记随行情推进）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.4-页面渲染-headless-Chrome-截图核对">4.4 页面渲染（headless Chrome 截图核对）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.5-回归与安全">4.5 回归与安全</a></li><li style="margin-left:20px;list-style:none"><a href="#4.6-追加-模式标识加强-页面缓存治理-用户第二次反馈">4.6 追加：模式标识加强 + 页面缓存治理（用户第二次反馈）</a></li><li style="margin-left:20px;list-style:none"><a href="#4.7-一次自伤与修复-记录在案-加强编辑误伤-待触发条件单-卡片">4.7 一次自伤与修复（记录在案）：加强编辑误伤「待触发条件单」卡片</a></li><li style="margin-left:20px;list-style:none"><a href="#4.8-修复后的生产实证-DRY-单被完整闭环管理">4.8 修复后的生产实证（DRY 单被完整闭环管理）</a></li><li><a href="#5.-回滚">5. 回滚</a></li><li><a href="#6.-遗留与后续建议">6. 遗留与后续建议</a></li></ul></div>
+<section class="main-content">
+<h1 id="卖家系统-活跃持仓监控纳入-DRY-RUN-单-跨进程持仓重同步-验收报告">卖家系统：活跃持仓监控纳入 DRY-RUN 单（跨进程持仓重同步）验收报告</h1>
+<ul><li><strong>日期</strong>：2026-09-14</li><li><strong>模块</strong>：Option Seller 仪表盘「活跃持仓监控 (Active Spread Monitor)」+ 10 秒风控守护线程的持仓来源</li><li><strong>归档目录</strong>：<code>50_2026-09-14_Active_Monitor_Include_DryRun</code></li><li><strong>技术栈</strong>：Python 3.11 / Flask API + Jinja2（bbt_data_web，127.0.0.1:5005）/ MySQL <code>bb_trade</code> / 线程安全（dict 原子替换）/ headless Chrome 截图与 DOM 核对</li></ul>
+<h2 id="1.-结论先行">1. 结论先行</h2>
+<table><thead><tr><th>用户观察</th><th>结论</th></tr></thead><tbody><tr><td>流水账本 4 笔 <code>OPEN</code>（模式 = <code>DRY</code>）未平仓</td><td>事实：DB 中 <code>status='OPEN'</code>，<code>is_dry_run=1</code></td></tr><tr><td><strong>TOS 里没有</strong></td><td>✅ <strong>正常</strong>：DRY-RUN 不发券商、无真实成交（Force Dry 触发命中的「平衡日边界」）；另外两笔 LIVE（QuantPivot）已于 08:44 止损平仓（各 −$14），故 TOS 此刻本就没有持仓</td></tr><tr><td><strong>监控区显示「当前无未平仓价差」</strong></td><td>❌ <strong>缺陷（已修）</strong>：仪表盘只在<strong>进程启动时</strong>读一次 DB，自动单由<strong>一次性子进程</strong>开出 ⇒ 内存里根本没有这些单（<strong>LIVE 与 DRY-RUN 一视同仁</strong>）</td></tr><tr><td>用户要求</td><td>监控区<strong>同时显示 LIVE 与 DRY-RUN</strong> ⇒ 已交付：跨进程 10s 重同步 + <code>LIVE n</code> / <code>DRY-RUN n</code> 计数徽标 + 卡片 <code>LIVE</code> / <code>DRY-RUN</code> 徽标</td></tr></tbody></table>
+<h2 id="2.-根因-完整链路-均有证据">2. 根因（完整链路，均有证据）</h2>
+<ol><li><strong>开单方 = 短命子进程</strong>：<code>daily_jobs → comprehensive_signals_job.py → order_flow_sentinel.py</code>，后者在 <code>:731</code> 处 <code>OptionSellerManager.get_instance()</code> 开单落库后<strong>立即退出</strong>。</li><li><strong>管理方 = 仪表盘进程</strong>：全仓<strong>唯一</strong>启动 10 秒监控线程的位置是 <code>bbt_data_app.py:139 seller_manager.start_monitor()</code>。</li><li><strong>同步缺口</strong>：<code>_reload_active_trades()</code> 全仓<strong>唯一调用点</strong>是 manager <code>__init__</code> ⇒ 进程启动后<strong>永不重读 DB</strong>。</li><li><strong>「立即刷新持仓」不解决</strong>：<code>refresh_active_positions_now()</code> 只对<strong>内存里已有</strong>的持仓重算标记，<strong>不读库</strong>。</li><li>⇒ 后果：监控区看不到子进程开的单；<strong>DRY-RUN 单更严重</strong> —— 它没有券商侧止盈/止损单，只有内存里的监控线程能平仓，所以<strong>只要进程不重启就永远无人管理</strong>。</li></ol>
+<h3 id="2.1-关键反证-意外却有力的证据">2.1 关键反证（意外却有力的证据）</h3>
+<p>修复过程中的日志显示：DRY 单此前<strong>仅在 Flask 进程重启后</strong>才被管理 ——</p>
+<pre><code>
+08:52:44  OptionSellerManager background monitor thread started.        ← Flask 重启（编辑触发 reloader）
+08:52:44  OptionSellerManager reloaded 4 active trades.                  ← 此时才把 4 笔 DRY 单读进内存
+08:54:37  OptionSellerManager background monitor thread started.
+08:54:37  OptionSellerManager reloaded 4 active trades (LIVE 0 / DRY-RUN 4).
+08:54:38  Trade #235 CLOSED (CLOSED_STOP_LOSS) @ 0.34 (Credit=0.15) Realized PnL=$-19.0   ← 重启后的监控线程才止损
+08:54:39  Trade #234 CLOSED (CLOSED_STOP_LOSS) @ 0.34 (Credit=0.15) Realized PnL=$-19.0
+</code></pre>
+<p>即：08:35 开出的 DRY 单，直到 <strong>08:54 的进程重启</strong>才被风控看到并止损（mark 0.34 ≈ 2.27× 权利金）；<strong>没有重启就不会被管理</strong>。这正是本次修复要消除的依赖。</p>
+<h2 id="3.-修复内容">3. 修复内容</h2>
+<table><thead><tr><th>层</th><th>文件</th><th>改动</th></tr></thead><tbody><tr><td>同步</td><td><code>PyTools/option_seller/option_seller_manager.py</code></td><td>新增 <code>TRADE_RESYNC_INTERVAL_SEC = 10.0</code> 与 <code>_resync_active_trades(force=False)</code>（节流重载）</td></tr><tr><td>接线</td><td>同上</td><td><code>_monitor_loop</code> 第 0.5 步接入重同步（时段截断后、条件单评估前）：<strong>与 10s 风控同频</strong> ⇒ 读到即被管理</td></tr><tr><td>按钮</td><td>同上</td><td><code>refresh_active_positions_now()</code> 先 <code>_resync_active_trades(force=True)</code> ⇒ 「立即刷新持仓」真正从 DB 刷新</td></tr><tr><td>线程安全</td><td>同上</td><td><code>_reload_active_trades()</code> 由 <code>clear()</code> + 逐条填 → <strong>先建新表再原子替换</strong>，失败保留旧表；日志补 <code>LIVE x / DRY-RUN y</code> 计数</td></tr><tr><td>页面</td><td><code>bbt_data_web/templates/bbt_option_seller.html</code></td><td>区块标题加 <code>LIVE n</code> / <code>DRY-RUN n</code> 计数徽标；持仓卡片加 <code>💵 LIVE</code> / <code>🧪 DRY-RUN</code> 徽标（含 title 说明）；空态文案说明两类一并显示</td></tr></tbody></table>
+<h2 id="4.-验证证据">4. 验证证据</h2>
+<h3 id="4.1-重启后即时可见-含-DRY">4.1 重启后即时可见（含 DRY）</h3>
+<pre><code>
+status?force_refresh=true →
+  active_positions_count: 2
+  id=237 dry=True mark=0.17 upnl=-6.0 buf=28.00%
+  id=236 dry=True mark=0.17 upnl=-6.0 buf=28.00%
+</code></pre>
+<h3 id="4.2-周期性重同步按-10s-节流生效">4.2 周期性重同步按 10s 节流生效</h3>
+<pre><code>
+09:00:42  reloaded 2 active trades (LIVE 0 / DRY-RUN 2)
+09:00:31  reloaded 2 active trades (LIVE 0 / DRY-RUN 2)
+09:00:15  reloaded 2 active trades (LIVE 0 / DRY-RUN 2)
+08:59:59  reloaded 2 active trades (LIVE 0 / DRY-RUN 2)
+08:59:43  reloaded 2 active trades (LIVE 0 / DRY-RUN 2)
+</code></pre>
+<p>（间隔 10–16s = 10s 节流 ∧ 8s 监控周期对齐；日志含 LIVE/DRY 分类计数，便于日后核查）</p>
+<h3 id="4.3-DRY-单-确实在被管理-标记随行情推进">4.3 DRY 单<strong>确实在被管理</strong>（标记随行情推进）</h3>
+<pre><code>
+08:57:57  id=236/237 current_mark=0.17  last_modified=08:57:57   ← force_refresh 写入
+08:58:48  id=236/237 current_mark=0.15  last_modified=08:58:48   ← 10s 监控循环自行刷新（此前长期冻结在开仓值 0.11/0.15）
+</code></pre>
+<p>⇒ 修复前 <code>last_modified</code> 长期等于开仓时间；修复后每 ~10s 随实时报价更新。</p>
+<h3 id="4.4-页面渲染-headless-Chrome-截图核对">4.4 页面渲染（headless Chrome 截图核对）</h3>
+<ul><li>区块标题：<code>活跃持仓监控 (Active Spread Monitor)</code> + <strong><code>LIVE 0</code></strong> + <strong><code>DRY-RUN 2</code></strong> 计数徽标</li><li>卡片：<code>自动 · 平衡日边界 · 🧪 DRY-RUN · BEAR_CALL_SPREAD · 8DTE · 平衡</code>，含安全垫缓冲、当前买回价、止盈/止损徽标</li><li>顶部指标「活跃持仓数 = 2」与监控区一致</li></ul>
+<h3 id="4.5-回归与安全">4.5 回归与安全</h3>
+<table><thead><tr><th>检查</th><th>结果</th></tr></thead><tbody><tr><td><code>py_compile</code>（manager / web app）</td><td>OK</td></tr><tr><td>模板内联 JS <code>node --check</code></td><td>OK</td></tr><tr><td>手册 HTML 结构</td><td>errors = <strong>0</strong></td></tr><tr><td>HTTP</td><td><code>/bbt_option_seller</code> 200 · <code>/api/option_seller/status</code> 200</td></tr><tr><td>DB 写入</td><td>仅监控线程自身的标记/平仓写入（原行为）；无额外写入</td></tr><tr><td>竞态</td><td>原子替换后，无锁遍历 <code>self.active_trades.values()</code> 的状态接口不再可能触发 <em>dictionary changed size during iteration</em></td></tr></tbody></table>
+<h3 id="4.6-追加-模式标识加强-页面缓存治理-用户第二次反馈">4.6 追加：模式标识加强 + 页面缓存治理（用户第二次反馈）</h3>
+<p>用户在看到第一版后反馈「需要标识出是 LIVE 还是 DRY RUN」——排查发现<strong>服务端已带徽标但其浏览器渲染的是缓存的旧 HTML</strong>（本页全部交互逻辑都是模板内联 JS，旧 HTML ⇒ 新功能看不见，而 4 秒轮询拿到的却是新数据，极易误判为「功能没生效」）。据此做两项加强：</p>
+<p><strong>（a）把模式标识做成「不可能看漏」</strong></p>
+<table><thead><tr><th>位置</th><th>标识</th></tr></thead><tbody><tr><td>区块标题</td><td><code>活跃持仓监控 (Active Spread Monitor)</code> + <code>LIVE n</code> / <code>DRY-RUN n</code> <strong>计数徽标</strong></td></tr><tr><td>组头（<code>开仓-1 (双批次 · 1组 · 2手)</code> 行）</td><td><strong><code>🧪 DRY-RUN（试运行）</code></strong>（琥珀虚线 chip）/ <code>💵 LIVE（实盘）</code>（浅绿 chip）；同组混杂时显式标 <code>⚠ 混合 x LIVE / y DRY</code>（不误导为单一模式）</td></tr><tr><td>持仓卡片</td><td>模式徽标<strong>提到第一位</strong>（在「自动 / 机制名」之前）；DRY 卡片另加<strong>琥珀虚线外框 + 米色底</strong>（<code>.pos-card-dry</code>，保留左侧多空实心色条）</td></tr><tr><td>顶部指标「活跃持仓数」</td><td>副行拆分为 <code>活跃 N 手（LIVE x · DRY-RUN y）</code></td></tr></tbody></table>
+<p><strong>（b）页面改为不缓存（根治误判）</strong>：<code>/bbt_option_seller</code> 路由显式回 <code>Cache-Control: no-store, no-cache, must-revalidate, max-age=0</code> + <code>Pragma: no-cache</code> + <code>Expires: 0</code>，避免「改了模板但页面没变」再次发生。</p>
+<p><strong>复测</strong>（headless Chrome 实渲染）：区块标题 <code>LIVE 0</code> / <code>DRY-RUN 2</code>；组头 <code>🧪 DRY-RUN（试运行）</code>；卡片首个徽标 <code>🧪 DRY-RUN（试运行）</code> + 虚线琥珀框；指标副行 <code>活跃 2 手（LIVE 0 · DRY-RUN 2）</code>；响应头实测含 <code>Cache-Control: no-store…</code>；<code>py_compile</code> / <code>node --check</code> 通过。</p>
+<h3 id="4.7-一次自伤与修复-记录在案-加强编辑误伤-待触发条件单-卡片">4.7 一次自伤与修复（记录在案）：加强编辑误伤「待触发条件单」卡片</h3>
+<p>用户随后报障：<strong>「今日交易流水账本」与「待触发条件单监控」两张卡片变空</strong>（后端明明有 6 笔交易、1 张挂起条件单）。</p>
+<p><strong>根因（我的回归）</strong>：在做 4.6 的「模式徽标前置 + DRY 卡片虚线框」时，用脚本按字符串匹配替换卡片容器，把它同时套到了<strong>待触发条件单卡片</strong>上 —— 该处循环变量是 <code>o</code>（条件单对象），却引用了持仓对象变量 <code>p</code>：</p>
+<pre><code>
+// 误改（条件单卡片，变量是 o）
+&lt;div class=&quot;pos-card ${borderClass} ${p.is_dry_run ? &#x27;pos-card-dry&#x27; : &#x27;pos-card-live&#x27;}&quot; ...&gt;
+</code></pre>
+<p>⇒ 第一张条件单渲染时抛 <code>ReferenceError: p is not defined</code>（<code>renderDashboard:4528</code>），被外层静默捕获 ⇒ <code>renderDashboard</code> <strong>中断在条件单渲染处</strong>，其后的「条件单容器 innerHTML 赋值」「账本 <code>__currentRawTrades = data.today_history</code> + <code>applyJournalFilterAndRender()</code>」<strong>全部没有执行</strong>，于是两张卡停留在模板里的静态空态文案。这也解释了为何 <code>pendingCondBadge</code> 显示「1 单挂起」（该行在抛错之前）而列表却是空态。</p>
+<p><strong>定位方法</strong>（值得复用）：注入脚本包一层 <code>window.renderDashboard</code> 捕获异常与堆栈写入 <code>journalTitleText</code>，得到 <code>RENDER-ERR: p is not defined ← at …:4528 ← at Array.forEach ← renderDashboard:4457</code>。</p>
+<p><strong>修复</strong>：把条件单卡片还原为 <code>&lt;div class="pos-card ${borderClass}" …&gt;</code>（模式徽标只属于「活跃持仓监控」的持仓卡片）。</p>
+<p><strong>复测</strong>：账本 <code>historyTableBody</code> 9 行（3 组 × 组头 + 两批次，含 <code>订单-3 (1组2手) 组合状态: 双批止损 合计盈亏: $-28.00</code>），空态文案消失；条件单卡渲染出 <code>SPX ≥ 7639.00 (现价 …)</code>；<code>window.__currentRawTrades.length = 6</code>（注入探针实测）；<code>renderDashboard</code> 不再抛错。</p>
+<p><strong>教训</strong>：同一模板里存在<strong>多个形如 <code>&lt;div class="pos-card ${borderClass}"&gt;</code> 的字面量</strong>（持仓卡片用 <code>p</code>、条件单卡片用 <code>o</code>）—— 批量字符串替换必须<strong>带上下文锚点</strong>（例如连同 <code>${o.trigger_symbol}</code> 一起匹配），并在替换后跑一次<strong>真实渲染断言</strong>（本次若在改完立刻跑探针即可当场发现）。</p>
+<h3 id="4.8-修复后的生产实证-DRY-单被完整闭环管理">4.8 修复后的生产实证（DRY 单被完整闭环管理）</h3>
+<p>修复生效后，两笔在管 DRY 单由 10 秒监控线程<strong>在无任何进程重启的情况下</strong>完整管理至平仓：</p>
+<pre><code>
+09:18:27  Trade #236 CLOSED (CLOSED_STOP_LOSS) @ 0.24 (Credit=0.11) Realized PnL=$-13.0
+09:18:27  Trade #237 CLOSED (CLOSED_STOP_LOSS) @ 0.24 (Credit=0.11) Realized PnL=$-13.0
+</code></pre>
+<p>平仓价 0.24 正好等于配置的硬止损 <code>2.2 × 0.11</code>，且此前已连续观测到其 <code>current_mark</code> 随实时报价变化（0.11 → 0.15 → 0.17 → 0.24）——<strong>证明重同步 + 监控对 DRY-RUN 单已形成完整闭环</strong>（对比修复前：08:35 开出的 DRY 单必须等到 08:54 的进程重启才被止损）。</p>
+<h2 id="5.-回滚">5. 回滚</h2>
+<ul><li>术前副本：<code>/tmp/bbt_drymon_backup_090044/</code>（<code>option_seller_manager.py</code> / <code>bbt_option_seller.html</code>）</li><li>只回退同步行为：删除 <code>_monitor_loop</code> 内 <code>self._resync_active_trades()</code> 一行 ⇒ 监控区恢复「只显示本进程已知持仓」的旧行为</li></ul>
+<h2 id="6.-遗留与后续建议">6. 遗留与后续建议</h2>
+<ol><li><strong>单写者架构建议（中期）</strong>：当前「谁开单」与「谁管理」分离，靠轮询 DB 弥合。更稳的做法是<strong>把自动开仓编排也放进仪表盘进程</strong>（哨兵只发触发事件），或把监控做成独立守护进程并让仪表盘只读其状态；否则一旦仪表盘未运行，<strong>所有</strong>在管持仓（含 DRY）都无人管理。</li><li><strong>DRY 单的止损口径</strong>：本次实测 DRY 单在 2.27× 权利金处止损（硬止损 2.20× + 报价滑点），与 LIVE 一致；如需 DRY 与 LIVE 差异化的止损/止盈口径，应显式配置而非默认一致。</li><li><strong>进程重启依赖已消除</strong>，但<strong>监控线程存在依赖仍在</strong>：仪表盘关闭（或 <code>is_monitoring=False</code>）时，DRY 与 LIVE 单均不被评估（LIVE 尚有券商侧保护止损兜底，DRY 没有）。建议后续加一条巡检：若在管持仓非空而监控未运行则告警。</li></ol>
+</section>
+</article>
+</main>
+</body>
+</html>

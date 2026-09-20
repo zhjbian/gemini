@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Walkthrough · 交易流水账本「运行模式」筛选（LIVE vs DRY-RUN）</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#1d4ed8; --soft:#eff6ff; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.65;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1160px; margin:0 auto; padding:24px 22px 56px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 6px; color:#0f172a; }
+  h2 { font-size:1.06rem; margin:22px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.94rem; margin:16px 0 6px; color:#334155; }
+  .sub { color:var(--muted); font-size:0.84rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:8px 0 4px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.82em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.79rem; border:1px solid var(--line); }
+  .ok { color:#047857; font-weight:700; }
+  .bad { color:#b91c1c; font-weight:700; }
+  .tag { display:inline-block; font-size:0.72rem; font-weight:700; border-radius:9999px; padding:1px 8px; }
+  .tag-live { background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
+  .tag-dry { background:#f1f5f9; color:#475569; border:1px solid #cbd5e1; }
+  ul { margin:6px 0 6px 18px; padding:0; }
+  li { margin:3px 0; font-size:0.86rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <h1>交易流水账本「运行模式」筛选（LIVE vs DRY-RUN） · 验收报告</h1>
+    <div class="sub">2026-09-14 · 模块 <code>bbt_option_seller</code> · 归档 <code>51_2026-09-14_Journal_Live_DryRun_Filter</code></div>
+    <p style="font-size:0.86rem;margin:12px 0 0;">
+      用户指令：<b>「今日交易流水账本 (Today's Execution Journal) 加上 LIVE vs DRY RUN 过滤」</b>。
+      账本数据源 <code>order_flow_option_seller_trades</code> 的 <code>is_dry_run</code> 是<b>单笔级</b>真相
+      —— 全局试运行、Force Dry 触发命中、以及「LIVE 开仓失败 → 自动降级 DRY」（<code>LIVE_FALLBACK</code>）
+      都会让同一天混着两类口径，而此前只能逐行看徽标人工挑。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. 交付形态</h2>
+    <p style="font-size:0.86rem;">账本工具条（单行，窄屏自动换行）：</p>
+    <pre>今日交易流水账本 (Today's Execution Journal)    类型: 全部类型 (All) [20 笔]    模式: 全部模式 (All) [LIVE 10 · DRY 10]    生成TradingView指标    全部删除</pre>
+    <table>
+      <tr><th style="width:26%;">交付</th><th>说明</th></tr>
+      <tr><td>模式下拉 <code>#journalModeFilter</code></td><td><code>全部模式 (All)</code> / <span class="tag tag-live">💵 LIVE（实盘）</span> / <span class="tag tag-dry">🧪 DRY-RUN（试运行）</span></td></tr>
+      <tr><td>拆分徽标 <code>#journalModeBreakdown</code></td><td>按<b>类型筛选后</b>全集显示 <code>LIVE n · DRY m</code>；选中模式时变色（LIVE 绿 / DRY 灰）</td></tr>
+      <tr><td>双筛选叠加</td><td>类型 × 运行模式 = <b>AND</b>，共用一个渲染入口</td></tr>
+      <tr><td>下游自动继承</td><td>「生成 TradingView 指标」读 <code>window.__currentFilteredTrades</code> ⇒ 只导出筛后的单；toast 文案带模式名</td></tr>
+      <tr><td>契约测试</td><td><code>PyTools/option_seller/test_journal_mode_filter.py</code>（9 条）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. 关键实现</h2>
+    <h3>2.1 判定函数 —— 与「运行模式」列徽标同口径</h3>
+    <pre>function isTradeMatchingModeFilter(trade, modeVal) {
+  if (!modeVal || modeVal === 'ALL') return true;
+  const isDry = !!(trade &amp;&amp; trade.is_dry_run);
+  if (modeVal === 'LIVE') return !isDry;
+  if (modeVal === 'DRY') return isDry;
+  return true;   // 未知值 ⇒ 不过滤（不静默命中空集 ✓）
+}</pre>
+    <ul>
+      <li>账本每行的徽标是 <code>${t.is_dry_run ? 'DRY' : 'LIVE'}</code>；筛选<b>对齐</b>该表达式（不另立口径），因此不会出现「列显示 LIVE 却被 LIVE 筛选排除」；</li>
+      <li>历史回补行 <code>is_dry_run</code> 为 NULL ⇒ 归 <b>LIVE</b>，与徽标一致（老数据不自相矛盾）。</li>
+    </ul>
+
+    <h3>2.2 两级 filter AND（唯一入口）</h3>
+    <pre>const typeMatchedTrades = rawTrades.filter(t =&gt; isTradeMatchingFilter(t, filterVal));
+const filteredTrades    = typeMatchedTrades.filter(t =&gt; isTradeMatchingModeFilter(t, modeVal));
+window.__currentFilteredTrades = filteredTrades;   // ← TV 导出自动继承</pre>
+    <p style="font-size:0.86rem;">组合示例：类型=<code>🤖 全部自动单</code> + 模式=<code>LIVE</code> ⇒ 只看<b>实盘自动单</b>，一次点击把试运行与手动单全部滤掉。</p>
+  </div>
+
+  <div class="card">
+    <h2>3. 验收证据</h2>
+    <table>
+      <tr><th style="width:24%;">层</th><th>手段</th><th>结果</th></tr>
+      <tr><td>JS 语法</td><td>抽取模板内联脚本（242,921 字符）→ <code>node --check</code></td><td class="ok">通过 ✓</td></tr>
+      <tr><td>行为（Node 实跑真实函数）</td><td><code>test_journal_mode_filter.py</code> — 7 例判定表 + 徽标一致性不变量 + AND 语义</td><td class="ok">9/9 通过 ✓</td></tr>
+      <tr><td>模板契约</td><td>三选项 / 接线 / 双 filter 叠加 / TV 继承路径 / 空态文案 / 未知值放行</td><td class="ok">全绿 ✓</td></tr>
+      <tr><td>无回归</td><td><code>test_journal_filter_catalog.py</code>（类型筛选目录契约）</td><td class="ok">11/11 通过 ✓</td></tr>
+      <tr><td>真实渲染</td><td>headless Chrome 截图核对工具条</td><td class="ok">出现 <code>模式: 全部模式 (All)</code> + <code>LIVE 10 · DRY 10</code> ✓</td></tr>
+      <tr><td>数据对照</td><td>DB <code>order_flow_option_seller_trades</code> 2026-09-14</td><td class="ok">LIVE 10 / DRY 10 / 合计 20 —— 与徽标完全一致 ✓</td></tr>
+    </table>
+
+    <h3>3.1 Node 实跑判定表</h3>
+    <table>
+      <tr><th>用例</th><th>LIVE</th><th>DRY</th><th>ALL / 空值 / 未知值</th><th>列徽标</th></tr>
+      <tr><td><code>is_dry_run=False</code></td><td class="ok">✓</td><td>✗</td><td>全通过</td><td>LIVE</td></tr>
+      <tr><td><code>is_dry_run=True</code></td><td>✗</td><td class="ok">✓</td><td>全通过</td><td>DRY</td></tr>
+      <tr><td>缺字段（NULL）</td><td class="ok">✓</td><td>✗</td><td>全通过</td><td>LIVE</td></tr>
+      <tr><td><code>is_dry_run=None</code></td><td class="ok">✓</td><td>✗</td><td>全通过</td><td>LIVE</td></tr>
+      <tr><td><code>is_dry_run=0</code></td><td class="ok">✓</td><td>✗</td><td>全通过</td><td>LIVE</td></tr>
+      <tr><td><code>is_dry_run=1</code></td><td>✗</td><td class="ok">✓</td><td>全通过</td><td>DRY</td></tr>
+      <tr><td><code>is_dry_run='true'</code></td><td>✗</td><td class="ok">✓</td><td>全通过</td><td>DRY</td></tr>
+    </table>
+
+    <h3>3.2 为什么需要这个筛选（当日实况）</h3>
+    <table>
+      <tr><th>日期</th><th>LIVE</th><th>DRY</th><th>合计</th></tr>
+      <tr><td>2026-09-14</td><td><b>10</b></td><td><b>10</b></td><td>20</td></tr>
+      <tr><td>2026-09-11</td><td>0</td><td>4</td><td>4</td></tr>
+      <tr><td>2026-09-09</td><td>4</td><td>0</td><td>4</td></tr>
+      <tr><td>2026-09-08</td><td>10</td><td>0</td><td>10</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. 边界与回滚</h2>
+    <ul>
+      <li><b>不做后端过滤</b>：当日流水量级几十条，沿用既有「一次取回 + 前端筛」架构 ⇒ 零 API / 零 DB 改动；</li>
+      <li>运行模式列徽标、KPI 卡拆分、日历拆分逻辑<b>均未触碰</b>；</li>
+      <li><b>规则手册无需更新</b>：属 UI 展示/筛选实现，不构成趋势或交易决策规则（规则 11 口径）；</li>
+      <li>生效方式：模板改动需<b>硬刷新</b>（⌘⇧R）。</li>
+    </ul>
+    <pre>cd ~/Documents/Workplace/PycharmProjects/BBTrading
+# ⚠️ git checkout 不适用：本仓库不跟踪 bbt_data_web/（git ls-files 仅 2 个文件）
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/52_2026-09-14_Journal_Per_Group_TV_Export/revert_module_51_52.py --dry-run
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/52_2026-09-14_Journal_Per_Group_TV_Export/revert_module_51_52.py
+rm PyTools/option_seller/test_journal_mode_filter.py   # 可选
+# 想再改回来：cp bbt_data_web/templates/bbt_option_seller.html.bak-20260914_194023 …</pre>
+  </div>
+
+  <div class="card">
+    <h2>5. 后续可选增强（未做）</h2>
+    <ul>
+      <li>把运行模式并入「类型筛选的组合记忆」（localStorage），刷新后保留组合；</li>
+      <li>账本表头「运行模式」列支持排序/分组；</li>
+      <li>从日历点入历史账本时，默认沿用上次的模式筛选。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

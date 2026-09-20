@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - 手册-代码一致性审计报告：§3.1.2 5分钟综合信号 与 §3.1.3.1 开仓规则</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">手册-代码一致性审计报告：§3.1.2 5分钟综合信号 与 §3.1.3.1 开仓规则</h1>
+<div class="meta">
+<span>Saved: 2026-09-13 21:19:08</span>
+<span>Topic: audit_312_3131_manual_vs_code</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#审计范围与判定口径">审计范围与判定口径</a><ul><li><a href="#审计对象">审计对象</a></li><li><a href="#判定口径">判定口径</a></li><li><a href="#已知、且不计入差异的近期变更">已知、且不计入差异的近期变更</a></li></ul></li><li><a href="#§3.1.2-5分钟综合信号-—-差异清单">§3.1.2 5分钟综合信号 — 差异清单</a><ul><li><a href="#高严重度">高严重度</a><ul><li><a href="#D1「触发硬性阈值」栏仍是旧-40-分制数字（文档自相矛盾）">D1「触发硬性阈值」栏仍是旧 40 分制数字（文档自相矛盾）</a></li><li><a href="#§3.1.2.1-QuantPivot-参与选档-——-文档有但代码未实现">§3.1.2.1 QuantPivot 参与选档 —— 文档有但代码未实现</a></li><li><a href="#D3「需贡献-&gt;=-6-分」门槛未实现-+-「动能衰竭」无度量">D3「需贡献 &gt;= 6 分」门槛未实现 + 「动能衰竭」无度量</a></li></ul></li><li><a href="#中严重度">中严重度</a><ul><li><a href="#第-0-层在引擎内重复实现（违反「机制内不得重复实现」）">第 0 层在引擎内重复实现（违反「机制内不得重复实现」）</a></li><li><a href="#引擎-Hard-Veto-3「EMA-严重缠结」未记载-+-键名失配导致死分支">引擎 Hard Veto 3「EMA 严重缠结」未记载 + 键名失配导致死分支</a></li><li><a href="#D1-兜底值-30-分未记载（且与「中性-0-分」在退化路径冲突）">D1 兜底值 30 分未记载（且与「中性 0 分」在退化路径冲突）</a></li><li><a href="#机制-①-Setup-闸门-fail-open">机制 ① Setup 闸门 fail-open</a></li></ul></li><li><a href="#低严重度">低严重度</a></li></ul></li><li><a href="#§3.1.3.1-开仓规则-—-差异清单">§3.1.3.1 开仓规则 — 差异清单</a><ul><li><a href="#严重">严重</a><ul><li><a href="#条件单触发路径的三维准入被-qp_level=None-整段跳过">条件单触发路径的三维准入被 qp_level=None 整段跳过</a></li><li><a href="#触发路径-Strike-锚定丢失-+-全链回退绕开-QuantPivot-锚与-Gamma-墙">触发路径 Strike 锚定丢失 + 全链回退绕开 QuantPivot 锚与 Gamma 墙</a></li><li><a href="#单日波幅判定：文档「且(AND)」→-代码「或(OR)」">单日波幅判定：文档「且(AND)」→ 代码「或(OR)」</a></li><li><a href="#日内位置-60%~95%-/-5%~40%-的上下界未实现">日内位置 60%~95% / 5%~40% 的上下界未实现</a></li><li><a href="#BETWEEN_H1_AND_H2-/-BETWEEN_L1_AND_L2-直接-QUALIFIED，且使-ARMED-分支不可达">BETWEEN_H1_AND_H2 / BETWEEN_L1_AND_L2 直接 QUALIFIED，且使 ARMED 分支不可达</a></li></ul></li><li><a href="#中">中</a><ul><li><a href="#标的统一-SPY：边界一致，但位置/波幅为-ES-口径">标的统一 SPY：边界一致，但位置/波幅为 ES 口径</a></li><li><a href="#触发路径不复查前置规则①（波幅/位置）">触发路径不复查前置规则①（波幅/位置）</a></li><li><a href="#容差带：文档「双侧带-±0.2」→-代码「单侧半线」">容差带：文档「双侧带 ±0.2」→ 代码「单侧半线」</a></li><li><a href="#锚定可静默失效（候选为空即放弃锚定）">锚定可静默失效（候选为空即放弃锚定）</a></li><li><a href="#两套锚定口径不一致，引擎-target_anchor-未参与选-strike">两套锚定口径不一致，引擎 target_anchor 未参与选 strike</a></li><li><a href="#机制-②-内建时段下限-07:00-PST（文档未写）">机制 ② 内建时段下限 07:00 PST（文档未写）</a></li><li><a href="#组数闸门-/-布防窗口-/-哨兵侧更严闸门（文档未写）">组数闸门 / 布防窗口 / 哨兵侧更严闸门（文档未写）</a></li></ul></li><li><a href="#低">低</a></li></ul></li><li><a href="#§3.1.2-已核对且一致（15-项）">§3.1.2 已核对且一致（15 项）</a></li><li><a href="#§3.1.3.1-已核对且一致">§3.1.3.1 已核对且一致</a></li><li><a href="#优先级与根因">优先级与根因</a><ul><li><a href="#优先级">优先级</a></li><li><a href="#根因归类">根因归类</a></li></ul></li><li><a href="#方法与证据">方法与证据</a><ul><li><a href="#审计方法">审计方法</a></li><li><a href="#常量来源">常量来源</a></li><li><a href="#未验证项">未验证项</a></li></ul></li></ul></div>
+<section class="main-content">
+<h2 id="审计范围与判定口径">审计范围与判定口径</h2>
+<h3 id="审计对象">审计对象</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">章节</th>
+<th style="text-align: left;">手册锚点区间</th>
+<th style="text-align: left;">代码落点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>§3.1.2 5分钟综合信号</strong></td>
+<td style="text-align: left;"><code>id="os-rule-8"</code> → <code>id="os-rule-9"</code>（含子节 <code>3.1.2.1 策略自适应选型</code>，锚点 <code>id="os-rule-15"</code>）</td>
+<td style="text-align: left;"><code>PyTools/option_seller/option_seller_engine.py</code> → <code>evaluate_5m_synthesis_opportunity()</code>；<code>auto_mechanisms.py</code> → <code>check_layer0()</code> / <code>evaluate_auto_entry_cycle()</code> / <code>MECHANISMS</code>；<code>option_seller_manager.py</code> → <code>_mech_5m_synthesis()</code> / <code>_build_mechanism_context()</code> / <code>_resolve_auto_profile()</code>；<code>setup_classifier.py</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>§3.1.3.1 开仓规则</strong></td>
+<td style="text-align: left;"><code>3.1.3.1 开仓规则</code> → <code>3.1.3.2 开仓策略</code>（表首「前置规则」+ 两行方向表 + 表后说明）</td>
+<td style="text-align: left;"><code>option_seller_engine.py</code> → <code>evaluate_counter_trend_boundary_opportunity(..., scenario='QP')</code> / <code>find_optimal_spread()</code> 家族；<code>option_seller_manager.py</code> → <code>_counter_trend_mechanism()</code> / <code>can_open_quant_pivot_level()</code> / <code>_open_from_engine()</code> / <code>_evaluate_conditional_orders()</code>；<code>auto_mechanisms.py</code> → L0；<code>order_flow_sentinel.py</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="判定口径">判定口径</h3>
+<p>判定分四类：<code>一致</code> / <code>不一致</code> / <code>文档有但代码未实现</code> / <code>代码有但文档未写</code>。数字一律做精确比对并给出 <code>文件:行号</code> 证据；常量区分「硬编码 / 配置 / DB 参数」。</p>
+<p><strong>本报告为只读审计产物：未修改任何文件、未写数据库、未启停任何服务。</strong> 审计由两条独立路径完成（主检 + 独立复核子代理），高价值结论均已双向复核。</p>
+<h3 id="已知、且不计入差异的近期变更">已知、且不计入差异的近期变更</h3>
+<ol>
+<li>原「维度 3：拍卖关键位与 QuantPivot 反转边界（20 分）」<strong>已整体删除</strong>；维度 1 权重 40 → <strong>60</strong>，维度 2 = 30，原维度 4（EMA 乖离）→ <strong>新维度 3</strong> = 10（三维共振 60/30/10）。</li>
+<li>引擎内联位置掩码（50/50、65/35）已改为<strong>委托</strong> <code>auto_mechanisms.position_mask()</code>（权威 70/30 · 60/40 · 70/30）；引擎 EMA 禁区否决（原 Hard Veto 7）已移除并上收为 <strong>L0-C</strong>。</li>
+<li>§3.1.2 内已删除「Setup 1A → 强度 S6~S8」声明；已补记 5 项「代码有文档无」的行为。</li>
+<li>§3.1.3.1 已删除 CVD 背离 / DOM 竭尽·吸收 / Smashelito 三项；「15m EMA 正/负乖离率 ±0.08%」已从代码删除、文档保留并标注【未使用】。</li>
+</ol>
+<h2 id="§3.1.2-5分钟综合信号-—-差异清单">§3.1.2 5分钟综合信号 — 差异清单</h2>
+<h3 id="高严重度">高严重度</h3>
+<h4 id="D1「触发硬性阈值」栏仍是旧-40-分制数字（文档自相矛盾）">D1「触发硬性阈值」栏仍是旧 40 分制数字（文档自相矛盾）</h4>
+<ul>
+<li><strong>文档</strong>：D1「触发硬性阈值」栏写 <code>S10: 40分 / S9: 37分 / S8: 34分 / S7: 31分 / S6: 28分 / S5: 25分 / S4: 22分 / S3: 20分 / S1~S2: 15分 / 中性: 0分</code>，同格又写「满分 60分」。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:304</code></li>
+</ul>
+<pre><code class="language-python">OF_SCORE_MAP = {10: 60, 9: 56, 8: 51, 7: 47, 6: 42, 5: 38, 4: 33, 3: 30, 2: 23, 1: 23}
+</code></pre>
+<ul>
+<li><strong>事实</strong>：同一格下方嵌套矩阵已更新为 60/56/51/47/42/38/33/30/23（与代码逐值一致），<strong>唯「触发硬性阈值」栏残留 9 个旧值</strong>（HTML 残留 9 处；MD 已正确）。</li>
+<li><strong>判定</strong>：<code>不一致</code>（文档内部自相矛盾，且与代码整体不符）。</li>
+</ul>
+<h4 id="§3.1.2.1-QuantPivot-参与选档-——-文档有但代码未实现">§3.1.2.1 QuantPivot 参与选档 —— 文档有但代码未实现</h4>
+<ul>
+<li><strong>文档</strong>：「⚖️ 平衡型 … <code>55 ~ 74</code> 分（<strong>命中 QuantPivot L1/H1 常规带</strong>）」「⚡ 激进型 … <code>&gt;= 75</code> 分<strong>或命中 QuantPivot L2/H2 极值</strong>」「阈值口径：… <code>&gt;= 75</code> 分<strong>或命中 QuantPivot L2/H2 极值</strong>走激进型」。</li>
+<li><strong>代码</strong>：<code>evaluate_5m_synthesis_opportunity()</code> 的 <code>quant_pivot</code> 参数<strong>完全未被使用</strong>；<code>option_seller_engine.py:577-580</code></li>
+</ul>
+<pre><code class="language-python">if best_score &gt;= 75:
+rec_profile = 'AGGRESSIVE'
+else:
+rec_profile = 'BALANCED'
+</code></pre>
+<ul>
+<li><strong>判定</strong>：<code>文档有但代码未实现</code>（无任何 QP 带位 → profile 的映射；H1/H2 带位仅在机制 ② 内决定锚定与 level 标签）。</li>
+</ul>
+<h4 id="D3「需贡献-&gt;=-6-分」门槛未实现-+-「动能衰竭」无度量">D3「需贡献 &gt;= 6 分」门槛未实现 + 「动能衰竭」无度量</h4>
+<ul>
+<li><strong>文档</strong>：D3 阈值列「均线乖离率 / <strong>动能衰竭</strong>（<strong>需贡献 &gt;= 6 分</strong>，满分 10 分）」。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:410-440</code> 无任何 D3 最低分判断；<code>ema21 &lt;= 0</code> 时最低只能拿到基准 5 分，仍照常计入总分。代码只计算<strong>乖离率</strong> <code>(curr_p − ema21)/ema21*100</code>（<code>:428</code>），<strong>没有「动能衰竭」度量</strong>。</li>
+<li><strong>判定</strong>：<code>文档有但代码未实现</code>。</li>
+</ul>
+<h3 id="中严重度">中严重度</h3>
+<h4 id="第-0-层在引擎内重复实现（违反「机制内不得重复实现」）">第 0 层在引擎内重复实现（违反「机制内不得重复实现」）</h4>
+<ul>
+<li><strong>文档</strong>：§3.1.2 首段「第 0 层统一门槛（§3.1.1.1，<strong>不在本节重复</strong>）」；§3.1.1.1「各机制内部<strong>不得重复实现</strong>」。</li>
+<li><strong>代码</strong>：</li>
+</ul>
+<pre><code class="language-python"># option_seller_engine.py:248-266  Hard Veto 1：时段 06:35~11:30 → REJECTED
+start_mins = 6 * 60 + 35   # 06:35 PST
+cutoff_mins = 11 * 60 + 30 # 11:30 PST
+# option_seller_engine.py:267-278  Hard Veto 2：全局 spoof → REJECTED
+</code></pre>
+<p>两处常量与 <code>auto_mechanisms.py:87-88</code> 重复硬编码。</p>
+<ul>
+<li><strong>判定</strong>：<code>不一致</code>（位置掩码已委托 ✓、EMA 禁区已上收 ✓、L0-D/L0-E 由编排层执行 ✓，但时段与 spoof 仍重复）。</li>
+</ul>
+<h4 id="引擎-Hard-Veto-3「EMA-严重缠结」未记载-+-键名失配导致死分支">引擎 Hard Veto 3「EMA 严重缠结」未记载 + 键名失配导致死分支</h4>
+<ul>
+<li><strong>文档</strong>：§3.1.2 与 §3.1.1.1 的 L0 清单<strong>均无</strong>该否决。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:280-285</code></li>
+</ul>
+<pre><code class="language-python">if ema_data and ema_data.get('is_tangled', False):
+msg = "Blocked: 15m EMA 13-21 severely tangled, choppy non-directional regime."
+return 'REJECTED', 'NONE', 'BALANCED', msg, debug_info
+</code></pre>
+<p>读键 <code>is_tangled</code>；而唯一生产者 <code>ema_engine.py:262</code> 写出的是 <strong><code>tangled</code></strong>（全仓 grep：<code>is_tangled</code> 仅此一处被读、从无写入）。</p>
+<ul>
+<li><strong>判定</strong>：<code>代码有但文档未写</code> + <strong>实盘不可达</strong>（与 <code>ema15_dist_pct</code> 属同类型缺陷）。</li>
+</ul>
+<h4 id="D1-兜底值-30-分未记载（且与「中性-0-分」在退化路径冲突）">D1 兜底值 30 分未记载（且与「中性 0 分」在退化路径冲突）</h4>
+<ul>
+<li><strong>文档</strong>：未定义兜底值。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:326/329/333/336</code></li>
+</ul>
+<pre><code class="language-python">s_int = int(of_strength) if of_strength is not None else 3
+bull_of = OF_SCORE_MAP.get(s_int, 30)
+</code></pre>
+<p>⇒ 兜底 <strong>30 分</strong>（= S3 档）；缺 <code>of_strength</code> ⇒ <code>s_int=3</code> ⇒ 30 分；<strong><code>of_strength=0</code> 也落 <code>OF_SCORE_MAP.get(0, 30)</code> = 30 分</strong>（文档「中性 → 0 分」在该退化路径不成立；正常中性走 else 分支归 0）。</p>
+<ul>
+<li><strong>判定</strong>：<code>代码有但文档未写</code>。</li>
+</ul>
+<h4 id="机制-①-Setup-闸门-fail-open">机制 ① Setup 闸门 fail-open</h4>
+<ul>
+<li><strong>文档</strong>：§3.1.1.4 / §3.2「机制 ① 开仓须<strong>同向通过</strong>对应 Setup（<code>qualified_bull</code> / <code>qualified_bear</code>）」。</li>
+<li><strong>代码</strong>：<code>option_seller_manager.py:1139</code></li>
+</ul>
+<pre><code class="language-python">if setup and not ok:
+return 'MISS', f"Setup 未合格：..."
+</code></pre>
+<p>⇒ <code>setup_result</code> 缺失时 <code>if setup and not ok</code> 为假，<strong>直接放行开仓</strong>（未过任何 Setup 闸门）。</p>
+<ul>
+<li><strong>判定</strong>：<code>代码有但文档未写</code>（语义漏洞）。</li>
+</ul>
+<h3 id="低严重度">低严重度</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">项</th>
+<th style="text-align: left;">文档</th>
+<th style="text-align: left;">代码</th>
+<th style="text-align: left;">判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">QuantPivot 引用残留</td>
+<td style="text-align: left;">§3.1.2 内 <strong>5 处</strong> 依赖 QP（D2 注②「其他维度（订单流、<strong>QuantPivot 统计学反转边界</strong>等）」、§3.1.2.1 引言「与 <strong>QuantPivot 边界命中</strong>自适应选档」、平衡型「(命中 <strong>QuantPivot L1/H1</strong> 常规带)」「价格处于 <strong>QuantPivot L1/H1</strong> 支撑阻力带」、阈值口径「≥75 分<strong>或命中 QuantPivot L2/H2 极值</strong>」）</td>
+<td style="text-align: left;"><code>quant_pivot</code> 不参与打分与选型</td>
+<td style="text-align: left;"><code>不一致</code>（已删维度的文档残留）</td>
+</tr>
+<tr>
+<td style="text-align: left;">撤单陷阱实现方式</td>
+<td style="text-align: left;">D1「<strong>0 分清零并触发系统一票否决阻断开仓</strong>」</td>
+<td style="text-align: left;"><code>option_seller_engine.py:347-352</code> 仅把该方向 D1 置 0、<strong>不返回 REJECTED</strong>（靠 <code>0+30+10=40 &lt; 55</code> 间接阻断）</td>
+<td style="text-align: left;"><code>不一致</code>（行为等价、机制描述不符）</td>
+</tr>
+<tr>
+<td style="text-align: left;">代码内部注释陈旧</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>option_seller_engine.py:297</code> 仍写 <code>Dimension 1: … (Max 40 pts)</code>，与 60 分实现不符</td>
+<td style="text-align: left;">代码内部不一致</td>
+</tr>
+<tr>
+<td style="text-align: left;">D3 else 分支表述</td>
+<td style="text-align: left;">仅写「额外 +3~5分」</td>
+<td style="text-align: left;"><code>:433-435</code> else 双侧各 +3</td>
+<td style="text-align: left;"><code>一致</code>（表述不全）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="§3.1.3.1-开仓规则-—-差异清单">§3.1.3.1 开仓规则 — 差异清单</h2>
+<h3 id="严重">严重</h3>
+<h4 id="条件单触发路径的三维准入被-qp_level=None-整段跳过">条件单触发路径的三维准入被 <code>qp_level=None</code> 整段跳过</h4>
+<ul>
+<li><strong>文档</strong>：前置规则②「对 L1 / L2 / H1 / H2 四个具体点位分别开放多次开仓权限 … <strong>任一不满足 ⇒ 一票否决</strong>」，适用于含自动布防触发的<strong>全部开仓</strong>。</li>
+<li><strong>代码</strong>：<code>option_seller_manager.py:2577</code></li>
+</ul>
+<pre><code class="language-python"># Triple-barrier entry guard before triggering conditional order
+if sub_scen in ['RANGE_BOUND_LOWER_BOUNDARY', 'RANGE_BOUND_UPPER_BOUNDARY'] and qp_level:
+can_open, block_reason = self.can_open_quant_pivot_level(qp_level)
+</code></pre>
+<p><code>qp_level</code> 推断（<code>:2564-2569</code>）依赖 DB 列或 notes 字面量 <code>'QuantPivot L1/H1/L2/H2'</code>：</p>
+<pre><code class="language-python">qp_level = order.get('quant_pivot_level')
+if not qp_level:
+if 'QuantPivot L1' in notes_str: qp_level = 'L1'
+elif 'QuantPivot H1' in notes_str: qp_level = 'H1'
+</code></pre>
+<p>而 QP 自动布防实际写入的 notes（<code>option_seller_engine.py:905</code> / <code>:968</code>）为：</p>
+<pre><code>Auto-Armed Range Upper: SPY GTE 660.50 (H1=660.50, Moat Short Call &gt;= 660.50 | Pos=85.0%) [SubScenario: RANGE_BOUND_UPPER_BOUNDARY]
+</code></pre>
+<p><strong>不含</strong> <code>QuantPivot H1/L1</code> 字面量 ⇒ 解析恒为 <code>None</code>。条件单表亦<strong>无</strong> <code>quant_pivot_level</code> 列（<code>bbt_data_web/db_query_module/db_query_option_seller.py:211-238</code> 仅 created/trigger/risk_profile/dte/fallback_mode/status/notes），<code>_reload_conditional_orders</code>（<code>option_seller_manager.py:274-306</code>）也不回填。</p>
+<p><strong>进程隔离进一步放大</strong>：布防发生在独立子进程 <code>order_flow_sentinel.py</code>（<code>PyTools/daily_jobs.py:695</code> 以 <code>python3 .../order_flow_sentinel.py -t &lt;t&gt;</code> 调度），内存补丁 <code>manager.py:1176-1188</code> <strong>不跨进程</strong>；触发执行在 <code>bbt_data_web</code> 进程（<code>bbt_data_app.py:139 seller_manager.start_monitor()</code>），其 <code>/api/option_seller/status</code>（<code>bbt_option_seller.py:69</code>）每次 <code>get_status_summary()</code> → <code>_reload_conditional_orders()</code>（<code>manager.py:3417</code>）会<strong>清空重建</strong> pending 字典。</p>
+<ul>
+<li><strong>判定</strong>：<code>不一致</code> —— 条件单触发路径<strong>实际不执行三维准入</strong>（45 分钟冷却 / 同点位活跃仓 / 亏损熔断三项全部失效）。<code>is_l1_h1</code> 推断（<code>:2561-2563</code>）同理恒 <code>False</code>。</li>
+</ul>
+<h4 id="触发路径-Strike-锚定丢失-+-全链回退绕开-QuantPivot-锚与-Gamma-墙">触发路径 Strike 锚定丢失 + 全链回退绕开 QuantPivot 锚与 Gamma 墙</h4>
+<ul>
+<li><strong>文档</strong>：「Strike 锚定：Short Call 优先 <code>&gt;= H1</code>；极端突破 H2 则退守 <code>&gt;= H2</code>」「Short Put 优先 <code>&lt;= L1</code>；极端跌破 L2 则退守 <code>&lt;= L2</code>」——表述为硬约束。</li>
+<li><strong>代码（锚定丢失）</strong>：触发路径 <code>option_seller_manager.py:2529/2546</code> <code>qp_order = order.get('quant_pivot')</code> → 进程/重载后恒 <code>None</code> ⇒ <code>find_optimal_spread(quant_pivot=None)</code>（<code>:2539-2548</code>）⇒ <code>option_seller_engine.py:1148/1319</code> 的 <code>if quant_pivot:</code> 不进入 ⇒ <strong>锚定与 Gamma 墙完全失效</strong>。</li>
+<li><strong>代码（全链回退）</strong>：<code>option_seller_engine.py:1177-1193</code>（Put）/ <code>:1348-1363</code>（Call）</li>
+</ul>
+<pre><code class="language-python">if not best_candidate:
+# Fallback: Relax cushion requirement to absolute safety floor (&gt;= 0.25%, preventing ATM pin risk)
+floor_max_short = spot_price * (1.0 - 0.0025)
+fallback_shorts = [s for s in sorted_strikes if s &lt;= floor_max_short]   # 全链，绕过 QP 锚与 Gamma 墙
+best_candidate = cls._search_bull_put_candidates(valid_shorts=fallback_shorts, ...)
+if best_candidate: best_candidate['fallback_cushion'] = True
+</code></pre>
+<ul>
+<li><strong>判定</strong>：<code>不一致</code>（触发路径）/ <code>代码有但文档未写</code>（回退分支；仅以 <code>fallback_cushion=True</code> 标记）。</li>
+</ul>
+<h4 id="单日波幅判定：文档「且(AND)」→-代码「或(OR)」">单日波幅判定：文档「且(AND)」→ 代码「或(OR)」</h4>
+<ul>
+<li><strong>文档</strong>：<code>单日波动大小：rth_range_pct ≤ 0.85% 且 rth_range_pts ≤ 45.0 点</code>。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:824</code></li>
+</ul>
+<pre><code class="language-python">is_range_bound_day = (rth_range_pct &lt;= 0.85 or rth_range_pts &lt;= 45.0)
+</code></pre>
+<p>（<code>:820</code> 注释亦写「或点数 &lt;= 45.0」；两常量均为<strong>硬编码字面量</strong>，非配置、非 DB 参数。）</p>
+<ul>
+<li><strong>判定</strong>：<code>不一致</code>（实际放宽：45 pts 以上但百分比 &lt;0.85% 的日子照样开仓）。</li>
+</ul>
+<h4 id="日内位置-60%~95%-/-5%~40%-的上下界未实现">日内位置 60%~95% / 5%~40% 的上下界未实现</h4>
+<ul>
+<li><strong>文档</strong>：<code>上轨卖 Call 做空 price_position_pct ≥ 60.0%（进场区间 60%~95%）；下轨卖 Put 做多 price_position_pct ≤ 40.0%（进场区间 5%~40%）</code>。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:858</code> / <code>:868</code>（上轨）、<code>:921</code> / <code>:931</code>（下轨）</li>
+</ul>
+<pre><code class="language-python">if price_pos &gt;= 60.0 and h1_val &gt; 0:              # 858，无 &lt;= 95.0
+if is_testing_or_above_h1 and price_pos &gt;= 60.0:  # 868
+if price_pos &lt;= 40.0 and l1_val &gt; 0:              # 921，无 &gt;= 5.0
+</code></pre>
+<p>全仓无 <code>95.0</code> / <code>&lt;= 5.0</code> 判定；95% 与 5% <strong>只存在于日志/理由字符串</strong>（<code>:875</code> <code>f"PricePos={price_pos:.1f}% in [60%, 95%] | ..."</code>、<code>:938</code> <code>"PricePos={price_pos:.1f}% in [5%, 40%] | ..."</code>）。</p>
+<ul>
+<li><strong>判定</strong>：<code>文档有但代码未实现</code>（并伴随<strong>误导性日志</strong>：实际 <code>pos=100%</code> 也照开，却打印「in [60%, 95%]」）。</li>
+</ul>
+<h4 id="BETWEEN_H1_AND_H2-/-BETWEEN_L1_AND_L2-直接-QUALIFIED，且使-ARMED-分支不可达"><code>BETWEEN_H1_AND_H2</code> / <code>BETWEEN_L1_AND_L2</code> 直接 QUALIFIED，且使 ARMED 分支不可达</h4>
+<ul>
+<li><strong>文档</strong>：<code>或刺破 H1 向 H2 延伸并出现滞涨冲高回落（深入 [H2 − 0.2, H2 + 0.2] 或 H2 之上同样 QUALIFIED）</code>；<code>距离 H1 &gt; 0.2 点且 ≤ 0.5% ⇒ 自动装配 ARMED 哨兵单</code>。</li>
+<li><strong>代码</strong>：zone 白名单把「H1+0.2 与 H2−0.2 之间」也判为立即开仓 —— <code>option_seller_engine.py:867</code>（<code>..., 'BETWEEN_H1_AND_H2'</code>）、<code>:930</code>（<code>..., 'BETWEEN_L1_AND_L2'</code>）；zone 定义见 <code>PyTools/pivots/quant_pivot.py:281-285</code>（<code>(h1 + tol) &lt; price &lt; (h2 - tol) → 'BETWEEN_H1_AND_H2'</code>）。因 QUALIFIED 分支在 <code>elif</code> 之前（<code>:868</code> vs <code>:885</code>），进入该区间<strong>永不</strong>走 ARMED，且不再要求任何「滞涨冲高回落 / 探底企稳回升」确认（该确认项已随微观共振项一并删除）。</li>
+<li><strong>判定</strong>：<code>不一致</code>（BETWEEN 区间从「需确认的延伸区」变为「无条件立即开仓」；文档 ARMED 语义在 <code>[H1+0.2, H2−0.2]</code> 失效）。</li>
+</ul>
+<h3 id="中">中</h3>
+<h4 id="标的统一-SPY：边界一致，但位置/波幅为-ES-口径">标的统一 SPY：边界一致，但位置/波幅为 ES 口径</h4>
+<ul>
+<li><strong>文档</strong>：<code>标的统一：边界计算与盘中检查一律使用 SPY 现价点位，严禁与 ES / SPX 混比</code>。</li>
+<li><strong>代码（边界侧 = SPY，一致）</strong>：<code>option_seller_engine.py:841-852</code></li>
+</ul>
+<pre><code class="language-python">raw_qp_curr_p = float((qp.get('current_price') if qp else None)
+or (pivot_data.get('price') if pivot_data else None)
+or (of_metrics.get('price') if of_metrics else None)
+or (spx_spot / 10.0 if spx_spot &gt; 2000 else spx_spot))
+if raw_qp_curr_p &gt; 2000.0 and h1_val &lt; 1000.0:
+qp_curr_p = round(raw_qp_curr_p / 10.0, 2)
+</code></pre>
+<p><code>qp.current_price</code> 来源 <code>pivots/quant_pivot.py:113</code>（<code>get_quant_pivot('SPY', current_price=spy_price)</code>）。</p>
+<ul>
+<li><strong>代码（位置/波幅侧 = ES，不一致）</strong>：<code>order_flow_sentinel.py:59</code> <code>OrderFlowSignal.ticker == 'ES'</code>；<code>:473-487</code> <code>price_position_pct</code> 由 ES ticks 分箱算出；<code>:717-718</code> <code>rth_pts = rth_high - rth_low</code>、<code>rth_pct = rth_pts / rth_low * 100</code>；<code>:727-728</code> <code>'rth_range_pct' / 'rth_range_pts'</code>。<code>rth_range_pts &lt;= 45.0</code> 是 <strong>ES 点数</strong>（SPY 45 点 ≈ 6.8%）。</li>
+<li><strong>判定</strong>：<code>不一致</code>（实际是「SPY 边界 + ES 日内位置/波幅」混用；同文件 <code>:821</code> 对 EMA 做了 ES→SPY 尺度归一，位置/波幅<strong>未归一</strong>）。</li>
+</ul>
+<h4 id="触发路径不复查前置规则①（波幅/位置）">触发路径不复查前置规则①（波幅/位置）</h4>
+<ul>
+<li><strong>文档</strong>：前置规则「任一不满足即不得开仓」（同时适用于空头/多头开仓）。</li>
+<li><strong>代码</strong>：<code>_evaluate_conditional_orders</code>（<code>option_seller_manager.py:2468-2634</code>）只做触价（<code>:2496-2499</code>）+ 三维准入（<code>:2576-2585</code>）+ <code>find_optimal_spread</code>，<strong>不再调用</strong> <code>evaluate_counter_trend_boundary_opportunity</code> ⇒ 波幅/位置门槛仅存于布防时点。</li>
+<li><strong>判定</strong>：<code>不一致</code>（布防后波幅突破 0.85% / 位置滑出区间仍会开仓）。</li>
+</ul>
+<h4 id="容差带：文档「双侧带-±0.2」→-代码「单侧半线」">容差带：文档「双侧带 ±0.2」→ 代码「单侧半线」</h4>
+<ul>
+<li><strong>文档</strong>：<code>现价严格落入 [H1 − 0.2, H1 + 0.2] 点 ⇒ QUALIFIED</code>（下轨对称 <code>[L1 − 0.2, L1 + 0.2]</code>）。</li>
+<li><strong>代码</strong>：<code>option_seller_engine.py:867</code> / <code>:930</code></li>
+</ul>
+<pre><code class="language-python">is_testing_or_above_h1 = (qp_curr_p &gt;= (h1_val - qp_tol) or qp_zone in [...])
+is_testing_or_below_l1 = (qp_curr_p &lt;= (l1_val + qp_tol) or qp_zone in [...])
+</code></pre>
+<p>仅约束内沿（<code>H1 − tol</code> / <code>L1 + tol</code>），无 <code>H1 + tol</code> 上沿 / <code>L1 − tol</code> 下沿。</p>
+<ul>
+<li><strong>判定</strong>：<code>不一致</code>。</li>
+</ul>
+<h4 id="锚定可静默失效（候选为空即放弃锚定）">锚定可静默失效（候选为空即放弃锚定）</h4>
+<ul>
+<li><strong>代码</strong>：<code>option_seller_engine.py:1155-1157</code> / <code>:1326-1328</code></li>
+</ul>
+<pre><code class="language-python">boundary_shorts = [s for s in valid_shorts if s &lt;= target_anchor]
+if boundary_shorts:
+valid_shorts = boundary_shorts      # 为空则保持未锚定集合，无告警
+</code></pre>
+<p>Gamma 墙过滤同理（<code>:1160-1164</code> / <code>:1331-1335</code>）。</p>
+<ul>
+<li><strong>判定</strong>：<code>代码有但文档未写</code>（文档把锚定写成硬约束，代码为「尽力而为」）。</li>
+</ul>
+<h4 id="两套锚定口径不一致，引擎-target_anchor-未参与选-strike">两套锚定口径不一致，引擎 <code>target_anchor</code> 未参与选 strike</h4>
+<ul>
+<li><strong>代码</strong>：引擎判定 <code>is_at_h2</code> 用 <code>qp_curr_p &gt;= (h2_val - qp_tol)</code>（<code>:861</code>，含 <code>[H2−0.2, H2)</code> 的 <code>TESTING_H2_RESISTANCE</code> 带）；<code>find_optimal_spread</code> 内部重算用</li>
+</ul>
+<pre><code class="language-python"># option_seller_engine.py:1324
+target_anchor = qp_h2 if (qp_h2 &gt; 0 and (spot_price &gt;= qp_h2 or zone == 'AT_OR_ABOVE_H2')) else (qp_h1 or qp_h2)
+</code></pre>
+<p>两者对 <code>TESTING_H2_RESISTANCE</code> 判定相反；且 <code>target_call_anchor</code> / <code>target_put_anchor</code> <strong>只出现在 rationale / notes 字符串</strong>（<code>:880/905/913/943/968/976</code>），<strong>未传入</strong> <code>find_optimal_spread</code>（调用点 <code>option_seller_manager.py:1106-1108</code> 只传 <code>quant_pivot=qp</code>）。</p>
+<ul>
+<li><strong>判定</strong>：<code>不一致</code>（记录/告警的 <code>Level=H2</code> 与实际锚定 <code>&gt;= H1</code> 可能不同）。</li>
+</ul>
+<h4 id="机制-②-内建时段下限-07:00-PST（文档未写）">机制 ② 内建时段下限 07:00 PST（文档未写）</h4>
+<ul>
+<li><strong>代码</strong>：<code>option_seller_engine.py:633-645</code></li>
+</ul>
+<pre><code class="language-python"># 1. Time Window Guard (07:00 ~ 11:30 PST)
+if now_mins &lt; 420:  # 07:00 PST
+msg = f"Blocked: Counter-trend channel inactive before 07:00 PST ..."
+if now_mins &gt; 690:  # 11:30 PST
+msg = f"Blocked: Counter-trend channel past 11:30 PST cutoff for 0DTE ..."
+</code></pre>
+<p>叠加 <code>auto_mechanisms.py:87-88</code> 的 L0-A 06:35~11:30 ⇒ <strong>机制 ② 实际最早 07:00</strong>。</p>
+<ul>
+<li><strong>判定</strong>：<code>代码有但文档未写</code>。</li>
+</ul>
+<h4 id="组数闸门-/-布防窗口-/-哨兵侧更严闸门（文档未写）">组数闸门 / 布防窗口 / 哨兵侧更严闸门（文档未写）</h4>
+<ul>
+<li><strong>代码</strong>：<code>auto_mechanisms.py:90-91</code> <code>PER_MECHANISM_GROUP_CAP = 2</code> / <code>GLOBAL_GROUP_CAP = 5</code>；闸门 <code>:449-451</code>（机制级）、<code>:336-339</code>（全局）；布防窗口 <code>option_seller_manager.py:228-229</code>（<code>ARM_WINDOW_OPEN_STR="23:30:00"</code>、<code>ARM_WINDOW_CUTOFF_STR="11:00:00"</code>，<code>:2293-2300</code>）；布防去重 <code>auto_mechanisms.py:454-456</code>。</li>
+<li><strong>更严的执行侧闸门</strong>：<code>order_flow_sentinel.py:715</code></li>
+</ul>
+<pre><code class="language-python">if mgr.is_enabled and not mgr.has_active_auto_trades() and target_time &lt; "11:30":
+</code></pre>
+<p>而 <code>has_active_auto_trades()</code> = <code>get_active_auto_groups_count() &gt;= 2</code>（<code>option_seller_manager.py:464-470</code>）⇒ <strong>2 个活跃自动组时整个卖家 5 分钟块被跳过</strong>（比 L0-E 的 ≤5 更严）。</p>
+<ul>
+<li><strong>判定</strong>：<code>代码有但文档未写</code>（与文档「解除单日仅触发一次、四点位分别开放多次开仓」存在张力：实际并发上限为 2 组）。</li>
+</ul>
+<h3 id="低">低</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">项</th>
+<th style="text-align: left;">文档</th>
+<th style="text-align: left;">代码</th>
+<th style="text-align: left;">判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">熔断粒度</td>
+<td style="text-align: left;">「已开双批次须<strong>两批全部</strong>止盈 / 保本了结后方可重新评估」</td>
+<td style="text-align: left;"><code>option_seller_manager.py:551</code> <code>if t_status != 'OPEN' and t_pnl is not None and float(t_pnl) &lt; 0:</code> ⇒ <strong>任一批次行</strong>亏损即当日熔断该点位（活仓判定按点位、熔断判定按批次行，粒度不统一）</td>
+<td style="text-align: left;"><code>不一致</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">状态字段</td>
+<td style="text-align: left;"><code>Status != 'CLOSED'</code></td>
+<td style="text-align: left;">实际无 <code>CLOSED</code> 字面值，状态机为 <code>OPEN / CLOSING / CLOSED_TAKE_PROFIT_T{1,2} / CLOSED_BREAKEVEN_* / CLOSED_STOP_LOSS* / CLOSED_TIME_STOP / CLOSED_MANUAL / CLOSED_VOID_*</code>（<code>manager.py:3293-3410</code>、<code>bbt_data_web/models.py:1026</code>），活性查询用 <code>status.in_(['OPEN','CLOSING'])</code>（<code>db_query_option_seller.py:109-111</code>）</td>
+<td style="text-align: left;"><code>不一致</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">档位映射</td>
+<td style="text-align: left;">首列「档位：<strong>平衡型(H1)</strong> / <strong>激进型(H2)</strong>」</td>
+<td style="text-align: left;">QP 分支恒返回 <code>'BALANCED'</code>（<code>option_seller_engine.py:882</code> / <code>:945</code>）；H1/H2 只决定锚定与 level 标签，不切换 profile（仅全局 <code>auto_strategy</code> 可强制覆盖，<code>manager.py:2195-2201</code>）</td>
+<td style="text-align: left;"><code>不一致</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">开仓被拒时条件单已被消费</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><code>manager.py:2510-2512</code> 先删 pending → <code>:2613</code> 再开仓；被 <code>:866</code> 自动组数闸门拒绝时，内存单已删除、DB 单仍 <code>PENDING</code>、无事件记录</td>
+<td style="text-align: left;"><code>代码有但文档未写</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="§3.1.2-已核对且一致（15-项）">§3.1.2 已核对且一致（15 项）</h2>
+<ol>
+<li>三维维度与权重 <strong>60 / 30 / 10</strong>、总分 <strong>100</strong>（<code>option_seller_engine.py:448-449</code>）</li>
+<li>D1 打分矩阵 <strong>10→60 / 9→56 / 8→51 / 7→47 / 6→42 / 5→38 / 4→33 / 3→30 / 1~2→23 / 中性→0</strong>，max 60（<code>:304</code>）</li>
+<li>D2 Gamma <strong>L3→30 / L2→27 / L1→24 / L0→20</strong>，bull/bear 严格对称，<strong>无单项最低分门槛</strong>（<code>:367-390</code>）</li>
+<li>D2 与 D1 的「中性 / 方向相反 → 0 分」、<code>Neutral:...</code> 前缀剥离（<code>:338-341</code>、<code>:369-370</code>）</li>
+<li>D3 <strong>顺势基准 7 / 中性 5 / 缺 <code>ema_data</code> 兜底 7 / 乖离 <code>±0.15%</code> → +5 / else +3 / 封顶 10</strong>，且 <code>ema21</code> = 15m EMA21 口径（<code>:410-440</code> + <code>ema_engine.py:252-253</code>）</li>
+<li>开仓阈值 <strong><code>&gt;= 55</code> 且严格 <code>&gt;</code> 对侧</strong>；<strong>并列 ⇒ NONE</strong>（<code>:548-553</code>）</li>
+<li>选档 <strong><code>&gt;= 75</code> → AGGRESSIVE，否则 BALANCED；<code>&lt; 55</code> → REJECTED</strong>（<code>:577-580</code>）</li>
+<li>选型层<strong>不决定是否开仓</strong>；<code>auto_strategy ∈ {BALANCED, AGGRESSIVE}</code> 无条件覆盖引擎档位（<code>manager.py:2195-2201</code>、<code>_open_from_engine:1102-1106</code>）</li>
+<li>判定顺序 <strong>L0 → 三维共振 → 选型 → Setup 闸门</strong>（<code>auto_mechanisms.py</code> + <code>manager.py:1126-1140</code>）</li>
+<li>L0-B⑤ 位置掩码已<strong>委托</strong> <code>position_mask()</code>（70/30、60/40、70/30）；L0-C 已上收 <code>ema_forbidden_zone_mask()</code>（只掩码不终止、fail-open）；引擎原 Hard Veto 7 已删除</li>
+<li>L0-D 机制级 <code>&lt;2</code> / L0-E 全局 <code>≤5</code> 由编排层执行</li>
+<li>「Setup 1A 被动吸收 → S6~S8 赋能」加分通道<strong>确认不存在</strong>（仅有移除说明注释）</li>
+<li>机制 ① <strong>强制同向 Setup 合格</strong>（<code>manager.py:1135-1140</code> + <code>setup_classifier.py:171/227</code>），与 §3.1.1.4 / §3.2 记载一致</li>
+<li>「实现补充」5 项（<strong>裸方向串 20 分</strong> / <strong>缺 ema_data 各 7 分</strong> / <strong>并列 NONE</strong> / <strong>auto_strategy 覆盖</strong> / <strong>trade_decision 硬闸</strong>）逐条命中代码</li>
+<li>趋势日防护罩与开盘跳空否决仍在策略层内联，与 §3.1.1.1「待并入 L0-B（尚未上收）」的现状声明一致</li>
+</ol>
+<h2 id="§3.1.3.1-已核对且一致">§3.1.3.1 已核对且一致</h2>
+<ul>
+<li>三维准入三条件本体：活跃仓 / <code>realized_pnl &lt; 0</code> 当日熔断 / <code>elapsed &gt; 45.0</code> 分钟（<code>option_seller_manager.py:526-578</code>），且在<strong>直接开仓（<code>:1195-1198</code>）与布防（<code>:1159-1162</code>）路径均执行</strong></li>
+<li>四个点位（L1/L2/H1/H2）分别开放多次开仓，QP 无 one-shot（one-shot 仅用于 TREND：<code>manager.py:1199-1203/2582-2585/2615-2616</code>）</li>
+<li>边界计算与价格检查用 SPY 点位（<code>option_seller_engine.py:841-852</code>；<code>quant_pivot.py:113</code>）</li>
+<li>容差 <code>±0.2</code> 与高点位标的 <code>2.0</code> 映射（<code>:860</code>、<code>:923</code>：<code>qp_tol = 2.0 if qp_curr_p &gt;= 2000 else 0.2</code>）</li>
+<li>深层 <code>[H2±0.2]</code> / H2 之上、<code>[L2±0.2]</code> / L2 之下均 QUALIFIED（<code>:861</code>、<code>:924</code>）</li>
+<li>ARMED 触发价与符号 <code>SPY GTE H1</code> / <code>SPY LTE L1</code>、距离「<code>&gt; 0.2</code> 且 <code>≤ 0.5%</code>」（<code>:885-894</code>、<code>:948-957</code>）</li>
+<li>「微观共振与均线验证」标注【未使用】，代码中 <code>ema_ext</code> 仅赋值与进日志、不参与判定（<code>:836-839</code>、<code>:875/879/938/942</code>）</li>
+<li>Strike 锚定<strong>主路径</strong>语义（引擎侧 <code>:861-864</code>、<code>:924-927</code>）</li>
+<li>L0-B 位置掩码经 <code>position_mask()</code> 统一 70/30 · 60/40 · 70/30，且与 QP 方向不冲突（上轨仅 BEARISH、下轨仅 BULLISH 未被掩码）</li>
+</ul>
+<h2 id="优先级与根因">优先级与根因</h2>
+<h3 id="优先级">优先级</h3>
+<ol>
+<li><strong>§3.1.3.1 条件单触发路径的三维准入失效</strong>（实盘风险最高，已有 DB 实证）</li>
+<li><strong>§3.1.3.1 触发路径 Strike 锚定 / Gamma 墙失效</strong> —— 与第 1 项<strong>同一根因</strong></li>
+<li>§3.1.3.1 波幅 <code>AND→OR</code>、进场区间 95%/5% 未实现、<code>BETWEEN_*</code> 无条件 QUALIFIED</li>
+<li>§3.1.2 D1 阈值栏旧映射残留（文档自相矛盾）</li>
+<li>§3.1.2 D3「≥6 分」与「动能衰竭」、QP 引用残留、L0 重复实现、<code>is_tangled</code> 死分支、D1 兜底 30、Setup fail-open</li>
+<li>§3.1.3.1 回退丢锚、07:00 下限、组数/布防窗口未记载、ES/SPY 口径混用</li>
+</ol>
+<h3 id="根因归类">根因归类</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">根因</th>
+<th style="text-align: left;">涉及项</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>跨进程 / 重载导致上下文丢失</strong>（<code>qp_level</code>、<code>quant_pivot</code> 未落库，仅在布防进程内存中）</td>
+<td style="text-align: left;">§3.1.3.1 #1、#2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>文档数字/术语未随代码同步</strong></td>
+<td style="text-align: left;">§3.1.2 D1 阈值栏、QP 残留、<code>Status != 'CLOSED'</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>门槛未实现或实现口径与文档不符</strong></td>
+<td style="text-align: left;">§3.1.2 D3 ≥6 分、§3.1.3.1 波幅 AND→OR、95%/5% 边界、双侧带</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>键名失配导致死分支</strong></td>
+<td style="text-align: left;">§3.1.2 <code>is_tangled</code>（生产者写 <code>tangled</code>）</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>条件顺序导致分支不可达</strong></td>
+<td style="text-align: left;">§3.1.3.1 <code>BETWEEN_*</code> 使 ARMED 不可达</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>未记载的隐性约束</strong></td>
+<td style="text-align: left;">§3.1.3.1 07:00 下限、哨兵侧 ≥2 组即跳过、布防窗口</td>
+</tr>
+</tbody>
+</table>
+<h2 id="方法与证据">方法与证据</h2>
+<h3 id="审计方法">审计方法</h3>
+<ul>
+<li>手册侧：以 Python 解析 HTML 指定锚点区间 → 去标签转纯文本（<code>re.sub(r'&lt;[^&gt;]+&gt;','',seg)</code> + <code>html.unescape</code>）→ 逐字核对阈值、字段名、数值。</li>
+<li>代码侧：<code>grep</code> / <code>sed</code> / <code>read</code> 定位实现与常量；<code>文件:行号</code> 逐条落证；必要时以 <code>python3</code> 复算。</li>
+<li>双路径交叉：主检 + 独立复核子代理，二者对高严重度结论一致；主检对复核新增项（<code>is_tangled</code>、D1 兜底 30、Setup fail-open、ES/SPY 口径、哨兵 ≥2 组闸门、两套锚定口径）逐条复验通过。</li>
+<li>全程只读：未修改任何文件、未写数据库、未启停服务。</li>
+</ul>
+<h3 id="常量来源">常量来源</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">范围</th>
+<th style="text-align: left;">来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">§3.1.2 全部评分与阈值（60/30/10、各档分值、55、75、±0.15、兜底 30）</td>
+<td style="text-align: left;"><code>option_seller_engine.py</code> 内<strong>硬编码字面量</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">L0 阈值（06:35 / 11:30、70/30、60/40、<code>&lt;2</code>、<code>≤5</code>）</td>
+<td style="text-align: left;"><code>auto_mechanisms.py</code> <strong>模块级硬编码常量</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">§3.1.3.1 波幅（0.85 / 45.0）、容差（0.2 / 2.0 / 0.5%）、位置（60 / 40）、冷却（45 分钟）</td>
+<td style="text-align: left;"><strong>硬编码字面量</strong>（不在 <code>order_flow_config.THRESHOLDS</code>，不在 JSON 配置，不在 DB）</td>
+</tr>
+<tr>
+<td style="text-align: left;">Setup 判据</td>
+<td style="text-align: left;">唯一取自 <code>order_flow_analysis/order_flow_config.py</code> 的 <code>THRESHOLDS</code>（单一数值源）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="未验证项">未验证项</h3>
+<ul>
+<li>§3.1.2 D2 注释中「已移除 30 分钟周期与大模型 AI 分析」的数据源口径（需查 <code>order_flow_analysis</code> Gamma 生成链，超出本次指定范围）。</li>
+<li>各「不一致」项的实际交易日影响量级（需历史回放/门禁评估，本次未执行）。</li>
+</ul>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

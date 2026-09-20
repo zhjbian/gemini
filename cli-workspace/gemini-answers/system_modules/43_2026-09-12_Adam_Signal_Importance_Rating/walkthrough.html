@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>43. Adam 信号重要性评级（AI 定级 + 页面可覆盖）</title>
+<style>body{background:#f8fafc;color:#1e293b;font-family:-apple-system,'PingFang SC',Arial,sans-serif;margin:0;padding:24px;line-height:1.7}
+.wrap{max-width:1000px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px 28px}
+h1{font-size:1.35rem;color:#0f172a;margin:0 0 6px}h2{font-size:1.03rem;color:#0f172a;margin:22px 0 8px;padding:3px 0 3px 10px;border-left:4px solid #1d4ed8;background:#f8fafc;border-radius:0 6px 6px 0}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:8px 0}th{background:#f1f5f9;color:#475569;text-align:left;padding:7px 10px;border:1px solid #e2e8f0}td{padding:7px 10px;border:1px solid #e2e8f0;vertical-align:top}
+code,pre{background:#f1f5f9;border-radius:5px;font-size:0.83rem}code{padding:1px 5px}pre{padding:10px;display:block;white-space:pre-wrap}
+.ok{color:#047857;font-weight:700}.warn{color:#b45309;font-weight:700}.meta{font-size:0.84rem;color:#64748b;margin-bottom:12px}</style></head><body><div class="wrap">
+<h1>43. Adam 信号重要性评级（AI 定级 + 页面可人工覆盖）</h1>
+<div class="meta">日期 <code>2026-09-12</code> ｜ 关联 <code>x_posts</code> / <code>bbt_data_web</code> / <code>x_posts_adam_signal_v2.py</code></div>
+
+<h2>1. 需求</h2>
+<ul><li>Adam 的信号有<b>日内小波动</b>与<b>大趋势反转</b>之分 ⇒ 需用<b>固定评级标准</b>记录「信号重要性」</li>
+<li>评级：<b>1–5 打分</b>并存对应<b>文字等级</b></li>
+<li><b>AI 判定 signal 时一并给出</b>该评级</li>
+<li><b>页面必须可人工 override</b></li>
+<li>与既有 <code>conviction</code> 区分：Conv＝「他有多确信」，Importance＝「该信号对交易有多重要」⇒ 两字段并存</li></ul>
+
+<h2>2. 固定评级标准（imp-v1，通用且多空对称）</h2>
+<table><tr><th>分值</th><th>文字</th><th>判据（固定，不看具体某日）</th></tr>
+<tr><td><b>5</b></td><td><b>Critical（极高）</b></td><td>多日/波段级别的<b>趋势反转或拐点</b>：明确关键价位 + 方向 + 结构结论（如"这是本轮下跌的底"）</td></tr>
+<tr><td><b>4</b></td><td><b>High（高）</b></td><td><b>波段级别</b>方向判断或关键价位（构成持仓去留依据）</td></tr>
+<tr><td><b>3</b></td><td><b>Medium（中）</b></td><td>明确的<b>日内</b>方向/价位观点（当日可操作）</td></tr>
+<tr><td><b>2</b></td><td><b>Low（低）</b></td><td><b>短时/小波动</b>观察（日内噪音级）</td></tr>
+<tr><td><b>1</b></td><td><b>Noise（噪音）</b></td><td>闲聊/情绪/无方向（与交易无关）</td></tr>
+<tr><td>NULL</td><td>未评定</td><td>—</td></tr></table>
+<p>三个判据维度：① 时间级别（日内 ↔ 波段/多日）② 明确性（是否给方向 + 价位）③ 可操作性（能否作为交易/仓位依据）；<b>多空同一标准</b>（避免看多严、看空松 ✗）。</p>
+
+<h2>3. 实施（改了哪些文件）</h2>
+<table><tr><th>层</th><th>改动</th><th>说明</th></tr>
+<tr><td>DB</td><td><code>x_posts</code> 新增 <code>importance tinyint</code> · <code>importance_src varchar(8)</code> · <code>importance_ver varchar(24)</code></td><td>均有列注释；<code>src</code> 记录 <code>ai</code>/<code>user</code> ⇒ 覆盖可追溯</td></tr>
+<tr><td>ORM</td><td><code>bbt_data_web/models.py</code> 的 <b>XPost</b> 加 3 列</td><td>已用 <code>InstrumentedAttribute</code> 校验为<b>真列</b>（避免历史"假列"事故）</td></tr>
+<tr><td>分类器</td><td><code>PyTools/jobs/x_posts_adam_signal_v2.py</code>：新增 <code>IMPORTANCE_VER="imp-v1"</code> 与 <code>IMPORTANCE_RUBRIC</code>；prompt schema 加 <code>importance (1-5)</code>；写入 <code>p.importance / importance_src='ai' / importance_ver</code></td><td><b>加法式改动</b>，且 <code>LABEL_VER</code> <b>未变</b> ⇒ <b>不触发全量重跑</b>；仅新帖自动获得评级</td></tr>
+<tr><td>API</td><td><code>bbt_data_web/data_app/x_posts.py</code>：行数据返回 <code>importance/importance_src</code>；<code>/data/update_x_post_signal</code> 接受 <code>importance</code>，写入时置 <code>src='user'</code></td><td>空值可清空；异常值静默忽略</td></tr>
+<tr><td>页面</td><td><code>templates/x_posts.html</code> 在 <b>Conv 之后新增 Imp 列</b>（17 列）；<code>static/js/x_posts.js</code> 新增下拉渲染（1–5 + 文字 + tooltip）+ Update 负载带 <code>importance</code></td><td>人工覆盖后显示 ✎ 标记；列宽遵循既有"窄列按内容收缩"策略</td></tr></table>
+
+<h2>4. 验收（已完成项）</h2>
+<table><tr><th>检查</th><th>结果</th></tr>
+<tr><td>DB 三列存在</td><td><span class="ok">✓</span></td></tr>
+<tr><td>XPost ORM 映射</td><td><span class="ok">✓ 三列均为真列</span></td></tr>
+<tr><td>分类器语法 + 可导入</td><td><span class="ok">✓</span>（LABEL_VER 未改动 ✓）</td></tr>
+<tr><td>prompt 含固定评级标准</td><td><span class="ok">✓</span>（"5 = multi-day …" 已内联）</td></tr>
+<tr><td>API 语法 / 页面 HTTP</td><td><span class="ok">✓ 200</span></td></tr>
+<tr><td>模板 17 列 = JS 17 列（Imp 紧随 Conv）</td><td><span class="ok">✓ 一致</span></td></tr>
+<tr><td><code>node --check</code></td><td><span class="ok">✓ 通过</span></td></tr>
+<tr><td>接口返回 importance 字段</td><td><span class="ok">✓</span>（历史行暂为 None ✓ 见下）</td></tr></table>
+
+<h2>5. 待办</h2>
+<ol><li><b>历史回填</b>：现有 1,689 行 <code>importance</code> 为 NULL（因 <code>LABEL_VER</code> 未变 ⇒ 分类器不会重跑旧帖）。方案：写一个<b>只写 importance</b> 的回填脚本（<code>--importance-only</code> 风格，不触碰既有标签）⇒ 待执行</li>
+<li>页面硬刷新（⌘⇧R）后人工试一次覆盖 ⇒ 确认 ✎ 标记与 <code>src='user'</code> 落库</li>
+<li>（可选）在 <code>adam_feature_*</code> 统计里按 importance 分层做验证率分析</li></ol>
+
+<h2>6. 回滚</h2>
+<pre>DB:   alter table x_posts drop column importance, drop column importance_src, drop column importance_ver;
+文件: /tmp/xposts_sig.bak-imp-*  (分类器)  /tmp/xposts_api.bak-imp-*  (API)
+      /tmp/xposts.tpl.bak2-*     (模板)      /tmp/xposts.js.bak2-*      (JS)</pre>
+</div></body></html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>前置④ 边界有效性：适用范围收订（仅 L1/H1）+ 扩展到机制③ 平衡日边界 · 验收报告</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>前置④「边界有效性」适用范围收订 + 扩展到机制 ③ 平衡日边界 —— 验收报告 (Walkthrough)</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>归档目录</strong>：<code>64_2026-09-15_Boundary_Integrity_Gate_Scope_And_Balanced_Day</code></li>
+<li><strong>一句话结论</strong>：按用户口径把前置④ <strong>收窄到 L1 / H1</strong>（L2 / H2 豁免），并<strong>扩展到机制 ③ 平衡日边界</strong>（受限档位 = Smashelito 第一档 <code>ut1</code> / <code>dt1</code>，阈值 <strong>8.0 ES 点</strong>；<code>fut</code> / <code>fdt</code> 远档与 <code>day_high</code> / <code>day_low</code> 运行极值豁免），实现为「带名边界 + 单一权威纯函数 + 评分器方向选择处统一裁决」，<strong>29 + 25 条契约测试全绿</strong>、既有套件无回归、真实数据复现 <code>dt1</code> 被拦。</li>
+</ul>
+<hr />
+<h2>1. 交付结果速览</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机制 ② 前置④</td>
+<td><strong>只约束 L1 / H1</strong>；L2 / H2 返回 <code>applicable=False</code>（reason 明确「1-SD 极值档位豁免」），引擎不再拦截</td>
+</tr>
+<tr>
+<td>机制 ③ 前置④</td>
+<td>新增；<strong>只约束 <code>ut1</code> / <code>dt1</code></strong>，阈值 <strong>8.0 ES 点</strong>，含等号；<code>fut</code> / <code>fdt</code> 与运行极值豁免</td>
+</tr>
+<tr>
+<td>判定位置</td>
+<td>机制②：布防时点（QUALIFIED / ARMED）+ 触发侧兜底；机制③：<strong>评分器方向选择处单点</strong>（该机制无条件单链路，无 TOCTOU 窗口）</td>
+</tr>
+<tr>
+<td>留痕</td>
+<td>机制② <code>debug_info.boundary_integrity_upper/_lower</code>；机制③ <code>breakdown.boundary_integrity_gate[方向]</code></td>
+</tr>
+<tr>
+<td>探针</td>
+<td>机制②：L2/H2 行显示「档位豁免」；机制③：新增「前置：边界有效性（边界级 · 仅 ut1/dt1）」行</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>机制② <code>test_qp_boundary_integrity_gate</code> <strong>29/29</strong>；机制③（新增）<code>test_balanced_day_boundary_integrity_gate</code> <strong>25/25</strong>；模块57 <code>test_balanced_day_prev_close_gate</code> 24/24；<code>test_intraday_probe</code> 34/34；其余套件无回归</td>
+</tr>
+<tr>
+<td>服务</td>
+<td><code>http://127.0.0.1:5005/bbt_option_seller</code> → <strong>200</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>2. 真实数据验证（2026-09-15 11:10 ES，本机 DB 实取）</h2>
+<p>上下文（<code>load_balanced_day_context('2026-09-15','11:10')</code>）：</p>
+<pre><code>day_high = 7682.50   day_low = 7646.25   px = 7659.25
+key_levels_named = {'ut1': 7711.0, 'fut': 7757.0, 'dt1': 7659.0, 'fdt': 7620.0}
+prev_close(ES)   = 7625.0
+nearest_boundary_named(px, dh, dl, named) = (7682.5, 'day_high', 7659.0, 'dt1')
+</code></pre>
+<p>闸门逐档位实测：</p>
+<table>
+<thead>
+<tr>
+<th>边界</th>
+<th>方向</th>
+<th>判据</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dt1 = 7659.0</code></td>
+<td>BULLISH</td>
+<td><code>day_low 7646.25</code> 低于 <code>dt1</code> <strong>12.75 点</strong> ≥ 8.0</td>
+<td><strong>拦截</strong>（破位后回抽）</td>
+</tr>
+<tr>
+<td><code>ut1 = 7711.0</code></td>
+<td>BEARISH</td>
+<td><code>day_high 7682.50</code> 高于 <code>ut1</code> −28.5 点（未触及）</td>
+<td>放行</td>
+</tr>
+<tr>
+<td><code>fdt = 7620.0</code></td>
+<td>BULLISH</td>
+<td>远档 ⇒ 豁免（即便被跌破也不拦）</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>fut = 7757.0</code></td>
+<td>BEARISH</td>
+<td>远档 ⇒ 豁免</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>day_low</code></td>
+<td>BULLISH</td>
+<td>运行极值 ⇒ 豁免（「被自己突破」定义上不成立）</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>说明：该时点两侧候选同时受两条前置约束 —— 前置③（昨收方向）先拦下 <code>dt1</code> 做多（<code>dt1 7659 &gt; 昨收 7625</code>，缺口日保护），
+前置④ 独立地给出<strong>同一结论</strong>（<code>dt1</code> 已被有效跌破 12.75 点）。
+两条前置互为冗余校验，任一不满足即拦截；单测中另用 <code>prev_close=7700</code> 的夹具把前置④ <strong>隔离</strong>出来单测。</p>
+</blockquote>
+<p>机制 ② 收窄实测（SPY 口径，模块62 的事故夹具）：</p>
+<pre><code>L1 → (False) Boundary integrity gate (L1 long) failed: session low 756.34 is 1.48 pts below L1=757.82 ...
+L2 → (True,  'L2: 1-SD 极值档位豁免「边界有效性」前置（本项仅约束 L1 / H1） -&gt; integrity gate N/A.')
+H1 → (False) ... H1 ... blocked ...
+H2 → (True,  'H2: 1-SD 极值档位豁免 ... -&gt; integrity gate N/A.')
+</code></pre>
+<h2>3. 探针实测（机制 ③，<code>balanced_cfg.enabled=True</code>）</h2>
+<pre><code>verdict  : REJECTED
+rationale: 测试点统一口径【做多】：③ 评分器否决：Prev-Close gate (balanced BULLISH) failed:
+           nearest lower boundary 7659.00 &gt;= PrevClose 7625.00 -&gt; Bull Put blocked (gap-up ...)
+判据行    : 前置：昨收方向（边界级 · 下侧边界）      passed=False
+           前置：边界有效性（边界级 · dt1）         passed=False   ← 本模块新增
+</code></pre>
+<h2>4. 测试与回归</h2>
+<pre><code>test_qp_boundary_integrity_gate ............. Ran 29 tests   OK   （含改写后的「L2/H2 豁免」用例）
+test_balanced_day_boundary_integrity_gate ... Ran 25 tests   OK   （本模块新增）
+test_balanced_day_prev_close_gate ........... Ran 24 tests   OK
+test_conditional_order_trigger_3131 ......... Ran  9 tests   OK
+test_qp_prev_close_gate ..................... Ran 21 tests   OK
+test_intraday_probe ......................... Ran 34 tests   OK
+test_qp_meta_parse / strike_anchor_3131 / force_dry_degrade /
+min_open_credit_dte_fallback / l1_h1_breakeven_stop /
+isolation / journal_* ×4 / tv_exit_label_overlap ......       OK
+test_live_resting_limit_order ............... FAILED(1)  ← 预先存在（git stash 基线复现同一失败，与本改动无关）
+test_quant_pivot_option_seller .............. OK（以 PyTools.option_seller.* 从项目根导入时 0 错 0 失败；
+                                              目录模式直跑是已知的 PyTools 包路径问题）
+</code></pre>
+<p>新增测试覆盖要点（<code>test_balanced_day_boundary_integrity_gate.py</code>）：
+① <code>nearest_boundary_named</code> 选中 <code>dt1</code>（0.25 点）而非 <code>day_low</code>（13.0 点）；
+② 恰好 8.0 点算突破、7.99 点放行；③ 双向对称（<code>ut1</code> 被突破 ⇒ 禁做空）；
+④ <strong>反证：<code>fut</code> / <code>fdt</code> 即便被有效突破也必须放行</strong>（豁免优先于幅度判据）；
+⑤ 运行极值豁免；⑥ 缺数/非法值 <code>nan</code>·<code>inf</code> → fail-open + <code>data_missing</code>；
+⑦ 选择器回退（首选被拦 ⇒ 试对侧；两侧全拦 ⇒ <code>None</code>）；⑧ 3 元组候选向后兼容（N/A）；
+⑨ 上下文带名贯通（<code>key_levels_named</code> 与 <code>key_levels</code> 同源同长度）；
+⑩ 探针判据行存在 + 规则引用 <code>§3.1.4.1.9</code> + 真实数据 <code>dt1</code> 行为 <code>False</code>。</p>
+<h2>5. 规则手册同步（HTML + MD 双写）</h2>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§3.1.3.1 前置规则 ④ 行</td>
+<td>标题「仅 L1 / H1」；新增「适用范围（L2/H2 豁免）」条目（含理由）；机制归属补入机制③ 并指向新节</td>
+</tr>
+<tr>
+<td>§3.1.4.2</td>
+<td>新增「边界级前置 · 边界有效性（未被有效突破 · 2026-09-15 新增）」完整条目（判据 / 映射 / 阈值 / fail-open / 留痕 / 案例）</td>
+</tr>
+<tr>
+<td><strong>HTML §3.1.4.1.9（新节）</strong></td>
+<td>判据表（双向）+ 与机制② 的对称映射 + 尺度铁律 + 数据缺失口径 + 留痕 + 带名边界实现要点 + 真实案例</td>
+</tr>
+<tr>
+<td>机制③ 概览</td>
+<td>昨收方向条目之后新增一条指向 §3.1.4.1.9</td>
+</tr>
+</tbody>
+</table>
+<p>校验：HTML 标签配平（<code>div</code>/<code>ul</code>/<code>li</code>/<code>table</code>/<code>h6</code> 差值全为 0）；MD 与 HTML 口径一致。</p>
+<h2>6. 遗留与说明</h2>
+<ol>
+<li><strong>fail-open vs fail-closed 尚未由用户最终确认</strong>（模块62 遗留问题）：两条机制的「边界有效性」现均为 <strong>fail-open</strong>，
+   而机制③ 的「昨收方向」前置为 <strong>fail-closed</strong>。手册已写明两者理由与差异；若用户要求统一为 fail-closed，改动点仅两处纯函数的缺数分支。</li>
+<li>机制③ 生产开关 <code>balanced_day_config.enabled</code> 当前为 <strong>False</strong>：本项随开关生效，未改变当前行为。</li>
+<li>机制③ 的「远档」判定依赖 Smashelito 字段名（<code>ut1/fut/dt1/fdt</code>）：若上游未来改字段命名，<code>BALANCED_INTEGRITY_LEVELS</code> 与
+   <code>nearest_boundary_named()</code> 的映射需同步（已在常量处集中定义，便于一处修改）。</li>
+</ol></div></div></body></html>

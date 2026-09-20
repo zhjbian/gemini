@@ -55,3 +55,65 @@
   - 10:49:00 Tranche 1 快速完成 40% 目标止盈（+$2.00）；
   - 11:10:00 Tranche 2 深度完成 75% 目标止盈（+$4.00）！
 - **全天统计**: 6 笔自动模拟单全部止盈，胜率 100%，累计实现盈亏 +$20.00。
+
+## 2026-09-14 · Bug 修复：一次开仓（1 组双批次）被页面显示成 2 个「开仓」
+
+**用户报告**：「这是一个开仓 为什么显示成了2个」（活跃持仓监控里出现 `开仓-1 (1组·1手)` 与 `开仓-2 (1组·1手)` 两张卡，同一 SPY 767×769 结构、相隔 1 秒）。
+
+### 一、先确认「2 手」是设计，不是重复下单
+
+当日实测两笔持仓（`order_flow_option_seller_trades` id=252 / 253）：
+
+| id | tranche | tranche_label | tp_price | order_id | group_order_id（entry_evidence） |
+| :-- | :-- | :-- | :-- | :-- | :-- |
+| 252 | 1 | 批次1 (初级止盈 40%) | 0.14 | 1007918879647 | **DRY-1789408350** |
+| 253 | 2 | 批次2 (深度止盈 75%) | 0.06 | 1007918879655 | **DRY-1789408350** |
+
+两者 `trigger=MANUAL_UI_SCAN`、`groups=1`、`qty=1`，**共享同一 `group_order_id`** ⇒ 确为**一次开仓**。
+按手册 **§3.3.2.2 双批次阶梯开仓 (2 Spreads Scale-Out)**：一次开仓 = **1 组 = 2 手**（批次1 40% / 批次2 75%），
+两批共享同一开仓组、各自独立止盈与独立平仓 ⇒ **2 个券商订单、2 条持仓记录** 是规格行为，不是重复触发。
+（`groups` 可配 1–10 组，每组固定 2 手；1 组 = 2 手是下限。）
+
+### 二、真正的缺陷：分组键在「内存表重载」时丢失 ⇒ 页面拆成两组
+
+前端本来就按 `group_order_id` 聚合（`bbt_option_seller.html` 活跃持仓区），兜底链为
+`group_order_id → order_id（去掉 -1/-2 后缀）→ open_time+strikes`。
+LIVE 的 `order_id` 是券商数字单号（如 `1007918879647`，无 `-1/-2` 后缀），两次开仓仅相差 1 秒 ⇒ 兜底键两条都不同 ⇒ **拆成两组、各显示 1 组·1手**。
+
+根因在**后端恢复映射**：`option_seller_manager._reload_active_trades()` 从 DB 重建内存活跃仓时**漏带 `group_order_id`（与 `groups`）**，
+而该函数在 ① 进程启动、② 每 10 秒 `_resync_active_trades()`（为让仪表盘进程看见短命子进程开出的自动单）都会执行 ⇒ 内存表里的分组键被反复抹掉，页面必然分组失败。
+
+**为什么之前没发现**：刚开仓那一瞬间内存表由开仓路径（`_open_single_contract`）写入，该处**有** `group_order_id`，页面正好显示正确；一旦发生重载/重同步就退化成两张卡。
+
+### 三、修复
+
+| 层 | 改动 |
+| :--- | :--- |
+| `PyTools/option_seller/option_seller_manager.py` `_reload_active_trades()` | 恢复字段补 `'group_order_id': ev.get('group_order_id')` 与 `'groups': int(ev.get('groups') or 1)`（**不臆造**：旧行缺键时保持 None，不误合并） |
+| `bbt_data_web/templates/bbt_option_seller.html` 分组处 | `grpKey` 允许回退到 `p.entry_evidence.group_order_id`（纵深防御，覆盖其他 payload 路径） |
+| 组卡片正文 | 既有实现 `members.map(m => buildPosCardHtml(m))` ⇒ 组内**逐批次**渲染，每批仍保留自己的「平仓 / 拷贝」按钮与止盈明细（**合并不影响单批独立平仓**） |
+
+### 四、验证
+
+- 修复前后台 API：`group_order_id = None`（两条各自成组）；
+- 修复后（Flask 自动重载，新 PID 85766 @ 11:02:32）：`group_order_id = 'DRY-1789408350'`（**两条同键**）。
+- 用**真实 payload** 复刻前端分组逻辑（node）：
+
+```
+开仓-1 (双批次 · 1组 · 2手)  ← 组内 2 条: [批次1 qty=1 tp=0.14 id=252] [批次2 qty=1 tp=0.06 id=253]
+分组数 = 1   持仓条数 = 2
+```
+
+- 周期重同步（10s）同样走 `_reload_active_trades()` ⇒ 修复对「自动单由子进程开出」的场景同样生效。
+- `py_compile` + 未定义名扫描 + 内联 JS `node --check` 全绿。
+- 需**硬刷新**页面（Cmd+Shift+R）加载新模板 JS。
+
+### 五、遗留选项（需用户确认后再动，属规则/规格变更）
+
+若要「一次只开 1 手」（单批次模式），需改 §3.3.2.2 的仓位基准（一次 2 手）与 `open_trade` 的双批次逻辑，并同步手册 —— **本次未改**。
+
+### 六、回滚点
+
+- `PyTools/option_seller/option_seller_manager.py`：`/tmp/l0c_bak/option_seller_manager.py.pre_groupfix`
+- 模板：`/tmp/l0c_bak/bbt_option_seller.html.pre_groupfix`
+- 本文件：`/tmp/wt27_pre_groupfix.bak`

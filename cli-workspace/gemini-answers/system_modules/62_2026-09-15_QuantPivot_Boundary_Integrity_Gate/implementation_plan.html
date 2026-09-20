@@ -1,0 +1,443 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>机制 ② QuantPivot边界反向 · 前置条件 ④ 边界有效性 · 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>卖家系统：机制 ②「QuantPivot边界反向」新增前置条件 ④「边界有效性（未被有效突破）」实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：期权卖家自动触发机制 ②（QuantPivot边界反向，<code>AUTO_QUANT_PIVOT_BOUNDARY</code>）</li>
+<li><strong>归档目录</strong>：<code>62_2026-09-15_QuantPivot_Boundary_Integrity_Gate</code></li>
+<li><strong>技术栈</strong>：Python 3.11 / <code>OptionSellerEngine</code> 判定层纯函数 / <code>OptionSellerManager</code> 条件单触发侧 / 只读探针 <code>intraday_probe</code> / unittest 契约测试 / 规则手册（HTML + MD）</li>
+</ul>
+<hr />
+<h2>1. 背景与问题（真实事故）</h2>
+<p>用户报障：<code>http://127.0.0.1:5005/bbt_option_seller</code> →「今日交易流水账本」序列 <strong>#27</strong>：</p>
+<pre><code>【BBT期权流水】序列: #27 | 类型: 自动 | 开仓类型: QuantPivot边界反向 [L1] | 标的: SPY
+时间: 11:10:38 -&gt; 12:30:07 | 结构: BULL_PUT_SPREAD (批次1 (初级止盈 40%))
+合约: SPY0916P-749+747 | TOS: .SPY260916P749-.SPY260916P747 | 周期: 1DTE
+策略: BALANCED | 开仓金: $0.21 | 平仓价: $0.24 | 实现盈亏: $-6.00
+退出状态: CLOSED_TIME_STOP | 运行模式: DRY
+</code></pre>
+<h3>只读 DB 复核（DB id，非页面序列号）</h3>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>开仓</th>
+<th>触发机制</th>
+<th>档位</th>
+<th>子场景</th>
+<th>短/长腿</th>
+<th>状态 / PnL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>280</strong></td>
+<td>11:10:38</td>
+<td><code>AUTO_QUANT_PIVOT_BOUNDARY</code></td>
+<td><strong>L1</strong></td>
+<td><code>RANGE_BOUND_LOWER_BOUNDARY</code></td>
+<td>749 / 747</td>
+<td><code>CLOSED_TIME_STOP</code> / $-6.00 (DRY)</td>
+</tr>
+<tr>
+<td><strong>281</strong></td>
+<td>11:10:38</td>
+<td>同上（批次 2）</td>
+<td>L1</td>
+<td>同上</td>
+<td>749 / 747</td>
+<td><code>CLOSED_TIME_STOP</code> / $-6.00 (DRY)</td>
+</tr>
+</tbody>
+</table>
+<p><code>entry_evidence.debug_info</code>（只读回放）：</p>
+<pre><code>rationale: [Range-Bound Lower Boundary Reversal] Price tested QuantPivot TESTING_L1_SUPPORT
+           (L1=757.82, L2=756.35) in range-bound regime (Pos=34.0%, RangePct=0.50%)
+           on SPY 757.63 with EMA extension -0.01%.
+           Open Bull Put Spread [BALANCED, Short Put &lt;= 757.82, Level=L1].
+quant_pivot_level: L1      target_short_anchor: 757.82      sub_scenario: RANGE_BOUND_LOWER_BOUNDARY
+</code></pre>
+<h3>当日 RTH 极值（只读 DB <code>order_flow_signals</code>，ES 口径）</h3>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th><code>rth_price_high</code></th>
+<th><code>rth_price_low</code></th>
+<th><code>price_position_pct</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11:10</td>
+<td>7684.50</td>
+<td><strong>7646.25</strong></td>
+<td>34.0</td>
+</tr>
+</tbody>
+</table>
+<p>SPY 口径折算（百分比口径，见 §4.1）：波幅 <code>(7684.50−7646.25)/7646.25 = 0.50%</code>，现价 757.63、Pos 34.0%
+⇒ <strong>当日最低 ≈ 757.63 − 0.34 × (757.63 × 0.50%) = 756.34</strong>，即 <strong>低于 L1=757.82 达 1.48 点</strong>。</p>
+<p><strong>机理</strong>：价格已<strong>有效跌破 L1</strong>（1.48 点，远超噪声），随后<strong>从下方回抽至 L1</strong>（757.63 落入 <code>[L1−0.2, L1+0.2]</code>）。
+此时 L1 的角色已由「支撑」变为「阻力」——<strong>回抽测试的是破位后失败的原支撑</strong>。
+旧判据只看「波幅 / 日内位置 / 容差带 / 昨收方向」，<strong>无法区分「从上方回踩支撑」与「从下方回抽失败位」</strong>，
+于是把它当成正常的支撑回踩开了 Bull Put Spread，收盘时间止损离场。</p>
+<h2>2. 用户指令（需求原文）</h2>
+<blockquote>
+<p>这是个错误的开仓，当价格跌破了 L1，反弹接近或触碰到 L1 时，也就是从下面回到 L1 时，<strong>不能开多仓</strong>，
+请对触发机制 QuantPivot边界反向，加上这个限制条件，
+<strong>价格跌破了 L1 定义最低点低于 L1 by SPY 0.8 点</strong>，<strong>反方向最对称处理</strong>。
+ref：规则手册 §3.1.3.1 开仓规则 (Entry Rules)</p>
+</blockquote>
+<h2>3. 实施目标</h2>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>交付</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新增前置条件 ④「边界有效性（未被有效突破）」</td>
+<td>做多：当日最低点 <code>&lt;= L − 0.8</code> 点（SPY）⇒ 该 L 档位当日<strong>禁做多</strong>；做空：当日最高点 <code>&gt;= H + 0.8</code> 点 ⇒ 该 H 档位当日<strong>禁做空</strong>（<strong>严格反向对称</strong>）</td>
+</tr>
+<tr>
+<td>阈值口径可跨尺度</td>
+<td>SPY <strong>0.8 点</strong>（与容差带 ±0.2 点同刻度）；SPX / ES 等高点位标的等比映射 <strong>8.0 点</strong>；<strong>含等号</strong>（恰好 0.8 点即算有效突破）</td>
+</tr>
+<tr>
+<td>双路径同时生效</td>
+<td><strong>QUALIFIED（直接开仓）与 ARMED（布防哨兵单）都不得绕过</strong></td>
+</tr>
+<tr>
+<td>触发侧兜底</td>
+<td>覆盖「<strong>布防时尚未突破、布防后价格才有效突破、随后回抽触发</strong>」——该场景布防侧无从拦下</td>
+</tr>
+<tr>
+<td>单一权威</td>
+<td>判定收敛为一个纯函数（引擎判定层）+ 一个极值解析器，引擎 / 触发侧 / 探针三处共用</td>
+</tr>
+<tr>
+<td>尺度安全</td>
+<td>极值一律在 <strong>SPY 口径</strong>解析；<strong>禁止</strong>把 ES/SPX 绝对点位 <code>÷10</code> 当 SPY 点位（基差陷阱，见 §4.1）</td>
+</tr>
+<tr>
+<td>缺数据语义明确</td>
+<td>极值不可解析 ⇒ <strong>fail-open</strong>（放行）+ <code>data_missing=True</code> 留痕（幅度类判据不得让机制整体停摆）</td>
+</tr>
+<tr>
+<td>不影响机制 ④</td>
+<td>趋势日极限终点沿 SPX Gamma 墙开仓，<strong>不受</strong>本项约束</td>
+</tr>
+<tr>
+<td>可观测</td>
+<td>探针（当日高低点自动触发机制检测）新增前置④判据行；<code>debug_info.boundary_integrity_*</code> 留痕</td>
+</tr>
+<tr>
+<td>规则归档</td>
+<td>规则手册 §3.1.3.1 前置规则表新增 <strong>④</strong>（HTML + MD 双份，规则 11）</td>
+</tr>
+</tbody>
+</table>
+<h2>4. 关键设计</h2>
+<h3>4.1 数据层：SPY 口径极值解析（<code>resolve_qp_session_extremes_spy</code>）</h3>
+<p>机制判定层拿不到「当日 RTH 极值的绝对 SPY 点位」，但拿到的是<strong>两组 ES 口径的百分比量</strong>
+（<code>price_position_pct</code>、<code>rth_range_pct</code>）。百分比与尺度无关（ES 与 SPY 日内涨跌幅一致、比价/基差日内近似常数），
+因此用 <strong>SPY 现价</strong>折算即得 SPY 点位的当日极值：</p>
+<pre><code>range_spy = SPY现价 × rth_range_pct / 100
+当日最低  = SPY现价 − (pos%/100)   × range_spy
+当日最高  = SPY现价 + (1 − pos%/100) × range_spy
+</code></pre>
+<p>取数优先级（命中即止）：
+1. <code>of_metrics['day_low_spy'] / ['day_high_spy']</code>（或 <code>rth_low_spy / rth_high_spy</code>）——<strong>调用方直给 SPY 口径极值</strong>（触发侧折算后传入）；
+2. 上述百分比折算（<code>source='pct_derived'</code>）；<code>rth_range_pct</code> 缺失时退 <code>rth_range_pts / 10</code>（<strong>仅差值可除 10</strong>，<code>source='range_pts_approx'</code>）；
+3. 全部失败 ⇒ <code>(None, None, 'missing')</code>。</p>
+<blockquote>
+<p><strong>⚠️ 绝对点位铁律（本模块最大风险点，写入代码注释与手册）</strong>
+<strong>不得</strong>把 ES/SPX 口径的<strong>绝对点位</strong>（<code>rth_price_low/high</code>）直接 <code>÷10</code> 当 SPY 点位。
+本机实测：2026-09-15 ES RTH 低点 <code>7646.25</code>，而同时刻 SPY 仅 <code>~757.6</code> ⇒ ES 对 SPY 的<strong>基差 ≈ 0.9%（约 70 ES 点）</strong>，
+<strong>远大于</strong>当日波幅（~0.5%）。<code>7646.25 ÷ 10 = 764.63</code> 会落在<strong>现价之上</strong>，
+把「已有效跌破」整体翻转为「从未跌破」（结论相反）。ES 绝对极值只能在<strong>持有实时 ES/SPY 比价</strong>的调用侧换算（模块 57 已登记同一数据异常）。</p>
+</blockquote>
+<h3>4.2 判定层：单一权威纯函数</h3>
+<p><code>PyTools/option_seller/option_seller_engine.py</code>：</p>
+<pre><code class="language-python">QP_BREAK_TOL_SPY  = 0.8     # SPY 口径「有效突破」阈值
+QP_BREAK_TOL_HIGH = 8.0     # SPX / ES 等高点位标的等比映射
+
+@staticmethod
+def resolve_qp_session_extremes_spy(current_price, of_metrics, pivot_data) -&gt; (day_low, day_high, source)
+
+@staticmethod
+def check_qp_boundary_integrity(level, direction, quant_pivot, of_metrics=None,
+                                pivot_data=None, current_price=None,
+                                session_extremes=None) -&gt; (ok, reason, detail)
+</code></pre>
+<p>判据：</p>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>判据</th>
+<th>不满足</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BULLISH</code>（Bull Put）</td>
+<td><code>day_low &gt; L − 0.8</code>（即 <code>drop = L − day_low &lt; 0.8</code>）</td>
+<td><code>drop &gt;= 0.8</code> ⇒ <strong>拦截</strong>（<code>detail.drop_pts</code> 记录实际跌破点数）</td>
+</tr>
+<tr>
+<td><code>BEARISH</code>（Bear Call）</td>
+<td><code>day_high &lt; H + 0.8</code>（即 <code>rise = day_high − H &lt; 0.8</code>）</td>
+<td><code>rise &gt;= 0.8</code> ⇒ <strong>拦截</strong>（<code>detail.rise_pts</code>）</td>
+</tr>
+<tr>
+<td>档位</td>
+<td><code>L1 / L2 / H1 / H2</code> <strong>逐档位独立</strong>（跌破 L1 ≠ 跌破 L2）</td>
+<td>非档位 ⇒ <code>N/A</code> 放行</td>
+</tr>
+<tr>
+<td>阈值</td>
+<td><code>ref &gt;= 2000</code> ⇒ 8.0 点，否则 0.8 点</td>
+<td>—</td>
+</tr>
+<tr>
+<td>缺数据</td>
+<td>极值 <code>missing</code> / 档位值 <code>&lt;= 0</code> / <strong>档位值 <code>nan</code>·<code>inf</code>（非有限值）</strong> ⇒ <strong>fail-open</strong> + <code>data_missing=True</code></td>
+<td>不拦截（<code>nan</code> 绝不参与比较）</td>
+</tr>
+</tbody>
+</table>
+<h3>4.3 机制 ② 判定：前置④ 与前置③ 同构接入（按<strong>已判定档位</strong>）</h3>
+<p>在 <code>evaluate_counter_trend_boundary_opportunity()</code> 的 <code>scenario in (None,'QP')</code> 块内，
+<strong>先完成档位判定</strong>（<code>qp_level = 'H2'|'H1'</code> / <code>'L2'|'L1'</code>），再以 <code>qp_level</code> 为入参调用纯函数，
+并把结果作为后续 QUALIFIED / ARMED 的<strong>合取条件</strong>：</p>
+<pre><code class="language-python">_bi_ok_h, _bi_reason_h, _bi_detail_h = OptionSellerEngine.check_qp_boundary_integrity(
+    qp_level, 'BEARISH', qp, of_metrics=of_metrics, pivot_data=pivot_data, current_price=qp_curr_p)
+debug_info['boundary_integrity_upper'] = _bi_detail_h
+if not _bi_ok_h:
+    debug_info['veto_reasons'].append(_bi_reason_h)
+...
+if _pc_ok_h and _bi_ok_h and is_testing_or_above_h1:          # ← QUALIFIED
+elif _pc_ok_h and _bi_ok_h and dist_to_h1 &gt; qp_tol and ...:   # ← ARMED
+</code></pre>
+<p>（下轨同构，方向 <code>BULLISH</code>，<code>debug_info['boundary_integrity_lower']</code>。）
+⇒ 由于 H1/L1 档位的两条 <code>return</code> 都在分支内部，<strong>QUALIFIED 与 ARMED 天然同时被拦</strong>（既不直接开仓，也不布防哨兵单）。</p>
+<h3>4.4 触发侧兜底：<code>option_seller_manager.py</code></h3>
+<p>触发进程（bbt_data_web）与布防进程（order_flow_sentinel）分离，且本项的关键风险是
+<strong>布防之后</strong>才发生的有效突破。故在 <code>_evaluate_conditional_orders</code> 的 <code>RANGE_BOUND_*</code> 分支内、
+既有「三维准入 + 前置③ 昨收方向」之后，<strong>再复检一次</strong>：</p>
+<pre><code class="language-python">_ext_low, _ext_high, _ext_src = self.resolve_day_extremes_spy_for_gate(curr_p)   # 当日 ES 快照 ⇒ SPY 口径
+_bi_ok, _bi_reason, _bi_detail = OptionSellerEngine.check_qp_boundary_integrity(
+    qp_level, direction, qp_order, session_extremes=(_ext_low, _ext_high, _ext_src))
+if not _bi_ok:
+    ... record_conditional_order_event('SKIPPED_GUARD', ...) ; continue          # 不消费 pending
+if _bi_detail.get('data_missing'):
+    ... debug 日志（fail-open 留痕）
+</code></pre>
+<p><code>resolve_day_extremes_spy_for_gate()</code>：读当日 ES <code>order_flow_signals</code> 的
+<code>rth_price_high/low</code>（ES 点 ⇒ <strong>只求百分比波幅</strong>）+ <code>quantitative_metrics.price_position_pct</code>，
+按 §4.1 公式用实时 SPY 现价折算；<strong>逐行回溯</strong>取「极值 + 位置%」齐备的最近一行（最新一行常缺 <code>price_position_pct</code>）。</p>
+<h3>4.5 探针可观测：<code>intraday_probe.py</code></h3>
+<p><code>_mech_counter_trend(..., 'QP')</code> 两侧各新增判据行：
+「前置④ 边界有效性（做多：L1/L2 未被有效突破）」/「（做空：H1/H2 未被有效突破）」，
+档位代理与引擎同口径（<code>L2</code> 命中即按 L2、<code>H2</code> 命中即按 H2），
+实际值显示 <code>当日最低/最高 = X / 档位 = Y（低于/超出 Z 点）</code>，并<strong>纳入 <code>side_pass</code></strong>；
+<code>side_view</code> 增 <code>boundary_integrity_ok</code> / <code>_level</code> / <code>_applicable</code> / <code>day_low</code> / <code>day_high</code> / <code>day_extremes_source</code>；
+未通过时 <code>rationale</code> 显式列出该阻断项。</p>
+<h2>5. 改动清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>文件</th>
+<th>位置</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>PyTools/option_seller/option_seller_engine.py</code></td>
+<td>模块常量 + 新增两个静态方法 + QP 上/下轨分支</td>
+<td><code>QP_BREAK_TOL_*</code>；<code>resolve_qp_session_extremes_spy()</code>；<code>check_qp_boundary_integrity()</code>；前置④ 总闸（QUALIFIED + ARMED 双路径）；<code>debug_info.boundary_integrity_upper/_lower</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>PyTools/option_seller/option_seller_manager.py</code></td>
+<td>触发侧辅助 + <code>_evaluate_conditional_orders</code></td>
+<td><code>resolve_day_extremes_spy_for_gate()</code>；前置④ 兜底复检 + <code>SKIPPED_GUARD</code> 事件（不消费 pending）</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>PyTools/option_seller/intraday_probe.py</code></td>
+<td><code>_mech_counter_trend</code></td>
+<td>前置④ 判据行（双向）+ 纳入 <code>side_pass</code> + <code>side_view</code> 新字段 + 阻断文案</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>PyTools/option_seller/test_qp_boundary_integrity_gate.py</code></td>
+<td>新增</td>
+<td><strong>28 条契约测试</strong>（极值解析 5 / 纯函数 10 / 引擎 6 / 探针 4 / 触发侧 3；含 <code>nan</code>·<code>inf</code> 按缺失处理与「含等号边界」「逐档位独立」）</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>PyTools/option_seller/test_conditional_order_trigger_3131.py</code></td>
+<td>夹具 <code>_run</code></td>
+<td>patch <code>resolve_day_extremes_spy_for_gate</code> 为固定「未突破」极值（单元测试不读实时 DB）</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>PyTools/option_seller/test_qp_prev_close_gate.py</code></td>
+<td>夹具</td>
+<td>波幅 0.60%→0.30%（旧夹具隐含「当日极值已突破 H1/H2 逾 0.8 点」，会被前置④ 独立拦截，掩盖该文件要测的前置③）；头部登记调整原因</td>
+</tr>
+<tr>
+<td>7</td>
+<td>规则手册</td>
+<td><code>§3.1.3.1</code></td>
+<td>新增<strong>前置规则 ④</strong>（HTML + MD）；收口句「实际准入 = … + 边界有效性」</td>
+</tr>
+</tbody>
+</table>
+<h2>6. 验收口径</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>手段</th>
+<th>通过标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纯函数</td>
+<td><code>TestBoundaryIntegrityUnit</code>（10 条）</td>
+<td>0.8 点<strong>含等号</strong>边界、内侧放行、严格反向对称、<strong>逐档位独立</strong>、SPX 档位 → 8.0 点、极值/档位缺数据 fail-open、<strong><code>nan</code> 档位值按缺失处理</strong>、非档位 N/A</td>
+</tr>
+<tr>
+<td>极值解析</td>
+<td><code>TestSessionExtremes</code>（5 条）</td>
+<td>真实案例折算出 <code>756.34 / 760.13</code>；直给 SPY 极值优先；<code>range_pts</code> 退路标记 <code>range_pts_approx</code>；缺数据 <code>missing</code>；<strong><code>inf</code>/<code>nan</code> 视为 <code>missing</code></strong></td>
+</tr>
+<tr>
+<td>引擎（真实事故复现）</td>
+<td>用 11:10 真实参数（L1=757.82 / SPY=757.63 / Pos=34.0% / RangePct=0.50%）</td>
+<td><strong>QUALIFIED 与 ARMED 两路径都 <code>REJECTED</code></strong>，否决理由含 <code>Boundary integrity gate (L1 long) failed: … 1.48 pts below L1=757.82</code>，且<strong>无 <code>armed_order</code></strong></td>
+</tr>
+<tr>
+<td>引擎（反向对称）</td>
+<td>H1=761.32 / Pos=66% ⇒ 当日最高 762.59（高于 1.27 点）</td>
+<td>上轨做空 <code>REJECTED</code></td>
+</tr>
+<tr>
+<td>引擎（放行对照）</td>
+<td>波幅使当日最低仅低 L1 0.57 点 / 最高未破 H1</td>
+<td>行为不变（<code>QUALIFIED</code> + 锚位仍为 L1 / H1）</td>
+</tr>
+<tr>
+<td>引擎（缺数据）</td>
+<td>无 <code>rth_range_pct</code> / <code>rth_range_pts</code></td>
+<td>fail-open 照常 <code>QUALIFIED</code>，且 <code>data_missing=True</code></td>
+</tr>
+<tr>
+<td>探针</td>
+<td><code>TestBoundaryIntegrityProbeRow</code>（4 条）</td>
+<td>双向判据行存在、阻断时 <code>verdict=REJECTED</code> 且 <code>rationale</code> 含「前置④」、放行时不计阻断、缺数据 <code>passed=None</code></td>
+</tr>
+<tr>
+<td>触发侧</td>
+<td><code>TestTriggerSideGate</code>（3 条）</td>
+<td>破位 ⇒ <strong>不开仓</strong> + <code>SKIPPED_GUARD</code>（<code>detail.boundary_integrity.level='L1'</code>）+ pending 保留；未破位 / 缺数据 ⇒ 照常开仓</td>
+</tr>
+<tr>
+<td>真实链路</td>
+<td><code>resolve_day_extremes_spy_for_gate(757.63)</code>（当日 ES 快照）</td>
+<td>返回 <code>(756.5877, 760.3778, 'es_snapshot_pct_derived')</code>；同参数下单函数给出 <strong>1.23 点跌破 ⇒ 拦截</strong></td>
+</tr>
+<tr>
+<td>无回归</td>
+<td>11 套件</td>
+<td>全绿（详见 Walkthrough §3）；<code>test_live_resting_limit_order</code> 1 项失败经 <code>git stash</code> 基线复跑确认为<strong>既有失败</strong></td>
+</tr>
+<tr>
+<td>语法</td>
+<td><code>py_compile</code> ×3</td>
+<td>通过</td>
+</tr>
+<tr>
+<td>手册</td>
+<td>HTML + MD</td>
+<td>§3.1.3.1 出现前置④；HTML 标签配平（相对基线 +2 div / +1 ul / +8 li，全部闭合）</td>
+</tr>
+</tbody>
+</table>
+<h2>7. 风险与回滚</h2>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>风险 1：尺度混比（最高危）</td>
+<td>已用「百分比折算 + 禁止绝对点位 ÷10」双保险；错误方向本会把「已突破」翻成「未突破」（若误用 <code>÷10</code>，7646.25/10=764.63 会高于现价 757.63，闸门<strong>恒放行</strong>）</td>
+</tr>
+<tr>
+<td>风险 2：折算精度</td>
+<td>假设 ES↔SPY 日内比例近似常数；0.5% 波幅下折算误差 ≈ 0.04 SPY 点，相对 0.8 点阈值可忽略；跨日/隔夜基差变化不影响（极值与现价同日）</td>
+</tr>
+<tr>
+<td>风险 3：缺数据漏拦</td>
+<td>判据为<strong>幅度类</strong>，缺极值时 fail-open 并留痕（<code>data_missing=True</code>）：前置① 波幅/位置与容差带仍在把关；若要求 fail-closed 可一行切换（见 Walkthrough §6）</td>
+</tr>
+<tr>
+<td>风险 4：单调熔断偏严</td>
+<td>判据是「当日 RTH 极值」（单调量）⇒ 一旦有效突破，该档位<strong>当日后续一律禁止反向开仓</strong>，不区分现价从哪一侧接近。这是刻意的：破位后该档位的统计优势已消失</td>
+</tr>
+<tr>
+<td>生效方式</td>
+<td>纯 <code>.py</code> 改动，<code>bbt_data_web</code> Flask debug-reloader 自动重载；5 分钟哨兵（<code>order_flow_sentinel</code>）下一轮即用新代码；探针 / 手册无需重启</td>
+</tr>
+<tr>
+<td>回滚（代码）</td>
+<td>PyTools 为独立 git 仓库：<code>cd PyTools &amp;&amp; git checkout -- option_seller/{option_seller_engine,option_seller_manager,intraday_probe,test_conditional_order_trigger_3131,test_qp_prev_close_gate}.py &amp;&amp; rm -f option_seller/test_qp_boundary_integrity_gate.py</code></td>
+</tr>
+<tr>
+<td>回滚（手册）</td>
+<td>改动前快照：<code>…rules_manual-…html.bbt-bak-20260915_191033</code>、<code>…rules_manual-…md.bak-20260915_191033</code>（覆盖回原文件即成）</td>
+</tr>
+<tr>
+<td>回滚（归档）</td>
+<td>删除本目录 + 删除 <code>bbt_trading_modules.html</code> 中模块 62 的表格行与 <code>&lt;h3 id="mod-62"&gt;</code> 段落</td>
+</tr>
+</tbody>
+</table></div></div></body></html>

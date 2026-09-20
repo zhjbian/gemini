@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>39. Adam 帖文信号上下文分析 (Adam Signal Context Analysis)</title>
+<style>
+  body{background:#f8fafc;color:#1e293b;font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;margin:0;padding:28px;}
+  .wrap{max-width:980px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:26px 30px;}
+  h1{font-size:1.35rem;color:#0f172a;margin:0 0 6px;}
+  h2{font-size:1.05rem;color:#0f172a;margin:22px 0 8px;padding-left:9px;border-left:3px solid #0284c7;}
+  table{width:100%;border-collapse:collapse;font-size:0.86rem;margin:8px 0 4px;}
+  th{background:#f1f5f9;color:#475569;text-align:left;padding:7px 10px;border:1px solid #e2e8f0;}
+  td{padding:7px 10px;border:1px solid #e2e8f0;}
+  code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:0.84rem;}
+  .ok{color:#047857;font-weight:700;} .warn{color:#b45309;font-weight:700;} .bad{color:#b91c1c;font-weight:700;}
+  .meta{font-size:0.82rem;color:#64748b;margin-bottom:14px;}
+  ul{font-size:0.88rem;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>39. Adam 帖文信号上下文分析 (Adam Signal Context Analysis)</h1>
+  <div class="meta">演进时间 <code>2026-09-12</code> ｜ 归档目录 <code>39_2026-09-12_Adam_Signal_Context_Analysis</code> ｜ 技术栈: Python 3.11 / DeepSeek (OpenAI 兼容) / Gemini (保留通路) / Flask-SQLAlchemy / launchd / HTML Email</div>
+
+  <h2>背景与目标</h2>
+  <ul>
+    <li><b>用途(1)（最重要）</b>：Adam 常能识别大盘<b>趋势反转（顶/底）</b> ⇒ 服务<b>波段交易与正股仓位管理</b>。</li>
+    <li><b>用途(2)</b>：部分帖文给出<b>日内 0DTE</b> 明确信号 ⇒ 服务短期做单。</li>
+    <li>用户两个额外要求：① 判定要<b>区分这两类用途</b>；② 分析要<b>引入当日 ES 价格走势</b>；③ <b>暂不接入自动下单</b>。</li>
+  </ul>
+
+  <h2>实现链路</h2>
+  <table>
+    <tr><th>层</th><th>文件</th><th>职责</th></tr>
+    <tr><td>① 即时分类（taxonomy）</td><td><code>PyTools/jobs/x_posts_adam_signal_v2.py</code></td><td>对称 taxonomy：方向/类别(reversal_top·bottom, trend_continuation, intraday_0dte, level_map, position_mgmt, commentary)/周期/确信度/条件性/价位/证据/用途；<b>每批 commit + 死锁重试 + 单实例锁</b></td></tr>
+    <tr><td>② 当日叙事链</td><td><code>PyTools/jobs/x_posts_thread_v3.py</code></td><td>按交易日升序串联：<code>thread_role</code>(thesis_open/confirmation/update/level_ref/exit/invalidation/standalone) + <code>day_bias</code> + <code>day_status</code>(intact/weakening/invalidated) + <code>day_key_levels</code> + <code>day_thesis</code>；日状态快照表 <code>x_day_threads</code></td></tr>
+    <tr><td>③ 当日价格语境</td><td><code>PyTools/py_lib/day_price_context.py</code></td><td>用帖文自带 <code>es_spot</code> 采样构建首末价/当日高低/15 分钟压缩路径；支持 <code>cutoff</code>（<b>无前视</b>）与可选 OHLC 升级</td></tr>
+    <tr><td>④ 通知</td><td><code>PyTools/py_lib/adam_post_notify.py</code></td><td>固定主题 <code>BBT Adam信号</code>（同线程 ✓）美观 HTML 邮件 + 桌面横幅（<b>仅信号帖</b>）；当日事件（翻转/失效）高优先级提醒</td></tr>
+    <tr><td>⑤ 事件提醒/回填</td><td><code>PyTools/jobs/adam_day_events.py</code> / <code>adam_realtime_classify.py</code> / <code>backfill_comprehensive_slots.py</code></td><td>事件幂等提醒；实时链 v2→v3→事件；5m 槽位回填</td></tr>
+    <tr><td>⑥ 事件研究</td><td><code>PyTools/jobs/adam_reversal_event_study.py</code></td><td>以 <code>invalidated</code> / <code>bias 翻转</code> 为事件：d5/d10/d20 方向调整收益 + <code>fav20</code> 最大有利位移 + 20 日新高/低 + <code>day_type</code> 分层 + 基准 Welch 检验</td></tr>
+  </table>
+
+  <h2>验收数据（截至 2026-09-12）</h2>
+  <table>
+    <tr><th>项</th><th>结果</th></tr>
+    <tr><td>全量分类</td><td>1,685 帖：<code>none 819 / position_mgmt 173 / intraday_directional 172 / swing_reversal 147 / swing_trend 144 / level_map 125 / intraday_0dte 105</code></td></tr>
+    <tr><td>方向</td><td><code>neutral 904 / bullish 468 / bearish 313</code></td></tr>
+    <tr><td>叙事链（09-10 实例）</td><td><code>thesis_open(bullish) → confirmation → exit(中性，非看空 ✓) → level_ref → standalone → invalidation(bearish/invalidated)</code>；修正了 v1「止盈被误判为看空」的核心缺陷</td></tr>
+    <tr><td>价格语境 A/B</td><td>修掉「TSLA 价位混入 ES 关键位」硬错误；关键位判定由"他说有支撑"升级为"<b>发帖时价格正处当日最低 7594.50</b>"（价格核实）</td></tr>
+    <tr><td>事件研究（首轮）</td><td>事件 15 个（invalidated 2 / flip 13）⇒ <span class="warn">n &lt; 30 未达门槛；p(d20)≈0.46 不显著</span></td></tr>
+  </table>
+
+  <h2>决策规则门槛状态（规则 11）</h2>
+  <ul>
+    <li><span class="bad">暂未写入手册</span>：事件样本 n=15（门槛 n≥30）且无显著组（校正后 α=0.0167）⇒ 依《规则手册》第 11 条与既有验收纪律，<b>不作为决策规则记入</b>。</li>
+    <li>待全历史 v3 完成后重跑 <code>adam_reversal_event_study.py</code>；脚本已内置门槛判定输出（样本门槛/显著性/是否可写入手册）。</li>
+    <li>若达标，将在手册 §3 Setup 体系内新增对应规则（并注明「仅通知与参考」）。</li>
+  </ul>
+
+  <h2>自动下单：明确未接入</h2>
+  <ul>
+    <li><span class="ok">已核实</span>：Adam 相关链路（分类/叙事/价格语境/通知/事件）<b>不含任何下单、条件单或平仓调用</b>，仅做分析与通知。</li>
+    <li>期权卖家的下单仍来自引擎自身的 Quant Pivot/PAW 规则；Adam 信号<b>不会</b>触发自动开仓。</li>
+  </ul>
+
+  <h2>后续步骤</h2>
+  <ol>
+    <li>全历史 v3（带价格语境）跑完 ⇒ 事件研究复跑并读取门槛判定。</li>
+    <li>门槛达标后：手册新增决策规则 + <code>/x_posts</code> 页面按用途分 tab（已完成 ✓）。</li>
+    <li>可选：接入 5 分钟 OHLC / tick-DOM 使价格语境更密（近期数据）。</li>
+  </ol>
+</div>
+</body>
+</html>

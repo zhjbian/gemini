@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>前置④ 边界有效性：适用范围收订（仅 L1/H1）+ 扩展到机制③ 平衡日边界 · 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+  .tag { display:inline-block; background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;
+         border-radius:999px; padding:1px 8px; font-size:0.76rem; font-weight:700; }
+</style></head><body><div class='page'><div class='card'><h1>前置④「边界有效性」适用范围收订 + 扩展到机制 ③ 平衡日边界 —— 实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：64 <code>Boundary_Integrity_Gate_Scope_And_Balanced_Day</code>（延续模块 62 的前置④）</li>
+<li><strong>用户口径（本轮，原文）</strong>：
+  1. 「<strong>L2/H2 不受限</strong>」⇒ 机制 ② 的前置④ <strong>收窄为只约束 L1 / H1</strong>（与前置③ 昨收方向的 H2/L2 豁免完全同口径）；
+  2. 「<strong>需要扩展到平衡日边界</strong>」⇒ 机制 ③ 平衡日边界新增同一前置（按其边界族做对称映射）。</li>
+<li><strong>技术栈</strong>：Python 3.11 · <code>PyTools/option_seller/</code>（引擎纯函数 + 平衡日边界评分器 + 探针 + 影子回放）· unittest 契约测试 · 规则手册 HTML/MD 双写</li>
+</ul>
+<hr />
+<h2>1. 范围与设计（两件事，一个原则）</h2>
+<p><strong>统一原则</strong>：破位后回抽的失效性只对「<strong>第一档主边界</strong>」成立 ——
+第二档/极值档位（机制② 的 L2/H2、机制③ 的远档 <code>fut</code>/<code>fdt</code>、以及运行极值本身）
+必然处于「极限位置」，在其外侧再叠一层熔断会把「极值反转」这一类合法机制整体掐掉。故<strong>逐档位判定 + 第二档豁免</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>边界族</th>
+<th>受限档位（第一档）</th>
+<th>豁免档位（第二档 / 极值）</th>
+<th>阈值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>② QuantPivot边界反向</td>
+<td><code>L1/L2/H1/H2</code>（SPY 口径绝对点位）</td>
+<td><strong>L1 / H1</strong></td>
+<td><strong>L2 / H2</strong></td>
+<td>SPY 0.8 点（≥2000 的高点位标的 → 8.0 点）</td>
+</tr>
+<tr>
+<td>③ 平衡日边界</td>
+<td><code>day_high</code>/<code>day_low</code> + Smashelito <code>ut1/fut/dt1/fdt</code>（ES 口径）</td>
+<td><strong><code>ut1</code> / <code>dt1</code></strong></td>
+<td><strong><code>fut</code> / <code>fdt</code></strong> + <strong><code>day_high</code> / <code>day_low</code></strong></td>
+<td><strong>8.0 ES 点</strong>（= SPY 0.8 × 10，与本机制 ±4 点容差同尺度）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>判据（严格双向对称，含等号）</strong>
+- 做多 BULLISH（依据<strong>下侧</strong>最近边界 <code>B</code>）：<code>day_low &gt; B − tol</code> 才放行；
+- 做空 BEARISH（依据<strong>上侧</strong>最近边界 <code>B</code>）：<code>day_high &lt; B + tol</code> 才放行；
+- 不满足 ⇒ 该方向被拦，<strong>回退校验另一方向</strong>（两侧全拦才 veto，不静默降级为「不出信号」）；
+- 极值单调 ⇒ 一旦有效突破，该档位当日后续一律禁止该方向开仓（<strong>单调熔断</strong>）。</p>
+<p><strong>数据缺失口径</strong>：两条机制的前置④ 均为 <strong>fail-open（放行）+ <code>data_missing=True</code> 留痕</strong> ——
+与机制③ 前置③「昨收方向」的 fail-closed <strong>显式不同</strong>（本项是幅度类判据，缺数时容差带/波幅位置仍在把关）。</p>
+<h2>2. 变更清单</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>option_seller_engine.py</code></td>
+<td>新增常量 <code>QP_INTEGRITY_LEVELS = ('L1','H1')</code>；<code>check_qp_boundary_integrity()</code> 对 <strong>L2/H2 直接返回 N/A（<code>applicable=False</code>，reason 注明「1-SD 极值档位豁免」）</strong>；docstring 同步「适用范围」段</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>balanced_day_boundary.py</code></td>
+<td>新增 <code>BALANCED_BREAK_TOL_ES = 8.0</code> / <code>BALANCED_INTEGRITY_LEVELS = ('ut1','dt1')</code>、<code>nearest_boundary_named()</code>（返回<strong>带字段名</strong>的最近上下侧边界）、<code>check_balanced_boundary_integrity()</code>（纯函数，单一权威）；<code>_select_direction_with_prev_close(cands, prev_close, day_low, day_high)</code> 现在<strong>同时施加两条边界级前置</strong>并留痕 <code>boundary_integrity</code>；v1 / v2 两个评分器新增 <code>key_levels_named</code> 入参、候选改为 4 元组 <code>(方向, 分, 边界值, 边界名)</code>、gate 明细写 <code>breakdown.boundary_integrity_gate</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>balanced_day_data.py</code></td>
+<td>新增 <code>_load_key_levels_named()</code>（与 <code>_load_key_levels</code> <strong>同一条 SQL / 同一决胜规则</strong>，仅保留字段名）；<code>load_balanced_day_context()</code> 新增 <code>key_levels_named</code>（与 <code>key_levels</code> 同源同长度）</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>option_seller_manager.py</code></td>
+<td><code>_score_kw</code> 传入 <code>key_levels_named</code>（生产实时通道）</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>balanced_day_shadow.py</code></td>
+<td>影子回放同样保留命名版并传入（与实盘同口径，避免影子/实盘分叉）</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>intraday_probe.py</code></td>
+<td>机制③ 判据表新增行「<strong>前置：边界有效性（边界级 · 仅 ut1/dt1）</strong>」（限制档位判 <code>passed</code>、豁免档位标「本档位豁免」）；机制② 前置④ 行在 L2/H2 时改为标「<strong>档位豁免</strong>」文案</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>test_qp_boundary_integrity_gate.py</code></td>
+<td>「逐档位独立」用例改写为「<strong>L2/H2 豁免</strong>」（含「即便 L2 已被跌破也放行」的反证），头部口径同步；29/29</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>test_balanced_day_boundary_integrity_gate.py</code>（新增）</td>
+<td>机制③ 前置④ 契约测试 <strong>25 条</strong>：命名边界选择 / 阈值含等号 / 双向对称 / 远档与运行极值豁免 / 缺数 fail-open / 选择器回退与 3 元组向后兼容 / 上下文带名贯通 / 探针判据行（真实数据 <code>dt1</code> 被拦）</td>
+</tr>
+<tr>
+<td>9</td>
+<td>规则手册（<code>.html</code> + <code>.md</code>）</td>
+<td>§3.1.3.1 ④ 行：标题改「<strong>仅 L1 / H1</strong>」、新增「适用范围（L2/H2 豁免）」、机制归属补入机制③ 并指向新节；§3.1.4.2 新增「边界级前置 · 边界有效性」条目；<strong>新增 HTML §3.1.4.1.9</strong>（含判据表 / 尺度铁律 / 留痕 / 真实案例），机制③ 概览处加一条指向新节</td>
+</tr>
+</tbody>
+</table>
+<h2>3. 为什么机制 ③ 需要「带名边界」（实现关键）</h2>
+<p>机制③ 的边界族是<strong>值列表</strong>（<code>key_levels</code> = <code>ut1/fut/dt1/fdt</code> 的位置序），
+<code>nearest_boundary_values()</code> 只回值 ⇒ 无法判断「被判定的这个边界属于第一档还是远档」，
+也就无法实现「L2/H2 不受限」的对称映射。故：
+<strong><code>nearest_boundary_named()</code> 回 <code>(值, 名)</code>，把「档位身份」一路传到闸门</strong>；
+不传名的调用方（旧接口/旧测试）⇒ 本项 N/A（<strong>向后兼容</strong>，且不会误拦）。</p>
+<h2>4. 触发侧是否需要兜底重校验</h2>
+<p><strong>机制 ③ 不需要</strong>：与机制② 不同，平衡日边界<strong>没有条件单/布防链路</strong>（<code>evaluate_balanced_day_channel()</code>
+在 5 分钟判定周期内评分并直接出信号），故本项只需在<strong>评分器的方向选择处</strong>执行一次（单一时点，无 TOCTOU 窗口）。
+已核验：<code>option_seller_manager.py</code> 中 <code>balanced</code> 相关代码<strong>不产生</strong> <code>conditional_orders</code> 记录。</p>
+<h2>5. 验收标准</h2>
+<ol>
+<li><code>unittest test_qp_boundary_integrity_gate</code> <strong>29/29</strong>、<code>test_balanced_day_boundary_integrity_gate</code> <strong>25/25</strong> 通过；</li>
+<li><code>test_balanced_day_prev_close_gate</code>（模块 57）<strong>24/24</strong>、<code>test_intraday_probe</code> <strong>34/34</strong> 等既有套件不回归；</li>
+<li>真实数据（2026-09-15 11:10 ES）复现：<code>dt1</code> 被当日最低跌破 <strong>12.75 点</strong> ⇒ 机制③ 判据行 <code>前置：边界有效性（边界级 · dt1）passed=False</code>；</li>
+<li><code>L2/H2</code> 在机制② 中返回 N/A（<code>applicable=False</code>）且引擎不再拦截；</li>
+<li>全部改动文件 <code>py_compile</code> 通过；服务 <code>http://127.0.0.1:5005/bbt_option_seller</code> 200；</li>
+<li>规则手册 HTML 标签配平（div/ul/li/table/h6 全平衡），MD 同步。</li>
+</ol>
+<h2>6. 风险与回滚</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>阈值尺度错用（ES 8.0 vs SPY 0.8）</td>
+<td>机制③ <strong>只比 ES 与 ES</strong>（边界族与运行极值同为 ES 点，<strong>不涉及 ES↔SPY 换算</strong>）；阈值以常量集中定义并有单测断言</td>
+</tr>
+<tr>
+<td>「豁免」被误实现成「漏判」</td>
+<td>单测含<strong>反证</strong>：<code>fut/fdt</code> 即便被有效突破也必须放行（<code>applicable=False</code>）；L2/H2 同理</td>
+</tr>
+<tr>
+<td>旧调用方（3 元组候选、不传名）行为变化</td>
+<td>本项 N/A（fail-open）⇒ 仅前置③ 生效；已有单测固定该向后兼容语义</td>
+</tr>
+<tr>
+<td>机制③ 目前 <code>balanced_day.enabled=False</code>（生产开关）</td>
+<td>本项随开关生效，不改变现状；开关打开即按新口径把关</td>
+</tr>
+<tr>
+<td>回滚</td>
+<td><code>cd PyTools &amp;&amp; git checkout -- option_seller/{option_seller_engine,balanced_day_boundary,balanced_day_data,balanced_day_shadow,option_seller_manager,intraday_probe,test_qp_boundary_integrity_gate}.py &amp;&amp; rm -f option_seller/test_balanced_day_boundary_integrity_gate.py</code>；手册用同目录 <code>*.bak-64-20260915_195716</code> 快照还原</td>
+</tr>
+</tbody>
+</table></div></div></body></html>

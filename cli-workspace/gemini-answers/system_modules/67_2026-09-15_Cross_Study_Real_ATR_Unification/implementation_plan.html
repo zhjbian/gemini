@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>跨研究 ATR 取数统一：弃用 Ticker_ATR.csv（StudyPriceSpike / StudyOrderFlowReversal 切至实算 ATR） —— 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+</style></head><body><div class='page'><div class='card'><h1>跨研究 ATR 取数统一：弃用 Ticker_ATR.csv（StudyPriceSpike / StudyOrderFlowReversal 切至实算 ATR） —— 实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>模块</strong>：67 <code>Cross_Study_Real_ATR_Unification</code>（归属能力域：<strong>M18 交易基础设施与开发环境工具链</strong> · MotiveWave 终端 Java SDK 研究基础设施）</li>
+<li><strong>触发事件</strong>：用户追加指令（原文）：「两个研究仍在读那张已弃用的 CSV 统一改成不用那个CSV」——即把 MotiveWave 研究指标 <code>StudyPriceSpike</code>、<code>StudyOrderFlowReversal</code> 由读取 <code>Ticker_ATR.csv</code> 统一切换至实算 ATR。前序同类改动（<code>StudySatyATR</code> 弃用 CSV）已完成并归档于 <code>66_2026-09-15_Saty_ATR_Real_ATR_And_Level_Filter</code>。</li>
+<li><strong>用户口径（本轮）</strong>：
+  <ol>
+  <li>「两个研究仍在读那张已弃用的 CSV 统一改成不用那个CSV」（原文）；</li>
+  <li>「我只需要用在 SPY 上」（主用标的 SPY）。</li>
+  </ol>
+</li>
+<li><strong>技术栈</strong>：Java（JDK 22）· MotiveWave Java SDK（<code>lib/mwave_sdk.jar</code>）· Java 研究指标 <code>StudyPriceSpike</code> / <code>StudyOrderFlowReversal</code> / <code>FlaskBridge</code> · Flask（<code>bbt_data_web</code>）· <code>/mw_api/atr_real</code> · Schwab 日线 API · yfinance（兜底）· Wilder RMA（Wilder 平滑 ATR）</li>
+</ul>
+<hr />
+<h2>1. 根因：写表任务是「读 CSV → 原样写回 CSV」的自引用闭环</h2>
+<ul>
+<li><code>PyTools/jobs/calc_atr.py</code>（定时任务）第 11 行调用 <code>BBTicker.atr(ticker)</code>。</li>
+<li>而 <code>BBTicker.atr()</code> <strong>优先读取 <code>Ticker_ATR.csv</code></strong>：<code>PyTools/py_lib/bb_tickers.py</code> 第 219–249 行，命中表格即直接返回表内 <code>Atr</code> 列。</li>
+<li>因此该任务实际构成「读 CSV → 原样写回 CSV」的<strong>自引用闭环</strong>：任何一次写错的数值会被永久固化、永不自愈。</li>
+<li>这正是 SPY 长期保留 <code>19.16</code>（真实值 <code>5.98</code> 的 3.2 倍）的原因；也解释了表内 SPX <code>49.31</code>（真实 <code>60.17</code>）与 SPY 自身相互矛盾（价差约 10 倍而 ATR 仅差 2.6 倍）。</li>
+</ul>
+<p>结论：只要消费者仍读该 CSV，错误数值就会被持续供给；本轮把剩余两个研究指标统一切换到实算 ATR 取数链路。</p>
+<h2>2. 改动清单（2 个文件、3 处调用点）</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/StudyPriceSpike.java</code></td>
+<td>2 处：<code>FlaskBridge.getATR(ticker)</code> → <code>FlaskBridge.getRealATR(ticker)</code>。① 盘前尖峰分支（第 105 行，<code>enablePremarketSpike</code> 路径，结果经 <code>checkPremarketSpike()</code> 使用）；② 盘后/常规分支（第 178 行，<code>atrCache</code> 按 <code>dateStr</code> 缓存后用于盘后边界的 ATR 路径）。两处均加注释「Real (computed) Wilder ATR(14) — Ticker_ATR.csv is no longer used」</td>
+</tr>
+<tr>
+<td><code>/Users/zhijiebian/Intellj-workspace/BBT_Studies/src/bbt/StudyOrderFlowReversal.java</code></td>
+<td>1 处（第 446 行）：<code>getDailyAtrWithCache()</code> 内 <code>FlaskBridge.getATR(ticker)</code> → <code>FlaskBridge.getRealATR(ticker)</code>；该值用于 <code>dynamicExtDistance = effectiveATR * extAtrMult</code> 与 <code>dynamicEmaDistance = effectiveATR * emaAtrMult</code>（第 179–180 行）</td>
+</tr>
+</tbody>
+</table>
+<p>复用上一轮已建好的取数链路（本轮未再改动）：<code>/mw_api/atr_real</code> 路由 → <code>BBTicker.atr_real()</code> → Schwab 日线 <code>BBTOS.atr_wilder()</code> 主源（Wilder RMA，取最后一根已收盘日线）+ yfinance <code>BBYF.atr_wilder()</code> 兜底；符号经 <code>BBTOS.resolve_symbol()</code> 解析。</p>
+<h2>3. SPY 阈值影响</h2>
+<p>SPY：实算 ATR <code>5.98</code>，CSV <code>19.16</code>，比值 <strong>3.20 倍</strong>；价格参考 <code>757.39</code>。</p>
+<table>
+<thead>
+<tr>
+<th>阈值</th>
+<th>旧（CSV 19.16）</th>
+<th>新（实算 5.98）</th>
+<th>旧/新</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>StudyPriceSpike 盘前 <code>0.5 × ATR</code></td>
+<td>±<code>9.58</code></td>
+<td>±<code>2.99</code></td>
+<td>3.20</td>
+</tr>
+<tr>
+<td>StudyPriceSpike 盘后 <code>0.2 × ATR</code>（SPY 专属因子）</td>
+<td>±<code>3.83</code></td>
+<td>±<code>1.20</code></td>
+<td>3.20</td>
+</tr>
+<tr>
+<td>StudyPriceSpike RTH <code>0.6% × price</code>（不涉 ATR）</td>
+<td>±<code>4.54</code></td>
+<td>±<code>4.54</code></td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>OrderFlowReversal EXT <code>0.6 × ATR</code>（UI 设置 <code>EXT_ATR_MULT</code>，默认 0.6）</td>
+<td>±<code>11.50</code></td>
+<td>±<code>3.59</code></td>
+<td>3.20</td>
+</tr>
+<tr>
+<td>OrderFlowReversal EMA <code>0.25 × ATR</code>（UI 设置 <code>EMA_ATR_MULT</code>，默认 0.25）</td>
+<td>±<code>4.79</code></td>
+<td>±<code>1.50</code></td>
+<td>3.20</td>
+</tr>
+</tbody>
+</table>
+<p>含义：ATR 路径的尖峰/距离阈值在 SPY 上<strong>整体收窄 3.2 倍</strong>（RTH 的百分比路径不受影响）。这是有意接受的后果：CSV 数值本身不可信，旧阈值是错误数值的产物；换源后乘数恢复「× ATR」的字面语义。</p>
+<p><strong>若日后需要恢复旧灵敏度</strong>（供复议，本轮未改）：<code>StudyPriceSpike.atrFactor</code> 的 SPY <code>0.2 → 0.64</code>（代码 Map，第 35–37 行）；<code>checkPremarketSpike()</code> 内硬编码 <code>0.5 → 1.60</code>（第 706–707 行）；<code>StudyOrderFlowReversal</code> 的设置项 <code>EXT_ATR_MULT 0.6 → 1.92</code>、<code>EMA_ATR_MULT 0.25 → 0.80</code>（UI 可直接改，无需改代码）。</p>
+<h2>4. 验收标准</h2>
+<ol>
+<li><strong>调用点收敛</strong>：<code>grep -rn "getATR(\|getRealATR(" src/bbt/</code> 显示 4 个研究调用点全部为 <code>getRealATR</code>，且仅本地手工冒烟测试 <code>BBTTest.java:23</code> 仍调 <code>getATR</code>（不属研究信号链路，本轮未改）；</li>
+<li><strong>Java 全量编译通过</strong>：<code>javac -nowarn -d /tmp/satyatr_build -cp "lib/*" src/bbt/*.java</code> → <strong>exit 0</strong>；</li>
+<li><strong>部署成功</strong>：<code>BBT_Studies/build</code> 下 <code>ant deploy</code> → <strong>BUILD SUCCESSFUL</strong>，34 个 class 文件拷入 <code>~/MotiveWave Extensions/dev</code>，<code>.last_updated</code> 已 touch；</li>
+<li><strong>部署物核验</strong>：反编译部署产物确认 <code>getRealATR</code> 引用进入 <code>StudyPriceSpike</code> 与 <code>StudyOrderFlowReversal</code>；</li>
+<li><strong>旧路径零回归</strong>：<code>/mw_api/atr</code> 路由与 <code>BBTicker.atr()</code> 原样保留（<code>/mw_api/atr?ticker=SPY → 200 19.16</code>），CSV 文件与写表任务未改；</li>
+<li><strong>归档</strong>：本目录（plan + walkthrough，<code>.md</code> / <code>.html</code> 双份）与 <code>bbt_trading_modules.html</code> M18 演进行同步。</li>
+</ol>
+<h2>5. 未纳入本轮范围</h2>
+<p>以下仍读同一份 CSV，本轮<strong>未</strong>改动，仍在消费可能过期的 ATR：</p>
+<ul>
+<li><code>/mw_api/atr</code> 路由与 <code>BBTicker.atr()</code> 本身；</li>
+<li>CSV 文件 <code>Ticker_ATR.csv</code>；</li>
+<li>写表任务 <code>PyTools/jobs/calc_atr.py</code>；</li>
+<li>Python 侧消费者 <code>PyTools/trading_view/</code>（5 个导出脚本）、<code>PyTools/option_chain/vantage.py</code>、<code>PyTools/spike_db/spikes_mw_to_csv.py</code>。</li>
+</ul>
+<h2>6. 回滚方式</h2>
+<ol>
+<li>把 3 处 <code>getRealATR</code> 还原为 <code>getATR</code> 并重新 <code>ant deploy</code> 即可；</li>
+<li>或仅在 MotiveWave 中停用这两个研究；</li>
+<li>影响面：取数链路为<strong>纯新增</strong>，回滚不影响其他研究。</li>
+</ol></div></div></body></html>

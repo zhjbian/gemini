@@ -1,0 +1,1142 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>45. 卖家系统触发层：Path R/T 移动结束评分（第二阶段 · 页面/手册/接线）</title>
+<style>body{background:#f8fafc;color:#1e293b;font-family:-apple-system,'PingFang SC',Arial,sans-serif;margin:0;padding:24px;line-height:1.7}
+.wrap{max-width:1060px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px 28px}
+h1{font-size:1.35rem;color:#0f172a;margin:0 0 6px}h2{font-size:1.03rem;color:#0f172a;margin:20px 0 8px;padding:3px 0 3px 10px;border-left:4px solid #1d4ed8;background:#f8fafc;border-radius:0 6px 6px 0}
+h3{font-size:0.95rem;color:#0f172a;margin:16px 0 6px}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:8px 0}th{background:#f1f5f9;color:#475569;text-align:left;padding:7px 10px;border:1px solid #e2e8f0}td{padding:7px 10px;border:1px solid #e2e8f0;vertical-align:top}
+code,pre{background:#f1f5f9;border-radius:5px;font-size:0.83rem}code{padding:1px 5px}pre{padding:10px;display:block;white-space:pre-wrap}
+.ok{color:#047857;font-weight:700}.warn{color:#b45309;font-weight:700}.meta{font-size:0.84rem;color:#64748b;margin-bottom:12px}
+.note{background:#f0f9ff;border:1.5px solid #0284c7;border-radius:8px;padding:10px 14px;font-size:0.85rem;margin:10px 0}</style></head><body><div class="wrap">
+<h1>45. 卖家系统触发层：Path R / Path T 移动结束评分（第二阶段 · 页面 / 手册 / 接线）</h1>
+<div class="meta">日期 <code>2026-09-13</code> ｜ 系统 <code>127.0.0.1:5005/bbt_option_seller</code> ｜ 手册第三部分「触发机制族」— §12 / §13</div>
+
+<h2>1. 需求</h2>
+<ul><li>自动单机会太少：主引擎 <code>AUTO_5M_SYNTHESIS</code> 8 天仅 <b>2 笔</b>；自动路径合计 20 笔/8 天 ✗</li>
+<li>卖家系统不需要大波动：<b>震荡平衡日</b>应在日内震荡边界开仓；<b>大 move 日</b>的顶/底也应能开仓</li>
+<li>设计取向：<b>小仓、多次、稳定</b>（非稀有强信号开大仓）</li>
+<li>约束：<b>不得单独依据 SPX Gamma 开仓</b>；重点用 <b>5 分钟 order flow</b> 与「日内移动是否结束」的置信度</li>
+<li>口径（用户确认 ✓）：<b>三档开仓策略 = 选 spread 结构</b>；<b>信号强弱 = 开仓组数(groups)</b></li></ul>
+
+<h2>2. 与既有规则的关系（追加为主 + 2 处窄修改）</h2>
+<table><tr><th>层</th><th>手册位置</th><th>关系</th></tr>
+<tr><td>方向准入</td><td>第一部分 §3</td><td><b>不修改</b>，触发层消费其输出</td></tr>
+<tr><td>强度打分 1–10</td><td>第一部分 §4</td><td><b>不修改</b>，作为评分输入（按"耗竭反向"读法使用）</td></tr>
+<tr><td>SPX Gamma</td><td>第二部分</td><td><b>不修改</b>，仅作因素、<b>不单独开仓</b></td></tr>
+<tr><td>卖家风控/选型/退出</td><td>第三部分 §1–§7</td><td><b>不修改</b>：双批次、三重退出、风险锁死、三档选型、12:30 时间止损全部复用</td></tr>
+<tr><td>触发机制族（新增父级）</td><td>第三部分 §7 之后</td><td>§8/§9/§10/§11 <b>整体移入</b>（仅层级与位置；<b>规则文本与判据未重定义</b>）</td></tr>
+<tr><td>平衡日边界 / 移动结束</td><td>第三部分 §12 / §13（新增）</td><td><b>追加</b>：Path R / Path T + 确认门 + 置信度→组数</td></tr></table>
+
+<h2>3. 第一阶段（只读评分 · 已完成）</h2>
+<table><tr><th>文件</th><th>作用</th></tr>
+<tr><td><code>PyTools/option_seller/move_end_evaluator.py</code></td><td>五维评分（A 动能衰竭 35 / B 吸收与反制 25 / C 位置边界 20 / D 真空 10 / E 时间幅度 10）；<code>is_spoof_trap</code> 一票否决；平衡日 EMA 缠结需边界确认；趋势日仅允许逆势一侧；<code>confidence_to_groups()</code> ≥85→2 组、70–84→1 组，硬顶 2 组</td></tr>
+<tr><td><code>PyTools/option_seller/move_end_shadow.py</code></td><td>影子回放：只读、不写业务表、不下单；明细落 <code>/tmp</code></td></tr></table>
+<p style="font-size:0.86rem;color:#64748b;">标定：门槛 55 / 容差 ±2 → 8 天仅 2 次 ✗；放宽 45 / ±4 并扩边界族仍 2 次 ✗ ⇒ 瓶颈在 A 维度自定义背离规则 ⇒ 按 §8 strength(1–10) 反读改造后达标。</p>
+
+<h2>4. 第二阶段（本轮完成）</h2>
+
+<h3>4.1 页面多选 Force Dry-Run UI</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>文件</td><td><code>bbt_data_web/templates/bbt_option_seller.html</code></td></tr>
+<tr><td>UI</td><td>顶栏新增「Force Dry 触发 (N)」按钮 + 弹窗 <b>6 项复选</b>（每项含说明），命中数实时徽标</td></tr>
+<tr><td>移除</td><td><b>删除原独立的「5分钟综合 开启/关闭」按钮</b>（<code>btnToggleSynthesis</code>）—— 其 try-run 已由 <code>AUTO_5M_SYNTHESIS</code> 复选项覆盖；同步移除 <code>toggleSynthesis()</code> JS、状态同步块、后端 <code>toggle_synthesis</code> 方法/端点/<code>synthesis_enabled</code> 字段（端点现 <b>404</b>）</td></tr>
+<tr><td>后端</td><td><code>GET/POST /api/option_seller/force_dry</code>（前缀匹配）</td></tr>
+<tr><td>自检</td><td>内联 JS <code>node --check</code> 通过；功能级：渲染 <b>6 个复选</b>、POST 落盘、服务端回读一致、清空回默认 <code>[]</code>；页面 <b>HTTP 200</b></td></tr></table>
+<p style="font-size:0.84rem;color:#475569;">6 项：<code>AUTO_5M_SYNTHESIS</code> · <code>AUTO_COUNTER_TREND_BOUNDARY</code> · <code>AUTO_PM_BIG_TRADE</code> · <code>AUTO_RANGE_BOUNDARY</code> · <code>AUTO_MOVE_END</code> · <code>CONDITIONAL_ORDER</code></p>
+
+<h3>4.2 手册统一（第三部分新增父级「触发机制族」）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>文件</td><td><code>gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45</code>（.html + .md）</td></tr>
+<tr><td>结构</td><td>§7 之后新增<b>父级 section</b>「触发机制族：各机制概览与统一规范」</td></tr>
+<tr><td>首个子节</td><td><b>各机制概览表</b>（6 机制 × 标签/通道/时窗/信号→组数/硬约束）+ 共用五维评分器表</td></tr>
+<tr><td>其后子节</td><td>§8 四层漏斗 · §9 QuantPivot · §10 盘前大单+EMA · §11 极值耗竭与震荡边界 · <b>§12 Path R（新）</b> · <b>§13 Path T（新）</b></td></tr>
+<tr><td>关键约束</td><td>既有 §8–§11 标题<b>逐字节未变</b>（identical=True ✓）⇒ 仅移动、未重定义、无两份并存</td></tr>
+<tr><td>TOC</td><td>同步：父级导航项 + 子项缩进（<code>nav-sub</code>）+ §12/§13 新增</td></tr>
+<tr><td>家族级硬约束</td><td>保持 dry-run · <code>groups&lt;2</code>（硬顶 2 组）· 11:30 PST 截断 · 不得单独依据 SPX Gamma · 小仓多次 · 策略选结构 / 强弱定组数</td></tr>
+<tr><td>自检</td><td>解析 EOF 栈空；解析错误数与改前<b>同为 6 条（均既存）</b>；13 个 <code>os-rule-*</code> 锚点齐全；TOC 锚点全部有目标</td></tr></table>
+
+<h3>4.3 接线（管理器 5m 自动路径）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>新文件</td><td><code>PyTools/option_seller/move_end_data.py</code>（只读上下文装配：<code>order_flow_signals</code> + smashelito 关键位）</td></tr>
+<tr><td>管理器</td><td><code>option_seller_manager.py</code> 新增 <code>evaluate_move_end_channel()</code>；主 5m 合成与 Counter-Trend 均未触发时调用 <code>score_move_end</code></td></tr>
+<tr><td>触发标签</td><td><code>AUTO_RANGE_BOUNDARY</code>（Path R）/ <code>AUTO_MOVE_END</code>（Path T）</td></tr>
+<tr><td>闸门</td><td><code>is_enabled</code> ✓ · <b>&lt; 11:30 PST</b> ✓ · <code>active_auto_groups &lt; 2</code> ✓ · 配置开关 ✓ · <b>边界确认</b>（平衡日 EMA 缠结口径）✓</td></tr>
+<tr><td>每个机制的 try-run</td><td><b>不在代码 / 配置里写死</b>：由页面「Force Dry 触发」多选唯一控制（<code>trigger_force_dry</code> 前缀匹配，一处生效覆盖全部触发）✓</td></tr>
+<tr><td>带开关</td><td><code>Config/option_seller_move_end.json</code>（通道级总开关）+ <code>GET/POST /api/option_seller/move_end_config</code>（实测开/关/复位 ✓）；status 暴露 <code>move_end_config</code></td></tr>
+<tr><td>不得单独依据 Gamma</td><td>通道内 <code>gamma_wall_strike=None</code>，不使用 Gamma 墙位 ✓</td></tr>
+<tr><td>组数</td><td>评分 → 组数（≥85→2；70–84→1），再受 <code>groups_cap=2</code> 与 <code>groups&lt;2</code> 双硬顶</td></tr>
+<tr><td>自检</td><td><code>py_compile</code> ✓ · 模块导入 ✓ · <code>/bbt_option_seller</code> 200 · 三个 API 均 200</td></tr></table>
+
+<h3>4.4 收紧假信号口径并重跑影子</h3>
+<p style="font-size:0.86rem;">修正影子两处口径缺陷（使其与实时通道同语义）：① <b>未按 11:30 截断</b>（原含盘后行，如 08-31 13:15）✗ ⇒ 现只回放 <b>[06:35, 11:30) PST</b>；② <b>前视偏差</b>（日高/低/趋势用全天极值、<code>minutes_since_open</code> 用行号×5）✗ ⇒ 现用<b>逐行推进运行极值</b>与<b>真实时钟分钟</b>。口径：假信号由「15 分钟反向 &gt;8 点」→「<b>30 分钟反向 &gt;12 点</b>」，并记录 <b>MFE/MAE</b>。</p>
+<table><tr><th>指标</th><th>收紧前（旧口径）</th><th>收紧后（本轮 ✓）</th><th>目标</th></tr>
+<tr><td>触发频率</td><td>45 次/10 日（含盘后、前视）</td><td><b>87 次/10 日 ≈ 8.7/日</b></td><td>≥3/日 <span class="ok">✓</span></td></tr>
+<tr><td>路径分布</td><td>R=24 / T=21</td><td><b>R=27 / T=60</b></td><td>两路都有 <span class="ok">✓</span></td></tr>
+<tr><td>方向对称</td><td>BULL=26 / BEAR=19</td><td><b>BULL=50 / BEAR=37</b></td><td>双向 <span class="ok">✓</span></td></tr>
+<tr><td>分值分布</td><td>85+ 7 / 70–84 38</td><td><b>85+ 26 / 70–84 61</b></td><td>—</td></tr>
+<tr><td>假信号率</td><td>0%（口径偏松）</td><td><b>9%</b>（12 点/30 分钟）；旧口径对照 16%（8 点/30 分钟）</td><td>≤40% <span class="ok">✓</span></td></tr>
+<tr><td>MFE / MAE</td><td>未记录</td><td><b>平均有利 7.0 / 平均不利 3.6 点</b>；极值 MFE 26.2 / MAE 22.2</td><td>—</td></tr></table>
+<div class="note"><b>结论</b>：收紧口径后仍有 ≈8.7 次/日的<b>原始触发</b>（实际开仓另受 <code>groups&lt;2</code> 与持仓锁约束，开仓数远低于此）；假信号率 9% 远低于 40% 上限，MFE 期望显著大于 MAE ⇒ 具备放量前的质量基础。</div>
+
+<h3>4.5 第三部分子章节结构重组（用户追加）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>目标</td><td>①「触发机制族：各机制概览与统一规范」= <b>第一个大子章节</b>；② 新建大子章节「<b>子功能模块</b>」，把其余现有子章节（§1–§7）移入作为<b>子子章节</b></td></tr>
+<tr><td>结果结构</td><td>第三部分 → <b>［大］触发机制族</b>（各机制概览 + §8–§13）→ <b>［大］子功能模块</b>（§1–§7）</td></tr>
+<tr><td>一并修正</td><td>发现并修正既有缺陷：<b>§12/§13 原被误嵌套在 §11 的 <code>div.rule-subgroup</code> 内</b> ⇒ 已在 §12 之前闭合该容器，使 §12/§13 与 §11 同级</td></tr>
+<tr><td>编号策略</td><td>规则编号（§1–§13）与锚点（<code>os-rule-*</code> / <code>os-mechanisms</code> / <code>os-mech-overview</code>）<b>保持不变</b>，仅调整层级归属与位置</td></tr>
+<tr><td>内容保真</td><td>§1–§7 文本<b>逐字节一致</b>（5264 字节）；§8–§13 文本<b>逐字节一致</b>（27061 字节）⇒ 无重定义、无丢失、无重复</td></tr>
+<tr><td>TOC</td><td>重排为两大子章节：<code>触发机制族</code>（+7 子项）+ <code>子功能模块</code>（+§1–§7 子项，<code>nav-sub</code> 缩进）；断链 <b>0</b></td></tr>
+<tr><td>说明框</td><td>第三部分引言后新增「章节结构（两大子章节）」提示框（HTML）/ 引用块（MD），含直达锚点</td></tr>
+<tr><td>新增锚点</td><td><code>os-submodule</code>（第二大子章节）</td></tr>
+<tr><td>自检</td><td>HTML 解析 EOF 栈空、错误数 6（与改前相同，均既存）；§1–§13 标题逐字节一致；TOC 无断链</td></tr></table>
+
+<h3>4.6 第三部分章节编号改为多级数字格式（用户追加）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>目标</td><td>Part 3 章节编号由单级（8. / 9. / 1. / 2. …）改为<b>多级数字</b>：<code>3.1</code> / <code>3.1.1</code> / <code>3.1.1.1</code> …</td></tr>
+<tr><td>层级规则</td><td>h3 大子章节 → <code>3.x</code>；h4 子子章节 → <code>3.x.y</code>；h5 子子子章节 → <code>3.x.y.z</code></td></tr>
+<tr><td>编号映射</td><td><b>3.1 触发机制族</b>：3.1.1 各机制概览（3.1.1.1 五维评分器）· 3.1.2 四层漏斗 · 3.1.3 QuantPivot（.1/.2/.3）· 3.1.4 盘前大单+EMA（.1/.2/.3）· 3.1.5 极值耗竭与震荡边界（.1/.2/.3）· 3.1.6 Path R（.1/.2/.3）· 3.1.7 Path T（.1/.2/.3）；<b>3.2 子功能模块</b>：3.2.1–3.2.7（原 §1–§7）</td></tr>
+<tr><td>止盈模式</td><td>编号 <code>3.1.5.3</code>（原为 h4 且嵌于 §11 子容器内，其 class 本即 <code>sc2-h5</code> ⇒ 标签对齐为 h5）</td></tr>
+<tr><td>交叉引用</td><td>Part 3 内 <code>§N</code> 与「第 N 节」全部重映射：<code>§8→§3.1.2</code> … <code>§1→§3.2.1</code>；「第 9 节→第 3.1.3 节」「第 10 节→第 3.1.4 节」；<b>残留单级引用 0</b></td></tr>
+<tr><td>TOC</td><td><code>nav-num</code> 同步为多级（3.1 … 3.2.7）；<code>.nav-num</code> 由固定 <code>width:20px</code> 改为 <code>width:auto; min-width:20px</code>（容纳多级编号）</td></tr>
+<tr><td>锚点</td><td><b>保持不变</b>（<code>os-rule-*</code> / <code>os-mechanisms</code> / <code>os-mech-overview</code> / <code>os-submodule</code>）⇒ 外部深链不受影响</td></tr>
+<tr><td>自检</td><td>HTML 解析 EOF 栈空、错误数 6（与改前相同，均既存）；TOC 断链 <b>0</b>；MD 31 个标题 / 32 处引用同步、残留 0</td></tr></table>
+
+<h3>4.7 止盈策略：移出触发机制族并合并重定义（用户追加）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>目标</td><td>把「止盈模式 (Take-Profit Modes)」从触发机制族移出，与「双批次阶梯开仓与分级止盈机制 (Dual-Tranche Tiered Take-Profit)」<b>合并重写、重定义为「止盈策略」</b></td></tr>
+<tr><td>落点</td><td><code>3.2.4 止盈策略 (Take-Profit Strategy)</code>（子功能模块下；沿用原 3.2.4 位次与锚点 <code>os-rule-4</code>）</td></tr>
+<tr><td>移出</td><td>原 <code>3.1.5.3 止盈模式</code> 整块（模式 A/B 卡片 + 对比表）从 §3.1.5 的 <code>div.rule-subgroup</code> 中摘除 ⇒ §3.1.5 现仅含 <code>3.1.5.1 场景一</code> / <code>3.1.5.2 场景二</code></td></tr>
+<tr><td>新结构</td><td><code>3.2.4.1</code> 定位与适用范围 · <code>3.2.4.2</code> 开仓仓位规则（2 Spreads Scale-Out）· <code>3.2.4.3</code> 两档分级止盈（40% / 75%）· <code>3.2.4.4</code> 硬止损与时间止损铁律 · <code>3.2.4.5</code> 两种标准止盈模式（A 标准 / B 保守）· <code>3.2.4.6</code> 模式对比</td></tr>
+<tr><td>规则保真</td><td>40% / 75%（<code>net_credit × 0.60</code> / <code>× 0.25</code> 买回）、2.20× 权利金硬止损、12:30 PST 强制全清、模式 B 浮盈 ≥30% 双批次保本位移（<code>stop_loss_price = net_credit</code>，仅 <code>is_l1_h1_pivot_trade</code>）全部保留；<b>未新增或删除任何决策参数</b></td></tr>
+<tr><td>顺手修正</td><td>① MD 中误挂在 3.2.5 下的「止损与时间平仓一致性」条目并回 3.2.4；② MD 原缺「止盈模式」整块 ⇒ 本次合并后 <b>HTML / MD 内容对齐</b></td></tr>
+<tr><td>TOC / 说明框</td><td>TOC <code>os-rule-4</code> 文字 → 「止盈策略 (Take-Profit Strategy)」；Part 3 结构说明「双批次止盈」→「止盈策略」</td></tr>
+<tr><td>自检</td><td>HTML 解析 EOF 栈空、错误数 6（与改前相同，均既存）；<code>3.1.5 / 3.1.6 / 3.2.4 / 3.2.5</code> 均处于 article <b>同级</b>；「止盈模式」在 3.2.4 之外出现 <b>0</b> 次；TOC 断链 <b>0</b>；h5 编号统一为多级（3.2.4.1–3.2.4.6）</td></tr></table>
+
+<h3>4.8 加粗渲染修复 + 子功能模块顺序调整（用户追加）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>现象</td><td>第三部分大部分文本显示为<b>加粗</b></td></tr>
+<tr><td>根因</td><td>全文有 <b>4 处 <code>&lt;li&gt;&lt;strong&gt;</code> 未闭合</b>（<code>&lt;strong&gt;</code> 包裹 <code>&lt;h4&gt;</code> / <code>&lt;div&gt;</code> 块级元素，Part 1 第 1556 / 1654 / 1727 / 1799 行处）。<code>&lt;strong&gt;</code> 是行内元素，不会在 <code>&lt;/li&gt;</code> / 块级边界自动闭合，导致其后<b>全文</b>（含第三部分）持续加粗</td></tr>
+<tr><td>修复</td><td>在各自 <code>&lt;li&gt;</code> 结束前补齐 <code>&lt;/strong&gt;</code> ⇒ 全文 <code>&lt;strong&gt;</code> 计数 <b>1000 / 1000</b>（平衡）</td></tr>
+<tr><td>修复效果</td><td>HTML 解析错误 <b>6 → 2</b>：<code>unclosed strong</code> ×4 全部消除；剩余 2 条为 Part 1 既存的 <code>unclosed li / ul</code>（第 868 / 872 行，与加粗无关）</td></tr>
+<tr><td>顺序调整</td><td>子功能模块按用户指定顺序重排：<code>3.2.1</code> 三档开仓策略 · <code>3.2.2</code> 止盈策略 · <code>3.2.3</code> 三重退出 · <code>3.2.4</code> 动态盯市与 12:30 时间止损 · <code>3.2.5</code> 合约选型 · <code>3.2.6</code> 核心策略与风险锁死 · <code>3.2.7</code> 双重运行场景</td></tr>
+<tr><td>编号</td><td>标题与 TOC <code>nav-num</code> 同步重编；止盈策略子节 <code>3.2.4.x → 3.2.2.x</code></td></tr>
+<tr><td>锚点</td><td>仍<b>绑定原规则</b>（<code>os-rule-5</code> = 三档开仓策略 = 3.2.1、<code>os-rule-4</code> = 止盈策略 = 3.2.2、<code>os-rule-1</code> = 核心策略 = 3.2.6 …）⇒ 外部深链仍指向同一规则，不随编号迁移</td></tr>
+<tr><td>交叉引用</td><td>「三档开仓策略（§3.2.5）」→「§3.2.1」共 <b>4 处</b>（HTML / MD 各 4）；区间引用 <code>§3.2.1–§3.2.7</code> 仍成立；残留 <code>§3.2.5</code> = <b>0</b></td></tr>
+<tr><td>说明框</td><td>Part 3 结构说明与子功能模块引言的项目顺序同步为新序</td></tr>
+<tr><td>自检</td><td>HTML EOF 栈空、错误 2（均既存）；TOC 断链 <b>0</b>；MD 顺序与 HTML 一致</td></tr></table>
+
+<h3>4.9 模式 B（保守止盈）通用化（用户追加）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>结论</td><td>「模式 B 保守止盈」是<b>通用策略</b>，不应限于 <code>is_l1_h1_pivot_trade</code> 的自动单</td></tr>
+<tr><td>代码核查</td><td>判据本身已是<b>或关系</b>：monitor 用 <code>is_l1_h1_pivot_trade OR take_profit_mode == 'CONSERVATIVE'</code> 决定 30% 保本位移 ⇒ <b>无硬限制</b>；手动开仓与条件单控制台均可选 STANDARD / CONSERVATIVE ✓</td></tr>
+<tr><td><b>修复的缺陷</b></td><td><code>_reload_active_trades()</code> <b>未加载 <code>take_profit_mode</code></b> ⇒ 进程重启后 <b>非 L1/H1 的保守止盈单会静默丢失 30% 保本位移</b>（monitor 读到 <code>None</code>）。已补加载 <code>take_profit_mode</code> / <code>take_profit_mode_label</code>（DB 列优先，回退 <code>entry_evidence</code>）</td></tr>
+<tr><td>新增通道</td><td>自动开仓新增全局「<b>自动止盈模式</b>」：<code>AUTO</code>（默认；标准止盈 + L1/H1 自动升级为保守，<b>向后兼容</b>）/ <code>STANDARD</code> / <code>CONSERVATIVE</code>（全部自动单采用保守止盈）</td></tr>
+<tr><td>代码落点</td><td><code>OptionSellerManager.auto_take_profit_mode</code> + <code>set_auto_take_profit_mode()</code> + <code>_apply_auto_take_profit_mode()</code>；套用于<b>三条自动路径</b>（5m 合成 / 盘前大单+EMA / 触发层 Path R·T）；<code>status</code> 暴露 <code>auto_take_profit_mode</code>；API <code>POST /api/option_seller/set_auto_tp_mode</code>；页面新增「自动止盈模式」分段控件（自适应 / 标准 / 保守）</td></tr>
+<tr><td>标签修正</td><td>「保守止盈 (L1/H1 · 30% 保本)」→「保守止盈 (<b>30% 保本位移</b>)」（后端 2 处 + 模板 3 处）</td></tr>
+<tr><td>文档</td><td>手册 <code>3.2.2.5</code> / <code>3.2.2.6</code> 重定义为「模式 B = <b>通用可选</b>（自动 / 条件 / 手动均可选），L1/H1 为<b>自动启用路径之一</b>」，并补全局开关说明；HTML + MD 同步（设计意图亦去除 L1/H1 专属措辞）</td></tr>
+<tr><td>生效矩阵（实测）</td><td><code>AUTO</code>+非L1H1 → STANDARD｜<code>AUTO</code>+L1H1 → CONSERVATIVE｜<code>CONSERVATIVE</code>+任意 → CONSERVATIVE</td></tr>
+<tr><td>自检</td><td><code>py_compile</code> / 模块导入 OK；页面与 <code>status</code> <b>200</b>；新端点 <b>200</b>；模板 JS <code>node --check</code> OK；切换实测落盘并复位；误导标签残留 <b>0</b></td></tr></table>
+
+<h3>4.10 「第四层：期权链盘口硬性验算」表迁入三档开仓策略（用户追加）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>需求</td><td>该表属<b>通用逻辑</b>（对三档开仓策略一视同仁，并非 5 分钟漏斗专属）⇒ 从 3.1.2 移入 <b>3.2.1 三档开仓策略标准</b></td></tr>
+<tr><td>迁出</td><td>3.1.2（5m 四层漏斗）中的该 <code>&lt;table&gt;</code> 整体移除，原位置留<b>指针段</b>（指向 §3.2.1.1），「触发后执行动作」段补注「（第四层…见 §3.2.1.1）」</td></tr>
+<tr><td>迁入</td><td>3.2.1 末尾新增子节 <code>3.2.1.1 期权链盘口硬性验算（三档配置对照）</code> + 引导段（说明其为通用逻辑、降档寻优语义）+ 原表</td></tr>
+<tr><td>表头</td><td>首列由「第四层：期权链盘口硬性验算」→「<b>期权链盘口硬性验算</b>」（迁出漏斗后不再标注"第四层"）</td></tr>
+<tr><td>内容保真</td><td>HTML 表体 <b>6 行</b>，除表头列号外<b>逐字节一致</b>；MD 表 <b>7 行</b>（表头 + 6 数据行）一致；6 行关键字（Delta / 宽度 / 安全垫 / 最低权利金 / 盘口深度 / 自适应降级）HTML+MD 全部在位</td></tr>
+<tr><td>自检</td><td>HTML 解析 EOF 栈空、错误 2（均既存）；3.1.2 内该表体 <b>0</b>、3.2.1 内 <b>1</b>；3.2.1 现有 h5 = 3.2.1.1；HTML 与 MD 同构</td></tr></table>
+
+<h3>4.11 触发机制族重构 · 第一阶段（基础设施 + OF/Setup 边界）</h3>
+<table><tr><th>项</th><th>内容</th></tr>
+<tr><td>状态</td><td><b>第一阶段完成</b>（基础设施 + OF/Setup 职责边界）；机制编排接线、Path T 删除、标签迁移与手册重构属<b>下一阶段</b></td></tr>
+<tr><td>已落地 ①</td><td><code>PyTools/option_seller/auto_mechanisms.py</code>（新）：<b>L0 统一门槛</b>（A 硬门槛 / B 否决与位置掩码 / C 机制级组数 / D 全局上限）+ <b>机制注册表</b>（6 项、新标签、用户指定顺序）+ <b>编排器</b>（命中开仓或布防→终止本周期；布防型已布防→跳过该机制）</td></tr>
+<tr><td>已落地 ②</td><td><code>PyTools/option_seller/setup_classifier.py</code>（新）：Setup 1A/2A/3A/1B/2B/3B + 第一道门物理门槛 + 一票否决 + <code>trade_decision</code> 自 OrderFlow 迁入，<b>只消费</b> <code>setup_inputs</code> 契约</td></tr>
+<tr><td>已落地 ③</td><td>OrderFlow 子模块瘦身：<code>order_flow_rules_optimizer.py</code> <b>1395 → 1213 行</b>；新增 <code>metrics_dict["setup_inputs"]</code> 输出契约；移除 Setup/第一道门/一票否决/<code>trade_decision</code></td></tr>
+<tr><td>已落地 ④</td><td>sentinel 接线：调用 <code>classify_setups</code> 产出 verdict / trade_decision 并<b>回写</b> <code>order_flow_signals</code>，同时把 <code>setup_result</code> 传给卖家</td></tr>
+<tr><td>已落地 ⑤</td><td>引擎机制拆分：<code>evaluate_counter_trend_boundary_opportunity(scenario='TREND'|'QP')</code> + 包装入口 <code>evaluate_trend_day_extreme()</code> / <code>evaluate_quant_pivot_boundary_opportunity()</code></td></tr>
+<tr><td>L0 位置掩码（实测）</td><td>Neutral <b>60/40</b> · 开盘前 30 分 <b>70/30</b> · Trend Day <b>70/30</b> ✓</td></tr>
+<tr><td>机制清单（注册表）</td><td>① <code>AUTO_5M_SYNTHESIS</code> ② <code>AUTO_QUANT_PIVOT_BOUNDARY</code> ③ <code>AUTO_BALANCED_DAY_BOUNDARY</code> ④ <code>AUTO_TREND_DAY_EXTREME</code> ⑤ <code>AUTO_PM_BIG_TRADE_PULLBACK</code> ⑥ <code>AUTO_CONDITIONAL_ORDER</code></td></tr>
+<tr><td>自检</td><td>全量 <code>py_compile</code> OK；6 模块导入 OK；<code>classify_setups</code> 双向冒烟（1A→OPEN_LONG / 1B→OPEN_SHORT）OK；页面与 status <b>200</b></td></tr>
+<tr><td>待办（下一阶段）</td><td>① manager 接入注册表 + 机制级/全局组数 ② 删除 Path T、<code>move_end_*</code> → <code>balanced_day_boundary_*</code> ③ 标签迁移与 FORCE_DRY/页面/status ④ 手册 Part 1 §3 迁移 + Part 3 §3.1 重构 ⑤ 影子回归</td></tr>
+<tr><td>回滚点</td><td><code>/tmp/osm_bak_20260913_131847/</code></td></tr></table>
+
+<h3>4.12 方案 B（13 项逐指标方向表）+ 阶段二 2b（删除 Path T）</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td><b>方案 B 落地</b></td><td>新增 <code>PyTools/order_flow_analysis/of_contract.py</code>：<code>build_indicators13()</code> 输出 <b>13 项逐指标方向表</b>，字段 = <code>id/name/weight/role/direction/score/hit/in_aggregate/blocked_sides/detail</code>；已注入 OF 的 <code>metrics_dict</code> 与顶层返回</td></tr>
+<tr><td>方向语义</td><td><code>direction ∈ {BULL, BEAR, NEUTRAL, N-A}</code>；<b>N-A 仅 07 撤单比(RISK) 与 09 spoof(VETO)</b>（无多空语义），09 额外输出 <code>blocked_sides</code>；05/06/08 为<b>带符号净量</b>（配死区），非 N-A</td></tr>
+<tr><td>聚合口径</td><td><b>不变</b>：<code>in_aggregate=True</code> 仅 01/02/03/04/10；11–13 为 phase14 新增、暂未接入聚合</td></tr>
+<tr><td>冒烟</td><td>13 条记录齐全；N-A = [7,9]；逐项方向正确（如 05 净深度 -120 → BEAR、13 BREACHED_NO_RECLAIM+bid → BEAR）</td></tr>
+<tr><td><b>阶段二 2b</b></td><td>新建 <code>PyTools/option_seller/balanced_day_boundary.py</code>（<b>仅 Path R</b>，删除「移动结束 Path T」与趋势日约束）；<code>move_end_evaluator.py</code> 转<b>薄壳转发</b>；manager 与影子回放调用同步</td></tr>
+<tr><td>影子回放（仅平衡日边界）</td><td>近 5 交易日 <b>49 次 ≈9.8/日</b>、<b>R=49 / T=0</b>、BULL=29/BEAR=20、85+ 15 个、<b>假信号 6%</b>（旧 8 点口径 12%）、MFE 7.5 / MAE 3.1</td></tr>
+<tr><td>自检</td><td>全量 <code>py_compile</code> OK；关键模块 + sentinel 导入 OK；页面与 4 个 API <b>200</b></td></tr>
+<tr><td><b>2c 已完成</b></td><td>标签迁移：manager 三处发射点改用新标签（<code>AUTO_QUANT_PIVOT_BOUNDARY</code> / <code>AUTO_TREND_DAY_EXTREME</code> 按子场景拆分、<code>AUTO_PM_BIG_TRADE_PULLBACK</code>、<code>AUTO_BALANCED_DAY_BOUNDARY</code>、<code>AUTO_CONDITIONAL_ORDER</code>）；<code>FORCE_DRY_CHOICES</code> 改为<b>引用 auto_mechanisms（单一权威）</b>；旧标签经 <code>normalize_label()</code> 映射；API <code>/force_dry</code> choices 实测已切换为 6 项新清单</td></tr>
+<tr><td>仍待执行（阶段二）</td><td><b>2a</b> manager 接入机制注册表（替换三段式，LIVE 路径）· <b>2d</b> 手册 Part 1 §3 迁移 + Part 3 §3.1 重构（HTML+MD）· <b>2e</b> 机制级影子回归</td></tr>
+<tr><td>回滚点</td><td><code>/tmp/osm_bak_20260913_131847/</code></td></tr>
+</table>
+<h3>4.13 触发机制族重构 · 阶段二完成（2a / 2c / 2d / 2e）</h3>
+<table>
+<tr><th>#</th><th>事项</th><th>交付</th></tr>
+<tr><td><b>2a</b></td><td>manager 接入机制注册表</td><td><code>evaluate_5m_synthesis_trade()</code> 改为「构造 <code>MechanismContext</code> → <code>evaluate_auto_entry_cycle()</code>」；新增 <code>_mech_5m_synthesis</code> / <code>_mech_quant_pivot_boundary</code> / <code>_mech_trend_day_extreme</code> / <code>_mech_balanced_day_boundary</code> / <code>_mech_pm_big_trade_pullback</code> / <code>_open_from_engine</code> / <code>get_active_groups_count(mechanism)</code> / <code>has_armed_conditional_for()</code>；机制内<b>不再重复 L0</b></td></tr>
+<tr><td><b>2c</b></td><td>标签迁移</td><td>manager 三处发射点改用新标签（QuantPivot/趋势日按 <code>sub_scenario</code> 拆分、盘前大单合并、Path R/T 合并为 <code>AUTO_BALANCED_DAY_BOUNDARY</code>、自动布防 <code>AUTO_CONDITIONAL_ORDER</code>）；<code>FORCE_DRY_CHOICES</code> 单一权威 = <code>auto_mechanisms</code>；旧标签经 <code>normalize_label()</code> 别名</td></tr>
+<tr><td><b>2d</b></td><td>手册重构</td><td>3.1.1 全量重写（L0-A/B/C/D + 位置掩码表 + 编排流程 + 各机制概览 + OF 契约 + 五维评分器）；3.1.2–3.1.7 <b>区块重排+重编号</b>（漏斗→QuantPivot→平衡日→趋势日→盘前→条件单）；<b>场景二</b>归并为 <code>3.1.3.4</code>；<b>Path T 删除</b>、3.1.7 改写为自动/手动条件单；Part 1 §3 加「判定归属」指针；TOC 同步（HTML+MD）</td></tr>
+<tr><td><b>2e</b></td><td>影子回归</td><td>平衡日边界（Path R）：<b>49 次 ≈9.8/日 · R=49/T=0 · 假信号 6%</b>；L0 位置掩码回放（近 12 日 468 槽位）：<b>双向可用 24%</b>、掩多 146、掩空 154 ⇒ Neutral 60/40 档下约 <b>64%</b> 槽位存在单向掩码</td></tr>
+<tr><td>编排单测</td><td>7 项语义全通过</td><td>①命中开仓即停 ②布防命中即停 ③L0-A 时段截断 ④位置掩码 ⑤L0-C 机制级组数 ⑥L0-D 全局上限 ⑦布防型已布防→跳过</td></tr>
+</table>
+<p><b>代码 ↔ 手册 一致性核对</b></p>
+<table>
+<tr><th>检查项</th><th>代码</th><th>手册 HTML</th><th>手册 MD</th></tr>
+<tr><td>机制清单 6 标签</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>检查顺序 ①…⑥</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>L0-A/B/C/D 四层</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>位置掩码 Neutral 60/40</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>位置掩码 Trend 70/30 · 开盘 70/30</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>机制级 <code>&lt; 2</code> / 全局 <code>≤ 5</code></td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>命中即停 / 布防即停</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>布防去重（已布防→跳过）</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>OF 契约 <code>indicators13</code> + <code>setup_inputs</code></td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>N-A 仅 07/09</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Setup 归属 3.1.2（含 Setup 闸门）</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Path T 已删除</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>自动/手动条件单标签区分</td><td>✓</td><td>✓</td><td>✓</td></tr>
+</table>
+<table>
+<tr><th>回滚点</th><th><code>/tmp/osm_bak_20260913_131847/</code>（阶段一起点）· <code>/tmp/osm_bak_20260913_142622/</code>（2a 前）· <code>/tmp/manual_pre_2d2.html</code>（3.1 重排前）</th></tr>
+</table>
+<h3>4.14 新增顶级「第四部分：5 分钟周期全景（逻辑流与数据流）」</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>需求</td><td>生成一张图，显示 5 分钟周期所做的<b>所有事情</b>（逻辑流 + 数据流），并作为<b>顶级标题「第四部分」</b></td></tr>
+<tr><td>图片</td><td><code>system_modules/part4_5m_cycle.png</code>（matplotlib 生成，浅色主题；CJK 字体 Hiragino Sans GB；2938×1903px）</td></tr>
+<tr><td>图片内容</td><td>① 数据源（TICK / DOM 500ms / SPX Gamma / Smashelito / QuantPivot / ES 盘前大单 / EMA）→ ② OrderFlow 子模块输出契约（direction · strength · indicators13[] · setup_inputs · metadata）→ ③ 卖家 Setup 分类器 ＋ ④ L0 统一门槛（A/B/C/D）→ ⑤ 机制注册表 ①…⑥（顺序检查 · 命中即停）→ ⑥ 执行与风控（开仓 / 布防 / 10 秒守护 · 40%-75% 止盈 · 2.20× 止损 · 12:30 全平）</td></tr>
+<tr><td>章节编号</td><td>新增 <b>第四部分</b>（id <code>part-4</code>，锚点 <code>part-4-overview</code>）；<b>原第四部分顺延为第五部分</b>（id <code>part-4</code> → <code>part-5</code>），内部 chapter/card 锚点保持不变</td></tr>
+<tr><td>同步</td><td>HTML：新增 Part-4 章节 + 图（<code>&lt;figure&gt;</code> + 图 4-1 题注）+ 读法三纪律；TOC 新增第四部分导航组、原组改第五部分；Topbar 新增「第四部分: 5 分钟全景」按钮、原按钮改第五部分。MD：镜像插入 <code>## 第四部分</code> + <code>![](part4_5m_cycle.png)</code>，原部分改 <code>## 第五部分</code></td></tr>
+<tr><td>读法三纪律</td><td>① 数据流单向（数据源→契约→机制，机制不得自算指标）② 逻辑流集中且顺序（L0 一次 + ①→⑥ 命中即停）③ Setup 判定归属卖家（§3.1.2）</td></tr>
+<tr><td>自检</td><td>HTML 解析 errors=2（均既存 li/ul）、EOF 栈空、TOC 断链 <b>0</b>；「第四部分」引用点 3 处均为新 Part 4，「第五部分」标题 1 处；PNG 与手册同目录、引用可达</td></tr>
+<tr><td>回滚点</td><td><code>/tmp/manual_pre_part4.html</code>（插入第四部分前）</td></tr>
+</table>
+<h3>4.15 Setup 判定规范文档补齐（Part 1 §3 → §3.1.2）</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>起因</td><td>用户指出 Part 1 §3 仍保留各 Setup：<b>代码其实已迁，文档没跟上</b>（上一轮只加了指针）</td></tr>
+<tr><td>代码现状（复核）</td><td>Setup 1/2/3（A/B）判定已在 <code>PyTools/option_seller/setup_classifier.py</code>，并在机制① <code>AUTO_5M_SYNTHESIS</code> 作为 <b>Setup 闸门</b>生效；<b>Setup 4（洗盘反转）</b>仍属 OF 侧 <code>washout_bull/bear</code>（参与聚合方向）；<b>Setup 5（WALL_BOUNDARY_SELL）代码中无同名实现</b>；<b>Setup 6（RANGE_BOUND 布防）</b>对应机制② 的条件单布防</td></tr>
+<tr><td>本次改动</td><td><b>物理搬移</b> Part 1 §3 的 Setup 1–6 判定正文（HTML 62,388 字符）→ §3.1.2，层级 h4/h3 → <b>h5</b>，编号 <b>3.1.2.1 … 3.1.2.6</b>，内层 h5 降 h6</td></tr>
+<tr><td>Part 1 §3 保留</td><td>全局约束（一票否决）· Setup 总览（索引）· 加权准入（13 项指标方向准入）· 中性判定 ＋ <b>指针</b>（指向 §3.1.2）</td></tr>
+<tr><td>MD 镜像</td><td>MD 的 Setup 以<b>列表项</b>内嵌于「看多/看空」判定（且<b>无</b> Setup 4/5/6、无独立标题）⇒ 将 Setup 1A/2A/3A + 1B/2B/3B 正文移入 MD §3.1.2「Setup 判定规范（自第一部分 §3 移入）」，Part 1 §3 保留方向准入 + 指针</td></tr>
+<tr><td>自检</td><td>HTML 解析 errors=2（均既存 li/ul）、EOF 栈空、TOC 断链 <b>0</b>；Part 1 §3 <b>已无</b> Setup 正文、§3.1.2 <b>含</b> 3.1.2.1–3.1.2.6；MD 两侧同构</td></tr>
+<tr><td>回滚点</td><td><code>/tmp/manual_pre_setupmove.html</code>（HTML）· <code>/tmp/manual_md_pre_setupmove.md</code>（MD）</td></tr>
+</table>
+<h3>4.16 手册全局级联数字编号（HTML + MD）</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>需求</td><td>所有标题统一用<b>级联数字前缀</b>（<code>1</code> / <code>1.1</code> / <code>1.1.2</code>），清除 <code>2a/2b/2c/2d/6b/12B</code> 之类字母后缀编号</td></tr>
+<tr><td>规则</td><td>按<b>文档顺序 + 标题层级</b>自动生成：Part = 1–5；章 = N.M；节 = N.M.K；子节 = N.M.K.L（HTML <code>h1..h6</code> / MD <code>##..######</code> 同规则）</td></tr>
+<tr><td>剥离样式</td><td><code>第X部分/章/节：</code>、<code>Chapter N</code>、多级 <code>3.1</code>/<code>1.2.1</code>、字母后缀 <code>2c.</code>/<code>6b.</code>、单级 <code>1.</code>、<code>(1)</code>、<code>一、</code>、<code>A.</code>/<code>A2.</code>；<b>前导 <code>&lt;a&gt;</code>/<code>&lt;i&gt;</code> 标签保留</b>（锚点与图标不丢）</td></tr>
+<tr><td>主要映射（HTML）</td><td><code>2c→1.3</code> · <code>2d→1.4</code> · <code>2b→1.5</code> · <code>6b→1.2.7</code> · <code>chapter-12b→2.4</code> · <code>chapter-18→5.5</code> · 其内 <code>一、二、三、→5.6/5.7/5.8</code>；Part 3 原 <code>3.1/3.1.x</code> schema 由新算法<b>自然复现</b></td></tr>
+<tr><td>新层级</td><td>Setup 1–6 → <code>3.1.2.1</code>（总则）与 <code>3.1.2.2–3.1.2.7</code>；Setup 5 内层 A/A2/B/C/D/E → <code>3.1.2.6.1–6</code>；Part 4「图中读法」h4→h3 得 <code>4.1</code>（避免 <code>4.0.1</code>）</td></tr>
+<tr><td>TOC</td><td><code>nav-num</code> 全量同步为级联编号；5 个部分组标题改 <code>1.</code>–<code>5.</code>；Topbar 按钮同步；<b>补入 TOC 原本缺失的 <code>1.3/1.4/1.5</code></b>（原 2c/2d/2b 从未进 TOC，消除跳号）</td></tr>
+<tr><td>MD 镜像</td><td>同规则处理 107 个标题；残留字母后缀 0；<code>1.2.2 dom_...</code>/<code>1.2.4 vacuum_...</code>/<code>1.2.5 weighted_...</code> 三处「首字母小写」是内容本身（代码标识符），非误剥</td></tr>
+<tr><td>已知差异</td><td>MD 为精简版：<b>无</b> <code>chapter-2c/2d/2b</code> ⇒ MD 的「第一步方向准入」为 <code>1.3</code>，而 HTML 为 <code>1.6</code>（内容不同导致编号自然不同）</td></tr>
+<tr><td>自检</td><td>HTML 解析 errors=2（均既存 li/ul）、EOF 栈空、TOC 断链 <b>0</b>、残留字母后缀 <b>0</b>；MD 同；交易系统未改代码仍 <b>200</b></td></tr>
+<tr><td>回滚点</td><td><code>/tmp/manual_pre_cascade.html</code> · <code>/tmp/manual_md_pre_cascade.md</code></td></tr>
+</table>
+<h3>4.17 §1.6 残留 Setup 内容彻底清理（移入 §3.1.2）</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>起因</td><td>用户指出 §1.6「第一步：基本规则方向准入判定」未清理干净：仍留有 <b>Setup 总览表</b> 与 <b>全局约束（一票否决）表</b>，小标题还写着"· 加权准入"（实际无该内容）</td></tr>
+<tr><td>迁出</td><td>§1.6 的 <b>Setup 总览表</b>（Setup 1–5 × 看多/看空空间条件 × 代码位置）与 <b>全局约束表</b>（幌骗陷阱 / 反追高杀跌 / 机构大单反向 / 数据充分性 / 接飞刀过滤）→ <b>§3.1.2</b></td></tr>
+<tr><td>迁入落点</td><td>§3.1.2 新增 <code>3.1.2.2 Setup 总览表（自第一部分 §1.6 移入）</code> 与 <code>3.1.2.3 全局约束（一票否决，任何 Setup 都要先过）</code>，并注明与 <b>L0-B 统一否决/掩码</b>（spoof + 位置掩码 60/40 · 70/30）<b>并存且独立</b></td></tr>
+<tr><td>§1.6 保留</td><td><b>方向准入刚性约束</b>（反追高/杀跌 + 虚假撤单过滤，在 1.6.1/1.6.2 节首）+ <b>附：中性判定</b>（<code>1.6.1</code>）；并置顶说明「Setup 判定规范（含总览表与全局约束表）已移入 §3.1.2」</td></tr>
+<tr><td>结果</td><td>§1.6 <b>表格数 0</b>；§3.1.2 含 Setup 总览表 ✓ 与全局约束表 ✓；级联编号重跑后 §3.1.2 子节为 <code>3.1.2.1</code>（Setup 总则）→ <code>3.1.2.4–3.1.2.9</code>（Setup 1–6）</td></tr>
+<tr><td>MD</td><td>MD 为精简版，<b>本就无</b>这两张表；已修正其指针措辞为「本节保留：方向准入刚性约束 + 中性判定；Setup 总览与全局约束表见 §3.1.2」</td></tr>
+<tr><td>自检</td><td>HTML 解析 errors=2（均既存 li/ul）、EOF 栈空、TOC 断链 <b>0</b>、标题 151、残留 2a/2b 编号 <b>0</b>；MD 标题 107；交易系统未改代码仍 <b>200</b></td></tr>
+<tr><td>回滚点</td><td><code>/tmp/manual_pre_16clean.html</code> · <code>/tmp/manual_pre_cascade.html</code> · <code>/tmp/manual_md_pre_cascade.md</code></td></tr>
+</table>
+<h3>4.18 去重复：不照搬旧表，改用 Part 3 权威新版本</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>起因</td><td>用户指出 §1.6 的两张表<b>不能简单拷贝</b>进 §3.1.2 —— Part 3 已有权威新版本，会造成两处并存</td></tr>
+<tr><td>处理</td><td><b>删除</b>刚迁入的 <code>Setup 总览表</code> 与 <code>全局约束（一票否决）表</code>，替换为 <b><code>3.1.2.2 判据权威位置索引</code></b>（只做导航指向，<b>不复述规则正文</b>）</td></tr>
+<tr><td>去重对照</td><td>spoof trap → <b>§3.1.1.1 L0-B</b>（新版本更完整：全局→结束周期 / 方向性→掩码）· 位置掩码 → <b>§3.1.1.1 L0-B</b>（60/40 · 70/30）· 极值防守 75/25 → <b>§1.6 附：中性判定</b> · 2h 大单反向 → <b>§1.3 指标 04 + §1.3.1 加权算术</b> · 数据充分性 → <b>§1.5</b>（独立章节）· 接飞刀过滤 → <b>§3.1.2 Setup 1 第二道门</b>（判定内部条件）</td></tr>
+<tr><td>结果</td><td>§3.1.2 = <code>3.1.2.1</code> Setup 总则 · <code>3.1.2.2</code> 判据权威位置索引 · <code>3.1.2.3–3.1.2.8</code> Setup 1–6（<b>权威版本，唯一来源</b>）；旧表头在 §3.1.2 内<b>已不存在</b></td></tr>
+<tr><td>MD</td><td>同步插入 <code>3.1.2.2 判据权威位置索引</code>（精简条目），结构对齐</td></tr>
+<tr><td>自检</td><td>HTML 解析 errors=2（均既存 li/ul）、EOF 栈空、TOC 断链 <b>0</b>、标题 150、残留 2a/2b <b>0</b>；MD 标题 108、结构对齐；交易系统未改代码仍 <b>200</b></td></tr>
+<tr><td>回滚点</td><td><code>/tmp/manual_pre_dedup.html</code></td></tr>
+</table>
+<h3>4.19 ⚠️ 严重故障修复：Order Flow 5m 引擎 <code>NameError</code>（重构残留）</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td><b>发现</b></td><td>重写 Part 1 前按代码核对事实时，对 <code>evaluate_order_flow_tiered_scoring()</code> 做<b>运行时实测</b>，直接抛 <code>NameError: name 'wb1' is not defined</code></td></tr>
+<tr><td><b>影响面</b></td><td>该函数是 5 分钟 Order Flow 的<b>唯一判定入口</b>，sentinel 每次 5 分钟扫描调用它。异常被 sentinel 的 <code>try/except</code> 兜住 → <code>order_flow_signals</code> 的 <b>5m 规则信号静默断流</b>，卖家系统 <code>AUTO_5M_SYNTHESIS</code> 机制拿不到 OrderFlow 输出</td></tr>
+<tr><td><b>根因</b></td><td>2026-09-13「Setup 判定迁出到卖家系统」重构时，<b>删除了赋值行却保留了使用处</b>。旧版（<code>__pycache__/order_flow_rules_optimizer.cpython-313.pyc</code>，9/9 22:24）中 <code>wb1..wb4</code> / <code>branch_min_score</code> 是<b>函数内局部变量</b>（<code>co_varnames</code> 可证），且其值取自 <code>THRESHOLDS</code> 的 5 个键</td></tr>
+<tr><td><b>同类残留</b></td><td>同一次重构还留下 2 处：<code>div_active_bull</code> / <code>div_active_bear</code>（加分项 10 使用）、<code>_dq_blocks_open</code>（L0-C 数据质量闸门字段使用）</td></tr>
+<tr><td><b>修复</b></td><td>① 恢复 5 个权重赋值（<b>单一权威 = <code>THRESHOLDS</code></b>，与 <code>setup_classifier</code> 同源，不硬编码）；② <code>div_active_* = _of_active_*</code> 别名（与方向判定同源）；③ <code>_dq_blocks_open = (_quality_tier == 'INSUFFICIENT')</code>（恢复 phase13 设计的 L0-C 语义）</td></tr>
+<tr><td><b>工具化</b></td><td>新增 <code>/tmp/scan_undefined.py</code>（基于 <code>symtable</code> 的未定义名扫描器，可复用）；对 <code>PyTools/option_seller/*.py</code>、<code>PyTools/order_flow_analysis/*.py</code>、<code>bbt_option_seller.py</code> <b>全量扫描</b>，除既存脚本问题外已无同类残留</td></tr>
+<tr><td><b>订正（先前的错误论断）</b></td><td>我最初判断「短窗列因此无数据」是<b>错的</b>。DB 实测（543 行 <code>Rule-Based-5m</code>）：<code>delta_5m/10m/15m/30m</code>、<code>vol_5m/15m</code> NULL 率 <b>0%</b>，<code>price_at_row</code> / <code>price_chg_5m/15m</code> <b>8.5%</b>（集中于 2026-09-07）。原因：<code>_sw_fields()</code> 只在 <b>create</b> 分支被调用，生产行的短窗列由 <b>update 分支的另一份内联实现</b>填充 —— NameError 属<b>潜在死分支</b>，生产未受影响</td></tr>
+<tr><td><b>映射反推与单一权威收敛</b></td><td>从 update 分支的 <code>_sw</code> / <code>_sp</code> 内联逻辑<b>反推出</b> <code>_sw_fields</code> 的完整口径（1 片 = 5 分钟；<code>delta_Nm</code> = 末 N/5 片 delta 之和；<code>vol_5m/15m</code> = 末 1/3 片 volume 之和；<code>price_at_row</code> = 末片 <code>price_end</code>；<code>price_chg_5m/15m</code> = 末片 <code>price_end</code> − 末 1/3 片 <code>price_start</code>；DOM 侧 <code>imb/stack/vacuum/spoof/iceberg</code> 由 <code>dom_metrics</code> 摊平）。已在 <code>backfill_order_flow_signals.py</code> 定义模块级 <code>_sw_fields(micro_5m, dom_metrics=None)</code> 并<b>替换两处重复实现</b>。验证：25 行 × 9 字段 = <b>225/225 逐字段一致</b></td></tr>
+<tr><td><b>顺带查明的独立缺口</b></td><td><code>vacuum_bid_val</code> / <code>vacuum_ask_val</code> 在<b>全部</b> <code>ai_model</code> 上 95~100% 为 NULL —— sentinel 的 <code>dom_metrics</code> 键为 <code>vacuum_ask_sec</code>，AI 路径取 <code>micro_stats['vacuum_ask']</code>，<b>键名口径不一致</b>（已记入手册，待统一口径）</td></tr>
+<tr><td><b>回滚点</b></td><td><code>/tmp/osm_bak_20260913_160000/backfill_order_flow_signals.py</code></td></tr>
+<tr><td><b>实测（修复后）</b></td><td><code>direction=Bullish</code> · <code>dir_code=Bullish_S4:Bullish</code> · <code>strength_score=4</code> · <code>bonus_items=['30m大单边推进(+3000)','10m双柱强动能(+800)','5m单柱脉冲(+500)']</code> · <code>indicators13=13</code> · <code>setup_inputs=36</code> 键 · <code>quality_tier=OK</code> · <code>gate_c_blocked_open=False</code> · <code>rules_version=2026-09-13-phase15</code></td></tr>
+<tr><td><b>回滚点</b></td><td><code>/tmp/osm_bak_20260913_151500/order_flow_rules_optimizer.py</code></td></tr>
+</table>
+<h3>4.20 Part 1 四节按代码重写（§1.1 / §1.6 / §1.7 / §1.8）</h3>
+<p>用户判定 §1.1 / §1.6 / §1.7 / §1.8「已经完全混乱」，要求<b>根据代码大刀阔斧重写</b>。</p>
+<table>
+<tr><th>节</th><th>改前问题（与代码不符）</th><th>改后（严格按代码）</th></tr>
+<tr><td><b>§1.1</b></td><td>仅一段口号式叙述 + 一张<b>已过时的架构图</b>（仍画着已被迁出的 Setup 流程）</td><td>五段式：<code>1.1.1</code> 为何必须两步解耦 · <code>1.1.2</code> 两步管线表 · <code>1.1.3</code> 输出契约（顶层 vs <code>metrics_dict</code>）· <code>1.1.4</code> <b>职责边界表</b>（OrderFlow / <code>setup_classifier</code> / <code>auto_mechanisms</code> 三方）· <code>1.1.5</code> 读图顺序；<b>架构图按代码重建</b>（浅色主题，4 波次：输入→方向准入→强度打分→输出契约→职责边界，含真实阈值）</td></tr>
+<tr><td><b>§1.6</b></td><td>只剩一句「Setup 已迁出」+ 中性判定；<b>方向准入本体缺失</b>，且引用的 65%/35% 反追高约束在代码中<b>不存在于本模块</b></td><td><code>1.6.1</code> 防空转量能门槛 <code>div_min_abs_delta=200</code> · <code>1.6.2</code> <b>4 核心分支加权表</b>（b1=3 / b2=b3=b4=1，门槛 <code>&gt;=2</code>）· <code>1.6.3</code> <b>一票否决表</b>（spoof + 2h 大单 <code>3000</code>）· <code>1.6.4</code> <b>四象限背离判据表</b>（0.12 / 0.6 / 0.5）· <code>1.6.5</code> <b>洗盘反转 b5 五条件表</b>（15min / <code>&gt;=500</code>手 / ±0.5 / ±0.05 / 55% / 2.0 点）+ 三条融入规则 · <code>1.6.6</code> 方向裁决表 + 中性细分优先级表</td></tr>
+<tr><td><b>§1.7</b></td><td>标题写「<b>9 大</b>加分项」，表格只有 9 行 —— 代码实际有 <b>11 项</b>（漏了主动背离、早期背离预警）；且未区分两套强度</td><td><b>11 项加分项表</b>（补加分 10 主动背离、加分 11 早期背离预警，每行加「阈值键」列）+ <b>两套强度辨析框</b>（<code>strength_score</code> vs <code>of_strength</code>）+ 叠加说明（加分 1⊂2，爆发一次 +2）+ 分级表（补 sentinel HIGH 报警门 = 8）</td></tr>
+<tr><td><b>§1.8</b></td><td><code>Neutral:Range-Bound</code>（代码实为 <code>Balanced-Range</code>）；<code>quantitative_metrics</code> 键清单陈旧；<code>order_flow_signals</code> <b>无列结构说明</b></td><td><code>1.8.1</code> dir_code 三态表（并注明中性<b>不带 <code>_S0</code> 后缀</b>）· <code>1.8.2</code> 强度字段 · <code>1.8.3</code> <b>落库 71 列按列族分组表</b>（14 身份 + 2 JSON + 7 五m + 9 三十m + 9 RTH + 7 PM + 23 DOM）· <code>1.8.4</code> verdict 与规则版本</td></tr>
+</table>
+<p><b>额外发现的代码事实（已写入文档）</b>：</p>
+<ol><li><code>Neutral:Trend-Shield</code> 分支<b>不可达</b>（判据 <code>of_direction=="Bearish"</code> 却位于 <code>if of_direction=="Neutral"</code> 内）→ 已在 §1.6.6 以「实现注记」标注，<code>neutral_sub</code> 实际只有 4 个取值；</li><li><code>order_flow_signals</code> 实为 <b>71 列</b>（<code>models.py</code> 实测枚举），短窗族 <code>_sw_fields</code> 已在 §4.19 收敛为单一权威（生产列实际由 update 分支填充，NULL 率 0%）。</li></ol>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>HTML 变更</td><td><code>card-chapter-1</code> 重写；<code>card-chapter-3</code>（原含 1.6+1.7）<b>拆卡</b>为 <code>card-chapter-3</code>(1.6) + <code>card-chapter-4</code>(1.7)；<code>card-chapter-5</code> 重写。段落卡 17 → 18，长度 258,773 → 289,408（+30,635）</td></tr>
+<tr><td>MD 变更</td><td>同步重写对应 <code>1.1</code> / <code>1.3</code> / <code>1.4</code> / <code>1.5</code> 四节（MD 为精简版，无 1.3 元数据/1.4 DOM/1.5 数据质量章节，故编号不一一对应）；长度 76,135 → 83,620+</td></tr>
+<tr><td>编号</td><td>HTML 第一部分 <code>1.1</code>–<code>1.9</code> 齐备，子节 <code>1.1.1–1.1.5</code> / <code>1.6.1–1.6.6</code> / <code>1.7.1</code> / <code>1.8.1–1.8.4</code>；MD <code>1.1</code>–<code>1.6</code>，子节 <code>1.3.1–1.3.4</code> / <code>1.4.1</code></td></tr>
+<tr><td><b>顺带修复</b></td><td>级联脚本 <code>cascade_html2.py</code> / <code>cascade_md.py</code> 存在<b>非幂等缺陷</b>：Part 级标题每次运行<b>再叠加一次数字前缀</b>（累计成 <code>3. 3. 3. 3.</code>）。已修（先剥离既有前缀 + <code>assert</code> 改幂等分支），并清理 5 个 Part 级 TOC 的重复前缀</td></tr>
+<tr><td>自检</td><td>HTML 解析 errors=<b>2</b>（均既存 <code>li</code>/<code>ul</code>，位置由 983 移至 1201）、EOF 栈空、TOC 断链仅 <code>${id}</code>（模板字面量，非锚点）、重复数字前缀 <b>0</b>；MD 标题 109；服务 4 端点全 <b>200</b>；OF 引擎端到端 PASS</td></tr>
+<tr><td>回滚点</td><td><code>/tmp/manual_pre_1118.html</code> · <code>/tmp/manual_md_pre_1118.md</code> · <code>/tmp/pre_cascade_idem.html</code> · 架构图旧版随 <code>manual_pre_1118</code> 一并覆盖前状态</td></tr>
+</table>
+
+<h3>4.21 真空列修复：键名/单位统一 + DOM 覆盖度闸门（phase15）</h3>
+<div class="note">用户确认「要修，按最合理的方案修」。修的过程中发现<b>根因不止键名</b>——真空列本身在 DOM 读取不足时是<b>伪值</b>。</div>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td><b>原缺陷（三层）</b></td><td>① <b>键名不一致</b>：sentinel 产 <code>vacuum_ask_sec</code>（秒），AI 路径产 <code>vacuum_ask</code>（500ms 采样计数）② <b>单位不一致</b>：秒 vs 采样计数混存同一列 ③ <b>sentinel 根本不写 DOM 平铺列</b> —— 该组 11 列此前只有 AI 路径写，而卖家系统触发机制（<code>balanced_day_boundary</code> 的 B/D 维度）读的正是 sentinel 写的 <code>Rule-Based-5m</code> 行 ⇒ <b>两个维度形同失效</b></td></tr>
+<tr><td><b>第 1 步：单一权威</b></td><td>在 <code>of_contract.py</code>（本就承载 DOM/指标契约）新增 <code>DOM_FLAT_MAP</code> + <code>DOM_FLAT_COLUMNS</code> + <code>flatten_dom_metrics(dom_metrics)</code>：键名以 <code>*_sec</code> 为准；兼容旧键 <code>vacuum_ask/bid</code> 并按 <code>× SAMPLE_INTERVAL_MS/1000</code> <b>折算为秒</b>；非真空列原样映射</td></tr>
+<tr><td><b>第 2 步：sentinel 接入</b></td><td><code>order_flow_sentinel.py</code> 持久化时对 11 列逐一 <code>setattr</code>（此前完全不写）⇒ <code>Rule-Based-5m</code> 行自此自洽</td></tr>
+<tr><td><b>第 3 步：去重复</b></td><td><code>ai_tape_analyst.py</code> 的手工 9 行 <code>setattr</code> 与 <code>backfill_order_flow_signals.py</code> 的 <code>_DOM_FLAT_MAP</code> <b>全部删除</b>，统一调 <code>flatten_dom_metrics</code>（单一权威，两处重复实现清零）</td></tr>
+<tr><td><b>⚠ 第 4 步：发现伪值</b></td><td>首次回填后我核查数值，发现 <code>vacuum_ask_val</code> 出现 <b>299.5s</b>（= 整个 5 分钟窗口）等异常。关联 <code>dom_metrics</code> 后确认：这些行的 <code>raw_snapshots_count</code> 只有 <b>2~36</b>（正常 436~480）⇒ DOM 读取不足时网格被稀疏数据填充，近端深度普遍测得极小，判据 <code>(近端挂单/5) &lt; 10 手</code> 恒真 ⇒ <b>把「读取不足」误判为「流动性真空」</b></td></tr>
+<tr><td><b>标定（306 行实测）</b></td><td>覆盖率 <code>raw/samples</code>：<code>&lt; 5%</code> → 31 行、真空中位 <b>205.5s</b>、<b>90% 越过 20s 加成阈值</b>；<code>≥ 20%</code> → 272 行、真空中位 <b>0.0s</b>、<b>0% 越过</b>。⇒ <b>伪值簇命中率 90% vs 健康簇 0%</b>，闸门取 <code>0.20</code></td></tr>
+<tr><td><b>第 5 步：闸门（生产端）</b></td><td><code>dom_sentinel_evaluator.py</code> 在算出 <code>vacuum_*_sec</code> 后加覆盖度闸门：覆盖不足则归零；新增可观测键 <code>vacuum_coverage</code> / <code>vacuum_suppressed</code>。阈值 <code>vacuum_min_coverage = 0.20</code> 落在 <code>order_flow_config.THRESHOLDS</code>（单一权威）</td></tr>
+<tr><td><b>第 6 步：闸门（摊平端）</b></td><td><code>flatten_dom_metrics</code> 同样执行闸门（优先读显式 <code>vacuum_suppressed</code>，历史行则由 <code>raw/samples</code> 推算；两者皆无时<b>从宽</b>保留真值），保证历史行与产出端一致</td></tr>
+<tr><td><b>第 7 步：撤回重做</b></td><td>用第 1 次回填生成的 <code>/tmp/dom_flat_revert.sql</code> <b>撤回 306 行</b>（复归 NULL），再用修好的逻辑重跑 ⇒ 单调、可追溯</td></tr>
+<tr><td><b>结果</b></td><td>306 行回填成功（另 237 行 <code>dom_metrics</code> 为 JSON <code>null</code>，无源数据不可恢复）：真空列 NULL 率 <b>100% → 43%</b>；<b>伪值簇 34 行全部归零</b>；健康簇最大仅 9.0s、<b>无一行越过 20s</b></td></tr>
+<tr><td><b>规则影响</b></td><td>这意味着 phase15 之前<b>几乎所有「真空加分」（强度加分项 6）都来自读取不足</b> ⇒ 属<b>规则行为变更</b>，按项目惯例 <code>RULES_VERSION</code> 由 <code>2026-09-10-phase14</code> → <b><code>2026-09-13-phase15</code></b>（写入 verdict 与 <code>quantitative_metrics</code>）</td></tr>
+<tr><td><b>手册登记</b></td><td>新增 <b>§1.7.2 DOM 覆盖度闸门</b>（HTML）/ <b>§1.4.2</b>（MD）：含规则、四档实测标定表、可观测键与升版说明；加分项 6 行内加交叉引用；§1.8.3 注记改为「真空列已修」</td></tr>
+<tr><td><b>新增工具</b></td><td><code>PyTools/order_flow_analysis/backfill_dom_flat_columns.py</code> —— 定向回填，<b>硬保证</b>：只填 NULL（SQL <code>WHERE ... IS NULL</code> 双重守卫）、不把 <code>None</code> 写成伪值、幂等（复跑 0 行）、默认 dry-run、<code>--apply</code> 时生成回滚 SQL</td></tr>
+<tr><td><b>自检</b></td><td>4 文件 <code>py_compile</code> OK；未定义名扫描 OK；闸门 7 个用例（覆盖充足/不足/显式标志/无信息从宽/边界 20%/旧键折算/非真空列不受影响）全部符合预期；OF 引擎端到端 PASS（<code>Bullish_S4:Bullish</code> · 版本 <code>phase15</code>）；服务 200；迁移<b>未触碰任何非空值</b></td></tr>
+<tr><td><b>回滚点</b></td><td>代码：<code>/tmp/osm_bak_20260913_160000/</code>（backfill 原状）+ 各文件 git 状态；数据：<code>/tmp/dom_flat_revert2.sql</code>（本次回填的 306 行逐条 <code>SET ...=NULL</code>）</td></tr>
+</table>
+
+<h3>4.22 洗盘反转迁出方向准入 + 2h 大单否决阈值收紧（phase16）</h3>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td><b>需求 (1)</b></td><td><code>big_trade_block_net</code> 3000 → <b>2000</b>（口径：§1.6.3 一票否决「2 小时机构大单反向」）</td></tr>
+<tr><td><b>该键是双用途（重要）</b></td><td>代码核查发现同一键被 <b>4 处</b>使用：① <code>of_direction</code> 一票否决（需求所指）② <code>inst_bull_accumulation</code> ③ <code>inst_bear_distribution</code>（进而影响 b4 分支与加分项 8）④ 卖家 <code>setup_classifier</code> 的否决（2 处）。config 注释本就写明「一票否决/托底」双用途 —— 故本次调整<b>同时作用于这 4 处</b>（已写入 config 注释与 §1.6.3）；若只想收紧否决、保留吸筹判定为 3000，应拆为独立键 <code>big_trade_veto_net</code></td></tr>
+<tr><td><b>需求 (2)</b></td><td>§1.6.5 标题去 <code>b5</code> → 「洗盘反转」</td></tr>
+<tr><td><b>需求 (3)</b></td><td>洗盘反转<b>迁出方向准入</b>，改为<b>卖家系统触发机制</b>；且须<b>反向对称</b></td></tr>
+<tr><td><b>设计选型：一个机制 vs 两个</b></td><td><b>选「一个机制、双向对称」</b>，理由（已写入手册 §3.1.7.3）：① 与既有 6 机制范式一致（现有机制全部方向无关，如趋势日极限终点在一个机制内同时处理顶/底）② 判据本就同源对称（两侧共用同一组 <code>washout_*</code> 阈值，仅位置上限镜像取反），拆两机制会造成阈值双份维护 ③ 若拆两机制，同一根 5m 上二者可能先后命中而重复开仓；单机制内做「同时命中即放弃」更安全 ④ 若将来需<b>分方向</b> try-run，再拆 <code>..._BULL</code>/<code>..._BEAR</code> 即可（注册表各加一行，无需改判据）</td></tr>
+<tr><td><b>对称性的真正含义</b></td><td>旧实现虽检测已对称，但位于方向准入层且规则为「<b>不逆转</b>核心方向」⇒ 当 4 核心方向与之相反时该侧触发被<b>静默吞掉</b>，形成<b>方向不对称</b>。迁出后机制<b>不再被 4 核心方向抑制</b> —— 这才是「反向对称」的落地</td></tr>
+<tr><td><b>代码：OrderFlow 侧</b></td><td><code>order_flow_rules_optimizer.py</code> 删除 b5 对 <code>of_direction</code> 的全部改写（打破中性/同向强化/不逆转三条规则），<b>保留检测与输出</b>（<code>washout_bull</code>/<code>washout_bear</code>/<code>washout_detail</code>/<code>washout_dump_*</code>）。<code>of_direction</code> 自此<b>只由 4 核心分支加权 + 一票否决</b>产出</td></tr>
+<tr><td><b>代码：契约</b></td><td><code>of_contract.py</code> 指标 10 元数据 <code>weight 3 / ROLE_SIGNAL / in_aggregate=True</code> → <b><code>weight 0 / ROLE_CONTEXT / in_aggregate=False</code></b>；模块文档串聚合口径改为「仅 01/02/03/04」；detail 增 <code>consumer: AUTO_WASHOUT_REVERSAL</code></td></tr>
+<tr><td><b>代码：机制</b></td><td><code>auto_mechanisms.py</code> 新增 <code>LABEL_WASHOUT_REVERSAL = "AUTO_WASHOUT_REVERSAL"</code> + <code>MechanismSpec(…, 6, "洗盘反转（对称双向）", "DIRECT", "_mech_washout_reversal")</code>；执行层 <code>AUTO_CONDITIONAL_ORDER</code> 由 ord 6 → <b>7</b>；<code>FORCE_DRY_CHOICES</code> 6 → <b>7 项</b>；模块文档串同步</td></tr>
+<tr><td><b>顺序决策</b></td><td>置于 <b>ord 6</b>（⑤ ES 盘前大单之后、⑦ 执行层之前）—— 用户此前明确指定过既有 5 个机制的相对顺序，追加在末尾<b>不扰动</b>该序列；若要提升其优先级（它原属方向层，语义上优先级更高），改注册表 <code>ord</code> 一行即可</td></tr>
+<tr><td><b>代码：求值器</b></td><td><code>option_seller_manager.py</code> 新增 <code>_mech_washout_reversal()</code>：只读 <code>of_metrics</code> 的 washout 字段（<b>不自行计算指标</b>）→ 判方向 → L0-B 掩码检查 → <code>_open_from_engine(..., LABEL_WASHOUT_REVERSAL)</code>。含<b>互斥保护</b>：多空同时命中 ⇒ 结构矛盾 ⇒ 放弃本周期</td></tr>
+<tr><td><b>⚠ 上线纪律</b></td><td>新机制若不在 Force Dry 清单中会<b>直接实盘</b>（全局 <code>is_dry_run=False</code>）。故已将 Force Dry 清单设为 <code>["AUTO_BALANCED_DAY_BOUNDARY", "AUTO_WASHOUT_REVERSAL"]</code>（顺带把历史别名归一为规范标签，修正页面复选框勾选态与徽标不一致的既有问题）。旧值备份于 <code>/tmp/osm_bak_20260913_170000/force_dry_cfg.bak</code></td></tr>
+<tr><td><b>规则版本</b></td><td><code>2026-09-13-phase15</code> → <b><code>phase16</code></b>（阈值 + 方向口径双重变更）</td></tr>
+<tr><td><b>冒烟测试</b></td><td>机制 6 用例全通过：无信号→MISS；多头→<code>OPENED/BULLISH</code>；空头→<code>OPENED/BEARISH</code>（profile <code>BALANCED</code>、label 一致 ⇒ 对称）；双向同时命中→MISS（矛盾）；多/空被掩码→各自 MISS</td></tr>
+<tr><td><b>端到端</b></td><td>OF 引擎 <code>Bullish_S4:Bullish</code> · <code>of_direction=Bullish</code> · 版本 <code>phase16</code>；washout 输出字段仍在；<code>indicators13</code> 指标 10 = <code>weight 0 / CONTEXT / in_aggregate False</code></td></tr>
+<tr><td><b>文档</b></td><td>Part 1 §1.6.5 整节 → <b>指针段</b>（迁往 §3.1.7）；§1.6.6 删 washout 改写 base_rule 句；§1.3.11 标题改「机制触发源 · 不参与方向聚合」；§3.1.1 契约/指标表同步；Part 3 <b>新增 §3.1.7 洗盘反转机制（对称双向）</b>（锚点 <code>os-rule-14</code>，含判据表/契约表/选型论证），原自动条件单顺延 §3.1.8；两张机制概览表加 ⑥；3000→2000 共 5 处（§1.3 指标 04、§1.6.3 两格、§3.1.2 第一道门两处）</td></tr>
+<tr><td><b>自检</b></td><td>7 文件 <code>py_compile</code> OK；未定义名扫描 OK；HTML errors=2（既存）、断链仅 <code>${id}</code>、重复数字前缀 0；MD/HTML §3.1.1–3.1.8 编号一致；服务 200</td></tr>
+<tr><td><b>回滚点</b></td><td>代码：<code>/tmp/osm_bak_20260913_170000/</code>（5 个 .py + force_dry 配置）；文档：<code>/tmp/manual_pre_phase16.html</code> · <code>/tmp/manual_md_pre_phase16.md</code></td></tr>
+</table>
+
+<h3>4.23 方向层诊断与治理：修结构 + 清卫生 + 建门禁 + 累积样本（phase17）</h3>
+<p>用户确认路径：「<b>修结构 + 清卫生 + 建门禁 + 累积样本</b>」。先做实测诊断，再按证据落地。</p>
+<p><b>① 诊断：方向层近乎休眠（实测）</b></p>
+<p>对 543 行生产数据（7 交易日）重建后：</p>
+<table>
+<tr><th>观测</th><th>结果</th></tr>
+<tr><td>生产库有方向的行</td><td><b>5 / 543（0.9%）</b></td></tr>
+<tr><td>437 个可评估样本中 <code>of_direction</code></td><td><b>Neutral 436 · Bullish 1 · Bearish 0</b></td></tr>
+<tr><td>真实分支命中</td><td>b1（权重 3）<b>0 多 / 0 空</b>；b2 1/1；<b>b3 79/72</b>；b4 0/1</td></tr>
+<tr><td>「仅 b3 命中」被门槛挡掉</td><td>约 <b>126 行</b></td></tr>
+</table>
+<p><b>根因 = 权重/门槛倒挂</b>：权重给了低频分支（b1，命中 0 次），门槛却把高频且有正边沿的分支（b3）挡在门外。</p>
+<div class="note">⚠️ <b>方法论更正</b>：我第一轮评估误把<b>契约指标 03/04</b> 当成<b>聚合分支 b3/b4</b>（两者定义不同：契约 03 只看冰山计数，不含 absorption/挂单墙/Δ5m 闸门；契约 04 用未加位置门槛的原始净流）。本轮改为读取<b>真实分支</b>，故数字由 n=137/64.2% 修正为 n=140/超额+1.73pt（结论不变、更准确）。</div>
+<p><b>② 修结构（三项，均为零行为变更）</b></p>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td><b>分支归因 <code>of_branches</code></b></td><td><code>metrics_dict</code> 新增两侧 b1–b4 命中 + 当次权重 + 门槛 + 否决状态。<b>关键性质：分支命中与权重解耦</b> ⇒ 一次真实计算即可离线模拟任意权重方案。这是门禁与累积样本的技术前提</td></tr>
+<tr><td><b>方向层参数解耦</b></td><td>新增 <code>of_dir_branch_weight_b1..b4</code> / <code>of_dir_branch_min_score</code>（<b>初值逐值等于解耦前的 3/1/1/1 + 门槛 2 ⇒ 行为零变化</b>）。此前方向层与卖家 Setup 1 共用 <code>setup1_branch_weight_*</code>，任一侧调整都会耦合另一侧</td></tr>
+<tr><td><b>契约按构造等于聚合</b></td><td><code>indicators13</code> 的 01–04 改为<b>直接读分支命中</b>（调用方传入 <code>branch_bull</code>/<code>branch_bear</code>）⇒ 契约与聚合<b>不可能再漂移</b>（此前 03/04 定义不一致，机制按契约取数会读到与聚合不同的方向）</td></tr>
+</table>
+<p><b>③ 清卫生（<code>dir_status</code>）</b></p>
+<p><code>indicators13</code> 每项新增 <code>dir_status</code> / <code>dir_status_why</code>：</p>
+<table>
+<tr><th>状态</th><th>项</th><th>依据</th></tr>
+<tr><td><code>VOTING</code>（参与聚合）</td><td>01 / 02 / 03</td><td>聚合分支 b1/b2/b3</td></tr>
+<tr><td><code>OBSERVE</code>（有方向语义但未证实）</td><td>04 / 06 / 08 / 10 / 11 / 12 / 13</td><td>样本不足或符号不稳</td></tr>
+<tr><td><b><code>INVERTED_OBSERVE</code>（符号稳定反向）</b></td><td><b>05 Order Wall</b></td><td><b>分日超额 0/4 为正、全样本 −2.65pt、IC −0.242 ⇒ 反向才有效</b></td></tr>
+<tr><td><code>NA</code>（无方向语义）</td><td>07 / 09</td><td>RISK / VETO</td></tr>
+</table>
+<p>产出：13 项里只有 <b>3 项可投票</b>，实际产能几乎全部来自 03；05 若仍按「正号=看多」展示会<b>误导</b>，现显式标注（手册 §1.3 总表 + 各条目标注）。</p>
+<p><b>④ 建门禁</b></p>
+<p>新增 <code>PyTools/jobs/order_flow_direction_gate.py</code>：<b>任何方向层权重/门槛调整必须先过此门禁，否则不许提交</b>。</p>
+<table>
+<tr><th>编号</th><th>判据</th></tr>
+<tr><td>G1</td><td>可用交易日 <b>≥ 30</b></td></tr>
+<tr><td>G2</td><td>去重叠（步长 = horizon/5min）有效独立样本 <b>≥ 60</b></td></tr>
+<tr><td>G3</td><td>方向匹配基线校正后的 30m 超额 <b>&gt; 0</b></td></tr>
+<tr><td>G4</td><td>分日超额为正比例 <b>≥ 70%</b> 且样本天 <b>≥ 10</b></td></tr>
+<tr><td>G5</td><td>候选超额 ≥ 现行 且入场 ≥ 现行 10%（现行 n &lt; 20 视为退化 ⇒ 改用「超额 &gt; 0 且入场 &gt; 现行」）</td></tr>
+</table>
+<p>构建过程中门禁<b>暴露了自身一个缺陷</b>：G5 拿 n=1 的退化作基线比较 ⇒ 永远不可能通过。已修（退化基线时改用市场基线判定）。</p>
+<p><b>⑤ 门禁结论（候选 <code>3,1,2,1</code>）</b></p>
+<table>
+<tr><th>项</th><th>现行 `3,1,1,1\</th><th>2`</th><th>候选 `3,1,2,1\</th><th>2`</th></tr>
+<tr><td>入场数</td><td><b>1</b></td><td><b>126</b></td></tr>
+<tr><td>胜率</td><td>—</td><td>61.1%</td></tr>
+<tr><td>超额</td><td>—</td><td><b>+1.98pt</b></td></tr>
+<tr><td>正超额日</td><td>1/1（退化）</td><td><b>3/4</b></td></tr>
+</table>
+<p>**G3 / G5 PASS；G1（7 &lt; 30 交易日）、G2（17 &lt; 60 有效样本）、G4（样本天 4 &lt; 10）FAIL</p>
+<p>⇒ 候选权重不予启用<b>，继续累积样本。这正是「累积样本」的含义：</b>改动被证据门槛挡住，而不是被拍脑袋放行**。</p>
+<p><b>⑥ 累积样本机制</b>：sentinel 每 5 分钟写入一行（现含 <code>of_branches</code>）⇒ 门禁直接读库、无需重算；历史行可用 <code>--cache</code> / <code>--recompute</code> 补齐。约 30 个交易日后自动具备判定条件。</p>
+<p><b>规则版本</b>：<code>2026-09-13-phase16</code> → <b><code>phase17</code></b>。</p>
+<p><b>文档</b>：HTML §1.6.2 整节重写（休眠实测 + 倒挂诊断 + 解耦 + 归因 + 候选对照）、新增 §1.6.6 门禁、§1.3 新增「13 项方向可信度总表」+ 6 个条目标注、§1.3.1 过时表述（"输出 OPEN_LONG/OPEN_SHORT"）加注、陈旧 §1.6.6→§1.6.5 交叉引用修正；MD 同步（总表 + §1.3.1 重写 + §1.3.5 门禁）。</p>
+<p><b>自检</b>：7 文件 <code>py_compile</code> OK；未定义名扫描 OK；HTML errors=2（既存）、断链仅 <code>${id}</code>、重复数字前缀 0；MD/HTML §1.3.x 与 §1.6.x 编号一致；服务 200；门禁自检与候选两侧均正确输出。</p>
+<table>
+<tr><th>回滚点</th><th>代码：<code>/tmp/osm_bak_20260913_170000/</code>（部分）+ 本轮 git 状态；文档：<code>/tmp/manual_pre_phase17.html</code> · <code>/tmp/manual_md_pre_phase17.md</code>；数据：无写入（本轮全部只读）</th></tr>
+</table>
+
+<h3>4.24 门禁与累积样本的使用方式（交付runbook）</h3>
+<p><b>先修可用性缺陷</b>：门禁初版<b>直接跑会报「无数据」</b>（历史行没有 <code>of_branches</code>，该字段 2026-09-13 才加入），不能交付使用。已修：</p>
+<table>
+<tr><th>修复</th><th>内容</th></tr>
+<tr><td>结构化取数</td><td>DB 优先（新数据权威）+ <code>state</code> 文件补历史缺口，按 <code>id</code> 去重合并</td></tr>
+<tr><td>持久化历史</td><td><code>--capture</code> 重算并落盘 <code>PyTools/jobs/state/order_flow_branches.json</code>（已生成 543 行）</td></tr>
+<tr><td>缺数据显示</td><td>无样本时打印<b>确切的下一步命令</b>，而非「无数据」</td></tr>
+<tr><td>默认候选</td><td>不带参数即「自检现行 + 评估文档记录的候选 <code>3,1,2,1</code>」</td></tr>
+<tr><td>筹备进度</td><td>打印 G1/G2/G4 三条<b>进度条</b> + 「还需约 N 个交易日」</td></tr>
+<tr><td>退出码</td><td><code>0</code>=PASS、<code>1</code>=FAIL（含候选零入场这种确定性失败）、<code>2</code>=数据不足</td></tr>
+<tr><td>自身缺陷</td><td>移除 <code>__file__</code> 引用（未定义名扫描误报项归零）</td></tr>
+</table>
+<p><b>日常使用（三条命令足矣）</b></p>
+<pre># ① 平时：什么都不用做 —— sentinel 每 5 分钟写入含 of_branches 的行，样本自动累积
+# ② 想确认方向层该不该改（最常用）：
+python3 PyTools/jobs/order_flow_direction_gate.py
+# ③ 仅首次需要（历史行缺 of_branches）：重算并落盘 state
+python3 PyTools/jobs/order_flow_direction_gate.py --capture     # 约 6~7 分钟，已执行 ✓
+# 其他：--weights 3,1,2,0（任意候选）· --json /tmp/gate.json（留档）</pre>
+<p><b>门禁 PASS 之后</b>：改 <code>order_flow_config.py</code> 的 <code>of_dir_branch_weight_b3</code>（一行）→ 重跑门禁确认 → 影子验证 → 才上实盘。</p>
+<p><b>累积样本的自动性已端到端确认</b>：<code>sentinel</code> 落库的是整个 <code>metrics_dict</code>（第 658 行），而 <code>of_branches</code> 就在其中（第 1147 行）⇒ <b>新数据行自动携带分支命中，无需任何手工操作</b>。</p>
+<p><b>当前实测输出</b>（<code>--capture</code> 与直接运行结果一致）：现行入场 <b>1</b>、候选入场 <b>126</b>（胜率 61.1%、超额 +1.98pt、正超额日 3/4）；G3/G5 PASS，G1（7/30）、G2（17/60）、G4（样本天 4/10）FAIL ⇒ <b>候选不启用</b>，约还需 <b>23 个交易日</b>。</p>
+
+<h3>4.25 强度层（第二步）评估：同样休眠，且分数与前瞻收益<b>反向</b>（phase18）</h3>
+<p>用户要求「类似地」评估 §1.7（依据 §1.2 指标定义 / §1.3 十三项元数据 / §1.4 DOM 结构）是否可改进。</p>
+<p><b>① 实测：强度层同样近乎休眠（且根因是结构性的）</b></p>
+<table>
+<tr><th>观测（543 行）</th><th>结果</th></tr>
+<tr><td><code>strength_score = 0</code></td><td><b>538 行</b></td></tr>
+<tr><td><code>signal_strength = Neutral</code></td><td><b>538 行</b></td></tr>
+<tr><td><code>bonus_items</code> 非空</td><td><b>仅 5 行</b></td></tr>
+<tr><td>探针显示「只有一侧有加分项」被丢弃</td><td><b>192 / 437 = 43.9%</b></td></tr>
+</table>
+<p>根因：<code>strength_score = 1 if of_direction != "Neutral" else 0</code>，且加分项只在 <code>main_dir</code> 有方向时才求值 ⇒ <b>第二步被门控在第一步之后</b>，而第一步近乎休眠（见 §4.23）⇒ <b>第二步从未真正运行</b>。它不是「权重没配好」，是「根本没跑」。</p>
+<p><b>② 为可度量而做结构改造（行为零变化）</b></p>
+<p>把加分项抽取为 <code>_bonus_for(direction)</code>，两侧<b>可独立求值</b>（原实现写在 <code>main_dir</code> 分支里 ⇒ 中性时两侧都不求值），并新增：</p>
+<p>- <code>metrics_dict["of_bonus_probe"]</code>：两侧加分项 + base + <code>applied</code>（与权重/方向无关 ⇒ 可离线评估任意计分方案）</p>
+<p>- <code>metrics_dict["of_bonus_evidence"]</code>：加分项证据状态（单一权威 <code>of_contract.BONUS_STATUS</code>）</p>
+<p>- 门禁 <code>--layer strength</code>：与方向层共用取数与 state 文件，但判据改为<b>单调性</b>（S1–S5）</p>
+<p><code>strength_score = base + len(bonus_items)</code> 与原实现<b>逐值一致</b>（已用 3 个用例对照验证）。</p>
+<p><b>③ 关键发现：分数与前瞻收益反向</b></p>
+<table>
+<tr><th>方案</th><th>覆盖率</th><th>整体超额</th><th>单调性 ρ</th></tr>
+<tr><td>现行（方向门控 + 原样 +1）</td><td>64.6%</td><td>+0.11pt</td><td><b>−0.729</b></td></tr>
+<tr><td>候选（探针成向 + 剔除劣项 + 族去重）</td><td>42.4%</td><td>+2.09pt</td><td><b>−1.000</b></td></tr>
+</table>
+<p>候选分桶：<b>S2 → +2.66pt（n=151）</b>，<b>S3 → −0.17pt（n=38）</b> ⇒ <b>分数越高越差</b>。</p>
+<p><b>④ 逐项证据（20 项，30m 方向匹配基线校正）</b></p>
+<table>
+<tr><th>状态</th><th>项</th></tr>
+<tr><td><b>VERIFIED</b></td><td>DOM吸收/冰山压盘（n=156，<b>+1.48pt</b>，胜率 62.2%）、DOM吸收/冰山护盘（n=151，+0.65pt）</td></tr>
+<tr><td>WEAK</td><td>趋势日均线共振（+1.76pt 但分日 1/5）、早期背离预警（n=6）</td></tr>
+<tr><td>NIL</td><td>10m 双柱强动能（空）−0.03pt</td></tr>
+<tr><td><b>INVERTED</b></td><td>10m 双柱（多）−1.91pt · 5m 单柱（空）−1.68pt · 5m 单柱（多）−0.73pt · 2H 大单（空）−2.59pt · <b>30m 大单边推进/砸盘 −4.40pt</b></td></tr>
+<tr><td>UNTESTED</td><td>真空 / DOM 失衡 / 30m 爆发 / 主动背离（共 8 项，n&amp;lt;5）</td></tr>
+</table>
+<p><b>设计上最"强"的项（30m 大单边推进/DOM 延续类）实测最差；唯一被证实的正边沿是 DOM 吸收族（与方向层 b3 同族）。</b> 另有<b>高度共现</b>问题：10m 双柱与 5m 单柱共现 46/39 次，吸收类与它们共现 29–33 次 ⇒ 同一股资金流被 <code>+1</code> 重复累加。</p>
+<p><b>⑤ 结论：不建议调权重，应重新定义语义</b></p>
+<p>11 项测量的其实是<b>耗竭度</b>（30m 极端单向推进、短窗脉冲放量、机构大单净流）—— 在 30 分钟前瞻上<b>越强越易反转</b>。把它当作「延续强度」使用，与数据方向相反。</p>
+<p>建议（按优先级）：① 先解除方向门控（覆盖 0.2% → 42~65%）② <b>重新定义语义</b>：明确定义为耗竭/反转维度，或另建「延续强度」维度（改用 DOM 吸收族 + 位置/时间结构）③ 族去重 + 剔除 INVERTED/NIL ④ 用分位标定替代 +1 计数与 <code>≥8/≥5</code> 阈值。</p>
+<p><b>⑥ 门禁结论</b>：S4 PASS；<b>S1（7&amp;lt;30）、S2（31&amp;lt;60）、S3（ρ=−1.000）、S5（42.4% &amp;lt; 现行 10 倍）FAIL ⇒ 强度层变更不予启用</b>，继续累积样本。<b>S3 不通过的含义是：在证据层面，「强度」目前不是强度。</b></p>
+<p><b>规则版本</b>：<code>phase17</code> → <b><code>phase18</code></b>。文档：新增 §1.7.3 实测与证据状态、§1.7.4 强度层门禁；修正 3 处 phase15 插入后错位的 §1.7.x 交叉引用；MD 同步（§1.4.3 / §1.4.4）。本轮<b>未写业务表</b>。</p>
+<table>
+<tr><th>回滚点</th><th>文档：<code>/tmp/manual_pre_phase18.html</code> · <code>/tmp/manual_md_pre_phase18.md</code>；代码：<code>/tmp/osm_bak_20260913_170000/optimizer_pre_bonus.py</code>（加分项抽取前）</th></tr>
+</table>
+
+<h3>4.26 信号强度的规范定义（用户确认）与合格性检验</h3>
+<p><b>用户定义（唯一权威）</b>：方向 = Bullish 时强度越大 ⇒ 越 bullish、<b>上涨越多</b>；方向 = Bearish 时强度越大 ⇒ 越 bearish、<b>下跌越多</b>。</p>
+<p>即 <b>强度 = 「同向幅度」预测器（continuation magnitude）</b>，既不是概率，也不是「确认项计数」。</p>
+<p><b>两条直接推论</b></p>
+<p>1. <b>结构性前提</b>：强度只在方向存在时才有定义 ⇒ <b>方向层修复是强度层的前提</b>，两者不能分开解决（方向层 543 行仅 5 行有方向）。</p>
+<p>2. <b>合格性判据</b>：可用「强度 vs <b>原始前瞻收益</b>的秩相关 IC」直接检验 —— IC 显著为正 = 合格；≈0 = 无信息；为负 = 语义反向。</p>
+<p><b>合格性检验（实测）</b></p>
+<table>
+<tr><th>检验对象</th><th>IC（15m / 30m）</th><th>判定</th></tr>
+<tr><td><b>现行 <code>strength_score</code></b></td><td><b>−0.012 / −0.021</b></td><td><b>不合格</b>：与前瞻收益无相关</td></tr>
+<tr><td>30m 大单边推进（设计上最"强"）</td><td>—</td><td><b>方向相反</b>：超额 −4.40pt ⇒ 是耗竭度量</td></tr>
+</table>
+<p><b>按定义做的特征搜索</b>（446 样本 / 7 日，逐特征 IC vs 原始前瞻收益）</p>
+<table>
+<tr><th>特征</th><th>IC(全)</th><th>IC(去重叠)</th><th>分日正</th><th>n</th></tr>
+<tr><td><code>ice_net</code>（冰山多−空）</td><td>+0.122</td><td>+0.176</td><td><b>6/7</b></td><td>446</td></tr>
+<tr><td><code>iceberg_bull</code></td><td>+0.170</td><td>+0.265</td><td>3/4</td><td>243</td></tr>
+<tr><td><code>early_book_ratio</code></td><td>+0.134</td><td>+0.130</td><td><b>4/4</b></td><td>243</td></tr>
+<tr><td><code>stack_ask</code> / <code>imb_near</code></td><td>+0.103 / +0.085</td><td>+0.344 / +0.047</td><td>3/4 · 4/4</td><td>243</td></tr>
+<tr><td><b><code>price_position_pct</code></b></td><td><b>−0.253</b></td><td>−0.098</td><td><b>0/7</b></td><td>446</td></tr>
+<tr><td><code>order_wall_total_net</code></td><td>−0.214</td><td>−0.144</td><td>1/3</td><td>201</td></tr>
+<tr><td><code>imb_deep</code> / <code>imb_momentum</code> / <code>weighted_imbalance</code></td><td>−0.204 / −0.155 / −0.087</td><td>−0.143 / −0.350 / −0.163</td><td>0/4 · 1/4 · 0/4</td><td>243</td></tr>
+<tr><td><code>net_delta_30m</code> / <code>last_5m_delta</code> / <code>big_trade_net_2h</code></td><td>−0.151 / −0.077 / −0.063</td><td>−0.003 / +0.056 / −0.088</td><td>2/7 · 0/7 · 3/7</td><td>446</td></tr>
+</table>
+<p><b>结论（四条）</b></p>
+<p>1. <b>现行强度层不合格</b>：IC ≈ −0.02（无信息），而定义要求显著为正。</p>
+<p>2. <b>正号族确实存在</b>（DOM 冰山/吸收深度：<code>ice_net</code> 分日 6/7、<code>early_book_ratio</code> 4/4），但 <b>IC 仅 0.12~0.17 ⇒ 对「幅度」解释力弱</b>，当前不足以支撑「强度越大涨得越多」的强陈述。</p>
+<p>3. <b>反向族很强</b>（<code>price_position_pct</code> IC −0.253、分日 <b>0/7</b>）⇒ 现有体系里被当作多头证据的「位置/深度/动量」，在样本内实际是<b>耗竭</b>证据。这同时影响方向层的指标 05/08 与加分项 1/3/4/5/8。</p>
+<p>4. ⇒ <b>不能靠给现有 11 项调权重满足该定义</b>，必须<b>按定义重建分项集</b>：正号族（DOM 冰山/吸收深度）+ 位置结构（日内位置的反向用法）+ 时间结构；并接受「需累积样本 + 可能新增指标」。</p>
+<p><b>文档</b>：手册 §1.7.3.3 规范定义与合格性检验、§1.7.3.4 特征搜索（HTML + MD 同步）。本轮<b>未改代码、未改权重、未写业务表</b>。</p>
+
+<h3>4.27 强度层候选方案 v1 落地并过门禁（cand-v1 · 未启用）</h3>
+<p>按用户确认的路径「把强度层重建为候选方案（不启用、进门禁评估）」执行。</p>
+<p><b>① 候选构造（刻意不对样本拟合）</b></p>
+<p>只取特征搜索中 IC 符号<b>稳定</b>的族，<b>等权</b> + <b>固定单调变换</b>（<code>tanh</code> 饱和压缩，不依赖样本分布、无前视）⇒ 不存在"用 7 天数据调参数"的问题。</p>
+<table>
+<tr><th>组</th><th>分项</th><th>输入</th><th>符号</th></tr>
+<tr><td>延续族</td><td><code>ice_net</code></td><td><code>iceberg_bull − iceberg_bear</code></td><td>+</td></tr>
+<tr><td>延续族</td><td><code>early_book_ratio</code></td><td>早段买卖挂单比 − 1</td><td>+</td></tr>
+<tr><td>延续族</td><td><code>stack_ask</code></td><td>卖方堆单数</td><td>+</td></tr>
+<tr><td>延续族</td><td><code>imb_near</code></td><td>近端失衡</td><td>+</td></tr>
+<tr><td><b>位置结构</b></td><td><code>pos_inverse</code></td><td>−（<code>price_position_pct</code> − 50）</td><td><b>−</b></td></tr>
+<tr><td>剔除</td><td>动量族 / 大单族 / 深度失衡族 / 挂单墙族</td><td>—</td><td>不计分</td></tr>
+</table>
+<p><code>raw = mean(5 项)</code> ∈ [−1,1]；方向 = sign(raw) 且 <code>|raw| ≥ 阈值</code>；强度 = <code>1 + round(9·|raw|)</code> ∈ 1..10。</p>
+<p><b>② 实现（仅导出，零行为变更）</b></p>
+<p>- <code>of_contract.build_strength_candidate()</code>：构造 + 文档（<code>STRENGTH_CANDIDATE_SPEC</code> / <code>_sat</code> / <code>STRENGTH_CANDIDATE_MIN_ABS</code>）</p>
+<p>- 优化器导出 <code>metrics_dict["of_strength_candidate"]</code> = <code>{v, raw, direction, strength, parts, note}</code></p>
+<p>- <b>端到端验证现行输出不变</b>：同一输入下 <code>dir_code=Bullish_S5:Bullish</code>、<code>strength=5</code>、<code>level=Medium</code> 与改动前一致</p>
+<p>- 门禁 <code>--layer strength</code> 增加候选评估（<code>evaluate_strength_cand</code>），阈值可离线调 <code>--min-abs</code></p>
+<p><b>③ 门禁结果（关键：单调性由负转正）</b></p>
+<table>
+<tr><th>方案</th><th>覆盖率</th><th>整体超额</th><th>单调性 ρ</th></tr>
+<tr><td>现行（方向门控 + 原样 +1）</td><td>64.6%</td><td>+0.11pt</td><td><b>−0.729</b></td></tr>
+<tr><td>参考（探针成向 + 剔除劣项 + 族去重）</td><td>42.4%</td><td>+2.09pt</td><td><b>−1.000</b></td></tr>
+<tr><td><b>候选 v1（本次重建）</b></td><td><b>74.0%</b></td><td><b>+1.29pt</b></td><td><b>+0.775</b></td></tr>
+</table>
+<p><b>候选分桶（近似单调）</b>：S2 +1.61 → S3 +0.59 → S4 +1.14 → S5 +1.83 → S6 +2.14 → <b>S7 +4.86pt</b>。</p>
+<p><b>投入产出</b>：投产口径的强度覆盖率仅 <b>0.37%（2/543）</b>，候选 v1 达 <b>74.0%</b>。</p>
+<p><b>④ 阈值稳健性（ρ 始终为正）</b></p>
+<table>
+<tr><th>阈值 `</th><th>raw</th><th>≥`</th><th>覆盖率</th><th>整体超额</th><th>ρ</th></tr>
+<tr><td>0.05</td><td>85.4%</td><td>+1.26pt</td><td>+0.743</td></tr>
+<tr><td>0.10（缺省）</td><td>74.0%</td><td>+1.29pt</td><td>+0.775</td></tr>
+<tr><td>0.20</td><td>35.2%</td><td>+1.58pt</td><td><b>+0.928</b></td></tr>
+<tr><td>0.30</td><td>25.6%</td><td><b>+2.38pt</b></td><td>+0.715</td></tr>
+</table>
+<p>⇒ 候选对阈值不敏感（ρ 0.72~0.93），<b>满足用户定义</b>「方向给定时强度越大 ⇒ 同向幅度越大」。</p>
+<p><b>⑤ 门禁判定：仅因样本量 FAIL</b></p>
+<table>
+<tr><th>判据</th><th>结果</th></tr>
+<tr><td>S1 交易日 ≥ 30</td><td><b>FAIL</b>（7 天）</td></tr>
+<tr><td>S2 去重叠有效样本 ≥ 60</td><td><b>FAIL（59/60 —— 差 1 个）</b></td></tr>
+<tr><td>S3 单调性 ρ &gt; 0</td><td><b>PASS（+0.775）</b></td></tr>
+<tr><td>S4 整体超额 &gt; 0</td><td><b>PASS（+1.29pt）</b></td></tr>
+<tr><td>S5 覆盖率 ≥ 投产 10 倍</td><td><b>PASS（74.0% vs 0.4%）</b></td></tr>
+</table>
+<p><b>总判定 FAIL —— 但全部失败项都是样本量，设计本身已达标。</b></p>
+<p><b>⑥ 顺带修掉的判据缺陷</b>：S5 原先拿「探针候选」（64.6%）当基线，而<b>投产口径</b>只有 0.37% ⇒ 该判据把中间方案当成了现行方案。</p>
+<p>已新增 <code>operative_strength_cover()</code>，S5 改用<b>投产口径</b>（<code>strength_score &gt; 0</code> 的行占比）。这是构建第二层门禁时暴露的第二个自身缺陷（第一个是方向层 G5 的退化基线）。</p>
+<p><b>⑦ 已知局限（未解决，需新增指标）</b>：正号族 IC 仅 0.12~0.17 ⇒ 即使形式合格，「强度—幅度」关系仍偏弱。要更强，须新增指标（候选：逐价吸收持续时间/成交量、墙位击穿-收复幅度）。</p>
+<p><b>规则版本</b>：仍为 <code>phase18</code>（候选不改变任何现行输出，故不升版）；<b>启用该候选时才升版</b>。</p>
+<p><b>文档</b>：手册 §1.7.3.5 候选方案 v1（HTML + MD §1.4.3.3）。本轮<b>未写业务表</b>（state 文件除外）。</p>
+<table>
+<tr><th>回滚点</th><th>文档：<code>/tmp/manual_pre_phase18.html</code> · <code>/tmp/manual_md_pre_phase18.md</code>；代码：<code>/tmp/osm_bak_20260913_170000/optimizer_pre_bonus.py</code></th></tr>
+</table>
+
+<h3>4.28 文档收敛：§1.6.2 / §1.7.3 改为「问题 / 方案 / 后续」</h3>
+<p>用户指出 §1.7.3「有很多中间决策步骤的描述，请清理，只保留最终结果：现在数据的问题，解决的方案，后续的处理」。</p>
+<p><b>§1.7.3 收敛（HTML −7,404 字符 / MD −2,347 字符）</b></p>
+<table>
+<tr><th>清理前（5 个子节，决策过程）</th><th>清理后（3 个子节，结论）</th></tr>
+<tr><td>1.7.3.1 加分项证据状态</td><td><b>1.7.3.1 问题（数据现状）</b>（4 条问题 + 加分项证据状态表压缩为 5 行分组）</td></tr>
+<tr><td>1.7.3.2 改进建议（按优先级，5 条含 (a)/(b) 选项）</td><td>— 删除（选项讨论属过程）</td></tr>
+<tr><td>1.7.3.3 规范定义与合格性检验（含推论 1 / 推论 2）</td><td>— 定义提升为节首「唯一权威」框；推论删除</td></tr>
+<tr><td>1.7.3.4 按定义做的特征搜索（含过程叙述 + 大表）</td><td><b>1.7.3.2 方案（候选 v1）</b>（IC 值内联进构造表作「依据」列，删除独立过程表）</td></tr>
+<tr><td>1.7.3.5 强度层候选方案 v1</td><td>同上</td></tr>
+<tr><td>—</td><td><b>1.7.3.3 后续（处理路径）</b>（新增：4 步 + 当前状态）</td></tr>
+</table>
+<p>删除的中间过程（已核验清零）：<code>改进建议（按优先级）</code> · <code>推论 1</code> · <code>推论 2</code> · <code>诚实结论</code> · <code>探针成向 + 剔除劣项</code> 对照行。</p>
+<p><b>§1.6.2 同步收敛（同一写法，用户偏好明确）</b></p>
+<table>
+<tr><th>清理前（4 个子节）</th><th>清理后（3 个子节）</th></tr>
+<tr><td>1.6.2.1 分支命中率实测 ／ 1.6.2.2 结构修复 ／ 1.6.2.3 分支命中归因 ／ 1.6.2.4 候选方案</td><td><b>1.6.2.1 问题</b>（休眠 / 倒挂根因 / 分支分布（内嵌表）/ 参数耦合）· <b>1.6.2.2 方案</b>（解耦 + 归因 + 候选权重，合并）· <b>1.6.2.3 后续</b>（4 步 + 当前状态）</td></tr>
+</table>
+<p><b>新增的「后续」小节（两节一致）</b>：</p>
+<p>1. <b>等门禁放行</b> —— 附确切命令与「哪些判据已 PASS、哪些未过、还需约 23 个交易日」</p>
+<p>2. <b>PASS 后启用</b> —— 改配置 → 重跑门禁 → 影子验证 → 升版 → 实盘</p>
+<p>3. <b>连带影响</b>（方向层）/ <b>并行验证新指标</b>（强度层）</p>
+<p>4. <b>相互依赖</b> —— 强度层依赖方向层；两层门禁共用同一份样本</p>
+<p><b>校验</b>：HTML errors=2（既存）、残留 0、断链仅 <code>${id}</code>、重复数字前缀 0；HTML 与 MD 两节结构一致（§1.6.2.1–.3 / §1.7.3.1–.3）。本轮<b>未改代码、未写业务表</b>。</p>
+<table>
+<tr><th>回滚点</th><th><code>/tmp/manual_pre_slim173.html</code> · <code>/tmp/manual_md_pre_slim173.md</code> · <code>/tmp/manual_pre_slim162.html</code> · <code>/tmp/manual_md_pre_slim162.md</code></th></tr>
+</table>
+
+<h3>4.29 §3.1 触发机制族：家族级硬约束加入第 0 层门槛（文档与代码对齐）</h3>
+<p>用户要求：在 §3.1「家族级统一硬约束」列表里加上<b>固定的第 0 层统一门槛</b>，且<b>已包含在 §3.1.1.1 的不要重复</b>。</p>
+<p><b>① 加入第 0 层指针（只指向，不复述判据）</b></p>
+<p>新增列表项（HTML 第 2 项 / MD 第 1 项）：</p>
+<div class="note"><b>第 0 层统一门槛（所有机制共同遵守，固定的）</b>：每个 5 分钟周期<b>只检查一次</b>，<b>各机制内部不得重复实现</b>；分四组 —— L0-A 硬门槛（引擎启用 / 时段窗口 <code>06:35 ≤ now &lt; 11:30 PST</code> / 必需数据齐备）、L0-B 否决与掩码（spoof trap / 价格日内位置掩码）、L0-C 机制级组数 <code>&lt; 2</code>、L0-D 全局上限 <code>≤ 5</code>。<b>完整判据、阈值与「不满足时的行为」见 §3.1.1.1，此处不再重复。</b></div>
+<p><b>② 删除两条既重复又过时的条目</b></p>
+<table>
+<tr><th>删除项</th><th>为什么</th></tr>
+<tr><td>「开仓组数 groups &lt; 2：<code>active_auto_groups &lt; 2</code>，硬顶 2 组」</td><td>① 与 §3.1.1.1 的 L0-C/L0-D 重复；② <b>口径过时</b> —— 代码早已从「全局 &lt; 2」改为「<b>机制级</b> &lt; 2 + 全局 ≤ 5」，文档写的还是旧口径</td></tr>
+<tr><td>「11:30 PST 截断」</td><td>与 §3.1.1.1 的 L0-A ② 重复</td></tr>
+</table>
+<p><b>③ 顺带发现并修复的三处代码-文档不一致（均在 §3.1.4）</b></p>
+<table>
+<tr><th>问题</th><th>处理</th></tr>
+<tr><td>§3.1.4「日型判定 … 否则为趋势日，走 <b>§3.1.7 Path T</b>」</td><td><b>Path T 在 phase16 已删除</b>（代码 <code>balanced_day_boundary.py</code> 明确写「Path T 已删除；趋势日极限由机制 ④ 负责」），且 §3.1.7 现为<b>洗盘反转</b>。已改为「<b>Path R 唯一</b>；趋势日终点见 §3.1.5」，删除日型分流</td></tr>
+<tr><td>§3.1.4「触发前置闸门：<code>active_auto_groups &lt; 2</code>；11:30 PST；<code>is_enabled</code>」</td><td>该处<b>在机制内复述 L0</b>（违反 §3.1.1.1）。<b>代码核查</b>：<code>evaluate_move_end_channel</code> 内部确实仍<b>重复内联 3 处 L0</b> —— <code>is_enabled</code>（L0-A①）、11:30 PST（L0-A②）、<code>get_active_auto_groups_count() &lt; 2</code>（L0-C，且用<b>全局</b>计数而非机制级）。已按<b>代码实际</b>如实描述并标注为<b>待清理项</b>；因清理会<b>放宽</b>门槛（行为变更），须门禁 + 影子验证，故<b>当前保留原样</b></td></tr>
+<tr><td>机制 ③ 的 docstring 仍写「Path R（平衡日边界）/ <b>Path T（移动结束）</b>」</td><td>已改为「机制 ③ 平衡日边界通道（Path R 唯一；Path T 已删除）」，并如实标注 3 处重复 L0（<b>仅注释，无行为变更</b>）</td></tr>
+</table>
+<p>§3.1.1.1 追加「<b>⚠ 已发现的重复实现（待清理）</b>」说明，与 §3.1.4 双向交叉引用。</p>
+<p><b>④ 顺带把 §3.1 引言的陈旧迁移叙述删掉</b>：原文仍在说「原有 §3.1.2–§3.1.5 四节整体移入 …并新增 Path R 与 <b>Path T</b>」（Path T 已删、节号已变），改为一句指针「机制清单与检查顺序见 §3.1.1.2」。</p>
+<p><b>⑤ 伪代码循环范围修正</b>：§3.1.1.2 的伪代码写 <code>for M in ①…⑤</code>，但机制表已是 ①…⑦（⑥ 洗盘反转为新增的判定机制，⑦ 为执行层不参与遍历）⇒ 改为 <code>①…⑥</code>，并注明「⑦ 为执行层，不参与判定遍历」（与 <code>evaluate_auto_entry_cycle</code> 跳过 <code>kind == "EXEC"</code> 一致）。</p>
+<p><b>⑥ 校验</b>：HTML <b>errors 2 → 0</b>（那处既存未闭合 <code>ul/li</code> 位于本次重写的块内，随之清除）、残留 0、断链仅 <code>${id}</code>；MD 与 HTML 家族清单条数一致（5 条）；「Path T」残留仅为「已删除」说明。代码 <code>py_compile</code> OK。</p>
+<table>
+<tr><th>回滚点</th><th><code>/tmp/manual_pre_31fix.html</code> · <code>/tmp/manual_md_pre_31fix.md</code>；代码：本文件 git 状态（仅 docstring 变更）</th></tr>
+</table>
+
+<h3>4.30 §1.2 外部修订的接受 + 触发机制规则中的 L0 重复全面清理（phase19）</h3>
+<p><b>① 接受并记录 §1.2 的外部修订</b></p>
+<p>用户说明：§1.2「核心微观订单流与 DOM 盘口指标定义与计算模型」是其在<b>另一个 DeepSeek 会话</b>中重写的。</p>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>变更前</td><td><code>1.2.1 DPER (价格推进效率)</code> / <code>1.2.2 dom_bull_book_flip</code> / <code>1.2.3 冰山单</code> / <code>1.2.4 vacuum_ask/bid_sec</code> / …（逐指标计算模型）</td></tr>
+<tr><td>变更后</td><td><b><code>1.2.1 TICK 元数据（成交流原始层）</code> / <code>1.2.2 DOM 元数据（200 档挂单原始层）</code> / <code>1.2.3 指标与衍生指标（逐项标注数据源）</code> / <code>1.2.4 合成与判定层（非指标）</code></b>（按<b>数据源分层 + 逐项标注</b>重组）</td></tr>
+<tr><td>处理</td><td><b>接受，不做回改</b>；已取基线备份 <code>manual_baseline_20260913_external_12.html</code> 作为新的对照起点</td></tr>
+<tr><td>过程发现</td><td>该修订发生在我 phase18 改动之后、slim173 之前；我据此排除了"脚本误改"的可能（备份逐版本对比确认）</td></tr>
+<tr><td>影响</td><td>手册现为<b>双人编辑</b>。已约定：外部改动请先取备份，否则无法区分"外部改写"与"脚本损坏"</td></tr>
+</table>
+<p><b>② L0 重复全面清理（文档 + 代码）</b></p>
+<p>用户要求：<b>触发机制规则里所有包含在 L0 的都清理掉</b>。</p>
+<p><b>甄别（先分类，避免误删）</b>：</p>
+<table>
+<tr><th>类别</th><th>处理</th></tr>
+<tr><td>§3.1.2「<b>第一层：系统前置总闸门</b>」3 行</td><td>✅ <b>删除</b>（纯 L0 复述：<code>is_enabled == True</code> = L0-A①、<code>active_auto_groups &lt; 2</code> = L0-C/D 旧口径、<code>11:30 PST</code> = L0-A②）⇒ 合并为 1 行<b>指针</b>（见 §3.1.1.1）；「双通道无缝调度」属<b>调度架构</b>，保留</td></tr>
+<tr><td>机制内 <code>Pos &gt;= / Pos &lt;=</code>（Setup 1/3、QuantPivot 场景二、趋势日极限）</td><td>❌ <b>保留</b> —— 那是<b>各机制自带的位置门槛</b>（如 Setup 1 要求 <code>Pos ≤ 45%</code>），与 L0-B 的 60/40、70/30 <b>阈值与用途都不同</b></td></tr>
+<tr><td>§3.1.2.2「判据权威位置索引」中的数据充分性 / 位置掩码</td><td>❌ <b>保留</b> —— 本身已是指针（不复述正文）</td></tr>
+<tr><td>§3.1.2.7 <code>数据充分性等级（见 2b）</code></td><td>✅ 修陈旧编号 → <b>§1.5</b></td></tr>
+<tr><td>§3.1.4「触发前置闸门」复述 L0</td><td>✅ 改为指针 + 说明<b>已清理</b></td></tr>
+</table>
+<p><b>代码清理</b>（<code>evaluate_move_end_channel</code>）—— 先确认<b>只有 1 个调用方</b>（编排层 <code>_mech_balanced_day_boundary</code>），故去重安全：</p>
+<table>
+<tr><th>原重复检查</th><th>对应 L0</th><th>性质</th></tr>
+<tr><td><code>self.is_enabled</code></td><td>L0-A①</td><td><b>精确重复</b>（判据完全相同 ⇒ 零行为变化）</td></tr>
+<tr><td><code>11:30 PST</code> 截断</td><td>L0-A②</td><td><b>精确重复</b>（已核 <code>ENTRY_CUTOFF_MINUTES = 11*60+30 = 690 = 11:30</code>；且 <code>RTH_OPEN_MINUTES + ctx.minutes_since_open</code> 与 <code>_move_end_minutes()</code> 同口径）</td></tr>
+<tr><td>全局 <code>get_active_auto_groups_count() &lt; 2</code></td><td>L0-C + L0-D</td><td><b>放宽</b>（旧全局 <code>&lt;2</code> → 现「机制级 <code>&lt;2</code> + 全局 <code>≤5</code>」）</td></tr>
+</table>
+<p>清理后本函数<b>只保留机制专属开关</b> <code>get_move_end_config()["enabled"]</code>（非 L0）。docstring 同步为「已与 §3.1.1.1 对齐」。</p>
+<p><b>③ 规则版本</b>：<code>phase18</code> → <b><code>phase19</code></b>（含 1 项放宽行为变更）。该机制处于 <b>Force Dry 纸面模式</b>（<code>AUTO_BALANCED_DAY_BOUNDARY</code> 在 try-run 清单内）⇒ 无实盘风险。</p>
+<p><b>④ 校验</b></p>
+<p>- 代码：<code>py_compile</code> OK；未定义名扫描 OK；冒烟 —— ① 机制开关关闭 → <code>None</code>；② 开关开启但无上下文 → <code>None</code>（无异常）</p>
+<p>- <b>被删 3 项的 L0 覆盖核对</b>：<code>check_layer0</code> 含 <code>is_enabled</code>（L0-A①）· <code>ENTRY_CUTOFF_MINUTES = 690 = 11:30</code>（L0-A②）· <code>get_active_auto_groups_count</code>（L0-D）+ 编排循环内 <code>get_active_groups_count(spec.id)</code>（L0-C）</p>
+<p>- 文档：HTML <b>errors=0</b>、残留 0、断链仅 <code>${id}</code>；<code>is_enabled == True</code> 残留 <b>0 处</b>；<code>active_auto_groups &lt; 2</code> 残留 <b>1 处</b>（仅为「已清理」的历史说明）；MD 同步</p>
+<p>- 服务 <code>/bbt_option_seller</code>、<code>/api/option_seller/status</code> 均 <b>200</b></p>
+<table>
+<tr><th>回滚点</th><th>文档：<code>/tmp/manual_pre_l0clean.html</code> · <code>/tmp/manual_md_pre_l0clean.md</code>；代码：<code>/tmp/osm_bak_20260913_170000/manager_pre_l0clean.py</code></th></tr>
+</table>
+
+<h3>4.31 全局规范：触发机制中文名称（文档 / 代码 / 页面三处统一）</h3>
+<p>用户指定 4 个机制的规范中文名，要求作为 Part 3 的<b>全局规范</b>。</p>
+<p><b>① 新增「全局规范：触发机制中文名称」（Part 3 引言，章节结构框之后）</b></p>
+<table>
+<tr><th>序</th><th>触发标签（代码唯一键）</th><th>规范中文名</th><th>原中文名</th></tr>
+<tr><td>①</td><td><code>AUTO_5M_SYNTHESIS</code></td><td><b>5m综合信号</b></td><td>5m 四层漏斗合成（含 Setup 判定）</td></tr>
+<tr><td>②</td><td><code>AUTO_QUANT_PIVOT_BOUNDARY</code></td><td><b>QuantPivot边界反向</b></td><td>QuantPivot 波动率边界反向</td></tr>
+<tr><td>③</td><td><code>AUTO_BALANCED_DAY_BOUNDARY</code></td><td>平衡日边界</td><td>保持现名（未在本次规范内调整）</td></tr>
+<tr><td>④</td><td><code>AUTO_TREND_DAY_EXTREME</code></td><td>趋势日极限终点</td><td>保持现名</td></tr>
+<tr><td>⑤</td><td><code>AUTO_PM_BIG_TRADE_PULLBACK</code></td><td><b>ES 盘前大单开盘回调</b></td><td>ES 盘前大单 + EMA 回踩</td></tr>
+<tr><td>⑥</td><td><code>AUTO_WASHOUT_REVERSAL</code></td><td><b>洗盘反转-双向</b></td><td>洗盘反转（对称双向）</td></tr>
+<tr><td>⑦</td><td><code>AUTO_CONDITIONAL_ORDER</code></td><td>自动条件单触发</td><td>保持现名（执行层）</td></tr>
+</table>
+<p>规范正文另含两条纪律：</p>
+<p>· <b>触发标签（<code>AUTO_*</code>）是代码唯一键</b> —— 页面 Force Dry 多选、<code>status</code>、报表与落库标签均以标签为准；<b>中文名仅用于文档与界面展示</b>，不得用于任何判定或匹配。</p>
+<p>· 本表为全局规范，手册各节标题、机制概览表与页面展示统一使用「规范中文名」。</p>
+<div class="note"><b>用户仅指定了 ① ② ⑤ ⑥ 四项</b>；③ ④ ⑦ 现名已足够简洁，<b>保持不动</b>并在表中显式标注，便于日后按同一规范调整。</div>
+<p><b>② 三处同步（不留旧名）</b></p>
+<table>
+<tr><th>位置</th><th>改动</th></tr>
+<tr><td><b>文档</b></td><td>节标题（§3.1.2/§3.1.3/§3.1.6/§3.1.7）· §3.1.1.2 顺序表 · §3.1.1.4 概览表 · <b>左侧导航</b>（7 条机制项）· 交叉引用 · 章节结构框</td></tr>
+<tr><td><b>代码</b></td><td><code>auto_mechanisms.MECHANISMS</code> 的 5 个 <code>MechanismSpec.title</code> + 模块 docstring 机制清单；<code>option_seller_engine.py</code> / <code>option_seller_manager.py</code> 内的同名注释引用</td></tr>
+<tr><td><b>页面</b></td><td><code>bbt_option_seller.html</code> 中 1 处硬编码中文名</td></tr>
+</table>
+<p><code>MechanismSpec.title</code> <b>经核查无任何外部消费方</b>（编排日志用 <code>spec.id</code>，页面用标签）⇒ 改名属<b>展示层</b>，<b>无行为变更</b>、不需升版。</p>
+<p><b>③ 顺带修掉两处导航/编号缺陷</b></p>
+<p>- <b>左侧导航缺「洗盘反转-双向」条目</b>（phase16 新增该机制时只加了正文与概览表，漏了导航）⇒ 已补，导航现为完整的 §3.1.1–§3.1.8。</p>
+<p>- <b>章节结构框的节号陈旧</b>（写 §3.1.6 盘前大单+EMA · §3.1.7 条件单，漏了洗盘反转）⇒ 改为 §3.1.6 盘前大单开盘回调 · §3.1.7 洗盘反转-双向 · §3.1.8 条件单。</p>
+<p><b>⚠ ④ 一次自伤与修复（记录在案）</b></p>
+<p>首次执行时用<b>全局字符串替换</b>改名，<b>误伤了命名规范表自身的「原名」列</b>（把「原『洗盘反转（对称双向）』」也替换成了新名，导致"原名 = 新名"这种无意义内容）。</p>
+<p>已修正：4 个「原名」列还原为旧名，现每个旧名在全文中<b>恰好出现 1 次</b>（仅在该列，属有意保留）。</p>
+<p>教训：<b>新增内容与其后的全局替换必须分两步执行</b>，否则新写的"历史映射"会被自己的替换污染。</p>
+<p><b>⑤ 校验</b>：HTML errors=<b>0</b>、残留 0、断链仅 <code>${id}</code>；MD 与 HTML 的 §3.1.x 标题、导航编号、命名规范表三处一致；全库旧名残留 <b>0</b>（除规范表「原名」列 4 处）；<code>py_compile</code> OK；模板内联 JS <code>node --check</code> OK；服务 200。</p>
+<table>
+<tr><th>回滚点</th><th>文档：<code>/tmp/manual_pre_l0clean.html</code>（含本次前状态）· 代码：<code>/tmp/osm_bak_20260913_170000/{auto_mechanisms,engine,manager}_pre_rename.py</code></th></tr>
+</table>
+
+<h3>4.32 机制中文名二次修订（5分钟综合信号 / ES盘前大单开盘回调）</h3>
+<p>用户对 4.31 的两项规范名再作修订。</p>
+<table>
+<tr><th>序</th><th>触发标签</th><th>原规范名（4.31）</th><th><b>新规范名（本次）</b></th><th>更早名</th></tr>
+<tr><td>①</td><td><code>AUTO_5M_SYNTHESIS</code></td><td>5m综合信号</td><td><b>5分钟综合信号</b></td><td>5m 四层漏斗合成（含 Setup 判定）</td></tr>
+<tr><td>⑤</td><td><code>AUTO_PM_BIG_TRADE_PULLBACK</code></td><td>ES 盘前大单开盘回调</td><td><b>ES盘前大单开盘回调</b></td><td>ES 盘前大单 + EMA 回踩</td></tr>
+</table>
+<p><b>① 一处重要的"对齐"效果</b>：页面（<code>bbt_option_seller.html</code>）<b>本来就用「5分钟综合」</b> 表示同一机制</p>
+<p>（<code>&lt;option value="AUTO_5M"&gt;</code>、子类型标签函数、徽标 <code>badge-subtype-5m</code> 与 tooltip）。</p>
+<p>因此本次「5m综合信号 → 5分钟综合信号」把<b>文档与页面拉到了一致</b>；随后按规范表「页面展示须用规范中文名」的纪律，把页面的 4 处展示文案（下拉项 / 标签函数 / 注释 / 徽标文本 + tooltip）也补齐为「<b>5分钟综合信号</b>」。</p>
+<p><b>唯一保留原貌</b>的是 L3705 的历史注释「已移除独立的『5分钟综合 开关』按钮」—— 它记录的是当时按钮的实际标签，改动反而失真。</p>
+<p><b>② 三处同步</b></p>
+<table>
+<tr><th>位置</th><th>改动</th></tr>
+<tr><td>文档</td><td>HTML 7 处 / MD 5 处（×2 个名称）—— 含节标题、顺序表、概览表、<b>左侧导航</b>、交叉引用、命名规范表</td></tr>
+<tr><td>代码</td><td><code>auto_mechanisms.py</code> 4 处（<code>MechanismSpec.title</code> ×2 + 模块 docstring）、<code>option_seller_manager.py</code> 2 处、<code>option_seller_engine.py</code> 1 处</td></tr>
+<tr><td>页面</td><td><code>bbt_option_seller.html</code> 5 处展示文案（含徽标 tooltip）</td></tr>
+</table>
+<p><b>③ 规范表「原名」列完好</b>（这是 4.31 那次自伤的教训所在，本次先验证后落盘）：</p>
+<p><code>原「5m 四层漏斗合成」（含 Setup 判定）</code> · <code>原「QuantPivot 波动率边界反向」</code> · <code>原「ES 盘前大单 + EMA 回踩」</code> · <code>原「洗盘反转（对称双向）」</code> 全部保留，未被二次替换污染。</p>
+<p><b>④ 校验</b></p>
+<p>- HTML errors=<b>0</b>、残留 0、断链仅 <code>${id}</code></p>
+<p>- 新规范名（HTML/MD）：5分钟综合信号 7/5 · ES盘前大单开盘回调 7/5 · QuantPivot边界反向 6/4 · 洗盘反转-双向 8/4</p>
+<p>- 中间名残留：<code>5m综合信号</code> <b>0/0</b>、<code>ES 盘前大单开盘回调</code>（带空格）<b>0/0</b></p>
+<p>- §3.1.2–§3.1.7 标题与导航编号一致；<code>py_compile</code> OK；模板内联 JS <code>node --check</code> OK；服务 200</p>
+<table>
+<tr><th>回滚点</th><th>文档：<code>/tmp/manual_pre_rename2.html</code> · <code>/tmp/manual_md_pre_rename2.md</code>；页面：<code>/tmp/osm_bak_20260913_170000/template_pre_rename2.html</code></th></tr>
+</table>
+
+<h3>4.33 §3.1.2 五项清理 + 「策略自适应选型」提为独立 §3.1.3 + 章节级联重编号</h3>
+<p>用户对 §3.1.2（5分钟综合信号）下达五项清理，并顺带把重构遗留一并删除。</p>
+<p><b>① 五项清理（用户指令）</b></p>
+<table>
+<tr><th>#</th><th>指令</th><th>处理</th></tr>
+<tr><td>1</td><td>整体删除「第一层：第 0 层统一门槛 (Layer-0 Gates)」</td><td>删表行（L0 判据权威在 §3.1.1.1，本节只留指针）</td></tr>
+<tr><td>2</td><td>整体删除「第二层附：刚性一票否决项 (Hard Vetoes)」</td><td>删整块 5 行，并<b>逐项甄别</b>后分流（见 ②）</td></tr>
+<tr><td>3</td><td>「第三层：策略自适应选型」单独出来显示成 <b>3.1.3</b></td><td>提为独立 <code>#### 3.1.3</code>（HTML <code>os-rule-15</code>），带三档表 + 阈值口径</td></tr>
+<tr><td>4</td><td>打表第一列（漏斗层级）不需要了</td><td>表头去「漏斗层级」列；重建为 3 列 6 行（表头 + 目标到期日 + 维度 1–4）</td></tr>
+<tr><td>5</td><td>删除文档重构遗留</td><td>删「第四层」指针段 + 「触发后执行动作」段 + <code>3.1.2.1 Setup 判定规范</code> 孤立标题 + <code>3.1.2.2 判据权威位置索引</code> 及其 8 行索引表</td></tr>
+</table>
+<p><b>② 「第二层附」5 项逐项甄别（关键判断，不整体丢弃）</b></p>
+<table>
+<tr><th>项</th><th>判定</th><th>依据 / 去向</th></tr>
+<tr><td>虚假撤单陷阱一票否决</td><td><b>已在 L0-B</b></td><td><code>is_spoof_trap</code> 全局否决 + 方向性 <code>block_*_by_spoof</code> 掩码，§3.1.1.1 已定义 ⇒ 删</td></tr>
+<tr><td>开盘跳空极端追单刚性一票否决</td><td><b>真非 L0</b></td><td><code>option_seller_engine.py:580–605</code>（Hard Veto 6），策略层内联 ⇒ <b>并入 L0-B 待办</b></td></tr>
+<tr><td>15 分钟趋势日防护罩反向阻断</td><td><b>真非 L0</b></td><td><code>option_seller_engine.py:147–151 / 508–516</code>、<code>setup_classifier.py:164–171 / 220–226</code>（<code>blocked_bull</code>/<code>blocked_bear</code>）⇒ <b>并入 L0-B 待办</b></td></tr>
+<tr><td>市场状态与时间双自适应位置保护</td><td><b>已在 L0-B，且表述陈旧</b></td><td>§3.1.1.1 L0-B 已定 <code>70/30 · 60/40 · 70/30</code>（开盘前 / Neutral / Trend Day），原表写 <code>70/30 · 50/50 · 65/35</code> ⇒ <b>冲突，以 §3.1.1.1 为准</b>，删除</td></tr>
+<tr><td>均线严重纠缠混沌否决</td><td><b>语义相反，删除</b></td><td>机制 ③ 有自身 <code>ema_tangled</code> 开关（EMA 缠结<b>允许</b>，但需边界确认，见 §3.1.5.1），与原表「坚决空仓」<b>语义相反</b> ⇒ 删</td></tr>
+</table>
+<p><b>③ 两项真非 L0 否决写入 §3.1.1.1「待并入 L0-B」注记</b>（含实现位置、为何暂不并入）：两者都在<b>策略层内联</b>（一处引擎 + 一处 Setup 判定器，且判定器内还叠了 DOM 假单与日内极值拦截），上收需同时改 <code>setup_classifier</code> 的 <code>blocked_*</code> 语义与引擎 Hard Veto 列表 ⇒ 属<b>行为改动</b>，须先在 paper（Force Dry）下做等价性回归，再并入 L0-B。<b>本轮未改代码。</b></p>
+<p><b>④ 级联重编号（插入 §3.1.3 后全部 +1）</b></p>
+<table>
+<tr><th>锚点 id（<b>不变</b>）</th><th>旧编号</th><th>新编号</th><th>名称</th></tr>
+<tr><td><code>os-rule-15</code>（新增）</td><td>—</td><td><b>3.1.3</b></td><td>策略自适应选型 (Profile Selection)</td></tr>
+<tr><td><code>os-rule-9</code></td><td>3.1.3</td><td><b>3.1.4</b></td><td>QuantPivot边界反向机制（独立）</td></tr>
+<tr><td><code>os-rule-12</code></td><td>3.1.4</td><td><b>3.1.5</b></td><td>平衡日边界机制</td></tr>
+<tr><td><code>os-rule-11</code></td><td>3.1.5</td><td><b>3.1.6</b></td><td>趋势日极限终点机制</td></tr>
+<tr><td><code>os-rule-10</code></td><td>3.1.6</td><td><b>3.1.7</b></td><td>ES盘前大单开盘回调机制</td></tr>
+<tr><td><code>os-rule-14</code></td><td>3.1.7</td><td><b>3.1.8</b></td><td>洗盘反转-双向机制</td></tr>
+<tr><td><code>os-rule-13</code></td><td>3.1.8</td><td><b>3.1.9</b></td><td>自动条件单与手动条件单</td></tr>
+</table>
+<ul>
+<li><b>锚点 id 全部保持不变</b>（外部深链不受影响）；子节 <code>3.1.3.1–3.1.3.4 → 3.1.4.1–3.1.4.4</code> 等同步顺延，含锚点 <code>id="3.1.3.4-场景二"</code> → <code>3.1.4.4-场景二</code>。</li>
+<li><b>左侧导航</b>新增 3.1.3 条目并重编号其后 6 项；<b>第三部分章节结构摘要行</b>同步（并把「§3.1.2 四层漏斗合成」改为「§3.1.2 5分钟综合信号（含 Setup 判定）」，<code>规则编号保持稳定</code> 改为 <code>已随 §3.1.3 插入顺延</code>）。</li>
+<li><b>交叉引用重映射</b>：区内 <code>3.1.M</code> 统一 +1；区外按锚点校正 —— <code>§3.1.7→§3.1.8</code>（洗盘反转 ×3，锚点 <code>os-rule-14</code>）、<code>§3.1.4→§3.1.5</code>（平衡日，锚点 <code>os-rule-12</code>）、<code>第 3.1.3 节 QuantPivot → 第 3.1.4 节</code>。</li>
+<li><b>两处「场景名伪引用」去编号</b>：<code>§3.1.5「非趋势震荡日上下两端边界」</code> 与 <code>不改动 §3.1.5 的边界反向判据</code> —— 该「非趋势震荡日上下两端边界」是<b>场景名而非节号</b>（全文无此节），原编号本身就是错的 ⇒ 改为按场景名引用，避免被 +1 与后续级联反复误伤。</li>
+<li><b>两处陈旧引用按语义修正</b>：<code>第 3.1.4 节《ES 盘前大单信号与均线带回踩》</code> → <code>第 3.1.7 节</code>（原文编号本就陈旧）；<code>该机制处于 Force Dry 纸面模式。详见 §3.1.4</code> → <code>§3.1.5</code>（平衡日）。</li>
+<li><b>一处锚点错链修复</b>：<code>&lt;a href="#os-rule-8"&gt;§3.1.1.5 输出契约&lt;/a&gt;</code> ⇒ 锚点改为 <code>#os-mech-overview</code>（正文指的是 Order Flow 契约，原锚点指向 5分钟综合信号 ⇒ 既存缺陷）。</li>
+<li><b>术语收敛</b>：<code>(5-Minute 4-Tier Funnel Synthesis with Setup Gate)</code> → <code>(5-Minute Synthesis Signal with Setup Gate)</code>；<code>在 100 分制四层漏斗决策中</code> → <code>四维共振评分</code>；<code>「5分钟主周期后台全自动开仓四层漏斗」</code> → <code>「5分钟综合信号」</code>。<b>保留</b>命名规范表的「原名」列与「原 5 分钟四层漏斗的『第四层』」等<b>历史表述</b>。</li>
+</ul>
+<p><b>⑤ 过程中发现并修复的两处自伤（记录在案）</b></p>
+<ol>
+<li><b>插入点落在跨行 <code>&lt;h4&gt;</code> 标签中间</b>：<code>&lt;h4 class="rule-heading"\nid="os-rule-9"&gt;</code> 跨两行，用 <code>index('id="os-rule-9"')</code> 定位导致标签被切开（残留孤立 <code>&lt;h4 class="rule-heading"</code> + 孤立 <code>id="os-rule-9"&gt;</code>）。已按标签起始位置重建。</li>
+<li><b><code>&amp;sect;</code> 实体 vs <code>§</code> 字面量</b>：清理脚本用 <code>§</code> 匹配场景名引用，而 HTML 里是 <code>&amp;sect;</code> ⇒ 保护未生效、被 +1 误伤成 <code>&amp;sect;3.1.6</code>，已二次修正为按场景名引用。</li>
+<li><b>重建表1 时丢了 <code>&lt;tr&gt;</code> 包裹（用户截图发现，已修）</b>：行切片函数返回的是 <code>&lt;tr&gt;</code> 与 <code>&lt;/tr&gt;</code> <b>之间的内容</b>（不含标签本身），重建时只给表头补了 <code>&lt;tr&gt;/&lt;/tr&gt;</code>，导致 5 个 body 行变成挂在 <code>&lt;table&gt;</code> 下的<b>裸 <code>&lt;td&gt;</code></b>、<code>&lt;thead&gt;/&lt;tbody&gt;</code> 也丢失 ⇒ 浏览器把裸 <code>&lt;td&gt;</code> 提为隐式行、列全部错位（表头挤成窄列、<code>维度 1</code> 的嵌套表跑到第 3 列）。<b>修复</b>：从术前备份重新提取<b>含标签</b>的完整 <code>&lt;tr&gt;…&lt;/tr&gt;</code>，重建为 <code>&lt;table&gt;&lt;thead&gt;（3 列表头）&lt;/thead&gt;&lt;tbody&gt;（目标到期日 + 维度 1–4，各 3 格）&lt;/tbody&gt;&lt;/table&gt;</code>，并把 R3 的 <code>rowspan="4"</code> 首格移除。<b>验证</b>：用 HTML 解析器读回该表 ⇒ <b>6 行 × 3 格</b>，3 个嵌套表（维度 1/2/3）完好，单元格文本逐格正确；<b>MD 侧本就用真正的管道表格语法，未受影响</b>。附带教训：<b>HTML 表格的结构化手术必须按标签边界（而非标签内部文本）切片，改完必须回读校验行列数</b>。</li>
+</ol>
+<p><b>⑦ 删除表1 最后一行「目标到期日与触发架构」（用户追加指令）</b></p>
+<p><b>先甄别再删</b>（避免丢决策规则）：</p>
+<table>
+<tr><th>行内要素</th><th>权威位置</th><th>结论</th></tr>
+<tr><td>0DTE（当天到期）</td><td><b>§3.2.5 合约选型与开仓过滤规则</b>（「系统默认执行 0DTE（当天到期）…」）</td><td>已记载 ⇒ 可删</td></tr>
+<tr><td>11:30 PST 后不再新开仓（= L0-A②）</td><td><b>§3.1.1.1 L0-A②</b></td><td>纯 L0 复述 ⇒ 删</td></tr>
+<tr><td>12:30 PST 强制全平</td><td><b>§3.2.4 动态盯市与 12:30 PST 强制时间止损</b></td><td>已记载 ⇒ 可删</td></tr>
+<tr><td>双通道触发调度（sentinel 每 5 分钟 / 30m 整点大任务）</td><td>无其他记载，但属<b>工程实现方式</b>（哪个 job 何时触发）</td><td>按规则 (11) 工程实现不入册 ⇒ 删</td></tr>
+</table>
+<ul>
+<li><b>改动</b>：HTML 删 <code>&lt;tbody&gt;</code> 首行；表标题同步由「机制 ① 的<b>触发构成与</b>四维共振评分…：<b>先确认目标到期日与双通道调度</b>，再按下表四个维度加权求和」改为「机制 ① <b>的四维共振评分</b>…：按下表四个维度加权求和」。MD 删同一行。</li>
+<li><b>结果</b>：表1 = 表头 + <b>维度 1–4</b>，共 <b>5 行 × 3 格</b>；3 个嵌套表（维度 1/2/3）完好；<code>目标到期日</code> / <code>双通道</code> / <code>触发构成</code> 全文残留 <b>0/0</b>（无悬挂引用）。</li>
+<li>HTML 解析 errors=<b>0</b>、残留 0、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存）。</li>
+</ul>
+<p><b>⑧ §3.1.3 策略自适应选型 → 降为 §3.1.2.1（用户指令：「应该是 3.1.2.1」）</b></p>
+<ul>
+<li><b>降级 + 前移</b>：Profile Selection 由 <code>h4</code>/§3.1.3 改为 <code>h5</code>/<b>§3.1.2.1</b>（锚点 <code>os-rule-15</code> 不变），位置前移至<b>四维共振表之后、Setup 1 之前</b> —— 编号为 <code>.1</code> 即意味着它是 §3.1.2 的<b>第一个子节</b>，且与「共振评分 → 选型 → Setup 闸门」的漏斗顺序一致。</li>
+<li><b>§3.1.2 内子节顺延 -1</b>：<code>3.1.2.8→3.1.2.7</code> … <code>3.1.2.3→3.1.2.2</code>（含 <code>3.1.2.7.1–7.6→3.1.2.6.1–6.6</code>），共 12 处 ⇒ §3.1.2 子节<b>连续无缺口</b>：<code>3.1.2.1</code> Profile · <code>3.1.2.2–3.1.2.7</code> Setup 1–6。</li>
+<li><b>腾空的 §3.1.3 由 QuantPivot 回填</b>，其后全部机制<b>退回原编号</b>（<code>3.1.4→3.1.3</code> … <code>3.1.9→3.1.8</code>，含子节与锚点 <code>3.1.3.4-场景二</code>），共 24 处；<b>锚点 id 全部不变</b>（外部深链不受影响）。</li>
+<li><b>导航</b>：删除 §3.1.3 策略自适应选型条目（子节不入左侧导航，与 §3.1.2 其他子节一致），其后 6 项退回 <code>3.1.3–3.1.8</code>；<b>第三部分摘要行整段重写</b>（移除 Profile 条目并整体退回），编号说明改为「规则编号保持稳定（锚点 id 不变；策略自适应选型为 §3.1.2.1 子节）」。</li>
+<li><b>交叉引用</b>：① <b>按锚点回填可见编号（自愈脚本）</b> HTML 5 处；② 区外按语义修正 —— 洗盘反转 <code>§3.1.8→§3.1.7</code>（×2）、平衡日 <code>§3.1.5→§3.1.4</code>、§3.1.2 引言 <code>策略自适应选型（§3.1.3）→（§3.1.2.1）</code>。MD 同步（<code>#### 3.1.3 → ##### 3.1.2.1</code>、23 处退回、摘要行重写、4 处区外引用）。</li>
+<li><b>技术要点（避免前缀碰撞）</b>：本轮正反向级联<b>均用占位符两趟替换</b>（先把 <code>3.1.2.3…3.1.2.8</code> 映射到 <code>3.1.2.@NEW2@…</code>，再还原为目标号），否则 <code>3.1.2.7→3.1.2.6</code> 会二次命中刚生成的 <code>3.1.2.7</code>；前缀情形（<code>3.1.2.7.1</code> 含 <code>3.1.2.7</code>）也随之正确处理。</li>
+<li><b>既存异常（非本次引入，未改动）</b>：§3.1.5.1 标题的锚点 <code>id="1.-场景一：大单边趋势日极限终点反向开仓-(…)"</code> 在<b>改前各备份中完全一致</b>，属历史遗留命名，无引用指向它且不产生断链。</li>
+<li><b>已知 HTML/MD 结构差异（既存，非本次）</b>：MD 的 Setup 段没有编号小标题（HTML 为 <code>3.1.2.2–3.1.2.7</code>），因 MD 按「🟢 看多 / 🔴 看空」组织而 HTML 按「Setup 1–6」组织；本轮未强行重构 MD。</li>
+<li><b>校验</b>：HTML errors=<b>0</b>、残留未闭合 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存）；<b>锚点↔可见编号一致性 0 处不一致</b>；§3.1.1–§3.1.8 标题、子节编号、导航编号 HTML/MD 三处一致。</li>
+</ul>
+<p><b>⑨ 新建 §3.2 遗留待审查触发机制；现 §3.2 子功能模块 → §3.3（用户指令）</b></p>
+<p>用户指令：「<b>不要写入现在 3.2；新建 3.2 遗留待审查触发机制，把现在的 3.2 变成 3.3</b>；把 §3.1.2.2–§3.1.2.7 显示在新建的 3.2 下面」。</p>
+<ul>
+<li><b>顺序</b>：先做「现 §3.2.x → §3.3.x」整体顺延（HTML 36 处 / MD 28 处：章标题、导航编号、正文小节号、交叉引用、结构摘要行），<b>再做</b> Setup 块迁移 —— 顺序不可颠倒，否则新建 §3.2 会被顺延规则二次改号。</li>
+<li><b>迁移</b>：自 §3.1.2 抽出 Setup 块（HTML <code>3.1.2.2–3.1.2.7</code>，62,453 字符；MD 7,902 字符），块内以<b>占位符两趟替换</b>重编号为 <code>3.2.1–3.2.6</code>（<code>3.1.2.6.x → 3.2.5.x</code>，即 Setup 5 的 6 个子项 → <code>3.2.5.1–3.2.5.6</code>）。</li>
+<li><b>新章</b>：<code>&lt;h3 id="os-legacy"&gt;3.2 遗留待审查触发机制 (Legacy Trigger Mechanisms Pending Review)&lt;/h3&gt;</code>，位于 §3.1 触发机制族之后、§3.3 子功能模块之前；章首说明其<b>来源（自 §3.1.2 移出）、当前执行方（<code>setup_classifier.py</code>）、未审查状态、分列目的</b>，并明确「审查结论确定前一律按现行代码执行」。</li>
+<li><b>锚点</b>：新增章锚点 <code>#os-legacy</code> 与 6 个子项锚点 <code>#os-legacy-setup-1…6</code>（<b>未改动</b>任何既有 id；<code>#os-submodule</code> 仍指向 §3.3）。</li>
+<li><b>§3.1.2 收尾</b>：标题去掉「（含 Setup 判定）」→「§3.1.2 5分钟综合信号」（HTML 4 处含导航 data-title / nav-text；MD 1 处）；<b>顺带改写 HTML 引言</b> —— 原「执行严格的<b>四层漏斗逐级仲裁</b>…只有当所有前置闸门、四维多因子共振、策略自适应以及实时期权链盘口指标全部同时满足时」为陈旧表述，改为「按 <b>第 0 层统一门槛（§3.1.1.1）→ 四维共振评分（100 分制）→ 策略自适应选型（§3.1.2.1）</b> 逐级仲裁；<b>Setup 1–6 判定规范已移入 §3.2</b>」，与 MD 对齐。§3.1.2 现仅余 1 个子节 <code>3.1.2.1</code>。</li>
+<li><b>导航</b>：新增 §3.2 章条目 + 6 个 Setup 子项（<code>3.2.1–3.2.6</code>），插在「子功能模块」条目之前；原 7 项 <code>3.2.x</code> 编号改为 <code>3.3.x</code>，章号 <code>3.2 → 3.3</code>。</li>
+<li><b>结构框</b>：「第三部分章节结构（<b>两大</b>子章节）」→「（<b>三大</b>子章节）」，新增 ② 遗留待审查触发机制（§3.2.1–§3.2.6：Setup 1–6，自 §3.1.2 移出），原 ② 子功能模块顺延为 ③ 并改为 §3.3.1–§3.3.7。MD 摘要行同步重写。</li>
+<li><b>顺带修复既存锚点错链</b>：<code>&lt;a href="#os-rule-1"&gt;§3.3.1 三档开仓策略标准&lt;/a&gt;</code> —— 文案指「三档开仓策略标准」而锚点指向 <code>os-rule-1</code>（核心策略与风险锁死原则 = §3.3.6）⇒ 锚点改为 <code>#os-rule-5</code>。<b>这是既存缺陷</b>（改前同样不符，因早前的校验脚本只覆盖 §3.1.x 而未曝光）；本轮把校验扩展到 §3.x 全段后被发现并修正。</li>
+<li><b>校验</b>：HTML errors=<b>0</b>、残留未闭合 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存）；<b>§3.x 全段锚点↔可见编号一致性 0 处不一致</b>；<code>3.1.2.2–3.1.2.7</code> 残留 HTML/MD 均 <b>0</b>；第三部分章级结构 HTML/MD 三处一致（3.1 / 3.2 / 3.3）。</li>
+<li><b>已知差异（既存）</b>：MD 的 Setup 段按「🟢 看多 / 🔴 看空」组织、无 <code>3.2.x</code> 编号小标题（HTML 为 <code>3.2.1–3.2.6</code>），本轮随内容整体移入 §3.2，未强行重构 MD 的 Setup 编号。</li>
+</ul>
+<p><b>⑩ §3.1.3 QuantPivot 重构：三个固定子章节 + 其他相关（用户指令）</b></p>
+<p>用户指令：§3.1.3 从章节开始设<b>固定子章节</b> —— 3.1.3.1 开仓规则（表格）· 3.1.3.2 开仓策略 · 3.1.3.3 止盈策略 · 3.1.3.4 其他相关（含 4 个子节）；并把「场景二硬性波幅与位置前置限定条件」与「Triple-Barrier 三维风控准入准出铁律」<b>合并进开仓规则表格</b>；另删除两项。</p>
+<p><b>① 新结构</b></p>
+<table>
+<tr><th>编号</th><th>标题</th><th>处理</th></tr>
+<tr><td>3.1.3.1</td><td>开仓规则 (Entry Rules)</td><td><b>新建 6 列 × 2 方向表格</b>（替代原「双向开仓决策与微观共振仲裁规范」）</td></tr>
+<tr><td>3.1.3.2</td><td>开仓策略 (Entry Strategy / Profile)</td><td>新建：<b>L1/H1 → 平衡型 (Balanced)</b>；<b>L2/H2 → 激进型 (Aggressive / High-Yield)</b></td></tr>
+<tr><td>3.1.3.3</td><td>止盈策略 (Take-Profit Strategy)</td><td>新建：<b>L1/H1 → 保守止盈（模式 B）</b>；<b>L2/H2 → 标准止盈（模式 A）</b></td></tr>
+<tr><td>3.1.3.4</td><td>其他相关 (Related Notes)</td><td>新建容器 + 4 个子节 ↓</td></tr>
+<tr><td>3.1.3.4.1</td><td>适用场景概览</td><td>由「Two-Stage Pre-Arming」卡迁入</td></tr>
+<tr><td>3.1.3.4.2</td><td>数学模型与统计学理论</td><td>原 3.1.3.1 整块迁入（旧 h5 标题已去除，避免双标题）</td></tr>
+<tr><td>3.1.3.4.3</td><td>QuantPivot 点位测试严格判定区间规范</td><td>由同名牌卡迁入（含持仓配额隔离规则）</td></tr>
+<tr><td>3.1.3.4.4</td><td>EMA 阻力/支撑带禁区反向开仓一票否决铁律</td><td>由同名牌卡迁入</td></tr>
+</table>
+<p><b>② 开仓规则表（6 列）</b>：<code>交易方向</code> | <code>触发点位与容差带（SPY）</code> | <code>前置限定：波幅 / 日内位置</code> | <code>微观共振与均线验证</code> | <code>多次开仓三维准入（任一不满足 ⇒ 一票否决）</code> | <code>评分与 Strike 锚定</code></p>
+<ul>
+<li><b>合并项 1 — 场景二硬性波幅与位置前置限定条件</b> → 第 3 列（<code>rth_range_pct ≤ 0.85%</code> 且 <code>rth_range_pts ≤ 45.0</code>；<code>Pos ≥ 60%</code>／<code>Pos ≤ 40%</code>；SPY 标的统一）</li>
+<li><b>合并项 2 — Triple-Barrier 三维准入</b> → 第 5 列（① 该点位无未完全平仓活跃仓；② 无历史已平仓亏损单（<code>realized_pnl &lt; 0</code> ⇒ 当日点位<b>永久熔断</b>）；③ 距上次开仓 &gt; 45 分钟）</li>
+<li><b>顺带折入 — 原 3.1.3.3 极值状态加权</b> → 第 6 列评分（<code>AT_OR_ABOVE_H2</code> / <code>AT_OR_BELOW_L2</code> 各 +5 分）—— 该规则本质是开仓评分项，故随表收编</li>
+<li><b>同时吸收</b>原「行情子场景」汇总表独有要素：15m EMA 乖离阈值（±0.08%）、ARMED 预置距离（&gt; 0.2 且 ≤ 0.5%）、分层 Strike 锚定</li>
+</ul>
+<p><b>③ 删除项</b></p>
+<ol>
+<li><b>「3.1.3.4 场景二：非趋势震荡日 QuantPivot 边界反向开仓」标题 + 其汇总表（行情子场景）</b> —— 内容已在 ② 中重新分配，删除避免重复定义；旧锚点 <code>id="3.1.3.4-场景二"</code> 一并移除（无入站链接）。</li>
+<li><b>「QuantPivot L1 / H1 触发单 30% 浮盈保本止损与双批次联动机制 (L1/H1 Breakeven Stop Protection)」整张卡</b> —— 其实质是「保守止盈（模式 B）」在 L1/H1 上的具体表现，已在 <b>3.1.3.3</b> 以一行要点承接（30% 保本位移 + 40%/75% 阶梯不变 + <code>is_l1_h1_pivot_trade</code>），模式完整定义仍归 §3.3.2。</li>
+</ol>
+<p><b>④ 保留</b>：章首「核心架构定位与两大系统用途」卡（含<b>明确的系统定性</b>：QuantPivot <b>不是独立开仓通道</b>）位于三个固定子章节之前，未动。</p>
+<p><b>⑤ 过程记录（自伤与修复）</b>：首轮脚本以 <code>h.index('id="os-rule-9"')</code> 定位切片，<b>切点落在 <code>&lt;h4&gt;</code> 属性中间</b>（<code>&lt;h4 class="rule-heading" id="os-rule-9"&gt;</code>）⇒ 章节标题与 <code>&lt;/h4&gt;</code> 被吞、产生 <code>&lt;h4 class="rule-heading" &lt;div ...&gt;</code> 破损。已<b>回滚到改动前备份</b>，改用 <code>rindex('&lt;h4', 0, id位置)</code> 取标签起始，并在重建内容开头显式补回章节标题后重跑。另修正一处：数学模型块自带旧 <code>&lt;h5&gt;3.1.3.1 数学模型…&lt;/h5&gt;</code>，与新的 3.1.3.4.2 标题重复 ⇒ 已删除旧标题。</p>
+<p><b>⑥ 校验</b>：HTML errors=<b>0</b>、残留未闭合 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存）；<code>§3.x</code> 全段锚点↔可见编号 <b>0 处不一致</b>；开仓规则表解析为 <b>3 行 × 6 格</b>（表头 + 两方向）；MD 三张表列数分别为 6/3/3 且逐行一致；删除项在 HTML/MD 中残留均为 <b>0</b>；关键内容（Triple-Barrier、Strict [-0.2,+0.2]、EMA 禁区、<code>AT_OR_ABOVE_H2</code>、45 分钟、平衡型/激进型、保守/标准止盈）全部在册。<b>未改代码、未写业务表。</b></p>
+<p><b>⑪ §3.1.3.4.4 EMA 禁区一票否决 上收为 L0-C（用户指令）</b></p>
+<p>用户指令：把 §3.1.3.4.4「EMA 阻力/支撑带禁区反向开仓一票否决铁律」<b>升级为新的 L0 规则</b> —— ① 加入 L0 表作为 <b>L0-C</b>，现 L0-C/D 顺延为 <b>L0-D/E</b>；② 在「L0-B 价格日内位置掩码阈值」之下新增 <b>L0-C EMA 阻力/支撑带禁区反向开仓一票否决</b> 明细块，正文用原 §3.1.3.4.4 的详细内容；③ 删除 §3.1.3.4.4。</p>
+<p><b>① L0 汇总表（§3.1.1.1）</b></p>
+<table>
+<tr><th>层</th><th>规则条目</th><th>不满足时的行为</th></tr>
+<tr><td>L0-A 硬门槛</td><td>①②③（不变）</td><td>立即结束本周期</td></tr>
+<tr><td>L0-B 否决与掩码</td><td>④ spoof trap、⑤ 价格日内位置掩码（不变）</td><td>只掩码该方向，不终止</td></tr>
+<tr><td><b>L0-C EMA 禁区否决（新）</b></td><td><b>⑥ EMA 阻力/支撑带禁区反向开仓一票否决</b> —— 反弹 / 回调逼近或处于 15m EMA 13/21 带内部时禁止逆势押注突破</td><td><b>只掩码该方向</b>，不终止本周期</td></tr>
+<tr><td>L0-D 机制级闸门（原 L0-C）</td><td><b>⑦</b>（原 ⑥）该机制活跃组数 <code>&lt; 2</code></td><td>跳过该机制</td></tr>
+<tr><td>L0-E 全局上限（原 L0-D）</td><td><b>⑧</b>（原 ⑦）全局活跃自动组数 <code>≤ 5</code></td><td>结束本周期</td></tr>
+</table>
+<ul>
+<li>条目号 ⑥/⑦ → ⑦/⑧ 同步顺延；全文 <code>L0-C → L0-D</code>（各 6 处）与 <code>L0-D → L0-E</code>（各 6 处）用<b>占位符两趟替换</b>，避免字母碰撞。</li>
+</ul>
+<p><b>② 明细块</b>：在「L0-B 价格日内位置掩码阈值」表与其「中间允许带」说明<b>之后</b>、<code>待并入 L0-B</code> 清单之前，新增标题 <b>L0-C EMA 阻力/支撑带禁区反向开仓一票否决（<code>EMA Dynamic Band Resistance/Support Forbidden Zone Veto Rule</code>）</b>，其下为原 §3.1.3.4.4 的完整正文（痛点机理 + 双向通用性限定规范：(1) 下行破位反弹卖 Put 禁区 / (2) 上行突破回调卖 Call 禁区）。</p>
+<p><b>③ 删除 §3.1.3.4.4</b>：标题与正文整块移除，原位留<b>一行指针</b>（「已上收为第 0 层 §3.1.1.1 的 L0-C，判据正文见该节，此处不再重复」）—— §3.1.3.4 其他相关现余 3 个子节（.1 适用场景概览 / .2 数学模型 / .3 点位测试严格判定区间规范）。</p>
+<p><b>④ 实现现状（已核实并写入手册）</b>：编排层 <code>PyTools/option_seller/auto_mechanisms.py: check_layer0()</code> 目前<b>只实现 L0-A / L0-B（及全局上限）</b>，函数 docstring 亦写 <code>L0-A / L0-B / L0-D（会话级）</code>；<code>PyTools/option_seller/</code> 内<b>搜索不到</b> <code>forbidden_zone</code> 等 EMA 禁区否决实现（<code>move_end_evaluator.py</code> / <code>balanced_day_boundary.py</code> 仅见 <code>ema_tangled</code> 缠结开关）⇒ 本次属<b>规则先行、代码待上收</b>。已在手册明细块内如实标注「L0-C 判定尚未上收（现由策略层机制内的均线带逻辑承担），属待收敛项 —— 上收前按现行代码执行」。<b>本轮未改代码。</b></p>
+<p><b>⑤ 过程记录（一处自伤与修复）</b>：首轮脚本改了 §3.1.1.1 的 <code>seg</code> 变量却<b>漏写回 <code>h</code></b> ⇒ L0 表新行与条目号顺延<b>丢失</b>（明细块因后续重新取 <code>seg</code> 而写盘成功，故只丢表行）。已回滚到改动前备份并补上写回语句后重跑。另：归档时在模块索引 ㉖ 中写了未转义的 <code>&lt;h4&gt;</code> 字面量，致 <code>bbt_trading_modules.html</code> 解析错误 7 → <b>8</b>，已转义为 <code>&amp;lt;h4&amp;gt;</code> 并复核回 <b>7</b>（与改前一致）。</p>
+<p><b>⑥ 校验</b>：手册 errors=<b>0</b>、残留未闭合 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存）；L0 表解析为 <b>5 行 × 3 格</b>（L0-A/B/C/D/E）；明细块顺序 = L0-B 位置掩码 → <b>L0-C EMA 禁区</b> → 待并入清单；§3.1.3.4.4 正文残留 <b>0</b>、指针在位；HTML 与 MD 的 L0 表 / 明细块 / §3.1.3.4 子节三处一致。</p>
+<p><b>⑦ 顺序调整（用户追加指令）</b>：把「<b>待并入 L0-B 的两项真实非 L0 否决</b>」整块<b>移到「L0-C EMA 阻力/支撑带禁区反向开仓一票否决」明细块之前</b>。调整后 §3.1.1.1 明细段顺序为：<code>L0-B 价格日内位置掩码阈值</code> → <code>待并入 L0-B 两项</code> → <code>L0-C EMA 禁区</code>。同步在 MD 中做同样搬移（HTML 用 <code>div</code> 平衡配对取出整块；MD 按「块首 → 下一小节标题」切片）。校验：手册 errors=<b>0</b>、残留 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存），HTML/MD 明细段顺序一致。</p>
+<p><b>⑫ §3.1.3.1 开仓规则表重设计：前置规则提为共用首行（用户指令）</b></p>
+<p>用户指令：重新设计 §3.1.3.1 表格结构，把「前置限定：波幅 / 日内位置」与「多次开仓三维准入（任一不满足 ⇒ 一票否决）」两列<b>提取出来定位为「前置规则」显示在第一行</b>，同时适用于<b>空头开仓</b>与<b>多头开仓</b>。</p>
+<p><b>① 新表结构（HTML，单表）</b></p>
+<table>
+<tr><th>行</th><th>内容</th></tr>
+<tr><td><b>第 0 行（<code>colspan="4"</code>，浅蓝底）</b></td><td><b>前置规则（同时适用于「空头开仓」与「多头开仓」；任一不满足即不得开仓）</b><br>① 波幅 / 日内位置前置限定（<code>rth_range_pct ≤ 0.85%</code> 且 <code>rth_range_pts ≤ 45.0</code>；卖 Call <code>Pos ≥ 60.0%</code>／卖 Put <code>Pos ≤ 40.0%</code>；SPY 标的统一）<br>② 多次开仓三维准入（该点位无未平仓活跃仓 / 无历史已平仓亏损单（<code>realized_pnl &lt; 0</code> ⇒ 当日永久熔断）/ 距上次开仓 &gt; 45 分钟）</td></tr>
+<tr><td>第 1 行（表头）</td><td>交易方向 · 触发点位与容差带（SPY） · 微观共振与均线验证 · 评分与 Strike 锚定</td></tr>
+<tr><td>第 2 行</td><td>空头开仓 (Bear Call Spread)：触发 / 微观 / 评分与锚定</td></tr>
+<tr><td>第 3 行</td><td>多头开仓 (Bull Put Spread)：触发 / 微观 / 评分与锚定</td></tr>
+</table>
+<ul>
+<li>解析校验：<b>行 0 = 1 格且 <code>colspan="4"</code></b>；行 1–3 各 <b>4 格</b>；列宽 12% / 34% / 24% / 30%。</li>
+<li>内容保真：<code>rth_range_pct</code>、<code>60.0%</code>/<code>40.0%</code>、<code>SPY</code>、<code>Status</code>、<code>realized_pnl</code>、<code>45 分钟</code>、<code>AT_OR_ABOVE_H2</code>/<code>AT_OR_BELOW_L2</code>、<code>SPY GTE H1</code>/<code>SPY LTE L1</code> 全部在册（脚本断言）。</li>
+</ul>
+<p><b>② MD 同步（结构性差异，Markdown 限制）</b>：GFM 管道表<b>不支持 colspan</b>，无法在同一张表里放「跨列首行」。故 MD 用<b>等价双表</b>表达同一结构 —— 先「<b>前置规则</b>」两列小表（行 = ① 波幅/日内位置、② 多次开仓三维准入），紧接「<b>开仓规则</b>」四列方向表（空头 / 多头）。两表的标题与小标题与 HTML 一一对应，读取顺序与语义完全一致；列数校验 = 2/2/4/4。</p>
+<p><b>③ 校验</b>：手册 errors=<b>0</b>、残留未闭合 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（既存）；HTML <code>§3.1.3.1</code> 表 4 行（1+1+2）、MD 两表（2 列 + 4 列）逐行列数一致；两格式的关键字段断言全通过。<b>未改代码、未写业务表。</b></p>
+<p><b>④ 加粗渲染修正（用户反馈「文字都加粗了」）</b>：根因 —— 「前置规则」整块被放进了 <b><code>&lt;th colspan="4"&gt;</code></b>，而本手册全局 CSS 为 <b><code>th{font-weight:800}</code></b>，故格内<b>所有</b>文字（含 <code>&lt;li&gt;</code>、<code>&lt;code&gt;</code>、行内说明）<b>继承加粗</b>，仅 <code>&lt;strong&gt;</code> 的正常强调反而被淹没。修正 —— 该格改为 <b><code>&lt;td colspan="4"&gt;</code></b> 并显式声明 <b><code>font-weight:normal</code></b>（保留浅蓝底 <code>#e0f2fe</code> 的横幅观感），此后只有 13 处 <code>&lt;strong&gt;</code> 标签文字加粗。<b>顺带全量排查</b>：扫描手册全部 <code>&lt;th&gt;</code> 单元格，<b>不存在</b>任何文本长度 &gt; 40 字的「内容型表头」（各表 <code>&lt;th&gt;</code> 最长 20 字，均为列标题）⇒ 无同类隐患。MD 侧不受影响（管道表用显式 <code>**…**</code>，天然不存在继承加粗）。</p>
+<p><b>⑥ 校验</b></p>
+<ul>
+<li>HTML 解析 errors=<b>0</b>、残留未闭合 <b>0</b>、断链 <b>0</b>、重复 id 仅 <code>chapter-18</code>（<b>术前既存</b>，非本次引入）</li>
+<li><b>锚点↔可见编号一致性扫描：0 处不一致</b>（脚本按 <code>&lt;a href="#id"&gt;</code> 与 <code>h4</code> 实际编号逐条比对）</li>
+<li>HTML/MD 的 §3.1.1–§3.1.9 标题、子节编号、导航编号三处一致；MD 同期完成同五项清理与级联重编号</li>
+<li>全程未改代码、未写业务表；规则版本不变（<code>phase19</code>）</li>
+</ul>
+<table>
+<tr><th>回滚点</th><th>文档：<code>/tmp/manual_pre_312surgery.html</code> · <code>/tmp/manual_md_pre_312surgery.md</code>（术前）· <code>/tmp/manual_pre_cascade.html</code>（级联前）· <code>/tmp/manual_post_312clean.html</code> · <code>/tmp/manual_post_312clean.md</code>（成品）</th></tr>
+</table>
+
+<h2>5. 统一硬约束（全程未破）</h2>
+<p><code>groups&lt;2</code> · 11:30 PST 截断 · 平衡日 EMA 缠结需边界确认 · 不得单独依据 SPX Gamma 开仓 · 小仓多次。
+<b>每个触发机制是否 try-run 由页面「Force Dry 触发」多选决定（不写死）</b>；本轮预置清单 = <code>AUTO_RANGE_BOUNDARY</code> + <code>AUTO_MOVE_END</code>（两个未验证的新触发保持 try-run），其余 4 项维持原行为。</p>
+
+<h2>6. 自检汇总</h2>
+<table><tr><th>检查</th><th>结果</th></tr>
+<tr><td><code>py_compile</code>（manager / move_end_data / move_end_evaluator / move_end_shadow / blueprint）</td><td><span class="ok">OK</span></td></tr>
+<tr><td>模块导入（manager / blueprint / data / evaluator / shadow）</td><td><span class="ok">OK</span>（<code>bp_option_seller</code>）</td></tr>
+<tr><td><code>/bbt_option_seller</code></td><td><b>200</b></td></tr>
+<tr><td><code>/api/option_seller/force_dry</code>（GET）</td><td><b>200</b>，choices=6，triggers=<code>['AUTO_RANGE_BOUNDARY','AUTO_MOVE_END']</code>（预置 try-run）</td></tr>
+<tr><td><code>/api/option_seller/move_end_config</code>（GET/POST）</td><td><b>200</b>，开关实测生效并复位；<b>已无 <code>dry_run_only</code> 键</b></td></tr>
+<tr><td><code>/api/option_seller/status</code></td><td><b>200</b>，含 <code>force_dry_triggers</code> / <code>move_end_config</code>；<b>已无 <code>synthesis_enabled</code></b></td></tr>
+<tr><td><code>/api/option_seller/toggle_synthesis</code></td><td><b>404</b>（端点已随按钮下线）</td></tr>
+<tr><td>模板内联 JS</td><td><code>node --check</code> PASS；6 复选功能测试 PASS</td></tr>
+<tr><td>模板残留引用</td><td><code>btnToggleSynthesis</code> / <code>synthesisStateText</code> / <code>toggleSynthesis</code> / <code>synthesis_enabled</code> 计数 <b>0</b></td></tr>
+<tr><td>try-run 判定实测</td><td>勾选项 True（<code>AUTO_MOVE_END</code>/<code>AUTO_RANGE_BOUNDARY</code>）、未勾选 False（其余 4 项）—— 逐触发独立生效 ✓</td></tr>
+<tr><td>手册 HTML</td><td>解析 EOF 栈空；错误数 6（与改前相同，均既存）；13 锚点齐全</td></tr>
+<tr><td>OF 引擎端到端（修复后）</td><td><span class="ok">PASS</span>：<code>Bullish_S4:Bullish</code> · 13 指标 · 36 键 <code>setup_inputs</code> · <code>quality_tier=OK</code></td></tr>
+<tr><td>未定义名全量扫描</td><td><code>PyTools/option_seller/*</code> + <code>PyTools/order_flow_analysis/*</code> + <code>bbt_option_seller.py</code> <b>无同类残留</b></td></tr>
+<tr><td>手册 Part 1 重写</td><td>HTML errors=<b>2</b>（均既存）、断链仅 <code>${id}</code>、重复数字前缀 <b>0</b>、标题 164；MD 标题 109</td></tr>
+<tr><td>手册 §8–§11 标题</td><td>与备份<b>逐字节一致</b>（未重定义）</td></tr>
+<tr><td>影子（收紧口径）</td><td>87 次/10 日、假信号 9%；只读、未写业务表、未下单</td></tr></table>
+
+<h2>7. 回滚点</h2>
+<pre>备份目录（本轮）：/tmp/osm_bak_20260913_095021/
+  bbt_option_seller.html.bak            ← 模板（任务 1）
+  manual.html.bak / manual.md.bak       ← 手册（任务 2）
+  option_seller_manager.py.bak          ← 管理器（任务 3）
+  bbt_option_seller.py.blueprint.bak    ← 蓝图（任务 3）
+
+回滚：
+  任务 1：cp /tmp/osm_bak_20260913_095021/bbt_option_seller.html.bak \
+            bbt_data_web/templates/bbt_option_seller.html
+  任务 2：cp /tmp/osm_bak_20260913_095021/manual.html.bak &lt;手册.html&gt;
+          cp /tmp/osm_bak_20260913_095021/manual.md.bak   &lt;手册.md&gt;
+  任务 3：cp /tmp/osm_bak_20260913_095021/option_seller_manager.py.bak  PyTools/option_seller/option_seller_manager.py
+          cp /tmp/osm_bak_20260913_095021/bbt_option_seller.py.blueprint.bak bbt_data_web/data_app/bbt_option_seller.py
+          另：rm PyTools/option_seller/move_end_data.py；rm Config/option_seller_move_end.json
+
+一键停用（不删代码）：curl -X POST -H 'Content-Type: application/json' \
+  -d '{"enabled": false}' http://127.0.0.1:5005/api/option_seller/move_end_config
+
+恢复 try-run 预置（页面等效）：curl -X POST -H 'Content-Type: application/json' \
+  -d '{"triggers": ["AUTO_RANGE_BOUNDARY", "AUTO_MOVE_END"]}' \
+  http://127.0.0.1:5005/api/option_seller/force_dry</pre>
+<p style="font-size:0.82rem;color:#64748b;"><b>第三阶段（删除 5 分钟综合按钮 / 去写死）的定向回滚</b>：用备份覆盖即整体回到第一阶段前；若只撤销第三阶段而保留前两阶段，需定向恢复「5分钟综合」按钮 + <code>toggleSynthesis()</code> + <code>force_dry = not self.synthesis_enabled</code> + <code>dry_run_only</code> 键。</p>
+<p style="font-size:0.82rem;color:#64748b;"><b>第三部分结构重组 + 多级编号（本轮追加）的备份/回滚</b>：<code>/tmp/osm_bak_20260913_101325/</code>（manual.html.bak / manual.md.bak / bbt_trading_modules.html.bak / walkthrough.*.bak）—— 覆盖回 manual.html/md 即回到重组与改号前的单级编号状态。若只想撤销「多级编号」而保留「两大子章节」结构：先还原备份，再重跑 <code>/tmp/restructure_p3_html.py</code>。</p>
+<p style="font-size:0.82rem;color:#64748b;"><b>OF 引擎故障修复（§4.19）</b>：<code>/tmp/osm_bak_20260913_151500/order_flow_rules_optimizer.py</code> —— 仅覆盖该文件即回到 3 处 <code>NameError</code> 的故障态（不推荐，仅供对照）。</p>
+<p style="font-size:0.82rem;color:#64748b;"><b>Part 1 四节重写（§4.20）</b>：<code>/tmp/manual_pre_1118.html</code> · <code>/tmp/manual_md_pre_1118.md</code> —— 覆盖回手册即回到重写前状态（旧架构图亦随本次覆盖被替换）。</p>
+<p style="font-size:0.82rem;color:#64748b;">备份时间：<code>2026-09-13 09:50</code>（模板/管理器/蓝图）、<code>09:52</code>（手册 html/md）、<code>09:57</code>（模块时间线）、<code>10:13</code>（第三部分结构重组 + 多级编号）。</p>
+</div>
+<h2>第九轮：Force Dry 触发规范化（清单规范中文名 + 仅 LIVE 显示 + 命中降级为自动 DRY-RUN 单）</h2>
+<div class="warn"><b>用户两项指令</b>：（1）按《全局规范：触发机制中文名称》更新「Force Dry 触发」按钮里的 list；（2）「Force Dry 触发」按钮<b>只有在 LIVE 时才显示</b>，force dry 的触发机制<b>降级为自动 Dry run 单</b>。</div>
+
+<h3>规范中文名唯一权威（指令 1）</h3>
+<p><b>问题</b>：① 列表主行只显示代码键（<code>AUTO_5M_SYNTHESIS</code>…），规范中文名未出现；② 前端自带 <code>FORCE_DRY_DESC</code> 说明表，键指向<b>已删除机制</b>（<code>AUTO_MOVE_END</code> / <code>AUTO_RANGE_BOUNDARY</code> / <code>AUTO_COUNTER_TREND_BOUNDARY</code>），说明亦过期（「5 分钟四层漏斗合成（OF/DOM 40 分制）」）。</p>
+<p><b>修复</b>：<code>auto_mechanisms.py</code> 新增 <code>MECHANISM_CN_NAME</code>（7 机制 + 手动条件单）与 <code>MECHANISM_CN_DESC</code>（判定口径），并新增 <code>force_dry_catalog()</code> 返回 <code>[{id, name, desc}]</code>；<code>MechanismSpec.title</code> 改为<b>取该表</b>（消除双副本；⑦ 标题由 <code>自动条件单触发（执行层）</code> 规范为 <code>自动条件单触发</code>，「执行层」语义移入 desc）。接口 <code>GET|POST /api/option_seller/force_dry</code> 增返 <code>catalog</code> + <code>available</code>；<code>status</code> 增 <code>force_dry_catalog</code> / <code>force_dry_available</code>。页面删除 <code>FORCE_DRY_DESC</code> 副本，改渲染「<b>规范中文名</b>（主行）+ <b>代码键</b>（等宽小字）+ 判定口径」。</p>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1;">序</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">触发标签（代码唯一键）</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">规范中文名（页面主行）</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">判定口径（desc，节选）</th></tr></thead>
+<tbody>
+<tr><td>①</td><td><code>AUTO_5M_SYNTHESIS</code></td><td><b>5分钟综合信号</b></td><td>三维共振（OF 60 / Gamma 30 / EMA 10；≥55 且严格大于对侧）＋ Setup 闸门</td></tr>
+<tr><td>②</td><td><code>AUTO_QUANT_PIVOT_BOUNDARY</code></td><td><b>QuantPivot边界反向</b></td><td>沿 L1/L2·H1/H2 统计边界的均值回归（触及即开 / 逼近布防 ARMED）</td></tr>
+<tr><td>③</td><td><code>AUTO_BALANCED_DAY_BOUNDARY</code></td><td>平衡日边界</td><td>平衡日上下边界反向（五维评分器 A35/B25/C20/D10/E10）</td></tr>
+<tr><td>④</td><td><code>AUTO_TREND_DAY_EXTREME</code></td><td>趋势日极限终点</td><td>SPX 撞墙极限终点反向（受 Gamma 墙位与 Cushion 约束）</td></tr>
+<tr><td>⑤</td><td><code>AUTO_PM_BIG_TRADE_PULLBACK</code></td><td><b>ES盘前大单开盘回调</b></td><td>ES 盘前大单信号 ＋ 15m/1h EMA13/21 带回调（L1 1 组 / L2 2 组）</td></tr>
+<tr><td>⑥</td><td><code>AUTO_WASHOUT_REVERSAL</code></td><td><b>洗盘反转-双向</b></td><td>大单砸低点后净买 / 拉高点后净卖的对称双向反转</td></tr>
+<tr><td>⑦</td><td><code>AUTO_CONDITIONAL_ORDER</code></td><td>自动条件单触发</td><td>执行层：已布防条件单的价格触发执行（不参与判定遍历）</td></tr>
+</tbody></table>
+
+<h3>仅 LIVE 显示（指令 2 前半）</h3>
+<ul>
+<li>按钮模板<b>默认 <code>display:none</code></b>，由 <code>status.force_dry_available</code>（缺省回退 <code>!is_dry_run</code>）揭示 —— DRY-RUN 全局模式下所有单本就是试运行，入口无意义；</li>
+<li><code>openForceDryModal()</code> 非 LIVE 直接 <code>return</code>（防御性）；</li>
+<li>切回 DRY-RUN 时<b>立即隐藏并关闭已打开的模态</b>；</li>
+<li>模态文案改为「仅 LIVE 模式」并写明降级语义。</li>
+</ul>
+
+<h3>命中 ⇒ 降级为自动 DRY-RUN 单（指令 2 后半）</h3>
+<p><b>既有语义（确认）</b>：<code>_force_dry = bool(candidate.get('force_dry_run') or trigger_force_dry(candidate))</code>；<code>effective_dry = bool(self.dry_run or _force_dry)</code> ⇒ 降级单<b>不发送券商</b>、不发保护性止损、<code>order_id</code> 用 <code>DRY-</code> 前缀、落库 <code>is_dry_run=True</code> 并计入 Dry Run PnL（<code>trade_mode</code> 仍为 AUTO/CONDITIONAL）。</p>
+<p><b>本轮补强（归因 + 可观测）</b>：证据新增 <code>dry_reason</code>（优先级 <code>LIVE_FALLBACK</code> &gt; <code>FORCE_DRY_TRIGGER</code> &gt; <code>GLOBAL_DRY_RUN</code>）+ <code>force_dry_trigger</code> 标记；LIVE 降级时打 <code>🧪 [FORCE DRY 触发]</code> 警告日志；持仓详情新增 <code>DRY-RUN 归因</code> 行。</p>
+
+<h3>新增测试 13 例（<code>test_force_dry_degrade.py</code>）与运行时验证</h3>
+<ul>
+<li>规范名权威 4 例（含 <code>MechanismSpec.title == MECHANISM_CN_NAME[id]</code> 防漂移）；</li>
+<li>页面契约 4 例（按钮默认隐藏 / 可见性由 status 权威驱动 / 无前端副本与过期机制名 / 含 DRY-RUN 归因）；</li>
+<li>降级行为 5 例（命中不发券商 + <code>is_dry_run=True</code> + <code>DRY-</code> 前缀 + <code>FORCE_DRY_TRIGGER</code>；前缀匹配；<b>未命中仍走实盘</b>；全局 DRY-RUN 归因；降级单归因优先级）；</li>
+<li>Node + DOM 桩实跑可见性：初始隐藏 → LIVE 揭示 → 切 DRY-RUN 隐藏且模态自动关闭 → 回 LIVE 再揭示。</li>
+</ul>
+
+<h3>文档边界 · 校验 · 回滚</h3>
+<p><b>文档边界</b>：本改为 UI 展示 + 执行模式，按用户规则 (11) <b>未改</b>决策规则手册；已核对手册《全局规范：触发机制中文名称》规范表（HTML + MD）7 行与代码 <code>MECHANISM_CN_NAME</code> <b>逐行一致</b>。</p>
+<p><b>校验</b>：<code>py_compile</code> 4 文件通过；三把扫描器全 0；内联 JS <code>node --check</code> 通过；option_seller 测试 <b>58 例通过</b>（新增 13 + 既有 45），<code>test_live_resting_limit_order</code> 1 例既存失败（A/B 三方对照已证）；模块索引新增 ㉗ 后解析错误数与术前相同（7+7 既存）；服务与三个 API 全 <b>200</b>。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/auto_mechanisms.py.pre_cnnames</code> · <code>option_seller_manager.py.pre_forcedry2</code> · <code>bbt_option_seller.py.pre_fd</code> · <code>bbt_option_seller.html.pre_fd</code> · <code>/tmp/mods_pre_fd.html.bak</code> · <code>/tmp/wt45_md_pre.bak</code> · <code>/tmp/wt45_html_pre.bak</code>。</p>
+
+
+<h3>【补】从 Force Dry 清单删除 ⑦ AUTO_CONDITIONAL_ORDER（用户追加指令）</h3>
+<div class="warn"><b>指令</b>：<code>Force Dry 触发</code> 里删除 ⑦ <code>AUTO_CONDITIONAL_ORDER</code>（自动条件单触发）。</div>
+<ul>
+<li><code>FORCE_DRY_CHOICES</code> 由 7 项 → <b>6 项</b>（删除 <code>LABEL_AUTO_CONDITIONAL</code>）；理由：⑦ 是<b>执行层</b>（已布防条件单的价格触发执行，不参与机制判定遍历），不提供强制试运行入口。</li>
+<li><b>必须同时处理的一致性风险</b>：<code>normalize_label()</code> 原以 <code>FORCE_DRY_CHOICES</code> 作为<b>前缀匹配集</b>，直接裁剪会让 ⑦ 标签<b>无法归一</b> ⇒ 新增 <code>MECHANISM_ALL_LABELS</code>（含 ⑦，共 7 项）专供归一；⑦ 的规范中文名、<code>MechanismSpec</code> 条目与落库/报表可见性全部保留。</li>
+<li>⑦ 自动布防单的 <code>trigger</code> 实为 ② <code>AUTO_QUANT_PIVOT_BOUNDARY</code>（或 ④），故「L1/H1 ARMED 单强制试运行」仍可经 ②/④ 覆盖 —— 功能未失。</li>
+<li>新增 <code>sanitize_force_dry_items()</code>：<b>加载与保存统一「归一 + 剔除不在清单内的条目」</b>，确立不变式「<b>页面看不到的条目不得在后台生效</b>」（消除「看着没勾、实际生效」的隐形项）。</li>
+</ul>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1; width:52%;">输入（配置文件 triggers）</th><th style="padding:8px 10px; border:1px solid #cbd5e1; width:24%;">输出</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">说明</th></tr></thead>
+<tbody>
+<tr><td><code>['AUTO_BALANCED_DAY_BOUNDARY','AUTO_WASHOUT_REVERSAL']</code></td><td>原样</td><td><b>现网配置 ⇒ 零行为变更</b></td></tr>
+<tr><td><code>['AUTO_CONDITIONAL_ORDER']</code></td><td><code>[]</code></td><td>⑦ 已下线 ⇒ 剔除</td></tr>
+<tr><td><code>['AUTO_CONDITIONAL_ORDER','AUTO_5M_SYNTHESIS']</code></td><td><code>['AUTO_5M_SYNTHESIS']</code></td><td>只留合法项</td></tr>
+<tr><td><code>['AUTO_MOVE_END']</code></td><td><code>['AUTO_BALANCED_DAY_BOUNDARY']</code></td><td>历史别名归一后保留</td></tr>
+<tr><td><code>['AUTO_PM_BIG_TRADE']</code></td><td><code>['AUTO_PM_BIG_TRADE_PULLBACK']</code></td><td>历史别名归一为全称</td></tr>
+<tr><td><code>['BOGUS','AUTO_TREND_DAY_EXTREME']</code></td><td><code>['AUTO_TREND_DAY_EXTREME']</code></td><td>未知标签剔除</td></tr>
+</tbody></table>
+<p><b>手册</b>：《触发机制中文名称》规范表 ⑦ 行说明列补注「<b>不列入「Force Dry 触发」清单</b> —— 执行层不提供强制试运行入口」（HTML + MD 同步，errors=0、断链 0）。<b>测试</b>：<code>test_force_dry_degrade.py</code> 13 → <b>16 例</b>（新增 5 类断言），全通过。<b>API 实测</b>：<code>choices</code> / <code>catalog</code> 均 <b>6 项</b>（无 ⑦），<code>available=true</code>。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/auto_mechanisms.py.pre_del7</code> · <code>option_seller_manager.py.pre_del7</code> · <code>/tmp/manual_pre_del7.html.bak</code> · <code>/tmp/manual_pre_del7.md.bak</code> · <code>/tmp/mods_pre_del7.html.bak</code> · <code>/tmp/wt45_md_pre2.bak</code> · <code>/tmp/wt45_html_pre2.bak</code>。</p>
+
+
+<h3>【补 2】修复「Force Dry 弹窗改一个选项、过 4 秒自动恢复」（用户报障）</h3>
+<div class="warn"><b>现象</b>：在「Force Dry 触发（仅 LIVE 模式）」弹窗里改一个勾选，约 4 秒后自动恢复原状。<br/><b>根因</b>：页面 <code>pollInterval = setInterval(fetchStatus, 4000)</code> 每 4 秒回填状态，而 <code>forceDrySyncFromStatus()</code> 内 <code>forceDrySelected = new Set(data.force_dry_triggers)</code> 是<b>无条件覆盖</b>（<code>editing</code> 只用于决定是否重渲染）⇒ 本地勾选最多 4 秒即被后台已保存清单打回。</div>
+<p><b>修复（在打开的 console 上停止 4 秒周期更新）</b>：引入<b>双状态</b> —— <code>forceDrySelected</code> = 本地草稿、<code>forceDryServerSelected</code> = 后台真值；<code>forceDrySyncFromStatus()</code> 中<b>弹窗打开即短路</b>（只刷新真值基准与提示，<b>不覆盖草稿、不重渲染、不改动任何勾选</b>）；新增 <code>forceDryIsDirty()</code> + 提示去重 <code>forceDrySetHintOnce()</code>（编辑中提示「本地已修改 N 项（未保存）—— 本弹窗打开期间不会被 4 秒自动刷新覆盖」）；<code>openForceDryModal()</code> / 保存成功 ⇒ 草稿与真值对齐；<code>closeForceDryModal()</code> ⇒ 放弃草稿。</p>
+<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; font-size:0.8rem; line-height:1.6; overflow:auto;">已保存清单: AUTO_BALANCED_DAY_BOUNDARY, AUTO_WASHOUT_REVERSAL
+用户操作后草稿: AUTO_WASHOUT_REVERSAL
+第 1 次 4 秒轮询后草稿: AUTO_WASHOUT_REVERSAL | dirty = true | badge = Force Dry 触发 (1)
+第 2 次 4 秒轮询后草稿: AUTO_WASHOUT_REVERSAL | dirty = true | badge = Force Dry 触发 (1)
+第 3 次 4 秒轮询后草稿: AUTO_WASHOUT_REVERSAL | dirty = true | badge = Force Dry 触发 (1)
+保存后草稿: AUTO_WASHOUT_REVERSAL | dirty = false
+关闭后草稿(=后台真值): AUTO_WASHOUT_REVERSAL
+关闭后再轮询: AUTO_BALANCED_DAY_BOUNDARY, AUTO_WASHOUT_REVERSAL | dirty = false</pre>
+<p><b>新增回归 2 例</b>（<code>test_force_dry_degrade.py</code> 16 → <b>18 例</b>）：① 结构断言（编辑分支早于草稿刷新、无条件覆盖语句已消失）；② <b>JS 行为断言</b>（从模板抽取 9 个真实函数在 Node 实跑，改选项后连跑 3 次 4 秒轮询，草稿不变且 <code>dirty=true</code>；<code>node</code> 缺失则 skip）。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/bbt_option_seller.html.pre_pollfix</code> · <code>/tmp/mods_pre_pollfix.html.bak</code> · <code>/tmp/wt45_md_pre3.bak</code> · <code>/tmp/wt45_html_pre3.bak</code>。</p>
+
+
+<h3>【补 3】交易流水账本「类型」筛选下拉改为机制目录驱动（用户指令「更新这里的自动单列表」）</h3>
+<div class="warn"><b>原状态（硬编码粗分组）</b>：<code>5m Synthesis / 自动条件单 / 手动条件单 / 边界&#47;耗竭 / 盘前大单 / 纯手动单</code>。两处问题：① 名称与《全局规范：触发机制中文名称》不一致；② <b>无法按机制筛选</b> —— ②③⑥ 全被 <code>trigger.includes('BOUNDARY')</code> 归进「边界/耗竭」、④ 归进「极值耗竭」、⑦ 归进「自动条件单」。</div>
+<p><b>修复</b>：① 后端唯一权威 <code>auto_mechanisms.mechanism_catalog()</code>（<code>kind = MECH / MANUAL_COND / MANUAL</code>）经 <code>status.mechanism_catalog</code> 下发；② 页面新增 <code>syncMechanismCatalog()</code> / <code>renderJournalTypeFilter()</code> / <code>normalizeMechanismLabel()</code>，下拉**动态渲染**（模板只留 <code>ALL</code> / <code>AUTO_ALL</code> 占位）；③ 归类改为**按机制标签**（最长前缀 + 历史别名，与后端 <code>normalize_label</code> 同语义）—— 自动布防单正确归属其机制（②/④）；④ 类型列子类徽标按目录渲染（7 机制各一，新增 <code>badge-subtype-balanced</code> / <code>badge-subtype-washout</code>），自动布防单 tooltip 追加「Auto-Armed」；⑤ 分组行类型标签与复制文本的开仓类型统一取规范中文名。</p>
+<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; font-size:0.8rem; line-height:1.6; overflow:auto;">全部类型 (All)                     -> ALL
+🤖 全部自动单 (All Auto)            -> AUTO_ALL
+　├ 5分钟综合信号                   -> AUTO_5M_SYNTHESIS
+　├ QuantPivot边界反向              -> AUTO_QUANT_PIVOT_BOUNDARY
+　├ 平衡日边界                      -> AUTO_BALANCED_DAY_BOUNDARY
+　├ 趋势日极限终点                  -> AUTO_TREND_DAY_EXTREME
+　├ ES盘前大单开盘回调              -> AUTO_PM_BIG_TRADE_PULLBACK
+　├ 洗盘反转-双向                   -> AUTO_WASHOUT_REVERSAL
+　└ 自动条件单触发                  -> AUTO_CONDITIONAL_ORDER
+👆 手动条件单                       -> CONDITIONAL_ORDER
+👆 纯手动单                         -> MANUAL</pre>
+<p><b>历史筛选值兼容</b>：<code>AUTO_REVERSAL→ALL</code>（无聚合组，不静默命中空集）· <code>AUTO_PM→⑤全称</code> · <code>AUTO_5M→①</code> · <code>AUTO_BOUNDARY→②</code> · <code>AUTO_EXHAUSTION→④</code> · <code>COND_AUTO→⑦</code> · <code>COND_MANUAL→CONDITIONAL_ORDER</code>。</p>
+<p><b>新增测试</b> <code>test_journal_filter_catalog.py</code>（<b>11 例</b>）：目录内容/顺序/与 Force Dry 清单子集关系；模板无内联选项、粗分组仅存于兼容映射、7 机制徽标类与两个新 CSS；<b>Node 实跑</b>（抽取模板真实函数）下拉 11 项、11 条归类+筛选断言、旧值兼容。<b>顺带修正</b>：<code>test_force_dry_degrade</code> 的「过期机制名」断言范围收窄到 Force Dry 渲染逻辑（流水账本 <code>LEGACY_MECH_ALIASES</code> 合法保留历史别名）。</p>
+<p><b>校验</b>：<code>py_compile</code> 通过；三把扫描器全 0；<b>74 例通过</b>（新增 11 + 既有 63；<code>test_live_resting_limit_order</code> 1 例既存失败）；服务 200。<b>回滚点</b>：<code>/tmp/l0c_bak/auto_mechanisms.py.pre_journal</code> · <code>bbt_option_seller.html.pre_journal</code> · <code>/tmp/mods_pre_jf.html.bak</code> · <code>/tmp/wt45_md_pre4.bak</code> · <code>/tmp/wt45_html_pre4.bak</code>。</p>
+
+
+<h2>㉘ 新模块：当日高低点自动触发机制检测（只读探针）</h2>
+<div class="warn"><b>用户需求</b>：在「条件单统计」下方新增卡片；点刷新后取<b>当日 06:30 → min(now, 11:30 PST)</b> 的 SPY 5 分钟图 <b>2 高 + 2 低</b>；对每个点跑自动单触发引擎（逐机制）——<b>先列 L0 规则的实际值/阈值/是否通过</b>，<b>再依次列各机制开仓规则的逐项判据</b>。</div>
+<h3>后端探针 <code>PyTools/option_seller/intraday_probe.py</code>（只读、零副作用）</h3>
+<ul>
+<li>5m OHLC = ES ticks 聚合（<code>ema_engine.load_ticks</code>）；窗口 <code>06:30 → min(now, 11:30)</code>。</li>
+<li><b>ES→SPY 尺度</b> = 当日 SPY RTH 开盘（QuantPivot.open）÷ ES 06:30 bar 开盘 ⇒ <b>历史日期不依赖实时报价</b>（实时报价仅兜底）。</li>
+<li>当日无 RTH 数据（周末/休市）⇒ 自动回退最近有数据交易日，<code>fallback=true</code> 并在 UI 显式标注。</li>
+<li>极值点 = 窗口内 top-2 高 + bottom-2 低（按时间序）；每点重建输入：EMA 快照（<code>compute_ema_snapshot</code>+<code>rescale</code>）· QuantPivot · ES 口径波幅/位置 · OF 快照（<code>quantitative_metrics</code>+<code>dom_metrics</code>）· Gamma 快照 · <code>classify_setups</code> · trend-day；上下文复用 manager 真实装配 <code>_build_mechanism_context</code>。</li>
+</ul>
+<h3>L0 逐闸门读数（扩展 <code>check_layer0</code> 的 <code>detail["gates"]</code>）</h3>
+<p>行 = <code>{id, name, actual, threshold, passed, note, bypass}</code>，<b>在各闸门判定同一处记录</b>（不重复计算 ⇒ 不与判定漂移），覆盖 L0-A①②③ / B④⑤ / C⑥ / E。L0-A③ 处于 <b>bypass（只观测不拦截）</b>时标 <code>bypass=True</code>，UI 显示「— bypass」而非「✓ 通过」，避免把「未启用」误读为「已判定通过」。</p>
+<h3>逐机制判据</h3>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1; width:24%;">机制</th><th style="padding:8px 10px; border:1px solid #cbd5e1; width:48%;">判据行</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">引擎实判</th></tr></thead>
+<tbody>
+<tr><td>① 5分钟综合信号</td><td>维度1/2/3 分数 · 总分 ≥55 且严格大于对侧 · Setup 闸门</td><td><code>evaluate_5m_synthesis_opportunity</code>（纯函数）</td></tr>
+<tr><td>② QuantPivot边界反向</td><td>机制时段 07:00–11:30 · 波幅 AND（≤0.85% 且 ≤45 ES 点）· 位置分方向（60–95% / 5–40%）· H1/H2/L1/L2 容差带 ±0.2 点 · 逼近布防 &gt;0.2 点且 ≤0.5%</td><td><code>evaluate_counter_trend_boundary_opportunity(scenario='QP')</code></td></tr>
+<tr><td>③ 平衡日边界</td><td>开关 · 边界 ±4 点 · 五维评分阈值 · EMA 缠结需边界确认</td><td>评分器（输入不全 ⇒ NOT_EVALUATED）</td></tr>
+<tr><td>④ 趋势日极限终点</td><td>时段 · 趋势日判定 · 距 SPX Gamma 墙 ≤4 点</td><td><code>evaluate_counter_trend_boundary_opportunity(scenario='TREND')</code></td></tr>
+<tr><td>⑤ ES盘前大单开盘回调</td><td>PM 大单信号（<b>内存态 ⇒ 标数据缺失</b>）· 15m EMA 带回踩</td><td>—</td></tr>
+<tr><td>⑥ 洗盘反转-双向</td><td>OF 契约 <code>washout_bull/bear</code> · 位置上限（镜像 55/45）</td><td>—</td></tr>
+<tr><td>⑦ 自动条件单触发</td><td>执行层，不参与判定遍历</td><td>—</td></tr>
+</tbody></table>
+<p>阈值一律取代码常量（<code>RANGE_PCT_MAX / RANGE_PTS_MAX / POS_CALL_* / POS_PUT_* / QP_TOL_PTS / ARM_MAX_PCT</code>）；<b>缺数据不记作通过</b>（<code>passed=null</code> ⇒ UI「— 数据缺失」）。</p>
+<h3>API 与页面</h3>
+<p><code>GET /api/option_seller/intraday_extremes_probe[?date=YYYY-MM-DD]</code> → <code>{status, probe:{date, fallback, window, bars_in_window, points, disclaimer}}</code>。页面在「条件单统计」之下新增 section「当日高低点自动触发机制检测」+「刷新检测」按钮 + 徽标；逐点渲染：头部（高/低点 + 时间 + SPY OHLC + ES close + L0 徽标）→ 输入快照 → <b>第 0 层门槛表</b> → <b>各机制判据表</b>；色阶：通过绿 / 未过红 / 数据缺失与 bypass 灰。</p>
+<h3>真实数据实测（2026-09-11 回退，61 根 5m）</h3>
+<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; font-size:0.8rem; line-height:1.6; overflow:auto;">HIGH#1 @ 06:55  L0: A①OK A②OK A③bypass B④OK B⑤NG(Pos=95.5%, Neutral 70/30) C⑥OK E OK
+   ① 5分钟综合信号        REJECTED
+   ② QuantPivot边界反向   REJECTED（机制窗口 07:00 未到 · 位置 95.5% 不在 60–95% · |close−H1|=1.12 点 &gt; ±0.2）
+LOW#1  @ 07:45  L0: A①OK A②OK A③bypass B④OK B⑤NG(Pos=39.1%) C⑥OK E OK
+   ② QuantPivot边界反向   ARMED（逼近 L1 布防）</pre>
+<h3>测试与校验</h3>
+<p>新增 <code>test_intraday_probe.py</code> <b>8 例</b>（L0 七闸门齐备且含 actual/threshold/passed；L0-A③ 标 bypass；窗口外 A② 不通过；位置掩码 B⑤；spoof B④ 终止；top-2 高 + bottom-2 低选点与时间序；端到端结构；ES→SPY 尺度 ≈0.1），并由 <code>test_isolation</code> 守卫断言<b>零副作用</b>。全仓 <b>82 例通过</b>（新增 8 + 既有 74；<code>test_live_resting_limit_order</code> 1 例既存失败）；三把扫描器全 0；内联 JS <code>node --check</code> 通过；服务与三个 API 全 200。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/auto_mechanisms.py.pre_probe</code> · <code>/tmp/l0c_bak/bbt_option_seller.html.pre_probe</code> · <code>/tmp/mods_pre_probe.html.bak</code> · <code>/tmp/wt45_md_pre5.bak</code> · <code>/tmp/wt45_html_pre5.bak</code>。</p>
+
+
+<h3>【补】探针卡片加入日期选择器（可指定检测日期 · 用户追加指令）</h3>
+<p><b>前端</b>：卡片头部新增 <code>&lt;input type="date" id="intradayProbeDate"&gt;</code>（初始化 = 今日）+「今日」复位按钮；<code>onchange="loadIntradayProbe()"</code> ⇒ 选日期即重新检测；请求带 <code>?date=YYYY-MM-DD</code>。</p>
+<p><b>后端</b>：<code>probe()</code> 增返 <code>requested_date</code>（原样回显）与 <code>nearest_date_with_data</code>（始终返回）。<b>语义</b>：<b>显式指定日期一律原样使用、不自动切换</b>（尊重用户输入）；仅「未指定（今日）」才启用自动回退；指定日期无数据时 UI 提示 + 一键「切到最近有数据日期」。</p>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1;">请求</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">结果</th></tr></thead>
+<tbody>
+<tr><td><code>?date=2026-09-11</code></td><td>61 根 5m · 4 点 · fallback=false · nearest=2026-09-11</td></tr>
+<tr><td><code>?date=2026-09-10</code></td><td>59 根 5m · 4 点 · fallback=false · nearest=2026-09-10</td></tr>
+<tr><td><code>?date=2026-09-13</code>（周末）</td><td>0 根 · 0 点 · nearest=2026-09-11 ⇒ UI 提示 + 一键切换</td></tr>
+<tr><td>不带 date（今日）</td><td>当日无数据 ⇒ 自动回退（<code>fallback=true</code>）</td></tr>
+</tbody></table>
+<p><b>测试 8 → 13 例</b>：显式日期被原样使用且 <code>fallback=false</code>；无数据日期返回 0 点 + nearest 且该 nearest 确实有数据；页面契约（日期输入存在且绑定 <code>onchange</code>、请求带 <code>?date=</code>、空态提供一键切换）。<b>校验</b>：全仓 <b>87 例通过</b>（<code>test_live_resting_limit_order</code> 1 例既存失败）；扫描器 0；内联 JS <code>node --check</code> 通过；服务与 API 全 200。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/bbt_option_seller.html.pre_datepick</code> · <code>/tmp/mods_pre_dp.html.bak</code> · <code>/tmp/wt45_md_pre6.bak</code> · <code>/tmp/wt45_html_pre6.bak</code>。</p>
+
+
+<h3>【补 2】探针三处语义修正（回答用户三问）</h3>
+<p><b>问 1：<code>REJECTED · NONE · BALANCED</code> 里的 <code>NONE</code> 是什么？</b> —— 引擎在拒绝时返回的「方向未判定」占位值（返回值约定 <code>REJECTED, 'NONE', 'BALANCED', msg, debug_info</code>），<code>BALANCED</code> 同理为默认档位占位。<b>修正</b>：仅 <code>ARMED / QUALIFIED / OPENED</code> 显示「方向 · 档位」；<code>REJECTED</code> 显示「<b>方向未判定（拒绝）</b>」；其余只显示 verdict。</p>
+<p><b>问 2：③ 平衡日边界为什么是 <code>NOT_EVALUATED</code>？</b> —— 原探针只列判据行、不做实判。<b>修正</b>：改为调用<b>生产同源</b>评分链路 <code>load_balanced_day_context(date, time)</code> + <code>score_balanced_day_boundary_v2(row, …, score_threshold=cfg)</code>（权重 <code>W2</code>=P45/M20/B25/E10、阈值默认 70 全取自代码与配置），输出 QUALIFIED/REJECTED/NOT_EVALUATED + score/direction/profile/groups/path；判据行补 P/M/B/E 四维与总分门槛（M/B/E 以「命中 ≥1 项」为判定，不再显示数据缺失）。</p>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1;">点（2026-09-11）</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">③ 实测判定</th></tr></thead>
+<tbody>
+<tr><td>HIGH#1 06:55</td><td><b>QUALIFIED</b> score=73.7 · 方向 BULLISH · 组数 1 · 路径 R</td></tr>
+<tr><td>HIGH#2 07:00</td><td><b>QUALIFIED</b> score=77.5 · 方向 BEARISH</td></tr>
+<tr><td>LOW#1 07:45</td><td><b>QUALIFIED</b> score=100.0 · 方向 BULLISH</td></tr>
+</tbody></table>
+<p><b>问 3：高点 L0「价格日内位置掩码」对做空应为通过</b>（用户判断正确）—— 该掩码只拦一侧，高点 <code>Pos=95.5%</code> 掩码的是 <code>BULLISH</code> ⇒ 做空不受影响；原先单一 <code>passed=False</code> 被误读为「做空也不通过」。<b>修正</b>：掩码类闸门（L0-B④/B⑤/C⑥）新增 <code>per_direction</code>，UI 判定列渲染为<b>分方向两枚标记</b>并补语义备注：</p>
+<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; font-size:0.8rem; line-height:1.6; overflow:auto;">L0-B⑤  Pos=95.5%（is_trend_day=True）⇒ 掩码 BULLISH
+        阈值  高位禁多 >= 70%；低位禁空 <= 30%
+        判定  多 ✗    空 ✓
+        备注  高位 Pos >= 70% ⇒ 禁做多（禁卖 Put）；另一侧不受影响</pre>
+<p><b>测试 13 → 16 例</b>（掩码闸门必须分方向给结论 + note 语义；spoof/EMA 闸门均为方向相关；③ 平衡日边界必须由评分器实判且 QUALIFIED 时方向必为 BULLISH/BEARISH）。全仓 <b>90 例通过</b>（<code>test_live_resting_limit_order</code> 1 例既存失败）；扫描器全 0；内联 JS <code>node --check</code> 通过；服务与 API 全 200。</p>
+<p><b>回滚点</b>：<code>/tmp/mods_pre_q123.html.bak</code> · <code>/tmp/wt45_md_pre7.bak</code> · <code>/tmp/wt45_html_pre7.bak</code>。</p>
+
+
+<h3>【补 3】检测卡片可展开 / 收起 + 修一处窗口口径缺陷</h3>
+<p><b>折叠（用户指令）</b>：与「条件单统计」同一交互范式 —— 卡片体默认 <code>display:none</code>；标题栏按钮 <code>#intradayProbeToggle</code>（图标 <code>chevron-right/down</code> + 文案「展开/收起」+ 动态 title）；<code>toggleIntradayProbe(force)</code> 同步更新 display/图标/文案；<b>点「刷新检测」或改日期自动展开</b>；收起状态不发任何请求。</p>
+<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; font-size:0.8rem; line-height:1.6; overflow:auto;">初始          display="none"  icon=right  text=展开
+点「展开」     display=""      icon=down   text=收起
+再点（收起）   display="none"  icon=right  text=展开
+刷新(自动展开) display=""      icon=down   text=收起</pre>
+<div class="warn"><b>顺带发现并修复：跨零点回看历史日期时窗口被压空</b> —— 跨过零点后回归失败（<code>probe('2026-09-11')</code> 返回 <code>bars_in_window=0</code>）。根因：窗口上限一律取 <code>min(now, 11:30)</code>，当日 00:00–06:30 回看历史日期时 <code>cutoff</code> 早于 06:30 ⇒ 空集（与 tooltip「历史日期按 11:30 全窗口」不一致）。修复：<code>cutoff = min(now, 11:30) if target == today else 11:30</code>；并把报告口径改为<b>实际使用</b>的窗口（<code>used_cutoff = 11:30 if fallback else cutoff</code>）。</div>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1;">请求（00:02 PDT 实测）</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">结果</th></tr></thead>
+<tbody>
+<tr><td>无日期（今日无数据）</td><td>回退 2026-09-11 · 窗口 06:30~11:30 · 61 根 · 4 点</td></tr>
+<tr><td><code>?date=2026-09-11</code></td><td>窗口 06:30~11:30 · 61 根 · 4 点 · fallback=false</td></tr>
+<tr><td><code>?date=2026-09-13</code>（周六）</td><td>全窗口 0 根 · 0 点 · nearest=2026-09-11</td></tr>
+</tbody></table>
+<p><b>测试 16 → 20 例</b>（新增 <code>TestCollapsibleContract</code> 4 例 + 同步日期 onchange 期望）。全仓 <b>94 例通过</b>（<code>test_live_resting_limit_order</code> 1 例既存失败）；扫描器全 0；内联 JS <code>node --check</code> 通过；服务与 API 全 200。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/bbt_option_seller.html.pre_collapse</code> · <code>/tmp/mods_pre_collapse.html.bak</code> · <code>/tmp/wt45_md_pre8.bak</code> · <code>/tmp/wt45_html_pre8.bak</code>。</p>
+
+
+<h3>【补 4】修复探针表格布局（用户截图报障「第二列显示 broken」）</h3>
+<div class="warn"><b>现象</b>：探针「第 0 层统一门槛」表被撑破 ——「实际值」列极宽、右侧「阈值 / 判定」列被挤出可视区。<br/><b>根因（两条叠加）</b>：① 列宽合计 <b>106%</b>（<code>30+30+24+10+12</code>）且判定列 <code>white-space:nowrap</code> ⇒ 表格溢出卡片；② L0-C⑥ 备注直接输出<b>原始输入 dict 字面量</b>（<code>{'price': 766.32, 'ema15_13': 764.0770379501784, …}</code> 百余字符）把「实际值」列越撑越宽。</div>
+<table style="width:100%; border-collapse:collapse; margin:12px 0; font-size:0.85rem;">
+<thead><tr style="background:#f1f5f9;"><th style="padding:8px 10px; border:1px solid #cbd5e1; width:22%;">项</th><th style="padding:8px 10px; border:1px solid #cbd5e1;">改法</th></tr></thead>
+<tbody>
+<tr><td>列宽</td><td>合计 <b>100%</b>：带依据列 <code>20/30/22/14/14</code>；无依据列 <code>26/38/26/10</code></td></tr>
+<tr><td>布局</td><td><code>table-layout:fixed</code>（列宽受控，不再被内容撑开）</td></tr>
+<tr><td>换行</td><td>全单元格 <code>word-break:break-word; overflow-wrap:anywhere</code></td></tr>
+<tr><td>兜底</td><td>表格外层 <code>&lt;div style="overflow-x:auto"&gt;</code></td></tr>
+<tr><td>判定列</td><td>去掉 <code>white-space:nowrap</code>（分方向标记可换行）</td></tr>
+<tr><td>L0-C 备注</td><td>新增 <code>_ema_inputs_brief()</code> ⇒ 紧凑摘要（&lt; 140 字符，不含 <code>{</code>）</td></tr>
+</tbody></table>
+<pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 14px; font-size:0.8rem; line-height:1.6; overflow:auto;">列宽: 26+38+26+10 = 100        table-layout:fixed: true
+横向滚动兜底: true             分方向标记: 多 ✓
+带依据列: 20+30+22+14+14 = 100 长值换行策略: true
+L0-B⑤ note = 高位 Pos >= 70% ⇒ 禁做多（禁卖 Put）；另一侧不受影响   (40 字符)
+L0-C⑥ note = price=766.32 / 15m EMA=763.44·764.08 / 1h EMA=…       (95 字符)</pre>
+<p><b>测试 20 → 22 例</b>（新增表格布局契约 + <code>_ema_inputs_brief</code> 紧凑性断言）。全仓 <b>96 例通过</b>（<code>test_live_resting_limit_order</code> 1 例既存失败）；扫描器全 0；内联 JS <code>node --check</code> 通过；服务 200。</p>
+<p><b>回滚点</b>：<code>/tmp/l0c_bak/bbt_option_seller.html.pre_tablefix</code> · <code>/tmp/mods_pre_tblfix.html.bak</code> · <code>/tmp/wt45_md_pre9.bak</code> · <code>/tmp/wt45_html_pre9.bak</code>。</p>
+
+</body></html>

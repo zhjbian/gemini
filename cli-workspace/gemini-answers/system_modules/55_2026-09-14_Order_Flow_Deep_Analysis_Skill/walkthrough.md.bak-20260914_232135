@@ -1,0 +1,132 @@
+# Order Flow 深度分析模块验收报告
+
+- **日期**：2026-09-14
+- **模块**：`order-flow-deep-analysis` skill（证据向量 + P1–P5 pattern + 回测/标定）+ 大周期页面展示卡片
+- **归档目录**：`55_2026-09-14_Order_Flow_Deep_Analysis_Skill`
+- **技术栈**：Python 3.11 / MySQL `bb_trade` / MW 原始 TICKS/DOM / Flask + Jinja2 / agent skill / 浅色主题 / headless Chrome DOM 断言
+
+---
+
+## 1. 结论先行
+
+| 需求 | 结果 |
+|---|---|
+| 可重复的深度分析 skill | ✅ `order-flow-deep-analysis`（时间点/段 → 五板块报告 + 🧩 pattern 板块，命名规范落盘） |
+| DOM 全窗口扫描（修「以偏概全」+「硬编码」） | ✅ `dom_window_profile()` 聚合器；交叉表/解读全部接真实计算 |
+| 证据向量 + pattern | ✅ `patterns.py`：`match_patterns`（P1–P5，可机检、阈值可覆盖） |
+| 积累 → 标定 | ✅ `of_deep_pattern_cases` 落库 + `backtest.py`（回测/回填）+ `calibrate.py`（网格→回写常量） |
+| 页面展示 | ✅ `/bbt_signals_large_timeframe` 新增「Order Flow 深度分析」卡片（可收起，默认收起）；Adam 卡片改可收起（默认收起） |
+
+## 2. 处理逻辑（落地为代码）
+
+### 2.1 TICK / DOM 元数据 → 指标
+
+| 层 | 脚本 | 产出 |
+|---|---|---|
+| TICK | `adam_tick_analysis.tick_analysis` | 概览 / 分窗口（5/10/15/30/60m 净 Delta·量·位移·比）/ Volume Profile（POC/VAH/VAL）/ ≥20 手大单 / 逐分钟节奏 |
+| DOM | `adam_dom_analysis.dom_analysis` | ±2/±5/±15/±25 tick 失衡 / 挂单墙 / 堆叠 / 真空 / T−60…T0 演变 / 引擎同名对照 |
+| 引擎行 | `order_flow_signals` | `recent_micro_5m`（Δ5m 系列）· `imb_short/mid`（±2/±5）· `recent_30m_delta`（慢）· `washout_*` / `quality_tier` |
+
+### 2.2 DOM 全窗口聚合（`dom_window_profile`）
+
+修两个缺陷：① 交叉表 DOM 只看 T0 单点 ② section 3 的「imb 偏空」硬编码。现产出：`mean5`（时间加权）/ `bull·bear·neut_frac`（分时占比）/ `first·second_half_mean`（收敛检测）/ `runs`（连续同侧段）/ `agree_frac`（DOM×tick 逐段同向占比）/ `missing`（盲区槽数）。
+
+### 2.3 证据向量 + pattern
+
+`build evidence`（tick/dom/engine 三层 + 位置分位）→ `match_patterns(ev, th=None)`（P1–P5，阈值可覆盖）。当日 07:25–08:15 → `P1+P5 / medium`。
+
+### 2.4 回测 / 标定 / 跟踪
+
+- `backtest.py --since-days N [--backfill]`：逐 5m 槽构建窗口 → 匹配 → 前向结果 → 按 pattern 聚合；`--backfill` 写回 `of_deep_pattern_cases`。
+- `calibrate.py --apply`：网格 `P1_POS_MAX ∈ {0.20…0.60}` → 选定 0.20（命中30m 48%/94 样本，优于 0.40 的 41%/159）→ 写回 `patterns.py`。
+
+## 3. 实测证据
+
+### 3.1 首轮回测（12 日 · 命中=方向 |Δ|≥3 点）
+
+| pattern | 样本 | 命中30m | 命中60m | 平均30m | 平均MFE |
+|---|---|---|---|---|---|
+| **P4 挂单-成交共振** | 25 | 68% | 76% | +1.82 | +4.60 |
+| **P1 低点吸收（标定后 0.20）** | 94 | 48% | 52% | +3.06 | +7.60 |
+| P5 短长窗背离 | 103 | 45% | 50% | +2.41 | +4.98 |
+
+### 3.2 case 前向回填
+
+手动落库 `ES_2026-09-14_0815`（P1+P5/medium）→ 前向 `+10.25 / +35.75 / +29.5` 点，`fwd_hit_30m=1`（30 分钟命中 ✓）。
+
+### 3.3 页面
+
+- 端点 `/data/order_flow_deep_analysis` → `{data:[case…], reports:[…]}`（time 修正为 HH:MM ✓）。
+- headless DOM 断言：OF 卡片 case 行 `2026-09-14 · 08:15 · 多 · P1+P5 · medium · +10.25✓/+35.75✓/+29.5✓ · 打开(报告链接)`；Adam 卡片展开后正常渲染；两卡片 body 默认 `display:none`（默认收起 ✓）。
+
+## 4. 页面改动
+
+| 位置 | 改动 |
+|---|---|
+| `bbt_signals.py` | 新增 `GET /data/order_flow_deep_analysis`（只读，读 `of_deep_pattern_cases` + 报告目录清单） |
+| `bbt_signals_large_timeframe.html` | Adam 卡片：header 加 toggle + body 包进 `#adamResearchBodyContainer`（默认收起，首次展开才拉数据）；新增「Order Flow 深度分析」卡片（可收起，默认收起，懒加载，列出 case + 前向结果 + 报告链接） |
+
+## 5. 回滚
+
+- skill 回滚：删 `~/.agents/skills/order-flow-deep-analysis/` 下 `scripts/patterns.py` / `backtest.py` / `calibrate.py`（`run_analysis.py` 回退到无 pattern 版本）。
+- 页面回滚：还原 `bbt_signals_large_timeframe.html`（Adam 卡片去掉 toggle 包裹 + 删除 OF 卡片）；还原 `bbt_signals.py` 删除新路由。
+
+## 6. 遗留与后续
+
+1. **≥20 手大单**（暂缓，用户有其他想法）：落地后激活 P1/P3 大额否决，重跑标定。
+2. **阈值随日数收敛**：`P1_POS_MAX=0.20` 是 12 日首轮，样本仍小（94，48% 的 95%CI 约 ±10 点）；每日运行 `calibrate.py` 累积收敛。
+3. **全量语料**：回测目前只回填已存在的 case；如需把全部历史槽自动灌入 `of_deep_pattern_cases` 作语料，加 `--insert-all` 模式。
+4. **P2/P3**：P2 需 washout 事件（样本少）、P3 缺大额数据，暂无法标定。
+
+---
+
+## 7. 后续升级（同日 · Adam 卡片 order flow 对齐 + OF 卡片表格化）
+
+> 2026-09-14 晚（承接本节 module）：把新方法**接入 Adam 日报**，并把 OF 卡片从「一行一 case + 外链报告」升级为**表格 + 行内展开报告 + 拷贝/删除**。
+
+### 7.1 Adam 日报的 order flow 分析对齐新方法（`PyTools/jobs/adam_signal_deepdive.py`）
+
+| 能力 | 落地 |
+|---|---|
+| DOM 全窗口聚合 | 新增模块级 `dom_window_profile()`（对齐 skill 同名函数）：`mean5/mean2`、偏空/偏多/中性**时长占比**、前后半段**收敛检测**、DOM×tick **同向占比**、盲区槽数 |
+| 证据向量 + P1–P5 | 每帖构建证据向量 → 复用 `patterns.match_patterns()` → 新增「🧩 命中的 pattern」板块 |
+| 机构大单层 | 合并结论表新增「机构大单」行（`SingleTickBigTrade` 净额 ✓） |
+| 单点 → 全窗 | 「方向」行升级为「方向 · 全窗」；系统指标解读里的**单点盘口失衡**换成窗口级解读（识别「吸收共现」与「真反对」） |
+
+- 实测（09-14 两帖 bearish）：`build_day('2026-09-14', persist=False)` 成功，命中 `P3 高位派发(medium) + P5`。
+- 说明：历史日报的逐帖缓存（`adam_deep_payload`）仍是旧方法产物；**新生成的日报**才含新方法。
+
+### 7.2 OF 卡片表格化（`bbt_data_web/templates/bbt_signals_large_timeframe.html`）
+
+| 项 | 结果 |
+|---|---|
+| 表格列 | 报告(⊕+标的) · 数据日 · 窗口 · 方向 · 命中 pattern · 置信 · 前向 15m/30m/60m · 分析摘要 · **操作** |
+| 操作列 | **拷贝**（`fa-copy`，复制摘要 + 报告路径）· **删除**（`fa-trash-alt`，删 DB case） |
+| 行内展开 | 点击 ⊕ → 展开 `iframe` 直读报告 HTML（**首次展开才赋 `src`** ⇒ 不展开不加载 ✓）；**自适应全高**：`onload` 量同源 `contentDocument` 高度 → 设 `iframe` 高度 + 内容 `overflow:hidden` ⇒ **无内部滚动条** ✓（`resize` 时重算 ✓） |
+| 每页条数（Adam 卡片） | 25 → **15** |
+
+### 7.3 新增/增强端点（`bbt_data_web/data_app/bbt_signals.py`）
+
+| 端点 | 作用 |
+|---|---|
+| `GET /data/order_flow_deep_analysis`（增强） | 补 `window_start/window_end`（HH:MM ✓，用 `total_seconds()`）+ 每 case 映射**最新** `report_file` |
+| `GET /data/order_flow_deep_report?file=` | 回传单个报告 HTML（**正则白名单 + resolve 父目录校验** ⇒ 防目录穿越 ✓） |
+| `POST /data/order_flow_deep_delete` | 按 `case_id` 删 `of_deep_pattern_cases` 行（**仅删 DB 记录，报告文件保留** ✓） |
+
+### 7.4 回填（09-14 07:25 → 08:25）
+
+- `run_analysis.py --date 2026-09-14 --start 07:25 --end 08:25 --log-case` → `order_flow_analysis_ES_2026-09-14_0825_low_absorption_2026-09-14_2220.html`，bias=bullish，`P1 / medium`。
+- `backtest.py --date 2026-09-14 --backfill` → 前向结果 `+17.25 / +23.75 / +29.5`（15/30/60m 全命中 ✓）。
+
+### 7.5 验收（headless DOM 断言）
+
+- 表头 9 列 ✓；两 case（0825 / 0815）✓；窗口列 `07:25 → 08:25` ✓；`fa-copy` / `fa-trash-alt` 存在 ✓。
+- 首行：`ES 2026-09-14 07:25 → 08:25 BULLISH P1 MED +17.25✓ / +23.75✓ / +29.5✓ ES_2026-09-14_0825`。
+- 展开：`ofDeepDetail-<cid>` 显示 + `iframe.src` 已设为 `/data/order_flow_deep_report?file=…` ✓。
+- 端点：报告 `HTTP 200 · text/html`；`../../../etc/passwd` 与 `foo.html` → `HTTP 400` ✓。
+
+### 7.6 回滚（本节）
+
+- `adam_signal_deepdive.py`：`/tmp/adam_signal_deepdive_pre_ofdeep_upgrade.py.bak`。
+- 页面：OF 表头还原 7 列 + `per` 改回 25；删 3 个新 JS 函数（`ofDeepToggleRow` / `ofDeepCopyCase` / `ofDeepDeleteCase`）。
+- 后端：删 `/data/order_flow_deep_report` + `/data/order_flow_deep_delete`；`order_flow_deep_analysis` 去掉 `report_file` 与 window 字段。

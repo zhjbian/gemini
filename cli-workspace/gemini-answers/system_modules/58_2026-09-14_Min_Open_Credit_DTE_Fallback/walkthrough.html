@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>开仓权利金硬下限（$0.10）+ 0DTE→1DTE 自动回退 —— 验收报告</title>
+<style>
+  :root{color-scheme:light;}
+  body{margin:0;font-family:-apple-system,'Segoe UI',Roboto,'PingFang SC',sans-serif;
+       background:#f8fafc;color:#0f172a;line-height:1.62;}
+  .page{max-width:1080px;margin:0 auto;padding:26px 20px 70px;}
+  header.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:22px 26px;
+              box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  header.card h1{margin:0;font-size:1.34rem;font-weight:800;}
+  header.card .sub{margin-top:6px;font-size:.82rem;color:#64748b;}
+  section.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 24px;
+               margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);}
+  h2{font-size:1.06rem;font-weight:800;margin:6px 0 8px;padding:3px 0 3px 11px;
+     border-left:5px solid #1d4ed8;background:#f8fafc;border-radius:0 6px 6px 0;}
+  h3{font-size:.94rem;font-weight:800;color:#0f172a;margin:16px 0 6px;}
+  h4{font-size:.87rem;font-weight:700;color:#0369a1;margin:12px 0 4px;}
+  table{border-collapse:collapse;font-size:.82rem;width:auto;max-width:100%;margin:6px 0;}
+  th,td{border:1px solid #e2e8f0;padding:6px 9px;text-align:left;vertical-align:top;}
+  th{background:#f1f5f9;color:#475569;white-space:nowrap;}
+  code{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 5px;
+       font-size:.82em;color:#0f172a;}
+  pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;
+      overflow:auto;font-size:.8rem;line-height:1.55;}
+  ul{margin:4px 0 4px 18px;padding:0;}
+  li{margin:2px 0;}
+  .ok{color:#047857;font-weight:700;}
+  .warn{color:#b45309;font-weight:700;}
+  .bad{color:#b91c1c;font-weight:700;}
+  .note{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 12px;color:#b45309;}
+  .kv{font-size:.82rem;color:#334155;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="card">
+  <h1>开仓权利金硬下限（$0.10）+ 0DTE→1DTE 自动回退 —— 验收报告</h1>
+  <div class="sub">2026-09-14 · 模块 58 <code>Min_Open_Credit_DTE_Fallback</code> ·
+    Python 3.11 / MySQL <code>bb_trade</code> / Flask + Jinja2 / Schwab 期权链 / 浅色主题 ·
+    规则归档：交易规则手册 §3.4</div>
+</header>
+
+<section class="card">
+<h2>1. 结论先行</h2>
+<table>
+<thead><tr><th>需求</th><th>结果</th></tr></thead>
+<tbody>
+<tr><td>R1 全局最低开仓权利金 $0.10</td><td><span class="ok">✅</span> 引擎 <code>find_optimal_spread</code> 抬升下限（覆盖全部调用方）+ <code>open_trade</code> 单一 choke point 复核</td></tr>
+<tr><td>R2 0DTE 不足 ⇒ 同策略 1DTE</td><td><span class="ok">✅</span> <code>find_optimal_spread_with_dte_fallback</code>；4 个自动/条件单调用点接入</td></tr>
+<tr><td>R3 手动阻止 + 提示 + 推荐 1DTE</td><td><span class="ok">✅</span> 前端提示条 + 一键采用；后端 <code>rejected_low_credit</code> + <code>dte1_candidate</code></td></tr>
+<tr><td>R4 通用性（规则 6）</td><td><span class="ok">✅</span> 看多/看空同一套规则；回退仅 0DTE→1DTE 且不放宽其它约束</td></tr>
+<tr><td>测试</td><td><span class="ok">✅</span> 新增 12 项全绿；既有套件无新增失败</td></tr>
+<tr><td>规则手册（规则 11）</td><td><span class="ok">✅</span> §3.4（HTML + MD）+ §3.3.1 注入全局下限注记 + 侧边目录项</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>2. 处理逻辑（落地为代码）</h2>
+
+<h3>2.1 全局硬下限（地板，非天花板）</h3>
+<pre># option_seller_engine.py
+MIN_OPEN_CREDIT = 0.10          # 全局最低开仓权利金
+DEFAULT_DTE_FALLBACK = 1        # 0DTE → 1DTE
+
+# find_optimal_spread 内：
+use_credit = float(min_credit) if min_credit is not None else pcfg['min_credit']
+use_credit = max(use_credit, MIN_OPEN_CREDIT)   # ★ 任何调用方都不得低于 $0.10</pre>
+<p class="kv">实际生效下限 = <code>max(profile_min_credit, $0.10)</code>：
+CONSERVATIVE $0.03→<b>$0.10</b> · BALANCED $0.05→<b>$0.10</b> · AGGRESSIVE $0.12→<b>$0.12</b>（保持更严）。</p>
+
+<h3>2.2 到期回退助手</h3>
+<pre>cand = cls.find_optimal_spread(..., target_dte=target_dte, **kwargs)
+if cand is not None:
+    cand['dte_fallback'] = False
+    return cand
+cand2 = cls.find_optimal_spread(..., target_dte=dte_fallback, **kwargs)   # 同一套 kwargs ✓
+if cand2 is not None:
+    cand2['dte_fallback'] = True
+    cand2['dte_fallback_from'] = int(target_dte)
+return cand2</pre>
+<p class="kv"><code>find_optimal_spread</code> 内已强制 <b>净权利金 ≥ $0.10</b> ⇒ 0DTE「找不到候选」≡「0DTE 无 ≥ $0.10 候选」。</p>
+
+<h3>2.3 接入点（全部路径）</h3>
+<table>
+<thead><tr><th>路径</th><th>改动</th></tr></thead>
+<tbody>
+<tr><td><code>_open_from_engine</code>（自动机制族）</td><td><code>find_optimal_spread_with_dte_fallback(target_dte=0)</code></td></tr>
+<tr><td><code>evaluate_balanced_day_channel</code>（平衡日边界）</td><td>同上</td></tr>
+<tr><td><code>evaluate_pm_big_trade_ema_pullback_trade</code>（盘前大单回调）</td><td>同上</td></tr>
+<tr><td><code>_evaluate_conditional_orders</code>（自动条件单）</td><td>同上，<code>dte_fallback=(1 if target_dte==0 else None)</code></td></tr>
+<tr><td><code>open_trade</code>（<b>全部路径</b>）</td><td><code>net_credit &lt; MIN_OPEN_CREDIT ⇒ 拒绝 + 警告日志</code></td></tr>
+<tr><td><code>/api/option_seller/scan_now</code>（手动）</td><td><code>_scan_variants(dte)</code> 双档降级 + 0DTE→1DTE 回退 + execute 闸门</td></tr>
+</tbody>
+</table>
+
+<h3>2.4 手动路径（阻止 + 提示 + 推荐）</h3>
+<ul>
+<li><b>后端</b>：<code>execute:true</code> 且 <code>net_credit &lt; $0.10</code> ⇒ <code>status='rejected_low_credit'</code>，同时用同策略参数扫 1DTE 并回传 <code>dte1_candidate</code>；<code>candidate_found</code> 响应增 <code>min_open_credit</code> / <code>dte_fallback</code> / <code>dte1_candidate</code> / <code>message</code>。</li>
+<li><b>前端</b>：<code>MIN_OPEN_CREDIT_UI = 0.10</code>（同口径镜像）；<code>#manualCreditNotice</code> 提示条；<code>executeManualTrade</code> 先客户端拦截（含「是否切换为 1DTE 候选」确认）；服务端拒绝分支同样提示并可 <code>adoptManualDte1Candidate()</code> 一键采用。</li>
+</ul>
+
+<h3>2.5 可观测性</h3>
+<p class="kv"><code>entry_evidence</code> 新增 <code>entry_dte</code> / <code>dte_fallback</code> / <code>dte_fallback_from</code>
+⇒ 流水账本与复盘可直接筛选「哪些单是靠 1DTE 回退成交的」。</p>
+</section>
+
+<section class="card">
+<h2>3. 实测证据</h2>
+
+<h3>3.1 同链开关地板对比（真实 Schwab 链 · target_delta=0.02 / width=1.0 / CONSERVATIVE）</h3>
+<table>
+<thead><tr><th>地板</th><th>选中结构</th><th>净权利金</th><th>credit/width</th><th>最大亏损</th></tr></thead>
+<tbody>
+<tr><td>$0.01（旧口径）</td><td>BEAR_CALL_SPREAD <b>768/769</b></td><td class="bad">$0.04</td><td>4.0%</td><td>$96.00</td></tr>
+<tr><td><b>$0.10（新口径）</b></td><td>BEAR_CALL_SPREAD <b>766/767</b></td><td class="ok">$0.10</td><td><b>10.0%</b></td><td>$90.00</td></tr>
+</tbody>
+</table>
+<div class="note">旧口径选中的正是<b>事故同型</b>（$0.04 权利金）；新口径把不可接受的薄权利金剔出候选集，引擎自动退到权利金达标的更近行权价。</div>
+
+<h3>3.2 手动扫描端点（真实链 · <code>execute:false</code>）</h3>
+<pre>status          : candidate_found
+min_open_credit : 0.1            ← 新字段 ✓
+dte_fallback    : False          ← 0DTE 有 ≥ $0.10 候选 ⇒ 不回退 ✓
+candidate       : BEAR_CALL_SPREAD 765/767 dte=0 credit=0.27 max_loss=173.0
+options keys    : ['credit', 'cushion']</pre>
+<p class="kv"><code>target_delta</code> 从 0.02 扫到 0.06，候选净权利金<b>恒 ≥ $0.10</b>（未再出现 &lt; $0.10 的候选）。</p>
+
+<h3>3.3 单元测试（新增 12 项 · 全绿）</h3>
+<pre>Ran 12 tests in 0.065s   OK</pre>
+<table>
+<thead><tr><th>用例</th><th>断言</th></tr></thead>
+<tbody>
+<tr><td><code>test_constant_is_010_and_raises_looser_profiles</code></td><td>常量 = 0.10；CONSERVATIVE/BALANCED &lt; 0.10、AGGRESSIVE ≥ 0.10</td></tr>
+<tr><td><code>test_profile_default_is_raised_to_floor</code></td><td>BALANCED 默认口径下 $0.02 的 0DTE <b>无候选</b></td></tr>
+<tr><td><code>test_explicit_low_min_credit_cannot_bypass_floor</code></td><td>显式传 0.01 / 0.04 / 0.05 <b>均被抬升</b></td></tr>
+<tr><td><code>test_stricter_profile_keeps_its_own_higher_floor</code></td><td>≈$0.11：BALANCED 收、AGGRESSIVE（0.12）拒</td></tr>
+<tr><td><code>test_credit_at_or_above_floor_is_returned</code></td><td>≥ $0.10 正常返回</td></tr>
+<tr><td><code>test_falls_back_to_1dte_when_0dte_below_floor</code></td><td>0DTE 不足 ⇒ 1DTE，<code>dte_fallback=True</code>、<code>dte_fallback_from=0</code></td></tr>
+<tr><td><code>test_no_fallback_when_0dte_qualifies</code></td><td>0DTE 达标 ⇒ <code>dte_fallback=False</code> 且无 <code>_from</code> 字段</td></tr>
+<tr><td><code>test_fallback_disabled_returns_none</code></td><td><code>dte_fallback=None</code> ⇒ 退化行为</td></tr>
+<tr><td><code>test_no_fallback_when_1dte_also_below_floor</code></td><td>1DTE 也不足 ⇒ <b>None（不造假）</b></td></tr>
+<tr><td><code>test_default_fallback_dte_is_1</code></td><td>缺省回退 = 1DTE</td></tr>
+<tr><td><code>test_open_trade_rejects_below_floor</code></td><td><b>复现事故参数 $0.04 / $0.09 ⇒ 均拒绝</b></td></tr>
+<tr><td><code>test_open_trade_accepts_at_or_above_floor</code></td><td>$0.10（含等号）⇒ 接受</td></tr>
+</tbody>
+</table>
+
+<h3>3.4 回归</h3>
+<table>
+<thead><tr><th>套件</th><th>结果</th></tr></thead>
+<tbody>
+<tr><td><code>test_strike_anchor_3131.py</code></td><td><span class="ok">11 OK</span></td></tr>
+<tr><td><code>test_qp_prev_close_gate.py</code></td><td><span class="ok">21 OK</span></td></tr>
+<tr><td><code>test_balanced_day_prev_close_gate.py</code></td><td><span class="ok">24 OK</span></td></tr>
+<tr><td><code>test_force_dry_degrade.py</code></td><td><span class="ok">18 OK</span></td></tr>
+<tr><td><code>test_journal_*</code>（4 个）</td><td><span class="ok">11 / 12 / 9 / 8 OK</span></td></tr>
+<tr><td><code>test_intraday_probe.py</code></td><td><span class="ok">34 OK</span></td></tr>
+<tr><td><code>test_qp_meta_parse.py</code></td><td><span class="ok">20 OK</span>（已兼容新调用名 ✓）</td></tr>
+<tr><td><code>test_l1_h1_breakeven_stop.py</code></td><td><span class="ok">OK</span></td></tr>
+<tr><td><code>test_live_resting_limit_order.py</code></td><td><span class="warn">14 中 1 失败 —— 非本次改动</span>（<code>_evaluate_active_positions</code> 内的 <code>get_order_status</code> 调用；本模块未触碰该函数，属既有状态）</td></tr>
+</tbody>
+</table>
+
+<h3>3.5 前端（headless Chrome 断言）</h3>
+<p class="kv"><code>MIN_OPEN_CREDIT_UI = 0.1</code> ✓、<code>#manualCreditNotice</code> 存在 ✓、
+<code>adoptManualDte1Candidate</code> / <code>setManualCreditNotice</code> / <code>executeManualTrade</code> 均为函数 ✓、
+<b>JS 报错 0 条</b> ✓。</p>
+</section>
+
+<section class="card">
+<h2>4. 页面 / 接口改动</h2>
+<table>
+<thead><tr><th>位置</th><th>改动</th></tr></thead>
+<tbody>
+<tr><td><code>POST /api/option_seller/scan_now</code></td><td>响应增 <code>min_open_credit</code> / <code>dte_fallback</code> / <code>dte1_candidate</code> / <code>message</code>；execute 增 <code>rejected_low_credit</code></td></tr>
+<tr><td><code>bbt_option_seller.html</code></td><td><code>#manualCreditNotice</code> 提示条 + <code>setManualCreditNotice</code> / <code>adoptManualDte1Candidate</code>；确认开仓前拦截 &lt; $0.10；服务端拒绝分支处理</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>5. 回滚</h2>
+<table>
+<thead><tr><th>项</th><th>回滚方式</th></tr></thead>
+<tbody>
+<tr><td>全局地板</td><td><code>MIN_OPEN_CREDIT = 0.0</code>（等价关闭）或还原 <code>use_credit = max(...)</code> 一行</td></tr>
+<tr><td>到期回退</td><td>4 个调用点改回 <code>find_optimal_spread</code>（去掉 <code>dte_fallback</code> 参数）</td></tr>
+<tr><td>choke point</td><td>删 <code>open_trade</code> 内 <code>if net_credit &lt; MIN_OPEN_CREDIT:</code> 段</td></tr>
+<tr><td>手动路径</td><td>还原 <code>_scan_variants</code> 为原 Option A/B 两段 + 删 execute 闸门 + 删响应新字段</td></tr>
+<tr><td>前端</td><td>删 <code>#manualCreditNotice</code> 与 3 个新函数、恢复 <code>executeManualTrade</code> 原分支</td></tr>
+<tr><td>规则手册</td><td>删 §3.4 与 §3.3.1 注记（备份 <code>&lt;file&gt;.bak-&lt;ts&gt;</code> 可就地还原）</td></tr>
+</tbody>
+</table>
+</section>
+
+<section class="card">
+<h2>6. 遗留与后续</h2>
+<ol>
+<li><b>§3.3.1 手册口径与代码不一致（已注记，建议对齐）</b>：手册写 CONSERVATIVE ≥ $0.08 / BALANCED ≥ $0.18 / AGGRESSIVE ≥ $0.28，而代码 <code>min_credit</code> 为 0.03 / 0.05 / 0.12；本次只加了「全局 $0.10 下限」注记，<b>是否把三档目标口径回写成手册所述值需用户确认</b>（会显著减少开仓机会）。</li>
+<li><b>≥20 手大单层</b>：与本次无关，仍在原计划中（P1/P3 大额否决）。</li>
+<li><b>回退统计</b>：<code>entry_evidence.dte_fallback</code> 已落库，可后续统计「1DTE 回退单」的实际胜率与盈亏，用于判断是否需要把回退上限扩展到 2DTE 或引入时变下限。</li>
+<li><b>时变下限</b>：当前为固定 $0.10；若后续数据表明「距 11:30 越近应越严」，可在此规则上叠加时段系数（属 §3.4 扩展，需新数据支持）。</li>
+</ol>
+</section>
+
+</div>
+</body>
+</html>

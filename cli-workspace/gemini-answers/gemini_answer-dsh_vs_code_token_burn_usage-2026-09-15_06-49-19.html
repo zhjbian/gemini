@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - DeepSeek Harness for VS Code 用量审计：$10 消耗根因与优化</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">DeepSeek Harness for VS Code 用量审计：$10 消耗根因与优化</h1>
+<div class="meta">
+<span>Saved: 2026-09-15 06:49:19</span>
+<span>Topic: dsh_vs_code_token_burn_usage</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#DeepSeek-Harness-for-VS-Code-用量审计：$10-消耗根因与优化">DeepSeek Harness for VS Code 用量审计：$10 消耗根因与优化</a><ul><li><a href="#结论">结论</a></li><li><a href="#账单从哪来（本机会话日志实测，非推测）">账单从哪来（本机会话日志实测，非推测）</a></li><li><a href="#为什么压缩没能救回来">为什么压缩没能救回来</a></li><li><a href="#建议（按收益排序）">建议（按收益排序）</a></li></ul></li><li><a href="#untitled_question">配置与修复实施：压缩阈值调紧 + 确认信息必达（补丁10 / 补丁11）</a><ul><li><a href="#（1）gem-doc-已保存完整报告">（1）gem-doc 已保存完整报告</a></li><li><a href="#（2）配置与修复已按建议实施（走唯一入口-scripts/repatch_vscode_changes_bar.py）">（2）配置与修复已按建议实施（走唯一入口 scripts/repatch_vscode_changes_bar.py）</a><ul><li><a href="#关键发现（决定了修复方式）">关键发现（决定了修复方式）</a></li><li><a href="#已改动（新增「补丁11：压缩阈值调紧」）">已改动（新增「补丁11：压缩阈值调紧」）</a></li><li><a href="#验证">验证</a></li><li><a href="#需要你做一步（与补丁10-同一次重载即可）">需要你做一步（与补丁10 同一次重载即可）</a></li><li><a href="#回滚">回滚</a></li><li><a href="#我没有做、建议你手动做的（避免影响业务数据）">我没有做、建议你手动做的（避免影响业务数据）</a></li></ul></li></ul></li></ul></div>
+<section class="main-content">
+<h2 id="DeepSeek-Harness-for-VS-Code-用量审计：$10-消耗根因与优化">DeepSeek Harness for VS Code 用量审计：$10 消耗根因与优化</h2><h3 id="结论">结论</h3>
+<p><strong>不是泄漏、也没有 bug —— 是你的会话上下文涨到 40–80 万 token，而「每一步」都要把整个上下文重发一次并计费。</strong> 你那 $10 对应的是 <strong>近 12 小时内 4 个会话、1276 次模型调用、5.29 亿 cache-read token</strong>（平均每次调用上下文 <strong>414,665 token</strong>）。</p>
+<h3 id="账单从哪来（本机会话日志实测，非推测）">账单从哪来（本机会话日志实测，非推测）</h3>
+<p>数据源：<code>harness-home/sessions/**/session.jsonl.zstd</code>（每次 <code>assistant/message</code> 都带 <code>usage</code>，字段：<code>inputTokens</code> / <code>outputTokens</code> / <code>cacheReadTokens</code> / <code>reasoningTokens</code>）</p>
+<table>
+<thead>
+<tr>
+<th>会话</th>
+<th>调用次数</th>
+<th>cacheRead(命中)</th>
+<th>平均上下文/次</th>
+<th>时间跨度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dsh-mtrin7v6-lqfl4g</code></td>
+<td><strong>4,598</strong></td>
+<td><strong>2,121,341,247</strong></td>
+<td>462,014</td>
+<td>09-07 → 09-13</td>
+</tr>
+<tr>
+<td><code>dsh-mu01uk6z-pxqz1v</code></td>
+<td>2,295</td>
+<td>878,053,504</td>
+<td>382,594</td>
+<td>09-13 → 09-14</td>
+</tr>
+<tr>
+<td><code>dsh-mu0gxyzz-qpsl52</code>（<strong>本会话</strong>）</td>
+<td>1,517</td>
+<td>597,644,288</td>
+<td>394,224</td>
+<td>09-13 → 今</td>
+</tr>
+<tr>
+<td><code>dsh-mu266unj-ctkx2m</code></td>
+<td>574</td>
+<td>208,021,248</td>
+<td>362,406</td>
+<td>09-14 晚 → 今</td>
+</tr>
+<tr>
+<td><code>dsh-mtvy51q5-d7r593</code></td>
+<td>431</td>
+<td>189,645,312</td>
+<td>440,012</td>
+<td>09-10 → 09-11</td>
+</tr>
+<tr>
+<td><code>dsh-mu1m9116-yg6wtg</code>（<strong>ES 缺 bar 那个</strong>）</td>
+<td>378</td>
+<td>147,605,501</td>
+<td>390,490</td>
+<td>09-14 15:27→20:24</td>
+</tr>
+<tr>
+<td>其余 10 个（多为子代理）</td>
+<td>221</td>
+<td>15,589,568</td>
+<td>~60,000</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td><strong>10,014</strong></td>
+<td><strong>4,157,900,668</strong></td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>近 12 小时（≈你的 $10 窗口）</strong>：4 会话 / <strong>1,276 次调用</strong> / cacheRead <strong>529,116,088</strong> / input 1,895,512 / output 1,253,336。</p>
+<p>总量（09-07 → 09-15 全部会话）：<code>cacheRead 4,157,900,668</code> · <code>input(未命中) 14,226,719</code> · <code>output 10,117,566</code> · <code>reasoning 4,494,292</code>；cache-miss 占比仅 <strong>0.34%</strong> ⇒ 缓存命中率 99.6%。</p>
+<p><strong>上下文增长曲线（每个会话都是从 3 万涨到 70–80 万）</strong>：</p>
+<pre><code>mtrin7v6-lqfl4g  首轮 28,170 → 中位 418,011 → 末轮 775,239 → 峰值 800,357
+mu0gxyzz-qpsl52  首轮 31,348 → 中位 357,979 → 末轮 652,635 → 峰值 793,729
+mu1m9116-yg6wtg  首轮 32,277 → 中位 406,304 → 末轮 701,000
+mu266unj-ctkx2m  首轮 31,358 → 中位 628,185 → 峰值 794,818
+mu01uk6z-pxqz1v  首轮 31,434 → 中位 167,247 → 末轮 433,806 → 峰值 795,582
+mtvy51q5-d7r593  首轮 30,498 → 中位 418,619 → 末轮 760,873 → 峰值 799,367
+</code></pre>
+<p><strong>机制</strong>：成本 ≈ Σ(每一步的上下文大小)。会话从 3 万涨到 80 万、跑了 1500 步 ⇒ 1500 × 平均 40 万 ≈ <strong>6 亿 token</strong>。所以「2 个任务」其实是 2 个<strong>长时自主运行</strong>（<code>mu1m9116</code> 378 次调用、本会话 1517 次），加上另外 2 个并行会话同时计费。</p>
+<p><strong>缓存是正常的</strong>：cache-miss 只占 0.34%（14.2M / 4.17B），说明命中率 99.6%，已经是便宜的缓存价 —— 不是缓存失效导致的暴烧。</p>
+<p><strong>排除项</strong>：后台 Adam 分类守护（<code>com.bbt.adam-classifier-watch</code>，<code>StartInterval=120</code>，命令 <code>python3 x_posts_adam_signal_v2.py --provider deepseek --limit 25</code>）日志 408KB 里绝大多数是「✓ 无待分类帖」，<strong>无新帖时不调 LLM</strong> ⇒ 不是主因（有新帖时会分类，可留意）。另一个 <code>npx @deepseek-ai/dsh@latest web</code> 实例（端口 3080，PID 45736）会话目录停留 09-09，也基本闲置。</p>
+<p>模型口径（全部 <code>reasoningEffort=high</code>、<code>maxTokens=256000</code>）：<code>deepseek-v4-flash</code>（mtrin7v6）、<code>deepseek-v4-flash-vision-exp</code>（mu01uk6z / mu0gxyzz / mu1m9116 / mtvy51q5）、<code>deepseek-v4-pro</code>（mu266unj）。</p>
+<h3 id="为什么压缩没能救回来">为什么压缩没能救回来</h3>
+<p>harness 自带压缩（<code>dsh-compaction</code> + <code>dsh-compaction-basic</code> + <code>dsh-compaction-tool-result-pruner</code>），但<strong>默认阈值很宽</strong>：</p>
+<ul>
+<li><code>dsh-compaction-basic</code>：<code>thresholdRatio = 0.8</code>（上下文到窗口 80% 才压缩）、<code>retainRatio = 0.16</code>（压完仍保留 16%）</li>
+<li>另有 <code>thresholdTokens</code> / <code>retainTokens</code> 可覆盖，<code>auto</code>（bool）、<code>modelPolicies</code>、<code>summarizationModel</code> 等</li>
+<li><code>dsh-compaction-tool-result-pruner</code>：<code>thresholdChars</code> / <code>headChars</code> / <code>tailChars</code>（裁剪超大工具结果）</li>
+</ul>
+<p>⇒ 上下文长期在 <strong>30 万 ~ 80 万</strong> 之间徘徊，每一步都在为这个体量付费。（本会话确实触发过 3 次压缩：<code>compaction/start ×3</code>、<code>compaction/summary ×2</code>、<code>compaction/prune ×12</code>，但依然如此。）</p>
+<h3 id="建议（按收益排序）">建议（按收益排序）</h3>
+<table>
+<thead>
+<tr>
+<th>措施</th>
+<th>预期效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>① 新任务开新会话</strong>（别在 40–80 万上下文的会话里 continue）</td>
+<td>上下文回到 3–5 万 ⇒ <strong>单步成本降 8–20 倍</strong></td>
+</tr>
+<tr>
+<td><strong>② 调紧压缩</strong>：<code>compaction.thresholdRatio</code> 0.8→<strong>0.15</strong>、<code>retainRatio</code> 0.16→<strong>0.08</strong>（写进 <code>harness-home/settings.yaml</code>）</td>
+<td>上下文封顶 ~12 万 ⇒ <strong>总成本降约 4–5 倍</strong></td>
+</tr>
+<tr>
+<td><strong>③ 打开工具结果裁剪</strong>：<code>dsh-compaction-tool-result-pruner.thresholdChars</code> 调小</td>
+<td>大输出不再永久驻留上下文</td>
+</tr>
+<tr>
+<td>④ 不要同时跑多个大会话</td>
+<td>账单份数线性下降</td>
+</tr>
+<tr>
+<td>⑤ <code>reasoningEffort: high</code> → medium/low；<code>v4-pro</code> → <code>v4-flash</code></td>
+<td>输出/推理 token 与单价双降（注：output+reasoning 合计约 14.6M，相对 cacheRead 4.16B 占比很小，收益远小于 ②③）</td>
+</tr>
+<tr>
+<td>⑥ 归档 <code>dsh-mtrin7v6-lqfl4g</code> 并别再 continue</td>
+<td>它一只占<strong>全部用量 51%</strong></td>
+</tr>
+<tr>
+<td>⑦ 平台侧设<strong>消费限额/告警</strong>（platform.deepseek.com）</td>
+<td>防止再次静默烧完</td>
+</tr>
+<tr>
+<td>⑧ 让 agent 别把巨型文件打进上下文（本次调查中 dump minified 包也加剧了）</td>
+<td>抑制膨胀速度</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最大单项</strong>：②③ 是纯配置、立刻生效、风险最低（只影响压缩时机，不改行为语义）；①⑥ 是使用习惯，收益最大。</p>
+</section>
+<section><h2 id="untitled_question">配置与修复实施：压缩阈值调紧 + 确认信息必达（补丁10 / 补丁11）</h2><h3 id="（1）gem-doc-已保存完整报告">（1）gem-doc 已保存完整报告</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gemini_answer-dsh_vs_code_token_burn_usage-2026-09-15_06-49-19.html</code></td>
+<td>17.1 KB</td>
+</tr>
+<tr>
+<td><code>gemini_answer-dsh_vs_code_token_burn_usage-2026-09-15_06-49-19.md</code></td>
+<td>5.6 KB</td>
+</tr>
+</tbody>
+</table>
+<p>路径：<code>/Users/zhijiebian/.gemini/cli-workspace/gemini-answers/</code></p>
+<p>标题：<strong>DeepSeek Harness for VS Code 用量审计：\$10 消耗根因与优化</strong>；四个 h2 小节（结论 / 账单从哪来 / 为什么压缩没能救回来 / 建议），浅色主题；<strong>未做任何压缩摘要</strong>，全部原始数字、表格与代码块原样保留。</p>
+<h3 id="（2）配置与修复已按建议实施（走唯一入口-scripts/repatch_vscode_changes_bar.py）">（2）配置与修复已按建议实施（走唯一入口 <code>scripts/repatch_vscode_changes_bar.py</code>）</h3>
+<h4 id="关键发现（决定了修复方式）">关键发现（决定了修复方式）</h4>
+<ul>
+<li><strong>真实上下文窗口 = 1,000,000 token</strong>（会话日志 <code>request/context</code> 实证）。</li>
+<li><strong>旧默认压缩口径</strong>：<code>thresholdRatio 0.8</code> / <code>retainRatio 0.16</code> ⇒ <strong>涨到 800,000 才压缩、压完仍留 160,000</strong> —— 这与实测峰值 <strong>800,357</strong> 完全吻合，就是暴烧的根源。</li>
+<li><strong><code>dsh-compaction-basic</code> 不读 <code>settings.yaml</code></strong> ⇒ 只能改<strong>预设文件</strong>（<code>dsh/config/agent-presets/&lt;preset&gt;/agent.cordis.yml</code>）。</li>
+<li><code>dsh-token-meter</code> 的 Config 是空对象 ⇒ <strong>harness 没有内置 token 预算/熔断</strong>，所以平台侧限额（建议⑦）不可省。</li>
+</ul>
+<h4 id="已改动（新增「补丁11：压缩阈值调紧」）">已改动（新增「补丁11：压缩阈值调紧」）</h4>
+<p>对 <strong>3 个预设</strong>（<code>standard</code> / <code>code</code> / <code>cordis</code>）写入：</p>
+<pre><code class="language-yaml">    - id: compaction-basic
+      name: '@deepseek-ai/dsh-compaction-basic'
+      config:
+        thresholdRatio: 0.15      # 0.8  → 触发点 800,000 → 150,000 tok
+        retainRatio: 0.08         # 0.16 → 压缩后保留 160,000 → 80,000 tok
+
+    - id: tool-result-pruner
+      name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+      config:
+        thresholdChars: 4096      # 8192
+        headChars: 2048           # 4096
+        tailChars: 512            # 1024
+</code></pre>
+<p><strong>预期</strong>：平均上下文 ~400K → <strong>~115K</strong>，单步成本约降 <strong>3.5 倍</strong>（<code>\$10</code> 从"12 小时烧完"变成"约 2 天"）；且 80K→150K 的间隔足够大，不会导致压缩过于频繁。</p>
+<h4 id="验证">验证</h4>
+<table>
+<thead>
+<tr>
+<th>检查</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dry-run</code> 锚点</td>
+<td>3 个预设全部命中 ✓</td>
+</tr>
+<tr>
+<td>实跑</td>
+<td>3 个文件全部 <code>config</code> 写入 ✓</td>
+</tr>
+<tr>
+<td>YAML 结构（用支持 Cordis <code>!!js</code> 标签的 loader 解析）</td>
+<td>3/3 解析 OK，读出 <code>{'thresholdRatio': 0.15, 'retainRatio': 0.08}</code> ✓</td>
+</tr>
+<tr>
+<td>幂等复跑</td>
+<td><code>[补丁11] … 已调过, 跳过 ✓</code> ✓</td>
+</tr>
+<tr>
+<td>既有补丁回归</td>
+<td>补丁1–9「生效: 是」、补丁10「已打过」、<code>node --check</code> ×2 OK ✓</td>
+</tr>
+<tr>
+<td>备份</td>
+<td><code>agent-presets/{standard,code,cordis}/agent.cordis.yml.bbt-bak</code> ✓</td>
+</tr>
+</tbody>
+</table>
+<h4 id="需要你做一步（与补丁10-同一次重载即可）">需要你做一步（与补丁10 同一次重载即可）</h4>
+<p><code>Cmd+Shift+P</code> → <strong>Developer: Reload Window</strong></p>
+<p>重载后<strong>立即见效的两件事</strong>：</p>
+<ol>
+<li>你现在这个会话的上下文已 ~65 万 &gt; 15 万 ⇒ <strong>下一次请求就会触发压缩，降到 ~8 万</strong>（单步成本当场降 ~8 倍）。</li>
+<li>之后所有新会话的上下文都会在 <strong>8 万 ~ 15 万</strong> 之间波动。</li>
+</ol>
+<p><strong>验收命令</strong>（重载跑一会儿后执行；应看到 <code>compaction/start</code> 时的上下文在 15 万左右，而不是 80 万）：</p>
+<pre><code class="language-bash">zstdcat ~/Library/Application\ Support/Code/User/globalStorage/skymecode.deepseek-harness-for-vscode/harness-home/sessions/*/*/session.jsonl.zstd \
+ | grep -o '"type":"compaction/start"[^}]*' | tail -5
+</code></pre>
+<h4 id="回滚">回滚</h4>
+<table>
+<thead>
+<tr>
+<th>范围</th>
+<th>方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只撤压缩调参</td>
+<td>重跑加 <code>--no-compaction-tune</code>，或直接用 <code>agent-presets/*/agent.cordis.yml.bbt-bak</code> 覆盖回去</td>
+</tr>
+<tr>
+<td>全局回滚</td>
+<td><code>--revert</code>（从 <code>*.bbt-bak</code> 还原全部补丁）</td>
+</tr>
+<tr>
+<td>重新调参</td>
+<td><code>--compact-threshold-ratio 0.25 --compact-retain-ratio 0.12 --prune-threshold-chars 8192</code></td>
+</tr>
+<tr>
+<td>脚本本体</td>
+<td>快照 <code>/tmp/repatch_pre_mod59_tune.py.bak</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="我没有做、建议你手动做的（避免影响业务数据）">我没有做、建议你手动做的（避免影响业务数据）</h4>
+<ul>
+<li><strong>① 新任务开新会话</strong>：这是省钱最大的一项（上下文回到 3–5 万，单步成本再降 3 倍以上）—— 属于使用习惯，我无法配置。</li>
+<li><strong>⑥ 归档 <code>dsh-mtrin7v6-lqfl4g</code></strong>（占全部历史用量 <strong>51%</strong>，2.12B）：我没有动你的会话数据；要不要我调 gateway API 归档（可 <code>restoreSession</code> 一键恢复）？</li>
+<li><strong>⑦ 平台侧消费限额/告警</strong>（platform.deepseek.com）：只能你在网页设；harness 没有内置预算熔断，这道防线不可省。</li>
+<li><strong>⑤ 降 effort / 换便宜模型</strong>：我核算过 —— 输出+推理合计仅 ~14.6M token，相对 4.16B cacheRead 占比极小，<strong>降档省不到钱却会掉质量</strong>，所以没有改。</li>
+</ul></section></article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

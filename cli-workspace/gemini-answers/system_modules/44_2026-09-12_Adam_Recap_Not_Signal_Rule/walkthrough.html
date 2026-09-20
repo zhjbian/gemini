@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>44. Adam 分类改进：回顾/确认帖不算信号</title>
+<style>body{background:#f8fafc;color:#1e293b;font-family:-apple-system,'PingFang SC',Arial,sans-serif;margin:0;padding:24px;line-height:1.7}
+.wrap{max-width:1000px;margin:0 auto;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:24px 28px}
+h1{font-size:1.35rem;color:#0f172a;margin:0 0 6px}h2{font-size:1.03rem;color:#0f172a;margin:20px 0 8px;padding:3px 0 3px 10px;border-left:4px solid #1d4ed8;background:#f8fafc;border-radius:0 6px 6px 0}
+table{width:100%;border-collapse:collapse;font-size:0.85rem;margin:8px 0}th{background:#f1f5f9;color:#475569;text-align:left;padding:7px 10px;border:1px solid #e2e8f0}td{padding:7px 10px;border:1px solid #e2e8f0;vertical-align:top}
+code,pre{background:#f1f5f9;border-radius:5px;font-size:0.83rem}code{padding:1px 5px}pre{padding:10px;display:block;white-space:pre-wrap}
+.ok{color:#047857;font-weight:700}.warn{color:#b45309;font-weight:700}.meta{font-size:0.84rem;color:#64748b;margin-bottom:12px}</style></head><body><div class="wrap">
+<h1>44. Adam 分类改进：回顾/确认帖不算信号（Recap ≠ Signal）</h1>
+<div class="meta">日期 <code>2026-09-12</code> ｜ 关联 <code>x_posts_adam_signal_v2.py</code> / <code>x_posts</code> / Adam 深度分析链</div>
+
+<h2>1. 问题（真实误判）</h2>
+<p>2026-09-11 07:37:39 的帖被判为 <code>is_signal=1 / bullish / reversal_bottom / scope=swing</code>，实际内容是：</p>
+<pre>7590 is the Low of this Move.
+Strong Support rallies this +90p Overnight.
+I called this a Day Early-- it was.
+--- Quoted ---
+[Posted at 09/10/2026 07:14:21] $ES : 7590 : Shows Strong Support at Open. …</pre>
+<p>该帖<b>引用自己前一天的帖并确认其正确</b>（"I called this a Day Early"）⇒ 它是对<b>过去信号的确认</b>，<b>不是新信号</b>。而 <code>Adam今日信号深度分析</code> 把<b>帖子的时间戳当作信号时刻</b>，分析其前后 order flow ⇒ 对该帖而言<b>时间戳无意义</b>，不应纳入。</p>
+
+<h2>2. 改进内容</h2>
+<table><tr><th>项</th><th>改动</th></tr>
+<tr><td>Prompt 规则 R</td><td>新增「RECAP / CONFIRMATION POSTS ARE NOT SIGNALS」：若帖子主要<b>回顾自己更早的信号</b>（引用/转发自己的旧帖，或 "I called this" / "as I said" / "a day early" / "confirmed" / "this played out" 等措辞）⇒ <code>is_signal=false, scope="none", signal_kind="commentary", conviction=null, importance=1, refers_prior=true</code>；<b>例外</b>：若同时给出<b>面向当下、可操作的新方向/价位</b> ⇒ 仍算信号，但置 <code>refers_prior=true</code> 以便下游识别其中的回顾成分。</td></tr>
+<tr><td>Prompt 规则 S</td><td>显式写明：全部规则对多空<b>同一标准</b>（沿用对称性要求）。</td></tr>
+<tr><td>新字段</td><td><code>x_posts.refers_prior</code>（tinyint ✓ 带注释）+ ORM（<code>models.py</code> 的 XPost ✓ 已校验为真列）+ 分类器写入 + prompt schema <code>refers_prior (bool)</code></td></tr>
+<tr><td>版本</td><td><code>LABEL_VER: v2-symmetric-switch-intraday → **v3-recap-aware**</code>（规则变更必须升版，便于区分新旧标注）</td></tr>
+<tr><td>清理联动</td><td>该帖改判后立即清除其 <code>adam_deep_payload</code> 并从 <code>adam_research_reports.sections</code> 摘除整块（复用「判定非信号」端点逻辑 ✓）</td></tr></table>
+
+<h2>3. 验收（实测）</h2>
+<table><tr><th>项</th><th>结果</th></tr>
+<tr><td>重标注该帖（<code>--post-id … --no-notify</code>）</td><td><span class="ok">✓</span> 模型证据引用了 "I called this a Day Early-- it was"</td></tr>
+<tr><td>字段结果</td><td><code>is_signal=0</code> · <code>signal_kind=commentary</code> · <code>scope=none</code> · <code>conviction=None</code> · <code>importance=1</code> · <b><code>refers_prior=1</code></b> · <code>label_ver=v3-recap-aware</code> <span class="ok">✓</span></td></tr>
+<tr><td>清理缓存（端点）</td><td><code>payload_removed=1</code> · <code>report_rows_updated=1</code> · HTTP 200 <span class="ok">✓</span></td></tr>
+<tr><td>深度分析区块</td><td>2026-09-11 帖块 <b>1 → 0</b>，该帖已彻底退出 <span class="ok">✓</span></td></tr>
+<tr><td>API 复核</td><td>09-11 帖块 0；09-10 / 09-09 未受影响（1 / 3 帖块）<span class="ok">✓</span></td></tr></table>
+
+<h2>4. 后续（需注意 ⚠️）</h2>
+<ol><li><b>watcher 会分批重标注全部历史帖</b>（<code>com.bbt.adam-classifier-watch</code>，每 120 秒 <code>--limit 25</code>）⇒ 约 1,689 帖将在 <b>2–3 小时</b>内逐步换用新规则 <span class="warn">⇒ Adam 统计口径会随之变化</span>（这正是修此类误判所必需；如需控制时点可临时停 watcher）。</li>
+<li><b>需要一次"非信号剪枝"</b>：重标注后会出现更多 <code>is_signal=0</code> 的帖，但它们的 <code>adam_deep_payload</code> 与已存报告副本仍在 ⇒ 需批量摘除（脚本化，复用端点逻辑）。</li>
+<li>当某日所有帖都被判非信号时，该日深度分析区块只剩标题 ⇒ 可加占位文案「本日无可验证的方向性信号」。</li></ol>
+
+<h2>5. 回滚</h2>
+<pre>DB:   alter table x_posts drop column refers_prior;
+文件: /tmp/xposts_sig.bak-recap-*   (分类器)   /tmp/models.py.bak-recap-*  (模型)
+说明: LABEL_VER 改回 v2-symmetric-switch-intraday 即恢复旧规则（但该帖需另行还原）</pre>
+</div></body></html>

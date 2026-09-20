@@ -1,0 +1,272 @@
+# L0-C 背景支「跳空」最小幅度门槛 + 探针缺口口径修正 验收报告 (Walkthrough)
+
+- **日期**：2026-09-16（PT）
+- **归属模块**：**M09. Option Seller 自动化交易引擎与开仓仲裁系统**（交叉引用 **M10. Option Seller 多机制触发系统**）
+- **对应 Plan**：`82_2026-09-16_L0C_Gap_Min_Magnitude_And_Probe_Gap_Fix/implementation_plan.md`
+- **触发问题**：用户在 `http://127.0.0.1:5005/bbt_option_seller` 的「当日高低点自动触发机制检测」卡片看到 **08:45 高点#1** L0-C 行「多 ✓空 ✗」，问「为什么不满足开空仓条件」
+
+---
+
+## 1. 交付清单
+
+### 1.1 代码改动（4 个文件，均已落地）
+
+| 文件 | 改动 | 状态 |
+| :--- | :--- | :--- |
+| `PyTools/option_seller/auto_mechanisms.py` | 新增 `GAP_MIN_VETO_PCT = 0.05`（含取值依据注释）；背景支改 `gap_pct <= -0.05%` / `>= +0.05%`（双侧对称）；`out["thresholds"]` 记录五个阈值；`veto_bull` / `veto_bear` 文案写出门槛；L0-C 闸门 `actual` 增回显 `gap=%+.3f%%`、`threshold` 改为含「背景」段的完整口径 | **已落地并实测** |
+| `PyTools/order_flow_analysis/ema_engine.py` | 纯函数版 `forbidden_zone_mask(..., gap_min_pct: float = 0.05)` 同步同一语义 | **已落地并实测** |
+| `PyTools/option_seller/intraday_probe.py` | `gap_pct` 改用 QuantPivot `open` / `prev_close`；缺一即 `None`（fail-open，不伪造） | **已落地并实测** |
+| `PyTools/option_seller/test_l0c_gap_floor.py` | **新增**契约测试 10 项（第三轮扩至 12 项） | **12/12 PASS** |
+| `PyTools/option_seller/auto_mechanisms.py`（**第三轮追加**） | 新增 `L0C_ENFORCE = False`；`check_layer0()` 的 L0-C 块改 L0-A③ 同款 bypass 语义（仍计算、写 `detail` 含 `enforce` 观测值、**不并入** `masked_directions`）；闸门 `L0-C⑥` 标 `bypass=True` / `passed=True` / 两方向放行 + `actual`/`threshold`/`note` 停用标注；`run_cycle()` 增同款观测日志 | **已落地并实测**（详见 §8） |
+
+### 1.2 文档改动（规则 (11)/(10)）
+
+| 文件 | 修订位置 | 备份 |
+| :--- | :--- | :--- |
+| `system_modules/gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.md` | §3.1.1.1 **L0-C**：两支「触发背景」补最小幅度 + 新增依据段；「数据依赖」补缺口口径；「实现现状」段更正为「实盘生效范围」（第二轮：改写为「逐点核实」三条 + 结论；第三轮：小节开头加「当前状态 = L0 统一门槛中停用（bypass 仅观测）」+ 门槛表行标注 + 实现现状/实盘生效范围补停用状态与净效果） | `.bak-20260917_002415`、`.bak-20260917_002841`、`.bak-20260917_003037` |
+| `system_modules/gemini_answer-trading_system_rules_manual-2026-08-29_10-13-45.html` | 同名小节对应位置（浅色主题、既有 tag 结构不变；第二/三轮同步改写） | `.bak-20260917_002415`、`.bak-20260917_002841`、`.bak-20260917_003037` |
+| `system_modules/bbt_trading_modules.html` | **M09** 历史表新增 1 行 + 计数同步（TOC / badge-count / 累计演进历程 / 头部归并数）；第三轮在该行补 bypass 说明与 `badge-tech`「L0-C bypass」（**计数不变**） | `.bak-20260917_002415`、`.bak-20260917_002927`、`.bak-20260917_003037` |
+| `system_modules/82_2026-09-16_L0C_Gap_Min_Magnitude_And_Probe_Gap_Fix/` | 本 Plan + Walkthrough（新建目录；第二轮补录精确取数证据与只读 SQL 旁证；第三轮追加「L0 统一门槛中停用」一节） | 第二轮 `.bak-20260917_002841`、第三轮 `.bak-20260917_003037` |
+
+---
+
+## 2. 验收清单逐条核对
+
+| # | 验收口径 | 结果 | 证据 |
+| ---: | :--- | :--- | :--- |
+| 1 | 背景支「跳空」有最小幅度门槛，**双侧对称** | **PASS** | `GAP_MIN_VETO_PCT = 0.05`；`gap_pct <= -0.05` / `gap_pct >= +0.05`；对称性测试 `test_above_floor_both_directions` |
+| 2 | 边界语义：**恰好 0.05% 达标、0.049% 不达标** | **PASS** | `test_at_floor_up_gap_masks_bearish` / `test_at_floor_down_gap_masks_bullish`（含等号达标）与 `test_below_floor_*`（0.049% 不达标） |
+| 3 | 日内极值支路（±0.40%）不受缺口门槛影响 | **PASS** | `test_day_extreme_branch_unchanged`（`day_high_pct = 0.39%` 且 gap 不达标 ⇒ 不掩码；`>= 0.40%` ⇒ 掩码） |
+| 4 | 语境与位置必须同侧 | **PASS** | `test_context_and_position_must_match_side`（高开背景 + 下沿位置不构成做空掩码） |
+| 5 | **两份实现口径一致** | **PASS** | `test_authority_and_pure_function_agree`（`auto_mechanisms.ema_forbidden_zone_mask` 与 `ema_engine.forbidden_zone_mask` 结论一致） |
+| 6 | 闸门读数回显门槛与实测 gap | **PASS** | `test_gate_reports_gap_floor_and_value`；活体行 `gap=+0.279%`、threshold 含「缺口 >= 0.05%（对称）」 |
+| 7 | 契约测试 10/10 | **PASS** | 见 §3.2 |
+| 8 | 探针回归 34 项 | **PASS** | 见 §3.3 |
+| 9 | L0-F 回归 31 项 | **PASS** | 见 §3.4 |
+| 10 | 探针缺口口径 = RTH 开盘 vs 昨收 | **PASS** | 改后 `gap_pct = +0.279%`（`open 759.50` / `prev_close 757.39`），与活引擎 `pivot_data.gap_pct` 语义一致 |
+| 11 | 今日结论不变 | **PASS** | 真实缺口 +0.279% ≥ 0.05% 且距 15m 带上沿 0.079% ≤ 0.10% ⇒ **仍掩码 BEARISH**；合并掩码仍 `['BEARISH','BULLISH']` |
+| 12 | 仅改文档，不动代码之外的系统 | **PASS** | 未部署、未重启服务、未写数据库（探针路由为只读 GET）、未写凭证 |
+| 13 | 手册 HTML 与 MD 一致 | **PASS** | 两处「触发背景」+ 依据段 + 实现现状/数据依赖 逐句对应 |
+| 14 | 模块页计数全表一致 | **PASS** | 见 §4 |
+| 15 | （第三轮）L0-C 默认在 L0 门槛中 **bypass**：只观测、不拦截（不并入 `masked_directions`） | **PASS** | 契约测试 `test_gate_is_bypassed_observation_only`；活体探针 `L0-C⑥ bypass=true / passed=true / per_direction 两方向 true`，`detail.enforce=False` 且 `detail.masked=['BEARISH']`（观测值保留） |
+| 16 | （第三轮）`mgr.l0c_enforce=True` 可**一键回启**拦截 | **PASS** | 契约测试 `test_gate_blocks_again_when_enabled`（恢复 `passed=False`、`per_direction BEARISH=False`、merged 含 `BEARISH`）；代码级实测见 §8.2 |
+| 17 | （第三轮）探针卡片显示 bypass / 回显本应掩码方向与实测 gap | **PASS** | 活体 `actual = active=True; 掩码=BEARISH; gap=+0.279%; 已停用（仅观测）`、`threshold` 追加「当前 **bypass**：只观测、不拦截」、`note = enforce=False ⇒ 已停用…本轮本应掩码 BEARISH` |
+
+**17/17 全部通过。**
+
+---
+
+## 3. 实测命令与输出
+
+### 3.1 探针缺口口径：改前 +0.036% → 改后 +0.279%
+
+```console
+# 改前口径（当日首根 5m bar 自身开收差）
+_pct_ago(bars_upto[0].spy_open, bars_upto[0].spy_close)      → 2026-09-16 实测 +0.036%（噪声级）
+
+# 改后口径（QuantPivot open / prev_close，即 RTH 开盘 vs 昨收）
+_pct_ago(_qp.open, _qp.prev_close)                            → 2026-09-16 实测 +0.279%
+#   （open 759.50 / prev_close 757.39 ⇒ (759.50 − 757.39) / 757.39 × 100 = +0.279%）
+```
+
+### 3.2 契约测试 10/10
+
+```console
+$ cd PyTools && python3.11 -m unittest option_seller.test_l0c_gap_floor -v
+test_above_floor_both_directions ... ok
+test_at_floor_down_gap_masks_bullish ... ok
+test_at_floor_up_gap_masks_bearish ... ok
+test_authority_and_pure_function_agree ... ok
+test_below_floor_down_gap_does_not_mask_bullish ... ok
+test_below_floor_up_gap_does_not_mask_bearish ... ok
+test_context_and_position_must_match_side ... ok
+test_day_extreme_branch_unchanged ... ok
+test_floor_constant_is_positive ... ok
+test_gate_reports_gap_floor_and_value ... ok
+----------------------------------------------------------------------
+Ran 10 tests in 0.001s
+
+OK
+```
+
+### 3.3 探针回归 34 项
+
+```console
+$ cd PyTools && python3.11 -m unittest option_seller.test_intraday_probe
+[TEST GUARD] 已安装测试隔离：拦截 7 个券商写方法、13 个数据库写方法
+----------------------------------------------------------------------
+Ran 34 tests in 31.170s
+
+OK
+```
+
+### 3.4 L0-F 单边掩码回归 31 项
+
+```console
+$ cd PyTools && python3.11 -m unittest option_seller.test_l0_gamma_one_sided_gate
+----------------------------------------------------------------------
+Ran 31 tests in 0.137s
+
+OK
+```
+
+> 合计 **75 项**全绿（10 + 34 + 31）。
+
+### 3.5 活体只读验证（Flask 自动重载后，`GET` 探针）
+
+```console
+$ curl -s "http://127.0.0.1:5005/api/option_seller/intraday_extremes_probe?date=2026-09-16" -o /tmp/l0c_probe_20260916.json
+$ # 路由注释明确：「绝不触发开仓 / 布防 / 写库」
+```
+
+**08:45 高点#1 L0-C 行（闸门行文本前后对照）**
+
+| 项 | 改前 | 改后（本次实测） |
+| :--- | :--- | :--- |
+| `actual` | `active=True; 掩码=BEARISH` | `active=True; 掩码=BEARISH; gap=+0.279%` |
+| `threshold` | `距带沿 <= 0.10%；或带内/带外 <= 0.50% 且未站稳 2 根` | `背景：缺口 >= 0.05%（对称）或 日内极值 >= 0.40%；空间：距带沿 <= 0.10% 或 带内/带外 <= 0.50% 且未站稳 2 根` |
+| `per_direction` | `{'BEARISH': False, 'BULLISH': True}` | `{'BEARISH': False, 'BULLISH': True}`（不变） |
+| `thresholds` | （无） | `{'band_tol_pct': 0.1, 'band_zone_pct': 0.5, 'day_extreme_pct': 0.4, 'gap_min_pct': 0.05, 'stand_bars': 2}` |
+
+**同日其余点（11:00 LOW / 11:05 HIGH / 11:30 LOW）读数一致**：`gap = +0.279%`（当日缺口为日级常量），L0-C 掩码随位置条件变化。
+
+**活性读数字典（08:45 高点#1，节选）**
+
+```json
+{
+  "time": "08:45", "kind": "HIGH", "mandated_side": "BEARISH", "point_label": "高点",
+  "l0": {
+    "masked": ["BEARISH", "BULLISH"],
+    "detail": {
+      "ema_forbidden_zone": {
+        "active": true, "bearish_ctx": false, "bullish_ctx": true,
+        "thresholds": {"band_tol_pct": 0.1, "band_zone_pct": 0.5, "day_extreme_pct": 0.4,
+                       "gap_min_pct": 0.05, "stand_bars": 2},
+        "inputs": {"day_high_pct": 0.294, "day_low_pct": -0.097, "gap_pct": 0.279, "price": 761.08},
+        "veto_bear": "高开(>= +0.05%)/冲高(>= +0.40%)后向下回踩逼近或进入 EMA 带（第一条 dist<=0.10%=True；第二条 带内/上且距带<=0.50% 且未站稳 2 根=True）⇒ 禁卖 Bear Call"
+      },
+      "gamma_one_sided": {"active": true, "bias": "BULLISH", "masked": ["BEARISH"], "age_min": 0.0},
+      "pos_mask": {"pos": 78.3, "long_cap": 60.0, "short_floor": 40.0}
+    }
+  },
+  "mechanisms": [{"id": "AUTO_5M_SYNTHESIS", "engine": {"bear_score": 3, "bull_score": 34},
+                  "side_view": {"side": "BEARISH", "score": 3, "opposite_score": 34,
+                                "score_ok": false, "setup_ok": false, "l0_side_ok": false}}]
+}
+```
+
+**结论**：本次改动**不改变 2026-09-16 当日判定**（仍掩码 BEARISH，且三维共振 3 < 55、`qualified_bear=False` 本来也开不了空）；实际作用是 **剔除噪声级缺口** + **修正探针口径**。
+
+---
+
+## 4. 模块页（规则 10）与一致性核查
+
+- **选定 module**：**M09. Option Seller 自动化交易引擎与开仓仲裁系统**（L0 门槛 / 一票否决 = 开仓仲裁能力域；该 module 历史表已含 2026-09-13「L0 层代码对齐」行，属同一能力域）。
+- **计数变化**：M09 **6 → 7** 次；头部「归并自 **85 → 86** 项」；TOC `6次演进 → 7次演进`；总览 `badge-count 6 次 → 7 次`；总览「最近更新」`2026-09-14 → 2026-09-16`。
+- **交叉引用**：L0-F⑨ 单边掩码此前记于 **M10**（行 `65_2026-09-15_Layer0_Gamma_One_Sided_Gate`）；按「一个改动一个最相关 module」不重复建行，已在 M09 新行与模块职责中点名 M10。
+- **全表一致性核查（改后重跑）**：18 个 module 的 `TOC 徽标 = 总览 badge-count = 历史表数据行数` 全部成立；头部归并数 = 全部历史行数之和。
+
+| 项 | 改前 | 改后 |
+| :--- | :--- | :--- |
+| M09（TOC / 总览 / 行数） | 6 / 6 / 6 | **7 / 7 / 7** |
+| 全部历史行数合计 | 85 | **86** |
+| 头部「归并自 N 项」 | 85 | **86** |
+| 其余 17 个 module | 全部一致 | 全部一致（未改动） |
+| 不一致项 | 0 | **0** |
+
+---
+
+## 5. 需要用户知道的 (C) 待接线事项（**未实施**）
+
+**实盘取数链已逐点核实（2026-09-16）**：
+
+- **日内极值（可用）**：`PyTools/order_flow_analysis/order_flow_sentinel.py:934-935` 计算 `pivot_dict['day_high_pct']`、`pivot_dict['day_low_pct']`（口径 = 相对当日 RTH 开盘代理，取首个 5m bin 的 `price_start`），并在**同一轮评估**中于 `order_flow_sentinel.py:950` 以 `pivot_data=pivot_dict` 传入卖家引擎；`auto_mechanisms.ema_forbidden_zone_mask` 的取值链是 `_num(om…, raw…, pivot…)`，**对 pivot 有兜底** ⇒ **「日内极值 ≥ 0.40%」支路实盘可用**。
+- **缺口（不可用，待接线）**：`gap_pct` 在**生产链完全没有生产者** —— 全仓仅探针与回测脚本构造它；QuantPivot（`PyTools/pivots/quant_pivot.py`）返回 `open` / `prev_close` / `gap_mode` 而**没有** `gap_pct`；哨兵的 `pivot_dict` 也未写入该键；`option_seller_manager.py:1615` 读 `pivot_data.gap_pct` 或 `om.gap_pct` **均为空**。
+- **补充旁证（不可用「查库」验证）**：这三个键**都不落库** —— 实测 2026-09-16 的 **79 行** `order_flow_signals.quantitative_metrics` 中 `gap_pct` / `day_high_pct` / `day_low_pct` **均未出现**，所以不能用「查库」来验证实盘是否生效，**必须在哨兵进程内看**。本轮验收已以**只读 SQL 独立复核**（仅 SELECT，未写库）：
+
+```console
+$ cd PyTools && python3.11 <<'PY'   # pymysql 只读 SELECT order_flow_signals（signal_date='2026-09-16'）
+rows 2026-09-16: 79
+  rows containing gap_pct: 0
+  rows containing day_high_pct: 0
+  rows containing day_low_pct: 0
+PY
+```
+
+**⇒ 结论**：**实盘 L0-C 目前只有「日内极值 ≥ 0.40%」支路可触发；「跳空 ≥ 0.05%」支路因缺 `gap_pct` 而不可触发** —— 探针之所以能触发，是因为它自行构造了该输入，且其原口径还是错的。本次的门槛收紧（0.05%）与口径修正**只在探针 / 离线回放链路生效**。
+
+**建议接线方式（待用户确认后单独执行）**：在哨兵侧按 `(RTH 开盘 − 昨收) / 昨收 × 100` 产出 `pivot_dict['gap_pct']`（与 `day_*_pct` 同处、同一 SPY 尺度），使探针与实盘口径一致；`auto_mechanisms` 侧无需改动（`_num(pivot, om, raw)` 兜底已就绪）。
+
+**风险提示**：该接线会**改变实盘 L0-C 拦截行为**（过去「跳空」支从不生效）。按既定纪律（行为改动单独确认 + 先纸面回归），**须用户单独确认，本次不实施**。
+
+---
+
+## 6. 核查中发现的与任务描述的差异（逐条如实报告）
+
+| # | 差异 | 影响 | 处置 |
+| ---: | :--- | :--- | :--- |
+| 1 | `test_l0c_gap_floor.py` 的**模块 docstring 与实际常量不一致**：docstring 写 `GAP_MIN_VETO_PCT(0.10%)`、边界「恰好等于 0.10% 视为达标；0.099% 不达标」，而实际常量 = **0.05%**（测试断言用的是 `FLOOR = float(am.GAP_MIN_VETO_PCT)`，故**测试行为正确**，仅注释陈旧） | 无功能影响；仅注释误导 | **未修**（本次约束不碰代码）；建议下次改代码时同步更正为 0.05% / 0.049% |
+| 2 | 「0.05% 与 QuantPivot 的 FLAT/GAP 分界一致（`gap_threshold = 0.0005 × 开盘价`）」在代码中的**精确形式**是：`gap = rth_open − globex_open`、`gap_threshold = 0.0005 × globex_open`，且该分支**只对期货 `ES=F` / `NQ=F`（`gap_adaptive`）生效**；探针用的是 **SPY** 分支的 `open`（SPY 日线 RTH 开盘）与 `prev_close`（上一 RTH 收盘） | 阈值**量级**一致（同为 0.05%），但**参照基准不同**（Globex 开盘 vs 昨收） | 手册按任务给定表述书写（`gap_threshold = 0.0005 × 开盘价`）；差异在此备案，供后续接线时统一口径 |
+| 3 | 探针源码注释写「真实缺口 **+0.278%**」，而按 `open 759.50 / prev_close 757.39` 计算并用 `%+.3f%%` 回显为 **+0.279%** | 纯舍入差异（+0.27859%） | 文档统一采用实测回显值 **+0.279%** |
+| 4 | 手册 HTML 的 `<p>` 标签在**改动前**即存在 1 处未闭合（173 开 / 172 闭），改后为 174 开 / 173 闭 | 本次**未新增**失衡（增量 +1/+1），其余 `div/ul/li/table/tr/td/th/span/strong/code` 全部配平 | 保持现状（不属本次范围，避免顺手动结构） |
+
+---
+
+## 7. 结论
+
+1. 用户看到的 08:45 高点#1「空 ✗」由 **L0-C 掩码**造成（直接原因），但该点**即使无 L0-C 掩码也开不了空**（三维共振做空侧 3 分 < 55、`qualified_bear=False`）；同一时点还叠加 L0-F⑨ 与 L0-B⑤ 两条掩码。
+2. 本次修复两个**真问题**：L0-C 背景支「跳空」加 **0.05% 最小幅度门槛**（双侧对称，边界含等号）；探针 `gap_pct` 口径改为 **RTH 开盘 vs 昨收**（改前 +0.036% → 改后 +0.279%）。
+3. 第三个真问题 **(C) `gap_pct` 生产链无生产者**已审计确认并**如实记录为待接线**（未实施，需用户确认）；手册中「本层已可在实盘生效」的旧表述已更正为准确的**实盘生效范围**。
+4. 今日结论不变；回滚路径明确（`git -C PyTools checkout --` + 删除新测试文件 + 恢复 `.bak-20260917_002415`）。
+5. 规则 (11)/(10) 交付完成：手册 `.md`/`.html` 同步修订、归档目录 `82_2026-09-16_L0C_Gap_Min_Magnitude_And_Probe_Gap_Fix` 建成、模块页 M09 增量更新且全表计数一致。
+
+---
+
+## 8. 追加（2026-09-16 用户指令）：在 L0 统一门槛中停用（bypass 仅观测）
+
+### 8.1 用户指令与实现方式
+
+- **指令原文**：「保留 code path for EMA 禁区反向开仓掩码，但暂时禁掉它在 第 0 层统一门槛，也就是说：L0 规则里不再检测 L0-C EMA 禁区否决」。
+- **实现**：`PyTools/option_seller/auto_mechanisms.py` 新增 `L0C_ENFORCE = False`（紧随 `L0A3_ENFORCE`，同款注释风格）；`check_layer0()` 的 L0-C 块改为 **L0-A③ 同款 bypass 语义** —— 仍逐轮调用 `ema_forbidden_zone_mask(ctx)`（**code path 与 0.05% 门槛全保留**），结果写入 `layer0.detail["ema_forbidden_zone"]` 并新增 `enforce` **观测字段**；`ema_mask = ema_mask_all if enforce else set()` ⇒ **不并入** `res.masked_directions`；闸门 `L0-C⑥` 标 `bypass=True` / `passed=True` / 两方向 `per_direction` 放行，并在 `actual` / `threshold` / `note` 三处写明停用；`run_cycle()` 增加同款观测日志（与 L0-A③ 那条并列）：`L0-C⑥ EMA 禁区闸门【暂时停用 · 仅观测】：本轮本应掩码 BEARISH，已 bypass`。
+- **回启开关**：`L0C_ENFORCE = True` 或 `mgr.l0c_enforce = True`。
+
+### 8.2 代码级实测两态（同一 ctx：gap=+0.279%、价格贴 15m 带上沿）
+
+| 状态 | `L0-C⑥` | 合并掩码 | `ok` | detail |
+| :--- | :--- | :--- | :--- | :--- |
+| 默认（`L0C_ENFORCE=False`） | `passed=True` `bypass=True` `per_direction={'BULLISH':True,'BEARISH':True}` | **`['BULLISH']`**（只剩 L0-B⑤ 高位掩多） | `True` | `enforce=False`、`masked=['BEARISH']`（观测值保留） |
+| `mgr.l0c_enforce=True` | `passed=False` `bypass=False` `per_direction={'BULLISH':True,'BEARISH':False}` | 含 `BEARISH` | — | `enforce=True` |
+
+### 8.3 活体只读探针实测（2026-09-16 08:45 高点#1）
+
+```json
+{ "id": "L0-C⑥", "name": "EMA 禁区反向开仓掩码", "bypass": true, "passed": true,
+  "actual": "active=True; 掩码=BEARISH; gap=+0.279%; 已停用（仅观测）",
+  "threshold": "背景：缺口 >= 0.05%（对称）或 日内极值 >= 0.40%；空间：距带沿 <= 0.10% 或 带内/带外 <= 0.50% 且未站稳 2 根（当前 **bypass**：只观测、不拦截）",
+  "note": "enforce=False ⇒ 已停用（2026-09-16 用户指定，仅观测）；本轮本应掩码 BEARISH",
+  "per_direction": { "BEARISH": true, "BULLISH": true } }
+detail.enforce = false  |  detail.masked = ["BEARISH"]（观测值保留）
+l0.masked = ["BEARISH", "BULLISH"]    # 此处的 BEARISH 来自 L0-F⑨（仍启用）；BULLISH 来自 L0-B⑤
+```
+
+### 8.4 测试结果
+
+- `option_seller/test_l0c_gap_floor.py` **12/12 PASS**（本轮由 10 项扩至 12 项，新增 `test_gate_is_bypassed_observation_only` 与 `test_gate_blocks_again_when_enabled`）。
+- 回归：`option_seller/test_intraday_probe.py` **34 OK**、`option_seller/test_l0_gamma_one_sided_gate.py` **31 OK**。
+- 同时修正前一轮指出的陈旧模块 docstring（0.10% → 0.05%、边界措辞）。
+
+### 8.5 关键结论（务必如实，不得读成「开空现在可以了」）
+
+- **L0-C 当前在 L0 统一门槛中停用（bypass = 只观测、不拦截）**；实现、阈值（0.05%）、探针路径、手册判据**全部保留**，可一键回启。
+- **实盘净效果**：原本（结合发现 (C)）实盘只有「日内极值 ≥ 0.40%」支路可能触发；停用后**该支也不再否决** ⇒ **实盘 L0-C 的净效果 = 完全不参与开仓否决**。
+- **2026-09-16 08:45 高点#1 的结论不变**：该点做空**仍不满足**，原因改为 —— **L0-F⑨ SPX Gamma 单边结构掩码（仍启用，偏向 `BULLISH` ⇒ 掩 `BEARISH`）** + 三维共振做空侧仅 **3 分**（门槛 ≥55）+ `qualified_bear=False`；停用 L0-C 只是**移除三个拦截中的一条**，并不解锁该点。
+- **探针卡片外观**：该行显示为 `bypass` /「已停用（仅观测）」，并回显本应掩码方向与实测 `gap=+0.279%` —— 用于日后决定是否恢复启用。
+
+### 8.6 回滚方式
+
+```bash
+# 方式一（推荐，仅改状态、零代码 diff）
+#   置回 L0C_ENFORCE = True（或 mgr.l0c_enforce = True）即恢复拦截
+# 方式二（回到本次停用前的实现）
+git -C PyTools checkout -- option_seller/auto_mechanisms.py
+```

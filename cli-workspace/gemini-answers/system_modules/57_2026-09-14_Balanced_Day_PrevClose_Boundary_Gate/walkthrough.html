@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Walkthrough · 机制 ③ 平衡日边界：边界级前置「昨收方向」</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#4338ca; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.65;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1160px; margin:0 auto; padding:24px 22px 56px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.40rem; margin:0 0 6px; color:#0f172a; }
+  h2 { font-size:1.06rem; margin:22px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.94rem; margin:16px 0 6px; color:#334155; }
+  .sub { color:var(--muted); font-size:0.84rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:8px 0 4px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.82em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  .ok { color:#047857; font-weight:700; }
+  .bad { color:#b91c1c; font-weight:700; }
+  .warn { background:#fffbeb; border-left:3px solid #f59e0b; padding:9px 12px; font-size:0.84rem; color:#78350f; border-radius:0 6px 6px 0; }
+  .info { background:#f0f9ff; border-left:3px solid #0284c7; padding:9px 12px; font-size:0.84rem; color:#0c4a6e; border-radius:0 6px 6px 0; }
+  ul { margin:6px 0 6px 18px; padding:0; }
+  li { margin:3px 0; font-size:0.86rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <h1>机制 ③「平衡日边界」边界级前置 —— 昨收方向（缺口日保护）· 验收报告</h1>
+    <div class="sub">2026-09-14 · 归档 <code>57_2026-09-14_Balanced_Day_PrevClose_Boundary_Gate</code></div>
+    <p style="font-size:0.86rem;margin:12px 0 0;">
+      用户指令：<b>「对不同的边界，针对开仓方向，做和昨天收盘价的限制」</b>
+      —— 推广自模块 56（机制 ② QuantPivot 边界反向 的 H1/L1 昨收方向），载体改为机制 ③ 的<b>边界族</b>。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. 规则与执行位置</h2>
+    <table>
+      <tr><th style="width:18%;">开仓方向</th><th style="width:30%;">依据的边界（归属侧 + 最近）</th><th style="width:24%;">前置判据</th><th>不满足后果</th></tr>
+      <tr><td><b>BEARISH</b><br>（卖 Bear Call 做空）</td>
+          <td>上侧边界族中<b>距现价最近</b>者<br>（<code>day_high</code> ∪ {关键位 ≥ 现价}）</td>
+          <td><code>最近上侧边界 &gt; ES 昨收</code></td>
+          <td>该方向<b class="bad">一票否决</b>（评分器返回 <code>veto</code>）</td></tr>
+      <tr><td><b>BULLISH</b><br>（卖 Bull Put 做多）</td>
+          <td>下侧边界族中<b>距现价最近</b>者<br>（<code>day_low</code> ∪ {关键位 ≤ 现价}）</td>
+          <td><code>最近下侧边界 &lt; ES 昨收</code></td>
+          <td>该方向<b class="bad">一票否决</b>（严格反向对称）</td></tr>
+    </table>
+    <div class="info" style="margin-top:10px;">
+      <b>执行位置</b>：评分器的<b>方向选择处</b>
+      （<code>nearest_boundary_values()</code> + <code>check_balanced_boundary_prev_close()</code>，
+      由 <code>_select_direction_with_prev_close()</code> 统一裁决）
+      ⇒ <b>v1 / v2 同规则</b>，且只读探针 / 影子回放<b>自动继承</b>。
+    </div>
+    <p style="font-size:0.85rem;margin:8px 0 0;">
+      <b>回退规则</b>：首选方向被拦 ⇒ <b>回退校验另一方向</b>（通过则按其得分 / 组数出信号）；两侧全被拦才 <code>veto</code>
+      （<b>不静默降级为「不出信号」</b>）。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>2. ⚠️ 尺度铁律（本模块最重要的口径）</h2>
+    <div class="warn">
+      机制 ③ 边界族（<code>day_high</code> / <code>day_low</code> 行价格 与 Smashelito <code>ut1/fut/dt1/fdt</code>）为 <b>ES 点</b>；
+      因此 <code>prev_close</code> 必须取 <b>ES 昨收</b>（<code>load_prev_close_es()</code>），<b>不得</b>用 SPY 收盘价。
+    </div>
+    <pre>ES  昨收（ES=F 上一交易日 Close） = 7659.50     ← 与边界族同尺度 ✅
+SPY 昨收 × 10（SPY 764.29）       = 7642.90     ← 差 16.6 点 ❌</pre>
+    <p style="font-size:0.85rem;">
+      <b>反例（实测纯函数）</b>：ES 边界 <code>7650</code> 时 ——
+      用 ES 昨收 ⇒ 做空 <b class="ok">被拦</b>（正确）；用 SPY 昨收 ⇒ 会 <b class="bad">误放行</b>（<b>结论相反</b>）。
+      已写成单元测试 <code>test_spy_scale_prev_close_would_be_wrong</code> / <code>test_prev_close_is_es_scale</code>。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>3. 结构性质：至多拦截一侧</h2>
+    <p style="font-size:0.86rem;">
+      上侧边界 <code>≥</code> 下侧边界恒成立 ⇒ <b>正常双边界下本项至多拦截一侧</b>
+      （BEARISH 被拦 ⟺ 上边界 ≤ 昨收；BULLISH 被拦 ⟺ 下边界 ≥ 昨收；
+      两者同时成立要求「上 = 下 = 昨收」的零宽度退化）
+      ⇒ <b>本前置不会把机制整体静默关掉</b>，只拦掉「逆缺口」的那一侧。
+    </p>
+    <p style="font-size:0.85rem;"><b>数据缺失 ⇒ fail-closed</b>：边界值或昨收缺失 / <code>≤ 0</code> ⇒ 该方向拦截，
+      标记 <code>data_missing=True</code>（与 §3.1.1.1 L0-A③ 同口径）。</p>
+  </div>
+
+  <div class="card">
+    <h2>4. 验收证据</h2>
+
+    <h3>4.1 新增契约测试 24/24 通过</h3>
+    <pre>/usr/local/bin/python3 PyTools/option_seller/test_balanced_day_prev_close_gate.py
+Ran 24 tests in 0.416s — OK</pre>
+    <table>
+      <tr><th style="width:14%;">组</th><th style="width:42%;">测试</th><th>断言</th></tr>
+      <tr><td rowspan="8">纯函数（8）</td><td><code>test_bearish_passes_when_boundary_above_prev_close</code></td><td>上侧边界 &gt; 昨收 ⇒ 放行，<code>applicable=True</code></td></tr>
+      <tr><td><code>test_bearish_blocked_when_boundary_below_prev_close</code></td><td>7700 / 7717 ⇒ 拦截（理由含两数）</td></tr>
+      <tr><td><code>test_bearish_blocked_when_boundary_equals_prev_close</code></td><td><b>严格不等</b>：相等亦拦</td></tr>
+      <tr><td><code>test_bullish_passes_when_boundary_below_prev_close</code></td><td>下侧边界 &lt; 昨收 ⇒ 放行</td></tr>
+      <tr><td><code>test_bullish_blocked_when_boundary_above_or_equal</code></td><td>上 / 相等 ⇒ 拦截</td></tr>
+      <tr><td><code>test_missing_data_is_fail_closed</code></td><td>6 组缺项 ⇒ 全拦 + <code>data_missing=True</code></td></tr>
+      <tr><td><code>test_non_directional_is_na</code></td><td><code>NONE</code> ⇒ N/A</td></tr>
+      <tr><td><b><code>test_spy_scale_prev_close_would_be_wrong</code></b></td><td><b>尺度反例：SPY 昨收会得出相反结论</b></td></tr>
+      <tr><td rowspan="4">最近边界（4）</td><td><code>test_picks_nearest_on_each_side</code></td><td>上 7717 / 下 7690（关键位比 <code>day_low</code> 更近）</td></tr>
+      <tr><td><code>test_includes_key_levels_only_on_their_side</code></td><td>上 / 下侧各取最近</td></tr>
+      <tr><td><code>test_empty_side_is_none</code></td><td>空侧 ⇒ None</td></tr>
+      <tr><td><code>test_none_price_returns_none</code></td><td>现价 None ⇒ (None, None)</td></tr>
+      <tr><td rowspan="4">方向选择（4）</td><td><code>test_primary_passes</code></td><td>首选通过，无 blocked</td></tr>
+      <tr><td><b><code>test_fallback_to_opposite_when_primary_blocked</code></b></td><td><b>主方向被拦 ⇒ 回退对侧并通过</b></td></tr>
+      <tr><td><b><code>test_at_most_one_side_blocked_for_normal_two_sided_boundaries</code></b></td><td><b>结构性质：正常双边界至多拦一侧</b></td></tr>
+      <tr><td><code>test_both_blocked_only_in_degenerate_case</code> / <code>test_empty_candidates</code></td><td>零宽度退化两侧全拦 / 空候选</td></tr>
+      <tr><td rowspan="7">评分器（7）</td><td><code>test_v2_allowed_when_upper_boundary_above_prev_close</code></td><td><code>veto=None</code>、<code>_direction=BEARISH</code>、score ≥70、groups=1</td></tr>
+      <tr><td><code>test_v2_blocked_when_upper_boundary_below_prev_close</code></td><td>score None、groups 0、<code>veto</code> 含 <code>balanced BEARISH</code></td></tr>
+      <tr><td><code>test_v2_missing_prev_close_is_fail_closed</code></td><td>缺昨收 ⇒ fail-closed</td></tr>
+      <tr><td><b><code>test_v2_fallback_records_both_sides</code></b></td><td><b>回退到 BULLISH，gate 明细两方向都留痕</b></td></tr>
+      <tr><td><code>test_v2_without_prev_close_kwarg_still_runs</code></td><td>向后兼容：不传参也 fail-closed（不再静默放行）</td></tr>
+      <tr><td><b><code>test_v1_same_rule</code></b></td><td><b>v1 与 v2 同规则</b>（安全前置不随评分器版本漂移）</td></tr>
+      <tr><td>（同上，v1 放行时方向为 BEARISH）</td><td>与 v2 同向</td></tr>
+      <tr><td>尺度守卫（1）</td><td><code>test_prev_close_is_es_scale</code></td><td>ES 昨收 &gt; 1000、== QuantPivot ES <code>prev_close</code>、与 SPY×10 差 &gt; 5 点</td></tr>
+    </table>
+
+    <h3>4.2 只读探针（2026-09-14 实跑）</h3>
+    <pre>09:45 高点 | mandated=BEARISH | verdict=QUALIFIED
+   前置：昨收方向（边界级 · 上侧边界） | actual= 最近边界=7708.25 / 昨收(ES)=7659.5 | passed= True
+09:50 高点 | mandated=BEARISH | verdict=QUALIFIED
+   前置：昨收方向（边界级 · 上侧边界） | actual= 最近边界=7717.0  / 昨收(ES)=7659.5 | passed= True
+07:40 / 07:55 低点 | mandated=BULLISH | verdict=REJECTED
+   前置：昨收方向（边界级） | actual= 本侧未出方向候选 ⇒ 未评估 | passed= None</pre>
+    <p style="font-size:0.85rem;">
+      ⇒ 判据行按<b>本点统一口径方向</b>取「该侧最近边界」；当日下侧边界（7690 / 7665.25）<b>均 ≥ ES 昨收 7659.5</b>
+      ⇒ BULLISH 侧无候选；当日命中全为 BEARISH（上侧边界 7708–7717 &gt; 昨收 ⇒ 放行）。
+    </p>
+
+    <h3>4.3 影子回放（同口径，只读）</h3>
+    <pre>/usr/local/bin/python3 PyTools/option_seller/balanced_day_shadow.py --date 2026-09-14 --scorer v2
+  2026-09-14      25 次触发  日型 趋势↑
+  方向: BULL=0 / BEAR=25        ← 与「下侧边界 ≥ ES 昨收 ⇒ 做多被拦」一致
+  质量: 有效 20 / 假信号 5 ⇒ 假信号率 20%（目标 ≤40%）</pre>
+    <p style="font-size:0.85rem;">⇒ 影子路径<b>未被 fail-closed 清空</b>（昨收取数正常），方向分布体现了前置的实际作用。</p>
+
+    <h3>4.4 回归（全绿）</h3>
+    <table>
+      <tr><th>套件</th><th style="width:16%;">结果</th></tr>
+      <tr><td><code>test_balanced_day_prev_close_gate.py</code>（新增）</td><td class="ok">24/24</td></tr>
+      <tr><td><code>test_intraday_probe.py</code>（含新增 1 条判据行契约）</td><td class="ok">34/34</td></tr>
+      <tr><td><code>test_quant_pivot_option_seller.py</code></td><td class="ok">4/4</td></tr>
+      <tr><td><code>test_qp_prev_close_gate.py</code>（模块 56）</td><td class="ok">21/21</td></tr>
+      <tr><td><code>test_conditional_order_trigger_3131.py</code></td><td class="ok">9/9</td></tr>
+      <tr><td><code>test_qp_meta_parse.py</code></td><td class="ok">20/20</td></tr>
+      <tr><td><code>test_strike_anchor_3131.py</code></td><td class="ok">11/11</td></tr>
+      <tr><td><code>test_l1_h1_breakeven_stop.py</code></td><td class="ok">1/1</td></tr>
+      <tr><td><code>test_force_dry_degrade.py</code></td><td class="ok">18/18</td></tr>
+      <tr><td><code>test_journal_filter_catalog</code> / <code>_mode_filter</code> / <code>_group_key</code></td><td class="ok">11 / 9 / 12</td></tr>
+    </table>
+
+    <h3>4.5 语法</h3>
+    <pre>python3 -m py_compile PyTools/option_seller/balanced_day_boundary.py \
+    PyTools/option_seller/balanced_day_data.py PyTools/option_seller/balanced_day_shadow.py \
+    PyTools/option_seller/intraday_probe.py PyTools/option_seller/option_seller_manager.py   → COMPILE OK</pre>
+  </div>
+
+  <div class="card">
+    <h2>5. 规则手册已同步（规则 11）</h2>
+    <ul>
+      <li><b>HTML</b>：新增子节 <code>§3.1.4.1.8 边界级前置：昨收方向（缺口日保护）</code>
+        （规则表 + <b>尺度铁律</b>告警块 + 作用层级 + 回退规则 + <b>结构性质</b> + fail-closed + 留痕 + 影子同口径）；
+        并在 <code>§3.1.4.1.1 ③ 上侧/下侧归属与距离阈值</code> 增加交叉引用条目。</li>
+      <li><b>MD</b>：<code>§3.1.4.2 评分与方向</code> 增加同名规则摘要（含尺度铁律与全部要点），并更新「以 HTML 为准」的收口清单。</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>6. 行为变化摘要</h2>
+    <table>
+      <tr><th style="width:40%;">场景</th><th>旧行为</th><th>新行为</th></tr>
+      <tr><td>大幅低开日，<b>上侧边界仍 ≤ 昨收</b>（阻力未收复昨收）</td><td>可卖 Bear Call 做空</td><td class="bad">该方向拦截（若对侧通过则改用对侧）</td></tr>
+      <tr><td>大幅低开日，上侧边界 &gt; 昨收</td><td>做空</td><td class="ok">不变（放行）</td></tr>
+      <tr><td>大幅高开日，<b>下侧边界仍 ≥ 昨收</b>（支撑仍在昨收上方）</td><td>可卖 Bull Put 做多</td><td class="bad">该方向拦截（对称）</td></tr>
+      <tr><td>大幅高开日，下侧边界 &lt; 昨收</td><td>做多</td><td class="ok">不变</td></tr>
+      <tr><td>正常双向边界</td><td>原逻辑</td><td class="ok">至多一侧被拦，机制不会被整体关掉</td></tr>
+      <tr><td>昨收 / 边界数据缺失</td><td>（无此校验）</td><td class="bad">fail-closed（记录 <code>data_missing</code>，不静默放行）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>7. 遗留 / 建议（据实登记）</h2>
+    <div class="warn">
+      <b>边界数据本身的异常（非本模块引入）</b>：实测 2026-09-14 <code>order_flow_signals</code> 的 ES 价格（7669–7717）
+      比同日 <code>spx_gamma_signals</code> SPOT（7594.84–7645.03）高约 <b>75 点</b>；机制 ③ 的 <code>day_high/day_low</code> 直接来自前者。
+      本前置只能与<b>传入的边界同尺度</b>比较；建议单独复核该日 ES 数据源（是否错用了其它合约 / 会话）。
+    </div>
+    <p style="font-size:0.85rem;">D 维（真空）与 v1 影子不受本项影响；<code>v1_shadow</code> 仍按同规则计算（便于对照）。</p>
+  </div>
+
+  <div class="card">
+    <h2>8. 回滚</h2>
+    <ul>
+      <li><b>代码</b>：<code>git -C PyTools checkout -- option_seller/balanced_day_boundary.py option_seller/balanced_day_data.py option_seller/option_seller_manager.py option_seller/intraday_probe.py option_seller/balanced_day_shadow.py option_seller/test_intraday_probe.py</code>，
+        并删除 <code>option_seller/test_balanced_day_prev_close_gate.py</code>。</li>
+      <li><b>规则手册</b>：改动前留有时间戳快照 <code>….html.bak-20260914_231410</code>（另有同批 <code>…_231354</code>）与 MD 同批快照。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

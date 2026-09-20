@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - Order Flow 深度分析模块（skill + pattern 体系 + 页面展示）</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header style="padding:28px 32px 20px;background:#ffffff;border-bottom:1px solid var(--line);">
+<h1>Order Flow 深度分析模块验收报告</h1>
+<div class="meta"><span>2026-09-14</span><span>Order Flow 深度分析模块</span>
+<span>模块归档 55</span><span>Light Theme</span></div>
+</header>
+<div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#1.-结论先行">1. 结论先行</a></li><li><a href="#2.-处理逻辑-落地为代码">2. 处理逻辑（落地为代码）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.1-TICK-DOM-元数据-指标">2.1 TICK / DOM 元数据 → 指标</a></li><li style="margin-left:20px;list-style:none"><a href="#2.2-DOM-全窗口聚合-dom_window_profile">2.2 DOM 全窗口聚合（`dom_window_profile`）</a></li><li style="margin-left:20px;list-style:none"><a href="#2.3-证据向量-pattern">2.3 证据向量 + pattern</a></li><li style="margin-left:20px;list-style:none"><a href="#2.4-回测-标定-跟踪">2.4 回测 / 标定 / 跟踪</a></li><li><a href="#3.-实测证据">3. 实测证据</a></li><li style="margin-left:20px;list-style:none"><a href="#3.1-首轮回测-12-日-命中-方向-Δ-3-点">3.1 首轮回测（12 日 · 命中=方向 |Δ|≥3 点）</a></li><li style="margin-left:20px;list-style:none"><a href="#3.2-case-前向回填">3.2 case 前向回填</a></li><li style="margin-left:20px;list-style:none"><a href="#3.3-页面">3.3 页面</a></li><li><a href="#4.-页面改动">4. 页面改动</a></li><li><a href="#5.-回滚">5. 回滚</a></li><li><a href="#6.-遗留与后续">6. 遗留与后续</a></li></ul></div>
+<section class="main-content">
+<h1 id="Order-Flow-深度分析模块验收报告">Order Flow 深度分析模块验收报告</h1>
+<ul><li><strong>日期</strong>：2026-09-14</li><li><strong>模块</strong>：<code>order-flow-deep-analysis</code> skill（证据向量 + P1–P5 pattern + 回测/标定）+ 大周期页面展示卡片</li><li><strong>归档目录</strong>：<code>55_2026-09-14_Order_Flow_Deep_Analysis_Skill</code></li><li><strong>技术栈</strong>：Python 3.11 / MySQL <code>bb_trade</code> / MW 原始 TICKS/DOM / Flask + Jinja2 / agent skill / 浅色主题 / headless Chrome DOM 断言</li></ul>
+<h2 id="1.-结论先行">1. 结论先行</h2>
+<table><thead><tr><th>需求</th><th>结果</th></tr></thead><tbody><tr><td>可重复的深度分析 skill</td><td>✅ <code>order-flow-deep-analysis</code>（时间点/段 → 五板块报告 + 🧩 pattern 板块，命名规范落盘）</td></tr><tr><td>DOM 全窗口扫描（修「以偏概全」+「硬编码」）</td><td>✅ <code>dom_window_profile()</code> 聚合器；交叉表/解读全部接真实计算</td></tr><tr><td>证据向量 + pattern</td><td>✅ <code>patterns.py</code>：<code>match_patterns</code>（P1–P5，可机检、阈值可覆盖）</td></tr><tr><td>积累 → 标定</td><td>✅ <code>of_deep_pattern_cases</code> 落库 + <code>backtest.py</code>（回测/回填）+ <code>calibrate.py</code>（网格→回写常量）</td></tr><tr><td>页面展示</td><td>✅ <code>/bbt_signals_large_timeframe</code> 新增「Order Flow 深度分析」卡片（可收起，默认收起）；Adam 卡片改可收起（默认收起）</td></tr></tbody></table>
+<h2 id="2.-处理逻辑-落地为代码">2. 处理逻辑（落地为代码）</h2>
+<h3 id="2.1-TICK-DOM-元数据-指标">2.1 TICK / DOM 元数据 → 指标</h3>
+<table><thead><tr><th>层</th><th>脚本</th><th>产出</th></tr></thead><tbody><tr><td>TICK</td><td><code>adam_tick_analysis.tick_analysis</code></td><td>概览 / 分窗口（5/10/15/30/60m 净 Delta·量·位移·比）/ Volume Profile（POC/VAH/VAL）/ ≥20 手大单 / 逐分钟节奏</td></tr><tr><td>DOM</td><td><code>adam_dom_analysis.dom_analysis</code></td><td>±2/±5/±15/±25 tick 失衡 / 挂单墙 / 堆叠 / 真空 / T−60…T0 演变 / 引擎同名对照</td></tr><tr><td>引擎行</td><td><code>order_flow_signals</code></td><td><code>recent_micro_5m</code>（Δ5m 系列）· <code>imb_short/mid</code>（±2/±5）· <code>recent_30m_delta</code>（慢）· <code>washout_*</code> / <code>quality_tier</code></td></tr></tbody></table>
+<h3 id="2.2-DOM-全窗口聚合-dom_window_profile">2.2 DOM 全窗口聚合（<code>dom_window_profile</code>）</h3>
+<p>修两个缺陷：① 交叉表 DOM 只看 T0 单点 ② section 3 的「imb 偏空」硬编码。现产出：<code>mean5</code>（时间加权）/ <code>bull·bear·neut_frac</code>（分时占比）/ <code>first·second_half_mean</code>（收敛检测）/ <code>runs</code>（连续同侧段）/ <code>agree_frac</code>（DOM×tick 逐段同向占比）/ <code>missing</code>（盲区槽数）。</p>
+<h3 id="2.3-证据向量-pattern">2.3 证据向量 + pattern</h3>
+<p><code>build evidence</code>（tick/dom/engine 三层 + 位置分位）→ <code>match_patterns(ev, th=None)</code>（P1–P5，阈值可覆盖）。当日 07:25–08:15 → <code>P1+P5 / medium</code>。</p>
+<h3 id="2.4-回测-标定-跟踪">2.4 回测 / 标定 / 跟踪</h3>
+<ul><li><code>backtest.py --since-days N [--backfill]</code>：逐 5m 槽构建窗口 → 匹配 → 前向结果 → 按 pattern 聚合；<code>--backfill</code> 写回 <code>of_deep_pattern_cases</code>。</li><li><code>calibrate.py --apply</code>：网格 <code>P1_POS_MAX ∈ {0.20…0.60}</code> → 选定 0.20（命中30m 48%/94 样本，优于 0.40 的 41%/159）→ 写回 <code>patterns.py</code>。</li></ul>
+<h2 id="3.-实测证据">3. 实测证据</h2>
+<h3 id="3.1-首轮回测-12-日-命中-方向-Δ-3-点">3.1 首轮回测（12 日 · 命中=方向 |Δ|≥3 点）</h3>
+<table><thead><tr><th>pattern</th><th>样本</th><th>命中30m</th><th>命中60m</th><th>平均30m</th><th>平均MFE</th></tr></thead><tbody><tr><td><strong>P4 挂单-成交共振</strong></td><td>25</td><td>68%</td><td>76%</td><td>+1.82</td><td>+4.60</td></tr><tr><td><strong>P1 低点吸收（标定后 0.20）</strong></td><td>94</td><td>48%</td><td>52%</td><td>+3.06</td><td>+7.60</td></tr><tr><td>P5 短长窗背离</td><td>103</td><td>45%</td><td>50%</td><td>+2.41</td><td>+4.98</td></tr></tbody></table>
+<h3 id="3.2-case-前向回填">3.2 case 前向回填</h3>
+<p>手动落库 <code>ES_2026-09-14_0815</code>（P1+P5/medium）→ 前向 <code>+10.25 / +35.75 / +29.5</code> 点，<code>fwd_hit_30m=1</code>（30 分钟命中 ✓）。</p>
+<h3 id="3.3-页面">3.3 页面</h3>
+<ul><li>端点 <code>/data/order_flow_deep_analysis</code> → <code>{data:[case…], reports:[…]}</code>（time 修正为 HH:MM ✓）。</li><li>headless DOM 断言：OF 卡片 case 行 <code>2026-09-14 · 08:15 · 多 · P1+P5 · medium · +10.25✓/+35.75✓/+29.5✓ · 打开(报告链接)</code>；Adam 卡片展开后正常渲染；两卡片 body 默认 <code>display:none</code>（默认收起 ✓）。</li></ul>
+<h2 id="4.-页面改动">4. 页面改动</h2>
+<table><thead><tr><th>位置</th><th>改动</th></tr></thead><tbody><tr><td><code>bbt_signals.py</code></td><td>新增 <code>GET /data/order_flow_deep_analysis</code>（只读，读 <code>of_deep_pattern_cases</code> + 报告目录清单）</td></tr><tr><td><code>bbt_signals_large_timeframe.html</code></td><td>Adam 卡片：header 加 toggle + body 包进 <code>#adamResearchBodyContainer</code>（默认收起，首次展开才拉数据）；新增「Order Flow 深度分析」卡片（可收起，默认收起，懒加载，列出 case + 前向结果 + 报告链接）</td></tr></tbody></table>
+<h2 id="5.-回滚">5. 回滚</h2>
+<ul><li>skill 回滚：删 <code>~/.agents/skills/order-flow-deep-analysis/</code> 下 <code>scripts/patterns.py</code> / <code>backtest.py</code> / <code>calibrate.py</code>（<code>run_analysis.py</code> 回退到无 pattern 版本）。</li><li>页面回滚：还原 <code>bbt_signals_large_timeframe.html</code>（Adam 卡片去掉 toggle 包裹 + 删除 OF 卡片）；还原 <code>bbt_signals.py</code> 删除新路由。</li></ul>
+<h2 id="6.-遗留与后续">6. 遗留与后续</h2>
+<ol><li><strong>≥20 手大单</strong>（暂缓，用户有其他想法）：落地后激活 P1/P3 大额否决，重跑标定。</li><li><strong>阈值随日数收敛</strong>：<code>P1_POS_MAX=0.20</code> 是 12 日首轮，样本仍小（94，48% 的 95%CI 约 ±10 点）；每日运行 <code>calibrate.py</code> 累积收敛。</li><li><strong>全量语料</strong>：回测目前只回填已存在的 case；如需把全部历史槽自动灌入 <code>of_deep_pattern_cases</code> 作语料，加 <code>--insert-all</code> 模式。</li><li><strong>P2/P3</strong>：P2 需 washout 事件（样本少）、P3 缺大额数据，暂无法标定。</li></ol>
+<h2 id="7.-后续升级">7. 后续升级（同日 · Adam 卡片 order flow 对齐 + OF 卡片表格化）</h2>
+<blockquote><p>2026-09-14 晚（承接本节 module）：把新方法<strong>接入 Adam 日报</strong>，并把 OF 卡片从「一行一 case + 外链报告」升级为<strong>表格 + 行内展开报告 + 拷贝/删除</strong>。</p></blockquote>
+<h3 id="7.1-Adam-日报的-order-flow-分析对齐新方法">7.1 Adam 日报的 order flow 分析对齐新方法（<code>PyTools/jobs/adam_signal_deepdive.py</code>）</h3>
+<table><thead><tr><th>能力</th><th>落地</th></tr></thead><tbody>
+<tr><td>DOM 全窗口聚合</td><td>新增模块级 <code>dom_window_profile()</code>（对齐 skill 同名函数）：<code>mean5/mean2</code>、偏空/偏多/中性<strong>时长占比</strong>、前后半段<strong>收敛检测</strong>、DOM×tick <strong>同向占比</strong>、盲区槽数</td></tr>
+<tr><td>证据向量 + P1–P5</td><td>每帖构建证据向量 → 复用 <code>patterns.match_patterns()</code> → 新增「🧩 命中的 pattern」板块</td></tr>
+<tr><td>机构大单层</td><td>合并结论表新增「机构大单」行（<code>SingleTickBigTrade</code> 净额 ✓）</td></tr>
+<tr><td>单点 → 全窗</td><td>「方向」行升级为「方向 · 全窗」；系统指标解读里的<strong>单点盘口失衡</strong>换成窗口级解读（识别「吸收共现」与「真反对」）</td></tr>
+</tbody></table>
+<ul><li>实测（09-14 两帖 bearish）：<code>build_day('2026-09-14', persist=False)</code> 成功，命中 <code>P3 高位派发(medium) + P5</code>。</li><li>说明：历史日报的逐帖缓存（<code>adam_deep_payload</code>）仍是旧方法产物；<strong>新生成的日报</strong>才含新方法。</li></ul>
+<h3 id="7.2-OF-卡片表格化">7.2 OF 卡片表格化（<code>bbt_data_web/templates/bbt_signals_large_timeframe.html</code>）</h3>
+<table><thead><tr><th>项</th><th>结果</th></tr></thead><tbody>
+<tr><td>表格列</td><td>报告(⊕+标的) · 数据日 · 窗口 · 方向 · 命中 pattern · 置信 · 前向 15m/30m/60m · 分析摘要 · <strong>操作</strong></td></tr>
+<tr><td>操作列</td><td><strong>拷贝</strong>（<code>fa-copy</code>，复制摘要 + 报告路径）· <strong>删除</strong>（<code>fa-trash-alt</code>，删 DB case）</td></tr>
+<tr><td>行内展开</td><td>点击 ⊕ → 展开 <code>iframe</code> 直读报告 HTML（<strong>首次展开才赋 <code>src</code></strong> ⇒ 不展开不加载 ✓）；<strong>自适应全高</strong>：<code>onload</code> 量同源 <code>contentDocument</code> 高度 → 设 <code>iframe</code> 高度 + 内容 <code>overflow:hidden</code> ⇒ <strong>无内部滚动条</strong> ✓（<code>resize</code> 时重算 ✓）</td></tr>
+<tr><td>每页条数（Adam 卡片）</td><td>25 → <strong>15</strong></td></tr>
+</tbody></table>
+<h3 id="7.3-新增-增强端点">7.3 新增/增强端点（<code>bbt_data_web/data_app/bbt_signals.py</code>）</h3>
+<table><thead><tr><th>端点</th><th>作用</th></tr></thead><tbody>
+<tr><td><code>GET /data/order_flow_deep_analysis</code>（增强）</td><td>补 <code>window_start/window_end</code>（HH:MM ✓，用 <code>total_seconds()</code>）+ 每 case 映射<strong>最新</strong> <code>report_file</code></td></tr>
+<tr><td><code>GET /data/order_flow_deep_report?file=</code></td><td>回传单个报告 HTML（<strong>正则白名单 + resolve 父目录校验</strong> ⇒ 防目录穿越 ✓）</td></tr>
+<tr><td><code>POST /data/order_flow_deep_delete</code></td><td>按 <code>case_id</code> 删 <code>of_deep_pattern_cases</code> 行（<strong>仅删 DB 记录，报告文件保留</strong> ✓）</td></tr>
+</tbody></table>
+<h3 id="7.4-回填-09-14">7.4 回填（09-14 07:25 → 08:25）</h3>
+<ul><li><code>run_analysis.py --date 2026-09-14 --start 07:25 --end 08:25 --log-case</code> → <code>order_flow_analysis_ES_2026-09-14_0825_low_absorption_2026-09-14_2220.html</code>，bias=bullish，<code>P1 / medium</code>。</li><li><code>backtest.py --date 2026-09-14 --backfill</code> → 前向结果 <code>+17.25 / +23.75 / +29.5</code>（15/30/60m 全命中 ✓）。</li></ul>
+<h3 id="7.5-验收">7.5 验收（headless DOM 断言）</h3>
+<ul><li>表头 9 列 ✓；两 case（0825 / 0815）✓；窗口列 <code>07:25 → 08:25</code> ✓；<code>fa-copy</code> / <code>fa-trash-alt</code> 存在 ✓。</li><li>首行：<code>ES 2026-09-14 07:25 → 08:25 BULLISH P1 MED +17.25✓ / +23.75✓ / +29.5✓ ES_2026-09-14_0825</code>。</li><li>展开：<code>ofDeepDetail-&lt;cid&gt;</code> 显示 + <code>iframe.src</code> 已设为 <code>/data/order_flow_deep_report?file=…</code> ✓。</li><li>端点：报告 <code>HTTP 200 · text/html</code>；<code>../../../etc/passwd</code> 与 <code>foo.html</code> → <code>HTTP 400</code> ✓。</li></ul>
+<h3 id="7.6-回滚">7.6 回滚（本节）</h3>
+<ul><li><code>adam_signal_deepdive.py</code>：<code>/tmp/adam_signal_deepdive_pre_ofdeep_upgrade.py.bak</code>。</li><li>页面：OF 表头还原 7 列 + <code>per</code> 改回 25；删 3 个新 JS 函数（<code>ofDeepToggleRow</code> / <code>ofDeepCopyCase</code> / <code>ofDeepDeleteCase</code>）。</li><li>后端：删 <code>/data/order_flow_deep_report</code> + <code>/data/order_flow_deep_delete</code>；<code>order_flow_deep_analysis</code> 去掉 <code>report_file</code> 与 window 字段。</li></ul>
+</section>
+</article>
+</main>
+</body>
+</html>

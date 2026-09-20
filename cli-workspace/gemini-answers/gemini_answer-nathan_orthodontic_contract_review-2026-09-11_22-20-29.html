@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - Nathan Bian 正畸合同 — 对我方不利条款审查</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">Nathan Bian 正畸合同 — 对我方不利条款审查</h1>
+<div class="meta">
+<span>Saved: 2026-09-11 22:20:29</span>
+<span>Topic: nathan_orthodontic_contract_review</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#一、财务条款-(Page-1-2)">一、财务条款 (Page 1-2)</a><ul><li><a href="#1.-信用卡-4%-手续费">1. 信用卡 4% 手续费</a></li><li><a href="#2.-取消治疗-—-$400-实验室费-+-按比例重新计算费用">2. 取消治疗 — $400 实验室费 + 按比例重新计算费用</a></li><li><a href="#3.-保险免责-—-患者承担一切未付金额">3. 保险免责 — 患者承担一切未付金额</a></li><li><a href="#4.-逾期收款-—-10天即开始催收-+-$15滞纳金">4. 逾期收款 — 10天即开始催收 + $15滞纳金</a></li><li><a href="#5.-超时治疗附加费用">5. 超时治疗附加费用</a></li><li><a href="#6.-替换保持器不包含在费用内">6. 替换保持器不包含在费用内</a></li></ul></li><li><a href="#二、预约与违约条款-(Page-4)">二、预约与违约条款 (Page 4)</a><ul><li><a href="#7.-爽约罚金-—-$75/次-(部分预约第2次起即收取)">7. 爽约罚金 — $75/次 (部分预约第2次起即收取)</a></li><li><a href="#8.-爽约后重新预约需等待-4-8-周">8. 爽约后重新预约需等待 4-8 周</a></li></ul></li><li><a href="#三、医疗风险免责-(Page-5-6)">三、医疗风险免责 (Page 5-6)</a><ul><li><a href="#9.-不保证治疗效果">9. 不保证治疗效果</a></li><li><a href="#10.-治疗时间可单方面延长">10. 治疗时间可单方面延长</a></li><li><a href="#11.-牙根吸收、神经损伤、牙龈疾病等风险">11. 牙根吸收、神经损伤、牙龈疾病等风险</a></li><li><a href="#12.-隐私与影像使用授权">12. 隐私与影像使用授权</a></li></ul></li><li><a href="#四、AutoPay-条款-(Page-3)">四、AutoPay 条款 (Page 3)</a><ul><li><a href="#13.-自动扣款直到余额清零">13. 自动扣款直到余额清零</a></li></ul></li><li><a href="#总结-—-关键风险排序">总结 — 关键风险排序</a></li><li><a href="#建议在签约前协商的要点">建议在签约前协商的要点</a></li></ul></div>
+<section class="main-content">
+<h1 id="Nathan-Bian-正畸合同-—-对我方不利条款审查">Nathan Bian 正畸合同 — 对我方不利条款审查</h1>
+<p><strong>合同方</strong>: Dr. Christian P. Manley (Issaquah / Sammamish, WA)<br/>
+<strong>患者</strong>: Nathan Bian<br/>
+<strong>治疗内容</strong>: Phase I — 上颌部分牙套 + 上颌扩弓器 + Reverse Headgear + 舌弓 + 下牙咬合垫，预计约16个月</p>
+<hr/>
+<h2 id="一、财务条款-(Page-1-2)">一、财务条款 (Page 1-2)</h2>
+<h3 id="1.-信用卡-4%-手续费">1. 信用卡 4% 手续费</h3>
+<blockquote>
+<p>"A 4% processing fee will be applied to any credit card transaction."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 4% 的手续费高于行业常见水平 (一般为 2-3%)。仅 HSA/FSA、debit card、现金、支票免除该费用。如果分16期用信用卡支付，累积手续费不可忽视。</li>
+<li><strong>建议</strong>: 尽量用 debit card 或 ACH bank transfer 支付，以避免额外费用。</li>
+</ul>
+<h3 id="2.-取消治疗-—-$400-实验室费-+-按比例重新计算费用">2. 取消治疗 — $400 实验室费 + 按比例重新计算费用</h3>
+<blockquote>
+<p>"Once an appliance has been ordered, if treatment is cancelled by family there will be a lab fee of $400.00. If the treatment is terminated or you leave our care, the case fee will be recalculated based on pre-treatment laboratory fees and set-up expenses, as well prorated for length of time in treatment."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 一旦器械已下单，取消治疗将被收取 <strong>$400 不退还实验室费</strong>。此外，"按比例重新计算"的措辞非常模糊 — 它没有给出具体的计算公式，也没有说明剩余预付款是否可退。理论上诊所可能以较高单价重新定价，导致实际退款远低于预期。</li>
+<li><strong>风险等级</strong>: <strong>高</strong>。这是合同中最重要的不利条款之一。</li>
+</ul>
+<h3 id="3.-保险免责-—-患者承担一切未付金额">3. 保险免责 — 患者承担一切未付金额</h3>
+<blockquote>
+<p>"I understand I am responsible for any portion not covered/paid by my insurance company for any reason."</p>
+<p>"Insurance must be active until the benefit is paid in full."</p>
+<p>"Any insurance amount not paid by my insurance company will be my responsibility for payment to Dr. Manley."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 合同将保险支付的全部风险转嫁给患者方。即使保险公司拒付或少付（无论原因），你都需要自行补足差额。此外，如果你在治疗期间更换雇主导致保险中断，保险此前承诺的支付也可能停止，差额由你承担。</li>
+<li><strong>风险等级</strong>: <strong>高</strong>。$2,500 的 "Estimated Insurance" 只是预估，不是保证。</li>
+</ul>
+<h3 id="4.-逾期收款-—-10天即开始催收-+-$15滞纳金">4. 逾期收款 — 10天即开始催收 + $15滞纳金</h3>
+<blockquote>
+<p>"For any delinquent accounts, collection activity will begin 10 days past the due date. A late fee of $15.00 will be charged to your account for payments not made on time."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 10天即开始催收是非常激进的时间线。多数行业惯例为30-60天。此外 $45 退票费也需注意。</li>
+<li><strong>风险等级</strong>: <strong>中</strong>。</li>
+</ul>
+<h3 id="5.-超时治疗附加费用">5. 超时治疗附加费用</h3>
+<blockquote>
+<p>"Treatment that goes over the estimated treatment time due to excessively missed appointments, poor compliance or no-show visits will result in additional treatment fees."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 合同未明确 "additional treatment fees" 的具体金额或计算方式。这赋予了诊所单方面加收费用的权力。更关键的是，"poor compliance" 的定义是模糊的 — 诊所可以自行界定何为"配合度不够"。</li>
+<li><strong>风险等级</strong>: <strong>中高</strong>。</li>
+</ul>
+<h3 id="6.-替换保持器不包含在费用内">6. 替换保持器不包含在费用内</h3>
+<blockquote>
+<p>"Replacement retainers not included."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 保持器是正畸治疗后长期必需品。如果丢失或损坏，额外费用由你自行承担，且合同未注明替换保持器的价格。</li>
+<li><strong>风险等级</strong>: <strong>中</strong>。</li>
+</ul>
+<hr/>
+<h2 id="二、预约与违约条款-(Page-4)">二、预约与违约条款 (Page 4)</h2>
+<h3 id="7.-爽约罚金-—-$75/次-(部分预约第2次起即收取)">7. 爽约罚金 — $75/次 (部分预约第2次起即收取)</h3>
+<blockquote>
+<p>"After 3 missed appointments there will be a charge of $75 per missed appointment."</p>
+<p>"Start and removal of appliances appointments will automatically be charged a $75 missed appointment fee due to the length of these appointments after the 2nd missed appointment."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 对于安装和拆除器械这类关键预约，第2次爽约即开始收费（比一般预约的3次门槛更低）。鉴于Nathan是学龄儿童，家长调度可能面临不可预见的冲突，这个条款应予以特别关注。</li>
+<li><strong>风险等级</strong>: <strong>中</strong>。</li>
+</ul>
+<h3 id="8.-爽约后重新预约需等待-4-8-周">8. 爽约后重新预约需等待 4-8 周</h3>
+<blockquote>
+<p>"Another appointment will be scheduled but may require waiting four to eight weeks."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 这意味着一次爽约可能导致治疗进度延迟 1-2 个月，而延迟又可能导致超时，进而触发上述的"超时附加费"。这形成了一个对患者不利的连锁效应。</li>
+</ul>
+<hr/>
+<h2 id="三、医疗风险免责-(Page-5-6)">三、医疗风险免责 (Page 5-6)</h2>
+<h3 id="9.-不保证治疗效果">9. 不保证治疗效果</h3>
+<blockquote>
+<p>"We cannot guarantee that you will be completely satisfied with your results, nor can all complications or consequences be anticipated."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 这是正畸合同中的标准条款，但其效果是：无论治疗结果如何，你已同意无法以"不满意"为由要求退款或赔偿。</li>
+</ul>
+<h3 id="10.-治疗时间可单方面延长">10. 治疗时间可单方面延长</h3>
+<blockquote>
+<p>"Treatment may be lengthened if... unanticipated growth occurs, if there are habits affecting the dentofacial structures... or if patient cooperation is not adequate."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 与第5条联动 — 时间延长由医生单方面判断，且可能触发额外费用。</li>
+</ul>
+<h3 id="11.-牙根吸收、神经损伤、牙龈疾病等风险">11. 牙根吸收、神经损伤、牙龈疾病等风险</h3>
+<blockquote>
+<p>"Root Resorption... Nerve Damage... Periodontal Disease..."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 这些是正畸治疗的已知医疗风险。合同要求你签字确认已知晓，这实际上是医生的免责声明。如果出现这些并发症，你将极难追究诊所的责任。</li>
+</ul>
+<h3 id="12.-隐私与影像使用授权">12. 隐私与影像使用授权</h3>
+<blockquote>
+<p>"I hereby give my permission for the use of orthodontic records, including photographs, made in the process of examinations, treatment and retention for purposes of professional consultations, research, education or publication in professional journals."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 这授权了诊所在专业期刊、教学和研究中使用Nathan的照片和医疗记录，且未提及匿名化处理。虽然这在医疗行业较常见，但你有权要求补充一条关于去标识化 (de-identification) 的限定。</li>
+</ul>
+<hr/>
+<h2 id="四、AutoPay-条款-(Page-3)">四、AutoPay 条款 (Page 3)</h2>
+<h3 id="13.-自动扣款直到余额清零">13. 自动扣款直到余额清零</h3>
+<blockquote>
+<p>"Payments will be charged from the payment method on file for your account until the account is paid in full."</p>
+</blockquote>
+<ul>
+<li><strong>分析</strong>: 合同未明确给予你单方面终止自动扣款的权利。如果发生费用争议，诊所可能继续从你的银行账户扣款。</li>
+</ul>
+<hr/>
+<h2 id="总结-—-关键风险排序">总结 — 关键风险排序</h2>
+<table>
+<thead>
+<tr>
+<th>优先级</th>
+<th>条款</th>
+<th>风险核心</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>高</strong></td>
+<td>#2 取消治疗</td>
+<td>$400 实验室费 + 模糊的重新计算公式，退款可能远低预期</td>
+</tr>
+<tr>
+<td><strong>高</strong></td>
+<td>#3 保险免责</td>
+<td>$2,500保险估值不是保证，保险断缴/拒付全由你承担</td>
+</tr>
+<tr>
+<td><strong>中高</strong></td>
+<td>#5 超时附加费</td>
+<td>金额未明确，"poor compliance"定义模糊</td>
+</tr>
+<tr>
+<td><strong>中</strong></td>
+<td>#8+#5 爽约连锁</td>
+<td>爽约 → 推迟4-8周 → 超时 → 附加费</td>
+</tr>
+<tr>
+<td><strong>中</strong></td>
+<td>#1 信用卡手续费</td>
+<td>4% 高于行业平均</td>
+</tr>
+<tr>
+<td><strong>中</strong></td>
+<td>#4 10天催收</td>
+<td>极短的宽限期</td>
+</tr>
+<tr>
+<td><strong>低</strong></td>
+<td>#12 影像授权</td>
+<td>无匿名化条款</td>
+</tr>
+</tbody>
+</table>
+<h2 id="建议在签约前协商的要点">建议在签约前协商的要点</h2>
+<ol>
+<li><strong>要求明确取消/终止治疗时的退款计算公式</strong>，而非模糊的"recalculated"。</li>
+<li><strong>要求设定 "additional treatment fees" 的上限金额或计算标准</strong>。</li>
+<li><strong>确认保险公司的 Orthodontic Lifetime Maximum</strong> 是否确实覆盖 $2,500 并了解支付时间表。</li>
+<li><strong>要求将逾期催收起始期限延长至 30 天</strong>。</li>
+<li><strong>确认 ACH 自动扣款是否可以书面通知后取消</strong>。</li>
+<li><strong>考虑要求在影像使用授权中加入去标识化条款</strong>。</li>
+</ol>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

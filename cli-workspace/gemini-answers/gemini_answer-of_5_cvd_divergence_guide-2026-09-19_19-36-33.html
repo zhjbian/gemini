@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Gemini Answer - OF-5 CVD 背离微观机制与实战交易决策指南</title>
+<style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5dccf;
+      --accent: #9a3412;
+      --accent-soft: #fff1e8;
+      --code-bg: #f4efe7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .page {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 24px 24px 40px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(79, 52, 28, 0.08);
+      overflow: hidden;
+    }
+    header {
+      padding: 28px 32px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1, h2, h3, h4 {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #7c2d12;
+      letter-spacing: 0.01em;
+    }
+
+    /* Auto-numbering for headings */
+    article.card {
+      counter-reset: h2-counter;
+    }
+    h2 {
+      counter-reset: h3-counter;
+      margin-top: 1.5em;
+    }
+    h2::before {
+      counter-increment: h2-counter;
+      content: counter(h2-counter) ". ";
+    }
+    h3 {
+      counter-reset: h4-counter;
+      margin-top: 1.2em;
+    }
+    h3::before {
+      counter-increment: h3-counter;
+      content: counter(h2-counter) "." counter(h3-counter) " ";
+    }
+    h4 {
+      counter-reset: h5-counter;
+    }
+    h4::before {
+      counter-increment: h4-counter;
+      content: counter(h2-counter) "." counter(h3-counter) "." counter(h4-counter) " ";
+    }
+
+    /* Global TOC Styles */
+    .global-toc {
+      background: #faf8f5;
+      border-bottom: 1px solid var(--line);
+      padding: 24px 32px;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .global-toc .toctitle {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #7c2d12;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    .global-toc ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+      counter-reset: gtoc-counter;
+    }
+    .global-toc ul ul {
+      padding-left: 24px;
+      margin-top: 4px;
+    }
+    .global-toc li {
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .global-toc li::before {
+      counter-increment: gtoc-counter;
+      content: counters(gtoc-counter, ".") ". ";
+      color: #7c2d12;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .global-toc a {
+      color: var(--ink);
+      font-weight: 500;
+    }
+    .global-toc a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .meta span {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid #f6d1bd;
+      color: #7c2d12;
+      font-size: 0.92rem;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    section {
+      padding: 26px 32px;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    p, li {
+      font-size: 1rem;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+    code {
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      font-size: 0.92em;
+    }
+    :not(pre) > code {
+      background: var(--code-bg);
+      padding: 0.12em 0.38em;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.98rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #faf1e4;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    img {
+      display: block;
+      max-width: min(100%, 1500px);
+      max-height: 1500px;
+      width: auto;
+      height: auto;
+      margin: 16px auto;
+    }
+    blockquote {
+      margin: 16px 0;
+      padding: 10px 16px;
+      border-left: 4px solid #f1b58f;
+      color: #5b4636;
+      background: #fff8f2;
+    }
+
+    /* Clickable Headings & Anchor Link Styles */
+    h1, h2, h3, h4, h5, h6 {
+      cursor: pointer;
+      position: relative;
+      transition: color 0.15s ease;
+    }
+    h1:hover, h2:hover, h3:hover, h4:hover, h5:hover, h6:hover {
+      color: var(--accent);
+    }
+    .heading-anchor-icon {
+      opacity: 0;
+      margin-left: 8px;
+      font-size: 0.78em;
+      color: var(--accent);
+      transition: opacity 0.18s ease;
+      vertical-align: middle;
+      font-weight: normal;
+    }
+    h1:hover .heading-anchor-icon,
+    h2:hover .heading-anchor-icon,
+    h3:hover .heading-anchor-icon,
+    h4:hover .heading-anchor-icon,
+    h5:hover .heading-anchor-icon,
+    h6:hover .heading-anchor-icon {
+      opacity: 0.85;
+    }
+
+    /* Light Theme Copy Toast */
+    .copy-toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: #ffffff;
+      color: var(--ink);
+      border: 1.5px solid var(--accent);
+      box-shadow: 0 10px 30px rgba(154, 52, 18, 0.15), 0 4px 8px rgba(0, 0, 0, 0.04);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(16px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 999999;
+      max-width: 520px;
+      word-break: break-all;
+    }
+    .copy-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<main class="page">
+<article class="card">
+<header>
+<h1 id="document-title">OF-5 CVD 背离微观机制与实战交易决策指南</h1>
+<div class="meta">
+<span>Saved: 2026-09-19 19:36:33</span>
+<span>Topic: of_5_cvd_divergence_guide</span>
+</div>
+</header><div class="global-toc"><div class="toctitle">Table of Contents</div><ul><li><a href="#命中-OF-5-·-CVD-多头背离意味着什么？">命中 OF-5 · CVD 多头背离意味着什么？</a><ul><li><a href="#微观物理本质：价格创新低，但主动抛压实质衰竭-(Auction-Failure)">微观物理本质：价格创新低，但主动抛压实质衰竭 (Auction Failure)</a></li></ul></li><li><a href="#交易中如何具体使用这个信息？">交易中如何具体使用这个信息？</a><ul><li><a href="#交易行为禁令（一票否决权-·-最高优先级）">交易行为禁令（一票否决权 · 最高优先级）</a></li><li><a href="#持仓风控管理（保护已有利润）">持仓风控管理（保护已有利润）</a></li><li><a href="#右侧做多入场（与-OF-4-/-OF-2-协同捕获高盈亏比波段）">右侧做多入场（与 OF-4 / OF-2 协同捕获高盈亏比波段）</a></li></ul></li><li><a href="#对立对称场景（OF-5-空头背离的通用用法）">对立对称场景（OF-5 空头背离的通用用法）</a></li></ul></div>
+<section class="main-content">
+<h1 id="OF-5-CVD-背离微观机制与实战交易决策指南">OF-5 CVD 背离微观机制与实战交易决策指南</h1>
+<p>在订单流微观结构中，<strong>OF-5 · 结构性 CVD 背离 (多头背离)</strong> 是极具实战指导意义的<strong>「动能衰竭与反转前兆信号」</strong>。</p>
+<p>结合 2026-09-18（07:55 → 09:55）的实际盘面数据，这一信号的微观物理含义及具体交易使用方法解析如下：</p>
+<hr/>
+<h2 id="命中-OF-5-·-CVD-多头背离意味着什么？">命中 OF-5 · CVD 多头背离意味着什么？</h2>
+<h3 id="微观物理本质：价格创新低，但主动抛压实质衰竭-(Auction-Failure)">微观物理本质：价格创新低，但主动抛压实质衰竭 (Auction Failure)</h3>
+<p>在健康且强劲的下跌趋势中，价格创出新低必须由<strong>持续放大且创出新低的市价抛盘 (Delta / CVD)</strong> 来驱动。<br/>
+而在 2026-09-18 的监测窗口中：<br/>
+- <strong>价格走势</strong>：08:55 价格处于 7684.75，并在 09:25 创出窗口与早盘全天极低点 <strong>7677.75</strong>；<br/>
+- <strong>CVD / 累积 Delta</strong>：<br/>
+  - 09:00 时 30m 累积 Delta 达到极深负值 <strong>-3,184 手</strong>；<br/>
+  - 但在 09:25 价格创出更低的 7677.75 时，30m Delta <strong>并未创出更深的负值，反而大幅收窄回升至 -576 手</strong>；<br/>
+  - 随后在 09:25–09:30，主动买盘直接爆出 <strong>+2,101 手</strong> 天量买脉冲，30m 累积 Delta 逆势翻正至 <strong>+1,799 手</strong>，并在 09:55 达到 <strong>+3,726 手</strong>。</p>
+<p>这就是标准的 <strong>价格走低 (Price Lower) vs 累积主动量回升 (Delta/CVD Higher)</strong>：<br/>
+- 说明空头用少量市价单砸出的极低价（7677.75），<strong>在拍卖市场中未能吸引到任何新的增量卖家跟风</strong>；<br/>
+- 砸盘力量在关键位置（价值区下沿 VAL 7681.50 附近）被完全吸收，主动抛盘动能彻底枯竭。</p>
+<hr/>
+<h2 id="交易中如何具体使用这个信息？">交易中如何具体使用这个信息？</h2>
+<p>在实战交易决策中，OF-5 不是孤立的“自动下单键”，而是<strong>「环境定性 + 操作否决 + 右侧入场触发」</strong>的核心滤网：</p>
+<h3 id="交易行为禁令（一票否决权-·-最高优先级）">交易行为禁令（一票否决权 · 最高优先级）</h3>
+<ul>
+<li><strong>绝对禁止杀跌追空</strong>：</li>
+<li>当盘面跌破支撑位、K 线出现大阴线看似破位时，如果系统亮起 OF-5，<strong>严禁使用市价单跟风追空</strong>。</li>
+<li>此时的破位是“流动性断层”或“主力诱空扫止损”，极度容易形成“地板空”，随后被瞬间拉起爆仓。</li>
+</ul>
+<h3 id="持仓风控管理（保护已有利润）">持仓风控管理（保护已有利润）</h3>
+<ul>
+<li>如果此前在上方持有多头趋势下的空单底仓：</li>
+<li>一旦看到 OF-5 触发，必须<strong>立即收紧止损</strong>（移至开仓保本价 Breakeven），或主动止盈减仓至少 50% 以上；</li>
+<li>绝不能再幻想更深级别的顺势下挫。</li>
+</ul>
+<h3 id="右侧做多入场（与-OF-4-/-OF-2-协同捕获高盈亏比波段）">右侧做多入场（与 OF-4 / OF-2 协同捕获高盈亏比波段）</h3>
+<ul>
+<li><strong>为什么不能单凭 OF-5 左侧接飞刀</strong>？</li>
+<li>背离代表抛压衰竭，但衰竭后价格仍可能在低位横盘折磨（维持震荡）。</li>
+<li><strong>标准入场标准（两机制协同）</strong>：</li>
+<li><strong>背景条件</strong>：OF-5（累积 Delta 逆势抬升，确认抛压枯竭）+ 处于价值区折价区（VAL 7681.50 以下）；</li>
+<li><strong>确认扳机</strong>：<ul>
+<li><strong>OF-4 盘口与成交双频共振</strong>（本案 09:30–09:55 持续命中：DOM 买单深度占比 &gt; 64%，TICK 短窗由负转正净买）；</li>
+<li><strong>OF-2 主动发力</strong>（09:25–09:30 单根 5m Bar 出现 +2,101 手市价买盘强推）；</li>
+</ul>
+</li>
+<li><strong>执行入场</strong>：在价格放量重新站上 VAL（7681.50）或 POC（7686.00）时右侧开多；</li>
+<li><strong>止损设置</strong>：直接挂在打出背离的绝对低点 <strong>7677.75 下方 1~2 ticks（如 7677.25）</strong>，风险敞口极小（仅 2~3 个点）；</li>
+<li><strong>止盈目标</strong>：日内价值区上沿 VAH（7687.50）乃至全天高点区间，盈亏比通常在 1:3 至 1:5 以上。</li>
+</ul>
+<hr/>
+<h2 id="对立对称场景（OF-5-空头背离的通用用法）">对立对称场景（OF-5 空头背离的通用用法）</h2>
+<p>遵循系统的通用对称原则，在上涨行情中：<br/>
+- <strong>盘面特征</strong>：价格冲日内高点或刷新高点，但 30m Delta / CVD 未能创出新高，甚至由正转负、买盘动能连续递减；<br/>
+- <strong>使用决策</strong>：<br/>
+  1. <strong>禁止追高开多</strong>，多头持仓立即推至保本位或分批离场；<br/>
+  2. 耐心等待上方卖墙压制且短窗出现主动卖脉冲（OF-4 空头共振）后，在关键阻力位右侧开空，止损紧贴背离高点上方。</p>
+</section>
+</article>
+</main>
+<script>
+    function showToast(msg) {
+      let toast = document.getElementById('copy-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'copy-toast';
+        toast.className = 'copy-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = '✓ ' + msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+        return Promise.resolve();
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.top = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(ta);
+    }
+
+    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(h => {
+      if (h.closest('.global-toc')) return;
+      const rawText = h.innerText.replace(/\\s+/g, ' ').trim();
+      if (!rawText) return;
+
+      if (!h.id) {
+        let baseId = rawText.replace(/\\s+/g, '-').replace(/["'#?&]/g, '');
+        if (!baseId) baseId = 'heading';
+        h.id = baseId;
+      }
+
+      h.title = "点击复制章节链接与标题";
+
+      if (!h.querySelector('.heading-anchor-icon')) {
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'heading-anchor-icon';
+        iconSpan.textContent = '🔗';
+        h.appendChild(iconSpan);
+      }
+
+      h.addEventListener('click', function(e) {
+        const anchorId = h.id;
+        const baseUrl = window.location.href.split('#')[0];
+        const urlWithAnchor = anchorId ? `${baseUrl}#${anchorId}` : baseUrl;
+
+        if (anchorId && window.history && window.history.pushState) {
+          window.history.pushState(null, '', urlWithAnchor);
+        }
+
+        const copyContent = `${baseUrl} -> ${rawText}`;
+        copyToClipboard(copyContent).then(() => {
+          showToast(`已复制: ${rawText}`);
+        });
+      });
+    });
+  </script>
+<div class="copy-toast" id="copy-toast"></div>
+</body>
+</html>

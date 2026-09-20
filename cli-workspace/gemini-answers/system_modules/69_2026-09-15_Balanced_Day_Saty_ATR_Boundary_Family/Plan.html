@@ -1,0 +1,282 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'/><meta name='viewport' content='width=device-width, initial-scale=1'/><title>平衡日边界族重构 + Saty ATR 档位 + ARMED 条件哨兵单 —— 实施计划</title><style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#0e7490; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.68;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:24px 22px 60px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 8px; color:#0f172a; }
+  h2 { font-size:1.08rem; margin:24px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.96rem; margin:16px 0 6px; color:#334155; }
+  h4 { font-size:0.9rem; margin:12px 0 4px; color:#475569; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:10px 0 6px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.84em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.78rem; border:1px solid var(--line); }
+  ul,ol { margin:6px 0 6px 20px; padding:0; }
+  li { margin:3px 0; font-size:0.88rem; }
+  blockquote { margin:8px 0; padding:8px 12px; border-left:3px solid #cbd5e1; background:#f8fafc; color:#475569;
+               font-size:0.88rem; border-radius:0 6px 6px 0; }
+  .meta { color:var(--muted); font-size:0.84rem; }
+  hr { border:0; border-top:1px solid var(--line); margin:18px 0; }
+</style></head><body><div class='page'><div class='card'><h1>平衡日边界族重构 + Saty ATR 档位 + ARMED 条件哨兵单 —— 实施计划</h1>
+<ul>
+<li><strong>日期</strong>：2026-09-15</li>
+<li><strong>归档目录</strong>：<code>69_2026-09-15_Balanced_Day_Saty_ATR_Boundary_Family</code></li>
+<li><strong>归属能力域</strong>：<strong>M10 Option Seller 多机制触发系统</strong>（机制 ② QuantPivot 边界反向 / 机制 ③ 平衡日边界）</li>
+<li><strong>代码位置</strong>：<code>PyTools/option_seller/</code>（<code>balanced_day_boundary.py</code> / <code>balanced_day_data.py</code> / <code>option_seller_manager.py</code> / <code>intraday_probe.py</code> / <code>setup_classifier.py</code> / <code>balanced_day_shadow.py</code>）</li>
+<li><strong>触发事件</strong>：用户口径指令（边界族与容差口径更正 1–3）+ 用户裁决（ARMED 执行方案 A、锚权威源、机制② L2/H2 生效）</li>
+</ul>
+<hr/>
+<h2>1. 背景与目标</h2>
+<h3>1.1 三部分边界族重构（只删 <code>ut1</code> / <code>dt1</code>）</h3>
+<p>机制 ③「平衡日边界」原边界族点位混杂 ES 点与 SPY 点两套尺度，且白名单含 4 个 Smashelito 字段（<code>ut1</code> / <code>dt1</code> / <code>fut</code> / <code>fdt</code>）。本轮按用户口径重构为<strong>双子族 · 8 点位</strong>：</p>
+<table><thead><tr><th>子族</th><th>成员</th><th>尺度</th><th>判定基准</th></tr></thead><tbody>
+<tr><td><strong>SPY 子族</strong>（6）</td><td><code>spy_day_high</code> / <code>spy_day_low</code>（当日 RTH 运行极值）+ Saty ATR 四档（<code>saty_up618</code> / <code>saty_up100</code> / <code>saty_dn618</code> / <code>saty_dn100</code>）</td><td><strong>SPY 点</strong></td><td>SPY 现价</td></tr>
+<tr><td><strong>ES 子族</strong>（2）</td><td><code>fut</code> / <code>fdt</code></td><td><strong>ES 点</strong>（距离 ÷10 折算为 SPY 点等值）</td><td>ES 现价（行价格）</td></tr>
+</tbody></table>
+<p>**只删除 <code>ut1</code> / <code>dt1</code>**（Smashelito 白名单收窄为 <code>("fut", "fdt")</code>），其余点位与数值示例不动。</p>
+<h3>1.2 SPY 单一口径 · 零点位换算</h3>
+<ul>
+<li>Saty 四档在 <strong>SPY 点</strong>上直接计算（<code>锚 + ATR × 系数</code>），<strong>不做点位换算</strong> —— 判定只用<strong>距离</strong>，ES/SPY 基差在差值中天然抵消。</li>
+<li>跨子族比较时<strong>只折算距离</strong>（ES 点 ÷10 ⇒ SPY 点等值），<strong>绝不折算点位</strong>（实测 ES 基差 ~16.6 ES 点 ≈ 1.66 SPY 点 ≫ 容差 0.2，折算点位会把整族挪出容差带）。</li>
+<li>辅助留痕：<code>saty_domain="spy"</code>、<code>saty_anchor_spy</code>、<code>saty_atr_spy</code>、<code>saty_anchor_source</code>。</li>
+</ul>
+<h3>1.3 容差口径 ±0.2 / ±0.3（SPY 点）</h3>
+<ul>
+<li>触及带：<code>d ≤ 0.2</code> SPY 点；「接近」带：<code>d ≤ 1.5 × 0.2 = 0.3</code> SPY 点（<strong>均含等号</strong>）。</li>
+<li>ES 子族等值：2.0 / 3.0 ES 点。</li>
+<li>生产配置遗留的 ES 口径 <code>boundary_tol = 4.0</code> <strong>被忽略</strong>（<code>BOUNDARY_TOL_LEGACY_MAX = 1.0</code> 上限守卫），统一取 0.2。</li>
+</ul>
+<h3>1.4 前置③④ 分族（缺口日保护 + 边界有效性）</h3>
+<ul>
+<li><strong>前置③「昨收方向」（缺口日保护）</strong>：SPY 子族用 <strong>SPY 昨收</strong>（= Saty 锚），ES 子族用 <strong>ES 昨收</strong>；两族各自在自身尺度内比较、<strong>绝不混比</strong>。<strong>fail-closed</strong>（缺数一律拦截）。</li>
+<li><strong>前置④「边界有效性」（未被有效突破）</strong>：**只约束 Saty <code>±61.8%</code> 两档<strong>（= 机制② L1/H1 等价档）；</strong>Saty <code>±100%</code>、<code>fut</code> / <code>fdt</code> 远档、<code>spy_day_high</code> / <code>spy_day_low</code> 运行极值豁免<strong>。阈值 </strong>SPY 子族 0.8 SPY 点 / ES 子族 8.0 ES 点<strong>（含等号）。</strong>fail-open**（缺数放行）。</li>
+</ul>
+<h3>1.5 分档分派（Saty ⇒ 机制② 等价档）</h3>
+<table><thead><tr><th>Saty 档位</th><th>等价档</th><th>风险档位</th><th>止盈模式</th></tr></thead><tbody>
+<tr><td><code>saty_up618</code></td><td>H1</td><td><code>BALANCED</code></td><td><code>CONSERVATIVE</code>（保守 = 模式 B）</td></tr>
+<tr><td><code>saty_dn618</code></td><td>L1</td><td><code>BALANCED</code></td><td><code>CONSERVATIVE</code></td></tr>
+<tr><td><code>saty_up100</code></td><td>H2</td><td><code>AGGRESSIVE</code></td><td><code>STANDARD</code>（标准 = 模式 A）</td></tr>
+<tr><td><code>saty_dn100</code></td><td>L2</td><td><code>AGGRESSIVE</code></td><td><code>STANDARD</code></td></tr>
+</tbody></table>
+<h3>1.6 手册优先覆盖全局 + 机制② 不受全局开关</h3>
+<ul>
+<li><strong>强制覆盖</strong>：机制②/③ 的<strong>档位绑定单</strong>由手册口径决定 profile + 止盈模式（<code>SATY_PROFILE_OVERRIDE_ENABLED = True</code>），<strong>不受</strong>全局 <code>auto_strategy</code> 开关影响。</li>
+<li>**全局 <code>auto_strategy</code> 仅对无档位绑定的自动单生效<strong>（机制① 5m 综合、机制④ 趋势日极限、机制⑤ 盘前大单、机制⑥ 洗盘反转）。机制③ 的「降级规则」保持为</strong>整族不参与**（不退回固定 10 倍比例）。</li>
+</ul>
+<h3>1.7 ARMED 条件哨兵单（手册 §3.1.4.1.1 §④ · 执行方案 A）</h3>
+<ul>
+<li>**仅对 Saty 受限档 <code>±61.8%</code>** 装配（≡ 机制② L1/H1）。</li>
+<li><strong>布防条件</strong>：<code>0.2 &lt; d</code>（SPY 点，严格）且 <code>d / 档位值 ≤ 0.5%</code>（含等号），且<strong>前置③ + 前置④ 均通过</strong>。</li>
+<li><strong>触发条件</strong>：上侧 <code>SPY GTE 档位</code> / 下侧 <code>SPY LTE 档位</code>。</li>
+<li><strong>不装 ARMED</strong>：Saty <code>±100%</code>、SPY 运行极值、ES 子族 <code>fut</code> / <code>fdt</code> —— 仍只在 <code>d ≤ 0.2</code> 时<strong>即时开仓</strong>。</li>
+<li><strong>跨进程携带</strong>：<code>notes</code> 写 <code>[SatyLevel: …] [QPLevel: …] [L1H1: true] [Anchor: n]</code>。</li>
+<li><strong>已知产出特征</strong>：布防带 ≈38 行/日 → <strong>布防 ≈0.33 次/日</strong>；含 ARMED 后触发 ≈<strong>2.3 次/日</strong>（旧口径基准 22 次 / ≈7.3 日）。</li>
+</ul>
+<h3>1.8 RTH 上界与零量 bar 过滤（实现手册既有 RTH 语义）</h3>
+<ul>
+<li>SPY 快照窗口由「只有 06:30 下界」补为 **<code>[06:30, min(upto_time, 13:00)]</code><strong>（手册口径为「当日 </strong>RTH** 运行极值 / RTH 收盘」）。</li>
+<li>丢弃 <code>Volume &lt;= 0</code> 的 bar（决策窗口 17 天内仅 4 个且价格正常）。</li>
+<li><strong>依据（只读量化）</strong>：06:30–17:00 共 40,597 bar 中 <code>Volume&lt;=0</code> 占 <strong>36%（14,799）</strong>、明显异常 <strong>388</strong> 个且<strong>全部落在 13:00 之后</strong>；而决策窗口 06:30–11:30 的 19,862 bar 中异常 <strong>0</strong> 个。</li>
+</ul>
+<h3>1.9 锚权威源切换（用户裁决 2026-09-15）</h3>
+<ul>
+<li><strong>权威</strong>：<code>BBTOS.get_ohlc_rth('SPY', 上一交易日)['close']</code>（券商 RTH 官方收盘，= 手册案例 <code>760.77</code>）。</li>
+<li><strong>回退</strong>：BBTOS 不可用 / 取不到 ⇒ 回退 <code>QuantPivotCalculator.get_quant_pivot('SPY')['prev_close']</code>，<strong>留痕</strong> <code>saty_anchor_source='quant_pivot_fallback'</code>（正常为 <code>'bbtos_rth_close'</code>）⇒ 进 ctx / diag；<strong>不因回退让整族停摆</strong>；<strong>两源都拿不到</strong>才 <code>saty_data_missing=True</code>。</li>
+<li><strong>自检</strong>：<code>check_spy_anchor_consistency()</code> 的 <code>source_used</code> 反转为 <code>'bbtos_rth_close'</code>（比较方向 = 权威 vs 回退），容忍 <strong>0.05 SPY 点</strong>告警不变。</li>
+</ul>
+<hr/>
+<h2>2. 改动清单（文件 + 行 + 关键常量 / 字段名）</h2>
+<h3>2.1 <code>PyTools/option_seller/balanced_day_boundary.py</code></h3>
+<table><thead><tr><th>行</th><th>内容</th></tr></thead><tbody>
+<tr><td><code>:58</code></td><td><code>BALANCED_BOUNDARY_TOL_SPY = 0.2</code></td></tr>
+<tr><td><code>:59</code></td><td><code>BALANCED_NEAR_MULT = 1.5</code> ⇒「接近」= 0.3 SPY 点（含等号）</td></tr>
+<tr><td><code>:61</code></td><td><code>ES_TO_SPY_DIST = 0.1</code></td></tr>
+<tr><td><code>:62</code></td><td><code>BALANCED_BREAK_TOL_SPY = 0.8</code></td></tr>
+<tr><td><code>:64</code></td><td><code>BALANCED_SATY_LEVELS = ("saty_up618","saty_up100","saty_dn618","saty_dn100")</code></td></tr>
+<tr><td><code>:66</code></td><td><code>BALANCED_SPY_FAMILY</code>（6 点位）</td></tr>
+<tr><td><code>:68</code></td><td><code>BALANCED_ES_FAMILY = ("fut","fdt")</code></td></tr>
+<tr><td><code>:82/:86/:87/:88/:90</code></td><td><code>BALANCED_ARM_PCT=0.005</code> / <code>BALANCED_ARM_DIST_ROUND=6</code> / <code>BALANCED_ARM_PCT_ROUND=9</code> / <code>BALANCED_ARM_SUBSCENARIO</code> / <code>BALANCED_ARM_TIERS</code>（仅 ±61.8%）</td></tr>
+<tr><td><code>:128</code> / <code>:998</code></td><td><code>score_balanced_day_boundary</code>（v1 影子）/ <code>score_balanced_day_boundary_v2</code>（P45/M20/B25/E10，D 停用，1 组）</td></tr>
+<tr><td><code>:335</code></td><td><code>classify_boundary_distance(d, boundary_tol)</code>（含等号 + 精度取整）</td></tr>
+<tr><td><code>:376</code></td><td><code>parse_saty_arm_meta(notes_str)</code></td></tr>
+<tr><td><code>:398</code></td><td><code>balanced_day_arm_spec(...)</code>（唯一权威布防判据）</td></tr>
+<tr><td><code>:484</code> / <code>:570</code></td><td><code>boundary_pool()</code> / <code>nearest_boundary_refs()</code>（按子族取价 + 距离归一）</td></tr>
+<tr><td><code>:630</code></td><td><code>check_balanced_boundary_prev_close(..., subfamily=)</code> 前置③</td></tr>
+<tr><td><code>:716</code></td><td><code>BALANCED_BREAK_TOL_ES = 8.0</code></td></tr>
+<tr><td><code>:721</code></td><td><code>triggered_boundary_name(breakdown, direction)</code></td></tr>
+<tr><td><code>:774</code></td><td><code>SATY_GRADE_DISPATCH</code>（四档 ⇒ 等价档 / profile / 止盈）</td></tr>
+<tr><td><code>:785</code></td><td><code>TP_MODE_LABELS</code></td></tr>
+<tr><td><code>:791</code></td><td><code>saty_grade_dispatch(breakdown, direction)</code></td></tr>
+<tr><td><code>:843</code></td><td><code>check_balanced_boundary_integrity(..., subfamily=)</code> 前置④（<code>:911/:919</code> 精度取整修复「恰好 0.8 漏拦」）</td></tr>
+</tbody></table>
+<h3>2.2 <code>PyTools/option_seller/balanced_day_data.py</code></h3>
+<table><thead><tr><th>行</th><th>内容</th></tr></thead><tbody>
+<tr><td><code>:203/:215</code></td><td><code>SPY_RTH_START=(6,30)</code> / **<code>SPY_RTH_END=(13,0)</code>**</td></tr>
+<tr><td><code>:265/:266</code></td><td><code>SPY_ANCHOR_SOURCE_BBTOS='bbtos_rth_close'</code> / <code>SPY_ANCHOR_SOURCE_QP='quant_pivot_fallback'</code></td></tr>
+<tr><td><code>:269</code></td><td>**<code>load_spy_anchor(date_str)</code>**（权威 BBTOS + 回退 QuantPivot + 来源留痕）</td></tr>
+<tr><td><code>:332</code></td><td><code>_load_spy_anchor_and_atr</code>（接入 <code>load_spy_anchor</code>，缓存体带 <code>anchor_source</code> 等 5 字段）</td></tr>
+<tr><td><code>:354</code></td><td><code>_spy_snapshot_from_df(..., *, rth_end=SPY_RTH_END, drop_zero_volume=True)</code>；窗口 + 审计字段</td></tr>
+<tr><td><code>:421</code></td><td><code>get_saty_atr_meta()</code> 暴露锚来源 5 字段</td></tr>
+<tr><td><code>:474</code></td><td><code>load_spy_bars()</code>（<strong>未改</strong>，仍返回按日整段 df）</td></tr>
+<tr><td><code>:496</code></td><td><code>spy_rth_snapshot_from_bars(..., *, rth_end=..., drop_zero_volume=...)</code></td></tr>
+<tr><td><code>:516</code></td><td><code>_load_spy_rth_snapshot()</code>（审计字段 + 零量 warning 留痕）</td></tr>
+<tr><td><code>:594</code></td><td>零量 &gt; 0 ⇒ <code>logger.warning</code> 逐条留痕（计数 + O/H/L/C/V 样例）</td></tr>
+<tr><td><code>:647</code></td><td><code>SPY_ANCHOR_CHECK_TOL = 0.05</code></td></tr>
+<tr><td><code>:651</code></td><td><code>_prev_session_date(date_str)</code></td></tr>
+<tr><td><code>:668</code></td><td><code>check_spy_anchor_consistency()</code></td></tr>
+<tr><td><code>:779</code></td><td><code>source_used = SPY_ANCHOR_SOURCE_BBTOS</code>（方向反转）</td></tr>
+<tr><td><code>:791</code></td><td><code>load_balanced_day_context(...)</code>（ctx + diag 双留痕）</td></tr>
+<tr><td><code>:914/:970-972</code></td><td>diag：<code>saty_anchor_source</code> / <code>saty_anchor_prev_session</code> / <code>saty_anchor_fallback_reason</code></td></tr>
+<tr><td><code>:1031-1035</code></td><td>ctx：<code>saty_anchor_source</code> / <code>saty_anchor_prev_session</code> / <code>saty_anchor_bbtos_rth_close</code> / <code>saty_anchor_quant_pivot_prev_close</code> / <code>saty_anchor_fallback_reason</code></td></tr>
+<tr><td>ctx</td><td><code>spy_snapshot_audit</code>（<code>rth_end</code> / <code>bars_before_filter</code> / <code>zero_volume_dropped</code> / <code>zero_volume_samples</code> / <code>clipped_after_rth</code>）</td></tr>
+</tbody></table>
+<h3>2.3 <code>PyTools/option_seller/option_seller_manager.py</code></h3>
+<table><thead><tr><th>行</th><th>内容</th></tr></thead><tbody>
+<tr><td><code>:130</code></td><td><code>BALANCED_DAY_DEFAULTS["boundary_tol"] = 0.2</code></td></tr>
+<tr><td><code>:170/:173</code></td><td><code>BOUNDARY_TOL_LEGACY_MAX = 1.0</code> + <code>load_balanced_day_config()</code> 忽略旧值</td></tr>
+<tr><td><code>:1516</code></td><td><code>_open_from_engine(..., profile_locked=False, tp_mode_locked=None)</code></td></tr>
+<tr><td><code>:1654</code></td><td>机制② ARMED 档位锁定</td></tr>
+<tr><td><code>:1694-1695</code></td><td>机制② QUALIFIED 档位锁定</td></tr>
+<tr><td><code>:1712</code></td><td><code>_mech_balanced_day_boundary</code>（<strong>即时开仓优先</strong>，否则 ARMED）</td></tr>
+<tr><td><code>:1734</code></td><td><code>_arm_balanced_day_saty()</code>（开关 + 掩码 + 窗口 + 去重 + <code>add_conditional_order</code>）</td></tr>
+<tr><td><code>:1955/:1978</code></td><td>机制② H2 对称（<code>in ('L2','H2')</code>）</td></tr>
+<tr><td><code>:2821/:2862</code></td><td><code>_saty_forced</code> + <code>candidate['take_profit_mode']</code></td></tr>
+<tr><td><code>:2914-2918</code></td><td>evidence：<code>saty_profile</code> / <code>saty_tp_mode</code> / <code>saty_tp_strategy</code></td></tr>
+<tr><td><code>:3067/:3073</code></td><td><code>TP_MODE_LABELS</code> / <code>_tp_mode_label</code></td></tr>
+<tr><td><code>:3082</code></td><td>**<code>MANUAL_TIER_LOCKS</code><strong>（L1/H1 ⇒ BALANCED+CONSERVATIVE；</strong>L2/H2 ⇒ AGGRESSIVE+STANDARD · 已生效**）</td></tr>
+<tr><td><code>:3089-3095</code></td><td><code>_qp_tier_lock(qp_level)</code></td></tr>
+<tr><td><code>:3137</code></td><td><code>SATY_PROFILE_OVERRIDE_ENABLED = True</code>（定稿）</td></tr>
+<tr><td><code>:3139</code></td><td><code>_saty_profile_override()</code></td></tr>
+<tr><td><code>:3253</code></td><td><code>is_conditional_arming_window()</code>（仅时段窗口）</td></tr>
+<tr><td><code>:3328</code></td><td><code>add_conditional_order()</code></td></tr>
+<tr><td><code>:3436/:3466/:3475/:3483</code></td><td><code>parse_qp_meta</code> / <code>_saty_arm_meta</code> / <code>_is_saty_armed_order</code> / <code>derive_target_short_anchor</code></td></tr>
+<tr><td><code>:3819</code></td><td>触发侧 Saty ARMED 分支（不套 QuantPivot 口径闸门）</td></tr>
+</tbody></table>
+<h3>2.4 其它文件</h3>
+<table><thead><tr><th>文件</th><th>行</th><th>内容</th></tr></thead><tbody>
+<tr><td><code>intraday_probe.py</code></td><td><code>:693-695</code></td><td>探针同口径兜底 <code>_bd_tol</code>（&gt;1.0 忽略）</td></tr>
+<tr><td><code>intraday_probe.py</code></td><td><code>:515/:574</code></td><td>机制② 双侧档位标签 H1/H2、L1/L2（已对称）</td></tr>
+<tr><td><code>setup_classifier.py</code></td><td><code>:130/:195</code></td><td>死键清理 + 尺度陷阱注释（<code>fdt</code> / <code>fut</code> 按子族分流，<strong>不得</strong>并入 <code>smash</code>）</td></tr>
+<tr><td><code>balanced_day_shadow.py</code></td><td><code>:20/:131/:151-200/:274-282</code></td><td>影子 ARMED 布防 / 真触及 / 触及后质量</td></tr>
+</tbody></table>
+<hr/>
+<h2>3. 实施纪律（本次遵守的边界）</h2>
+<ul>
+<li>未修改任务清单外的文件（新增文件均已说明理由）。</li>
+<li>未修改任何规则手册文件（本轮手册两处修订由用户<strong>单独授权</strong>并按用户给定字面文本执行）。</li>
+<li>未触碰 <code>Ticker_ATR.csv</code>、未触碰 Java 工程、未改外部配置文件、未改全局默认 profile / TP 档位、未重启服务。</li>
+<li>数据库 <code>bb_trade</code> <strong>只读</strong>；凭证未进入任何报告 / 日志 / 提交。</li>
+<li>未 commit / push；回滚点见 §5。</li>
+</ul>
+<hr/>
+<h2>4. 待裁决项（实施时点）</h2>
+<table><thead><tr><th>#</th><th>事项</th><th>实施时状态</th></tr></thead><tbody>
+<tr><td>1</td><td>ARMED 频率口径（前置④ 与布防带互斥）</td><td><strong>已裁决：接受现状（方案 c）</strong>，不放宽</td></tr>
+<tr><td>2</td><td>SPY 锚权威源</td><td><strong>已裁决：券商 RTH 官方收盘</strong>（QuantPivot 为回退）</td></tr>
+<tr><td>3</td><td>机制② L2/H2 改 AGGRESSIVE 生效时机</td><td><strong>已裁决：立即生效</strong></td></tr>
+<tr><td>4</td><td>方案 (d)：是否为 ±100% 两档装 ARMED</td><td><strong>未决</strong>（只读测算见 Walkthrough §3）</td></tr>
+<tr><td>5</td><td>手册案例「接近」与实现 0.30 上界的表述一致性</td><td>手册已由用户更新为「带外」口径（与实现一致）</td></tr>
+</tbody></table>
+<hr/>
+<h2>5. 回滚方式</h2>
+<ul>
+<li><strong>回滚点</strong>：<code>/tmp/bbt_mech3_backup_20260915_221306/</code>（原始 7 文件 + <code>ROLLBACK_README.txt</code> + <code>option_seller_manager.py.post-mech2lock</code>）；本轮手册修订另备份于 <code>/tmp/bbt_manual_backup_20260915_234538/</code>。</li>
+<li><strong>逐项回退</strong>：</li>
+</ul>
+<ol>
+<li><strong>锚源切换</strong>：① 临时 —— 把 <code>_load_spy_anchor_and_atr</code> 中的 <code>load_spy_anchor(_key)</code> 换回 QuantPivot <code>prev_close</code>；② 彻底 —— 删 <code>load_spy_anchor()</code> / 两常量 / 来源字段，<code>check_spy_anchor_consistency</code> 的 <code>source_used</code> 改回 <code>'quant_pivot'</code>；③ 测试夹具 <code>_ANCHOR_915</code> / <code>_SATY</code> / <code>_SPY_PREV</code> 改回 <code>760.88</code> 并恢复 8 点位期望距离。</li>
+<li><strong>RTH 上界 + 零量过滤</strong>：调用处传 <code>rth_end=None, drop_zero_volume=False</code>（能力内建，无需改码）；或删除 <code>SPY_RTH_END</code> 与相关代码段。</li>
+<li><strong>ARMED</strong>：删 <code>_mech_balanced_day_boundary</code> 中的 <code>_arm_balanced_day_saty</code> 调用 + 触发侧 <code>elif</code> 分支。</li>
+<li><strong>机制② L2/H2 立即生效</strong>：<code>MANUAL_TIER_LOCKS</code> 中 L2/H2 改回 <code>(BALANCED, CONSERVATIVE)</code>（或返回 <code>(None, None)</code> 走全局）。</li>
+<li><strong>锚值自检</strong>：纯新增，删 ctx / diag 两处引用 + 函数本体即完全回退。</li>
+<li><strong>容差口径</strong>：<code>BALANCED_BOUNDARY_TOL_SPY</code> 改回 4.0 并须一并回退 <code>es_price</code> / 子族参数（旧口径为 ES 点域）。</li>
+<li><strong>新增测试文件</strong>：删除即完成对应回滚。</li>
+</ol>
+<hr/>
+<h2>9. 追加项（2026-09-15 用户指令「请都做」）</h2>
+<h3>9.1 ±100% 两档亦装配 ARMED（方案 d 实施）</h3>
+<ul>
+<li><strong>规则文本（手册 §3.1.4.1.1 §④ 追加，逐字落盘）</strong>：除受限档 <code>±61.8%</code> 外，**Saty <code>±100%</code> 两档亦装配 ARMED 条件哨兵单<strong>；因其为</strong>豁免档<strong>，布防条件</strong>仅需** <code>0.2 &lt; d</code> 且 <code>d / 档位值 ≤ 0.5%</code>（<strong>不要求前置③ / ④</strong>）；<code>notes</code> 携带 <code>[SatyLevel: saty_up100] [QPLevel: H2] [L1H1: false] [Anchor: n]</code>；<code>±61.8%</code> 布防条件<strong>不变</strong>。</li>
+<li><strong>实现</strong>：<code>balanced_day_boundary.py</code> <code>BALANCED_ARM_TIERS</code> 由 2 档扩为 <strong>4 档</strong>，元组第三元 = <code>requires_pre_gates</code>（618 ⇒ <code>True</code>、100 ⇒ <code>False</code>）；<code>balanced_day_arm_spec()</code> 按该标志跳过/执行前置③④，并在 spec 中回传 <code>requires_pre_gates</code> / <code>is_l1_h1</code>，<code>notes</code> 写 <code>[L1H1: true|false]</code>；布防带（<code>BALANCED_BOUNDARY_TOL_SPY = 0.2</code>）与 0.5% 口径（<code>BALANCED_ARM_PCT</code>）<strong>均不变</strong>。</li>
+<li><strong>预期 vs 实测</strong>：预期布防 ≈0.33 → <strong>≈1.33 次/日</strong>；实测三日 <strong>4 次 / 3 日 = 1.33 次/日</strong> ✓（与 (d) 测算逐值吻合）。</li>
+</ul>
+<h3>9.2 ARMED 触发时点复校（机制③ 版三闸门，替代 QP 口径闸门）</h3>
+<ul>
+<li><strong>规则文本（同节追加，逐字落盘）</strong>：触发、开仓之前复校 —— ① 机制开关 <code>enabled</code> 与 L0-B 方向掩码；② 前置③（SPY 昨收方向 · SPY 子族口径）；③ 前置④（边界有效性：<code>spy_day_high</code> / <code>spy_day_low</code> + <code>0.8</code> SPY 点）。**仅 <code>±61.8%</code> 复校 ②③**；<code>±100%</code> <strong>仅复校 ①</strong>。任一不通过 ⇒ <strong>放弃开仓</strong>并记 <code>TRIGGERED_GUARD_BLOCK</code>（留痕原因与数值）。<strong>严禁</strong>套用 <code>can_open_quant_pivot_level</code> / <code>check_qp_prev_close_direction</code> / <code>check_qp_boundary_integrity</code>。</li>
+<li><strong>实现</strong>：</li>
+<li>纯函数 <code>balanced_day_boundary.check_saty_armed_trigger_guard(meta, *, enabled, masked_directions, spy_prev_close, spy_day_high, spy_day_low, level_value, trigger_direction)</code> ⇒ <code>(ok, reason, detail)</code>，<code>detail['gates']</code> 含三闸门各自判定与数值。</li>
+<li>manager 侧取数辅助：<code>_resolve_saty_trigger_masks()</code>（L0-F⑨ <code>resolve_l0f_gamma_mask()</code> ∪ L0-B <code>position_mask(pos, minutes_since_open, is_trend_day)</code>，<code>pos</code> 由新增 <code>resolve_es_position_pct_for_gate()</code> 取）、<code>_resolve_spy_prev_close_for_saty_guard()</code>（= 权威锚）、<code>_resolve_spy_extreme_for_saty_guard()</code>（SPY 1m 快照优先，退化 ES 快照 % 折算）。</li>
+<li>只在 <strong>Saty ARMED 触发分支</strong>（<code>_evaluate_conditional_orders</code>）调用；未通过 ⇒ <code>continue</code> 且落 <code>TRIGGERED_GUARD_BLOCK</code>；通过 ⇒ 事件 <code>TRIGGERED_GUARD_PASS</code> 增记 <code>trigger_guard</code> 与三闸门明细。</li>
+<li>**机制② 的 <code>RANGE_BOUND_*</code> 分支与其三项闸门（L0-F / <code>check_qp_prev_close_direction</code> / <code>check_qp_boundary_integrity</code>）逐字未动。**</li>
+<li>档位值取条件单 <code>trigger_price</code>（两位小数）⇒ 已测「四舍五入不改变判定」。</li>
+</ul>
+<h3>9.3 机制② ARMED 布防组数随档位</h3>
+<ul>
+<li><strong>规则文本（§3.1.3.2 追加，逐字落盘）</strong>：机制② ARMED 条件单的组数按档位取 —— <strong>L2 / H2 ⇒ 2 组</strong>、<strong>L1 / H1 ⇒ 1 组</strong>（与 §3.1.3.2 档位口径及盘前大单路径 <code>groups_to_open</code> 同口径）。</li>
+<li><strong>实现</strong>：机制② ARMED 布防点（<code>option_seller_manager.py</code> <code>add_conditional_order(...)</code>，<code>_arm_grp = 2 if qp_level in ('L2','H2') else 1</code>）写入 <code>groups</code>，并同步 <code>pending_conditional_orders[oid]['groups']</code>；机制③ Saty ARMED 布防点按<strong>等价档</strong> <code>qp_level</code> 同规则写组数；<strong>触发侧沿用</strong>条件单字段（<code>cand['groups'] = int(order.get('groups', 1) or 1)</code>，原有逻辑）。</li>
+</ul>
+<h3>9.4 外围 L2 对称</h3>
+<ul>
+<li><code>PyTools/order_flow/order_flow_big_trade_analyst.py</code> 两处 L2 专属特判改为对称：<code>:305</code> <code>if signal_lvl in ('L2','H2'): multiplier = 3.0 / elif signal_lvl in ('L1','H1'): multiplier = 2.0</code>；<code>:366</code> <code>multiplier_val = 3.0 if sig['level'] in ('L2','H2') else 2.0</code>。该文件当前<strong>恒只产 L1/L2</strong> ⇒ <strong>今日零行为变化</strong>（防御性）。</li>
+<li>另两处 <code>== 'L2'</code>（<code>option_seller_engine.py:1218</code> 上侧 H2 / <code>:1313</code> 下侧 L2；<code>option_seller_manager.py:3580</code> 锚位分侧）经核查<strong>本已上下对称</strong> ⇒ <strong>未改动</strong>。</li>
+</ul>
+<h3>9.5 手册（逐字落盘，3 段）</h3>
+<table><thead><tr><th>落点</th><th>内容</th></tr></thead><tbody>
+<tr><td>§3.1.4.1.1 §④</td><td>ARMED 装配对象扩充（±100% 亦布防）</td></tr>
+<tr><td>§3.1.4.1.1 §④</td><td>ARMED 触发时点复校（三闸门 + <code>TRIGGERED_GUARD_BLOCK</code>）</td></tr>
+<tr><td>§3.1.3.2</td><td>ARMED 布防组数随档位（L2/H2 ⇒ 2、L1/H1 ⇒ 1）</td></tr>
+<tr><td>§3.1.4.1.9（HTML）</td><td>补回「（L1/H1 等价档）」四字</td></tr>
+</tbody></table>
+<hr/>
+<h2>10. 追加项（2026-09-15 用户口径「同机制同闸门」收口）</h2>
+<h3>10.1 ARMED 继承机制③ 趋势日门控（布防 + 触发两处）</h3>
+<ul>
+<li><strong>用户口径</strong>：ARMED 是机制③ 的<strong>延迟执行</strong> ⇒ 必须与即时通道<strong>同闸门</strong>（不是新增规则）。</li>
+<li><strong>实现（唯一权威判定，三处共用）</strong>：新增纯函数 <code>balanced_day_boundary.saty_trend_gate_decision(direction, gate, trend_up, trend_dn, fail_closed)</code> ⇒ <code>(ok, reason, detail)</code>，逐字复刻即时通道判定顺序：<code>off</code>/无方向 ⇒ 放行 → <code>unknown &amp;&amp; fail_closed</code> ⇒ 否决 → <code>opposing</code> ⇒ 否决 → <code>require_range &amp;&amp; is_trend</code> ⇒ 否决 → 放行。</li>
+<li><strong>即时通道</strong>（<code>_mech_balanced_day_boundary</code>）<strong>改为调用该纯函数</strong>（行为等价，<code>gate_info</code> 字段名保持不变）；</li>
+<li><strong>布防</strong>（<code>_arm_balanced_day_saty</code>）新增同一门控：不通过 ⇒ <strong>不布防</strong>并留痕「趋势日门控 [reason] ⇒ 不布防」；</li>
+<li><strong>触发复校</strong>：并入 <code>check_saty_armed_trigger_guard()</code> 作为<strong>闸门 ④</strong>，**<code>±61.8%</code> 与 <code>±100%</code> 一律适用**（<code>±100%</code> 豁免的只是前置③/④ 两项<strong>幅度类</strong>判据）；不通过 ⇒ 放弃开仓 + <code>TRIGGERED_GUARD_BLOCK</code>（<code>reason='trend_gate: …'</code>）。</li>
+<li><strong>取数入口</strong>：<code>OptionSellerManager._saty_trend_gate(direction, current_time_str, cfg)</code>（引擎 <code>evaluate_intraday_trend_regime</code>，窗口 <code>trend_window_end</code> 缺省 <code>11:30</code>）。</li>
+</ul>
+<h3>10.2 触发复校 ① 的 L0-B 口径对齐</h3>
+<ul>
+<li>触发侧 <code>is_trend_day</code> **不再硬编码 <code>False</code>**：新增 <code>_resolve_trend_regime_for_l0b()</code>，复用<strong>同一趋势引擎取数</strong>取当日体制（<code>is_trend = trend_up or trend_dn</code>）；取不到 ⇒ <code>False</code> + 留痕 <code>unknown_fail_open</code>（fail-open，不误拦）。</li>
+<li>体制来源写入 <code>detail['gates']['mask']['l0b']['regime_source']</code>（形如 <code>trend_engine(up=…,dn=…)</code>）⇒ 可复盘对齐编排层 L0-B。</li>
+</ul>
+<h3>10.3 时间解析加固（本轮实测发现的<strong>误拦</strong>隐患）</h3>
+<ul>
+<li><strong>现场</strong>：布防侧 <code>current_time_str</code> 可能来自 DB <code>TIME</code>（非零填充 <code>7:30:00</code>）；原写法 <code>str(t)[:5]</code> 切出 <code>'7:30:'</code> ⇒ <code>strptime</code> 抛错 ⇒ 趋势门控误判「引擎无结论」⇒ 被 <code>trend_gate_fail_closed</code> <strong>误拦</strong>（影子回放实测：40/33/41 次拦截中绝大多数为该误判）。</li>
+<li><strong>修复</strong>：新增 <code>OptionSellerManager._norm_hm(t)</code>（兼容 <code>5:30</code> / <code>05:30</code> / <code>05:30:00</code> / <code>timedelta</code> / <code>YYYY-MM-DD HH:MM:SS</code>；不可解析 ⇒ <code>None</code>），<code>_saty_trend_gate()</code> 与影子 <code>_trend_gate_for()</code> 均改用之。加固后影子拦截<strong>全部</strong>为 <code>blocked_opposing_trend</code>（无虚假 unknown）。</li>
+</ul>
+<h3>10.4 过期测试计数 → 不变量断言</h3>
+<p><code>test_quant_pivot_tier_lock…test_unbound_callers_do_not_pass_lock_args</code>：硬编码「3 个调用点」改为<strong>不变量断言</strong>（遍历<strong>全部</strong> <code>_open_from_engine</code> 调用点，断言无 <code>profile_locked=True</code> / <code>tp_mode_locked=True</code>，且条件锁定入参各只出现 1 次），新增信息性常量 <code>_EXPECTED_CALLS_INFO = 4</code>（注明外部新增 <code>LABEL_ABSORPTION_REVERSAL</code> 的来源与日期，不一致时 <code>skipTest</code> 提示而非失败）。<strong>被测代码未因此改动。</strong></p>
+<h3>10.5 手册</h3>
+<ul>
+<li>新增（逐字）：「<strong>ARMED 的趋势日门控（2026-09-15 追加）</strong>」（§3.1.4.1.1 §④）；</li>
+<li>修正：ARMED 成员句改为「<strong>ARMED 装配对象</strong>：<code>±61.8%</code>（受限档·须过前置③④）与 <code>±100%</code>（豁免档·2026-09-15 起亦装配、不要求前置③④）；<strong>不装 ARMED 的成员</strong>：SPY 运行极值、ES 子族 <code>fut</code>/<code>fdt</code>」（原「不装 ARMED 的成员：Saty <code>±100%</code>…」与新增段落字面矛盾）。</li>
+<li><strong>注</strong>：HTML 侧该句在本轮开始时<strong>仍为旧版</strong>（预期中的改动未落盘）⇒ 本轮<strong>由我一并改为你给定措辞</strong>（MD 同步），并把「这三类」改为「<strong>这两类</strong>」（成员由 3 项变 2 项）。</li>
+</ul>
+<hr/>
+<h2>11. 重新下发的四项收口（2026-09-15 · 确认与字面对齐）</h2>
+<blockquote>本节追记「四项收口」指令的<strong>第二次下发</strong>（前次已在 §10 落地）：本轮除复核外，</blockquote>
+<blockquote>完成 ① 手册第 4 项按用户<strong>给定字面</strong>对齐（措辞差异：<code>±100%</code> 前不带「Saty」、</blockquote>
+<blockquote>「<strong>2026-09-15 用户追加起亦装配</strong>」加粗）② 影子新增<strong>只读</strong> <code>--trend-gate</code> 口径开关。</blockquote>
+<table><thead><tr><th>项</th><th>状态</th><th>位置</th></tr></thead><tbody>
+<tr><td>① ARMED 继承趋势日门控（布防 + 触发 / <code>±100%</code> 亦适用 / 无结论 fail-closed）</td><td><strong>已在位</strong></td><td><code>balanced_day_boundary.py</code> <code>saty_trend_gate_decision()</code> + <code>check_saty_armed_trigger_guard()</code> 闸门④；<code>option_seller_manager.py</code> <code>_saty_trend_gate()</code>、布防门控、触发传参</td></tr>
+<tr><td>② 触发复校 ① 的 L0-B 体制对齐</td><td><strong>已在位</strong></td><td><code>option_seller_manager.py</code> <code>_resolve_trend_regime_for_l0b()</code>；<code>detail['gates']['mask']['l0b']['regime_source']</code></td></tr>
+<tr><td>③ 过期计数 → 不变量断言</td><td><strong>已在位</strong></td><td><code>test_quant_pivot_tier_lock.py</code>（<code>_EXPECTED_CALLS_INFO = 4</code> 信息性 + 注释注明外部来源）</td></tr>
+<tr><td>④ 手册矛盾修正（HTML + MD 均改）</td><td><strong>本轮按给定字面对齐</strong></td><td>见 §11.1</td></tr>
+<tr><td>附</td><td>影子只读口径开关</td><td><code>balanced_day_shadow.py</code> <code>--trend-gate {veto_opposing,require_range,off}</code>（<strong>只读回放，不改生产配置</strong>）</td></tr>
+</tbody></table>
+<h3>11.1 手册第 4 项（§3.1.4.1.1 §④）落地字面</h3>
+<ul>
+<li><strong>改前</strong>：<code>**不装 ARMED 的成员**：Saty ±100%（L2/H2 等价档 · 豁免前置③④）、SPY 运行极值（随时间移动）、ES 子族 fut/fdt（ES 口径，跨标的布防不成立）—— 这三类仍只在 d ≤ 0.2 SPY 点 时即时开仓。</code></li>
+<li><strong>改后</strong>（用户字面）：<code>**ARMED 装配对象**：Saty ±61.8%（受限档 · 须过前置③④）与 ±100%（豁免档 · **2026-09-15 用户追加起亦装配**、不要求前置③④）；**不装 ARMED 的成员**：SPY 运行极值（随时间移动）、ES 子族 fut/fdt（ES 口径，跨标的布防不成立）—— 这两类仍只在 d ≤ 0.2 SPY 点 时即时开仓。</code></li>
+</ul>
+<h3>11.2 影子门控模式对照（只读）</h3>
+<p><code>veto_opposing</code>（= 生产缺口）与 <code>require_range</code> 在 09-11 / 09-14 / 09-15 三日<strong>结果完全相同</strong>（布防 1 / 1 / 1，触及 1 / 1 / 0）——<strong>原因</strong>：09-14 存活的布防发生在 <strong>06:45</strong>，而趋势引擎在 **06:45 起的逐 5 分钟读数均为「非趋势日」（<code>up=False, dn=False</code>）**（仅 06:35–06:40 读数为 <code>dn=True</code>）。⇒ 该笔在两种模式下都不被拦。<strong>门控是逐时点判据，不是「当日曾为趋势日则全天禁」</strong>。</p></div></div></body></html>

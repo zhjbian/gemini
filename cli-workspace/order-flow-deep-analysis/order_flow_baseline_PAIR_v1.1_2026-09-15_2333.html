@@ -1,0 +1,172 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>Order Flow Baseline PAIR v1.1 · 只用 09-14 / 09-15 的对照模板</title>
+<style>
+ body{background:#f8fafc;color:#0f172a;font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;margin:0;padding:22px;line-height:1.62}
+ .wrap{max-width:1200px;margin:0 auto}
+ h1{font-size:1.3rem;margin:0 0 4px}
+ h2{font-size:1.03rem;margin:24px 0 8px;padding-left:9px;border-left:4px solid #1d4ed8}
+ h3{font-size:0.94rem;margin:14px 0 6px;color:#1e293b}
+ .sub{color:#64748b;font-size:0.82rem;margin-bottom:14px}
+ .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin:10px 0;overflow-x:auto}
+ table{width:100%;border-collapse:collapse;font-size:0.8rem;margin:6px 0}
+ th{background:#eef2f7;color:#334155;text-align:left;padding:7px 9px;border:1px solid #e2e8f0;font-weight:600}
+ td{padding:6px 9px;border:1px solid #e9eef4;vertical-align:top}
+ tr:nth-child(even) td{background:#fbfdff}
+ code{background:#f1f5f9;padding:1px 5px;border-radius:4px;font-size:0.78rem}
+ ul{margin:6px 0 6px 20px;padding:0}li{margin:3px 0}
+ .foot{color:#94a3b8;font-size:0.74rem;margin-top:18px}
+ .tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:0.72rem;border:1px solid #cbd5e1;color:#475569;background:#f8fafc}
+ .warn{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:0.82rem;color:#78350f}
+ .mono{font-variant-numeric:tabular-nums}
+</style><link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'/>
+<style>
+.copy-title-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;margin-left:6px;border:1px solid #e2e8f0;border-radius:5px;background:#f8fafc;color:#64748b;cursor:pointer;font-size:0.72rem;line-height:1;transition:all 0.15s ease;flex-shrink:0;vertical-align:middle;}
+.copy-title-btn:hover{background:#eef2ff;border-color:#c7d2fe;color:#4f46e5;}
+.copy-title-btn i{pointer-events:none;}
+</style><script>
+window.REPORT_CASE_SUMMARY = "ES / 锚点 A：09-14 07:54 @7664.00（真反转，后验 mfe60 +42.5 / mae60 +1.8） ｜ 锚点 B：09-15 07:53 @7643.50（假反弹，后验 mfe60 +16.3 / mae60 0.0）｜ 全部阈值与判据只来自这两天 / 无前视 ✓ / 浅色主题 ✓ / P4";
+function copyReportSectionLink(btn, evt, sectionTitle) {
+    if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+    var parentHost = "http://127.0.0.1:5005";
+    var baseUrl = parentHost + "/bbt_research_analytics";
+    try {
+        if (window.parent && window.parent !== window && window.parent.location.origin) {
+            baseUrl = window.parent.location.origin + (window.parent.location.pathname.includes("bbt_research_analytics") ? window.parent.location.pathname : "/bbt_research_analytics");
+        } else if (window.location.origin) {
+            baseUrl = window.location.origin + "/bbt_research_analytics";
+        }
+    } catch(e) {
+        baseUrl = "http://127.0.0.1:5005/bbt_research_analytics";
+    }
+    var modTitle = "模块二：订单流微观结构与形态案例 (Order Flow & Microstructure)";
+    var caseSummary = "";
+    try {
+        if (window.frameElement && window.frameElement.getAttribute("data-case-summary")) {
+            caseSummary = window.frameElement.getAttribute("data-case-summary");
+        }
+    } catch(e) {}
+    if (!caseSummary && window.REPORT_CASE_SUMMARY) {
+        caseSummary = window.REPORT_CASE_SUMMARY;
+    }
+    if (!caseSummary) {
+        caseSummary = "ES / 锚点 A：09-14 07:54 @7664.00（真反转，后验 mfe60 +42.5 / mae60 +1.8） ｜ 锚点 B：09-15 07:53 @7643.50（假反弹，后验 mfe60 +16.3 / mae60 0.0）｜ 全部阈值与判据只来自这两天 / 无前视 ✓ / 浅色主题 ✓ / P4";
+    }
+    var lines = [
+        baseUrl + " ",
+        "-> " + modTitle,
+        "-> " + caseSummary,
+        "-> " + sectionTitle
+    ];
+    var text = lines.join(String.fromCharCode(10));
+
+    function fallbackCopy(t) {
+        var ta = document.createElement("textarea");
+        ta.value = t;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.top = "-9999px";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, ta.value.length);
+        try { document.execCommand("copy"); } catch(err) {}
+        document.body.removeChild(ta);
+    }
+
+    function markDone() {
+        var icon = btn.querySelector("i");
+        if (icon) {
+            var prev = icon.className;
+            icon.className = "fas fa-check";
+            icon.style.color = "#10b981";
+            setTimeout(function(){ icon.className = prev; icon.style.color = ""; }, 1200);
+        }
+        var prevTitle = btn.getAttribute("title");
+        btn.setAttribute("title", "已复制");
+        setTimeout(function(){ btn.setAttribute("title", prevTitle || "复制层级链接"); }, 1200);
+        try {
+            if (window.parent && window.parent !== window && typeof window.parent.showToast === "function") {
+                window.parent.showToast("已复制层级链接到剪贴板 ✓");
+            }
+        } catch(e) {}
+    }
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(markDone, function(){ fallbackCopy(text); markDone(); });
+    } else {
+        fallbackCopy(text);
+        markDone();
+    }
+}
+</script>
+</head><body><div class="wrap">
+<h1>Order Flow Baseline PAIR v1.1 —— 只用 2026-09-14 / 09-15 两个相反案例的对照模板</h1>
+<div class="sub">锚点 A：09-14 07:54 @7664.00（真反转，后验 mfe60 +42.5 / mae60 +1.8） ｜ 锚点 B：09-15 07:53 @7643.50（假反弹，后验 mfe60 +16.3 / mae60 0.0）｜ 全部阈值与判据只来自这两天 · 无前视 ✓ · 浅色主题 ✓ · 仅分析参考，不接入自动下单 ✓</div>
+
+<h2>0. 方法：为什么改成「对照模板」而不是大样本标定</h2>
+<div class="card">
+<ul>
+<li>样本外数据（8/16–9/13）与这两天<b>不是同一组对照</b>：前者没有「同一形态、相反结局」的配对，用它标定会把与反转无关的市场状态差异（趋势/区间、波动率）混进阈值。</li>
+<li>因此改为：把两个案例各算一条特征向量（<b>A 模板 / B 模板</b>），对一个新候选低点<b>逐维比较它更像谁</b>（不设人为阈值，只比较距离），再叠加一条两案例完全分开的<b>硬门槛</b>。</li>
+<li>局限已在第 5 节写明：<b>n=1 正例 + n=1 反例，无法估计误报率</b>；本模板是「结构判据清单 + 用法」，不是统计模型。它的验证只能做两件事：①两个锚点彼此可分（已通过：A +9/9、B −9/9）；②<b>在这两天内部</b>对全部候选低点做排序是否合理（第 4 节）。</li>
+</ul>
+</div>
+
+<h2>1. 两个锚点的特征向量（决定性维度）</h2>
+<div class="card">
+<table>
+<tr><th style="width:20%">维度</th><th style="width:8%">单位</th><th style="width:11%;text-align:right">A 07:54</th><th style="width:11%;text-align:right">B 07:53</th><th style="width:16%">引擎口径复核 A 07:55 ／ B 08:00</th><th style="width:34%">含义</th></tr>
+<tr><td style='font-weight:600'>低点前 30 分钟净 Delta</td><td style='color:#475569'>手</td><td style='text-align:right;color:#047857'><b>+1893</b></td><td style='text-align:right;color:#b45309'><b>-5484</b></td><td style='color:#94a3b8'>+1826 ／ -5669</td><td style='color:#475569'>A 越跌越买 / B 越跌越卖</td></tr><tr><td style='font-weight:600'>低点 ±15 分钟累计 Delta 变化</td><td style='color:#475569'>手</td><td style='text-align:right;color:#047857'><b>+2326</b></td><td style='text-align:right;color:#b45309'><b>-2566</b></td><td style='color:#94a3b8'>+2257 ／ -1510</td><td style='color:#475569'>低点附近的净流方向</td></tr><tr><td style='font-weight:600'>低点后 15–45 分钟净 Delta</td><td style='color:#475569'>手</td><td style='text-align:right;color:#047857'><b>+2992</b></td><td style='text-align:right;color:#b45309'><b>-359</b></td><td style='color:#94a3b8'>+3061 ／ +219</td><td style='color:#475569'>承接是否延续</td></tr><tr><td style='font-weight:600'>低点后 45–90 分钟净 Delta</td><td style='color:#475569'>手</td><td style='text-align:right;color:#047857'><b>+1593</b></td><td style='text-align:right;color:#b45309'><b>+95.00</b></td><td style='color:#94a3b8'>+1587 ／ -109</td><td style='color:#475569'>脱离后是否有后续买盘</td></tr><tr><td style='font-weight:600'>低点区（≤低点+0.75）停留时长</td><td style='color:#475569'>分钟</td><td style='text-align:right;color:#047857'><b>+24.10</b></td><td style='text-align:right;color:#b45309'><b>+0.40</b></td><td style='color:#94a3b8'>+39.20 ／ +9.00</td><td style='color:#475569'>横盘吸收基底 vs V 型尖底</td></tr><tr><td style='font-weight:600'>贴价卖墙（≤10t 且 ≥100 手）出现分钟数</td><td style='color:#475569'>分钟</td><td style='text-align:right;color:#047857'><b>+0.00</b></td><td style='text-align:right;color:#b45309'><b>+6.00</b></td><td style='color:#94a3b8'>+0.00 ／ +6.00</td><td style='color:#475569'>上方是否被钉住</td></tr><tr><td style='font-weight:600'>贴价买墙（≤10t 且 ≥80 手）出现分钟数</td><td style='color:#475569'>分钟</td><td style='text-align:right;color:#047857'><b>+3.00</b></td><td style='text-align:right;color:#b45309'><b>+0.00</b></td><td style='color:#94a3b8'>+3.00 ／ +0.00</td><td style='color:#475569'>下方是否有贴身承接</td></tr><tr><td style='font-weight:600'>全盘买/卖挂单比峰值</td><td style='color:#475569'>比</td><td style='text-align:right;color:#047857'><b>+1.47</b></td><td style='text-align:right;color:#b45309'><b>+0.99</b></td><td style='color:#94a3b8'>+1.47 ／ +1.05</td><td style='color:#475569'>挂单是否转向买优</td></tr><tr><td style='font-weight:600'>60 分钟内收复当日 VWAP</td><td style='color:#475569'>秒/未收复</td><td style='text-align:right;color:#047857'><b>720 秒</b></td><td style='text-align:right;color:#b45309'><b>未收复</b></td><td style='color:#94a3b8'>660 秒 ／ 未收复</td><td style='color:#475569'>结构位收复</td></tr>
+</table>
+<p style="font-size:0.8rem;color:#475569;margin:8px 0 0"><b>稳健性</b>：换用引擎时间戳锚点（A 07:55 / B 08:00），9 个维度的分离方向与量级完全一致 ⇒ 模板不依赖「低点取哪一分钟」。</p>
+</div>
+
+<h2>2. 判定规则：1 条硬门槛 + 9 维投票</h2>
+<div class="card">
+<ul>
+<li><b>硬门槛（必须过）</b>：低点 ±15 分钟累计 Delta &gt; 0。两案例在此维完全分开（A +2,326 / +2,257，B −2,566 / −1,510）。<b>不过门槛 = 不参与</b>。</li>
+<li><b>投票</b>：其余 8 维 + 门槛维共 9 维，逐维判断「候选值离 A 更近还是离 B 更近」，像 A 记 +1、像 B 记 −1。</li>
+<li><b>判定</b>：门槛过 且 得分 ≥ +6 → <span class="tag">A 型（低点吸收）</span>；得分 ≤ −6 → <span class="tag">B 型（假反弹）</span>；其余 <span class="tag">不可判</span>。</li>
+</ul>
+<p style="font-size:0.8rem;color:#475569;margin:6px 0 0">为什么门槛必须单独拿出：09-14 的 07:19 与 07:24 在两个失败低点上<b>投票得分也是 +7</b>（结构像 A），但它们的 ±15 分钟累计 Delta 为 −546 / −416（净流反向），随后分别逆向 18.8 点与 9.0 点。只靠投票会误判，加上门槛后被正确拦下。</p>
+</div>
+
+<h2>3. 无区分度维度（同样重要的结论：这些<b>不能</b>当判据）</h2>
+<div class="card">
+<table><tr><th style="width:24%">维度</th><th style="width:12%;text-align:right">A 07:54</th><th style="width:12%;text-align:right">B 07:53</th><th>为什么不算判据</th></tr>
+<tr><td style='font-weight:600'>低点区成交量</td><td style='text-align:right'>+6099</td><td style='text-align:right'>+1767</td><td style='color:#475569'>引擎口径几乎相同（17,691 vs 17,971 手）；tick 极值口径差异大 ⇒ 口径敏感，不作判据</td></tr><tr><td style='font-weight:600'>低点后 0–15 分钟净 Delta</td><td style='text-align:right'>+1420</td><td style='text-align:right'>+1204</td><td style='color:#475569'>两案例都为正，B 甚至更大（+1,602 vs +1,355）</td></tr><tr><td style='font-weight:600'>低点后最大单笔主动买</td><td style='text-align:right'>+257</td><td style='text-align:right'>+300</td><td style='color:#475569'>B 的单笔更大（300 vs 257 手）⇒ 单笔大单无区分度</td></tr><tr><td style='font-weight:600'>低点后 ≥20 手大单净额</td><td style='text-align:right'>+230</td><td style='text-align:right'>+345</td><td style='color:#475569'>B 更大（+270 vs +230）</td></tr><tr><td style='font-weight:600'>低点后 45 分钟最大逆向</td><td style='text-align:right'>+1.75</td><td style='text-align:right'>+0.00</td><td style='color:#475569'>B 的低点根本没被跌破（0.0 < A 的 1.75–3.0）</td></tr><tr><td style='font-weight:600'>低点在当日区间分位</td><td style='text-align:right'>+0.08</td><td style='text-align:right'>+0.00</td><td style='color:#475569'>两案例都在极低位（0.08 / 0.05）⇒ 位置不是区分点</td></tr><tr><td style='font-weight:600'>低点区买占比</td><td style='text-align:right'>+0.50</td><td style='text-align:right'>+0.44</td><td style='color:#475569'>0.50 vs 0.48～0.52 接近</td></tr>
+</table>
+<p style="font-size:0.8rem;color:#475569;margin:8px 0 0">其中三条直接修正了上一轮基于单案例叙述的判据：<b>①「低点后出现 ≥100 手主动买单」无区分度</b>（B 的 300 手比 A 的 257 手更大）；<b>②「低点后 15 分钟净买」无区分度</b>（B 甚至更大 +1,602 vs +1,355）；<b>③「低点未被有效跌破」不能证明反转</b>——B 的低点根本没被跌破，却是全天无反转。</p>
+</div>
+
+<h2>4. 在两日内验证（全部候选低点排序）</h2>
+<h3>4.1 2026-09-14（真反转日，5 个候选低点）</h3>
+<div class="card"><table class="mono">
+<tr><th>时刻</th><th>极值</th><th>判定</th><th>得分</th><th>净流门槛</th><th>mfe60</th><th>mae60</th><th>mfe120</th><th>maxrev45</th><th>CVD±15m</th><th>低点区停留</th></tr>
+<tr><td>07:54</td><td>7664.00</td><td style='color:#047857;font-weight:600'>A 型（低点吸收）</td><td style='text-align:center'>+9/9</td><td style='text-align:center'>PASS</td><td style='text-align:center'>+42.5</td><td style='text-align:center'>+1.8</td><td style='text-align:center'>+55.8</td><td style='text-align:center'>1.8</td><td style='text-align:center'>2326</td><td style='text-align:center'>24.1</td></tr> ← 锚定案例<tr><td>07:19</td><td>7681.00</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>+7/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+1.5</td><td style='text-align:center'>+18.8</td><td style='text-align:center'>+28.0</td><td style='text-align:center'>18.8</td><td style='text-align:center'>-546</td><td style='text-align:center'>36.8</td></tr><tr><td>07:24</td><td>7671.25</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>+7/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+11.2</td><td style='text-align:center'>+9.0</td><td style='text-align:center'>+37.8</td><td style='text-align:center'>9.0</td><td style='text-align:center'>-416</td><td style='text-align:center'>14.2</td></tr><tr><td>07:40</td><td>7664.75</td><td style='color:#047857;font-weight:600'>A 型（低点吸收）</td><td style='text-align:center'>+7/9</td><td style='text-align:center'>PASS</td><td style='text-align:center'>+31.5</td><td style='text-align:center'>+2.5</td><td style='text-align:center'>+45.8</td><td style='text-align:center'>2.5</td><td style='text-align:center'>1818</td><td style='text-align:center'>28.4</td></tr><tr><td>10:16</td><td>7704.75</td><td style='color:#b45309;font-weight:600'>不可判</td><td style='text-align:center'>+3/9</td><td style='text-align:center'>PASS</td><td style='text-align:center'>+8.0</td><td style='text-align:center'>+1.8</td><td style='text-align:center'>+8.0</td><td style='text-align:center'>1.8</td><td style='text-align:center'>1111</td><td style='text-align:center'>36.1</td></tr>
+</table>
+<p style="font-size:0.8rem;color:#475569;margin:6px 0 0">结果：判定 <b>A 型 2 个，均成功</b>（07:54 → +42.5/+1.8；07:40 → +31.5/+2.5）；两个「结构像 A 但净流反向」的失败低点（07:19、07:24）被硬门槛拦下；10:16 判为不可判（+8.0/+1.8，属区间反弹）。</p>
+</div>
+<h3>4.2 2026-09-15（假反弹日，11 个候选低点）</h3>
+<div class="card"><table class="mono">
+<tr><th>时刻</th><th>极值</th><th>判定</th><th>得分</th><th>净流门槛</th><th>mfe60</th><th>mae60</th><th>mfe120</th><th>maxrev45</th><th>CVD±15m</th><th>低点区停留</th></tr>
+<tr><td>07:05</td><td>7671.00</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-3/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+2.8</td><td style='text-align:center'>+27.5</td><td style='text-align:center'>+2.8</td><td style='text-align:center'>20.2</td><td style='text-align:center'>-1702</td><td style='text-align:center'>45.0</td></tr><tr><td>07:40</td><td>7650.75</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-3/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+7.0</td><td style='text-align:center'>+7.2</td><td style='text-align:center'>+10.2</td><td style='text-align:center'>7.2</td><td style='text-align:center'>-5400</td><td style='text-align:center'>14.3</td></tr><tr><td>08:49</td><td>7651.00</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-3/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+10.0</td><td style='text-align:center'>+3.0</td><td style='text-align:center'>+11.8</td><td style='text-align:center'>3.0</td><td style='text-align:center'>-119</td><td style='text-align:center'>39.0</td></tr><tr><td>10:02</td><td>7654.75</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-3/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+5.5</td><td style='text-align:center'>+6.8</td><td style='text-align:center'>+7.2</td><td style='text-align:center'>6.8</td><td style='text-align:center'>-1786</td><td style='text-align:center'>28.1</td></tr><tr><td>10:22</td><td>7649.00</td><td style='color:#b45309;font-weight:600'>不可判</td><td style='text-align:center'>-3/9</td><td style='text-align:center'>PASS</td><td style='text-align:center'>+13.0</td><td style='text-align:center'>+1.0</td><td style='text-align:center'>+13.0</td><td style='text-align:center'>1.0</td><td style='text-align:center'>898</td><td style='text-align:center'>7.3</td></tr><tr><td>07:10</td><td>7665.25</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-5/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+2.5</td><td style='text-align:center'>+21.8</td><td style='text-align:center'>+2.5</td><td style='text-align:center'>21.8</td><td style='text-align:center'>-2085</td><td style='text-align:center'>14.4</td></tr><tr><td>07:21</td><td>7658.75</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-5/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+6.8</td><td style='text-align:center'>+15.2</td><td style='text-align:center'>+6.8</td><td style='text-align:center'>15.2</td><td style='text-align:center'>-1851</td><td style='text-align:center'>14.1</td></tr><tr><td>07:34</td><td>7652.00</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-5/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+6.5</td><td style='text-align:center'>+8.5</td><td style='text-align:center'>+9.0</td><td style='text-align:center'>8.5</td><td style='text-align:center'>-4064</td><td style='text-align:center'>14.7</td></tr><tr><td>10:15</td><td>7652.00</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-6/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+10.0</td><td style='text-align:center'>+4.0</td><td style='text-align:center'>+10.0</td><td style='text-align:center'>4.0</td><td style='text-align:center'>-754</td><td style='text-align:center'>24.5</td></tr><tr><td>07:50</td><td>7648.50</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-7/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+11.2</td><td style='text-align:center'>+5.0</td><td style='text-align:center'>+12.5</td><td style='text-align:center'>5.0</td><td style='text-align:center'>-2953</td><td style='text-align:center'>12.7</td></tr><tr><td>09:07</td><td>7650.00</td><td style='color:#b91c1c;font-weight:600'>不参与（低点区净流反向）</td><td style='text-align:center'>-7/9</td><td style='text-align:center'>BLOCK</td><td style='text-align:center'>+12.8</td><td style='text-align:center'>+2.0</td><td style='text-align:center'>+12.8</td><td style='text-align:center'>2.0</td><td style='text-align:center'>-641</td><td style='text-align:center'>11.3</td></tr>
+</table>
+<p style="font-size:0.8rem;color:#475569;margin:6px 0 0">结果：<b>全天没有任何候选低点通过硬门槛</b>（11/11 BLOCK），即模板在这天不给出 A 型信号。当日前向最好的低点 10:22（+13.0/+1.0）也只是「不可判」——它是可做的区间反弹，但不是反转。</p>
+</div>
+
+<h2>5. 局限与使用纪律（必读）</h2>
+<div class="card">
+<div class="warn">
+<ul>
+<li><b>n=1 正例 + n=1 反例</b>：本模板只能证明「两个案例可分」与「在这两日内排序合理」，<b>无法给出误报率</b>。任何新增判据都必须等新的「同形态相反结局」配对出现后再校准。</li>
+<li>9 维投票的「近 A 记 +1」是无权重设计：维度间量纲不同，只做同维内的距离比较，不做跨维加权（避免用 2 个样本硬凑权重）。</li>
+<li>门槛用的是「±15 分钟累计 Delta &gt; 0」这一条：若把它换成「低点前 30 分钟净 Delta &gt; 0」，09-14 的 <b>07:40（后验 +31.5）会被误杀</b>；故门槛只保留 CVD 这一条，前段流向作为投票维度之一。</li>
+<li>低点区「停留时长」在本对案例中是重要维度（A 24–39 分钟 vs B 0.4–9 分钟），但它与「低点区成交量」一样对取点口径敏感：必须用与模板一致的因果口径（1 分钟极值 + 30 分钟新低回撤 ≥8 点）来取候选。</li>
+<li>模板只回答「这个低点是否具备吸收结构」，不含仓位、止损、目标（下单层）；不接入自动下单。</li>
+</ul>
+</div>
+<div class="foot">生成 2026-09-15 23:33 · 模板文件 scripts/baseline_templates_v1.json · 实现 scripts/baseline_pair.py · 报告目录 /Users/zhijiebian/.gemini/cli-workspace/order-flow-deep-analysis/</div>
+</div>
+</div></body></html>
+

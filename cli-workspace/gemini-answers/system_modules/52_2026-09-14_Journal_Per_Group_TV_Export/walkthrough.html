@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Walkthrough · 账本每组订单「生成TradingView指标」</title>
+<style>
+  :root { color-scheme: light; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb; --accent:#1d4ed8; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#ffffff; color:var(--ink); line-height:1.65;
+         font-family:"Avenir Next","PingFang SC","Segoe UI",sans-serif; }
+  .page { max-width:1160px; margin:0 auto; padding:24px 22px 56px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px 26px; margin-bottom:16px;
+          box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  h1 { font-size:1.42rem; margin:0 0 6px; color:#0f172a; }
+  h2 { font-size:1.06rem; margin:22px 0 8px; color:#0f172a; border-left:4px solid var(--accent); padding-left:10px; }
+  h3 { font-size:0.94rem; margin:16px 0 6px; color:#334155; }
+  .sub { color:var(--muted); font-size:0.84rem; }
+  table { border-collapse:collapse; width:100%; font-size:0.82rem; margin:8px 0 4px; }
+  th,td { border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top; }
+  th { background:#f8fafc; color:#475569; }
+  code,pre { font-family:"SF Mono",Menlo,Consolas,monospace; background:#f4f6f9; border-radius:5px; }
+  code { padding:1px 5px; font-size:0.82em; }
+  pre { padding:11px 13px; overflow:auto; font-size:0.79rem; border:1px solid var(--line); }
+  .ok { color:#047857; font-weight:700; }
+  .chip { display:inline-block; font-size:0.72rem; font-weight:700; border-radius:5px; padding:1px 8px; }
+  .chip-tv { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
+  .chip-cond { background:#eef2ff; color:#4338ca; border:1px solid #c7d2fe; }
+  ul { margin:6px 0 6px 18px; padding:0; }
+  li { margin:3px 0; font-size:0.86rem; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="card">
+    <h1>账本每组订单行内「生成TradingView指标」 · 验收报告</h1>
+    <div class="sub">2026-09-14 · 模块 <code>bbt_option_seller</code> · 归档 <code>52_2026-09-14_Journal_Per_Group_TV_Export</code></div>
+    <p style="font-size:0.86rem;margin:12px 0 0;">
+      用户指令：<b>「对每组订单加入 '生成TradingView指标' 按钮，点击生成<u>只包含所在组订单</u>的指标，参见现在的 生成TradingView指标 按钮」</b>。
+      账本原只有一个工具条级按钮（作用域 = 当前筛选全集）；复盘时常只需要某一个订单组的两条腿 ⇒ 现在**每个订单组头**都带一个行内导出按钮。
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>1. 交付形态</h2>
+    <pre>⛁ 订单-9 (1组2手)   [⚙ 开仓条件 ↗]   [📈 生成TradingView指标]      组合状态: ✅双批全胜   合计盈亏: +$16.00
+   └─ #15 自动 / 平衡日边界   SPY0914C-766+768 …
+   └─ #16 自动 / 平衡日边界   SPY0914C-766+768 …</pre>
+    <p style="font-size:0.86rem;">
+      按钮形态：<span class="chip chip-cond">⚙ 开仓条件</span>（既有的靛蓝，仅自动组）
+      &nbsp;与&nbsp;<span class="chip chip-tv">📈 生成TradingView指标</span>（新增浅蓝，<b>每个组都有</b>）。
+    </p>
+    <table>
+      <tr><th style="width:26%;">交付</th><th>说明</th></tr>
+      <tr><td>组头行内按钮</td><td><code>.btn-tv-group</code> —— 浅蓝同色系（与顶部同名按钮一致），title 显示本组 <code>M组K手 · X 笔</code></td></tr>
+      <tr><td>唯一内核</td><td><code>_generateTvPineForTradeIds()</code>：两个作用域共用；生成接口全仓**只有 1 个调用点**</td></tr>
+      <tr><td>两个入口</td><td><code>copyTradingViewPineScriptForCurrentDate()</code>（全集） / <code>copyTradingViewPineScriptForGroup()</code>（本组）</td></tr>
+      <tr><td>组数据源</td><td><code>window.__twinGroupsMap[grpKey].trades</code> —— 与「开仓条件」控制台**同源**</td></tr>
+      <tr><td>契约测试</td><td><code>PyTools/option_seller/test_journal_tv_export_scopes.py</code>（8 条，含实渲染）</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>2. 关键实现</h2>
+    <h3>2.1 唯一内核（口径不漂移）</h3>
+    <pre>async function _generateTvPineForTradeIds(btnElem, targetTradeIds, targetDate, scopeLabel, emptyHint) {
+  // POST /api/option_seller/generate_tv_script → 剪贴板(clipboard → execCommand 回退)
+  // → toast(scopeLabel) → 按钮态「已复制 Pine (N单)!」2s 还原 / 失败还原
+}
+copyTradingViewPineScriptForCurrentDate()  → 全集：__currentFilteredTrades（类型 × 运行模式）
+copyTradingViewPineScriptForGroup()        → 本组：__twinGroupsMap[decodeURIComponent(dataset.grpkey)]</pre>
+    <ul>
+      <li><b>后端零改动</b>：既有接口本就收 <code>{date, trade_ids}</code>，组导出只是传更小的 id 集；</li>
+      <li><b>组 key 复用既有约定</b>：<code>data-grpkey="${encodeURIComponent(grpKey)}"</code> → 入口内 <code>decodeURIComponent</code>（与「开仓条件」完全一致）；</li>
+      <li><b>无条件渲染</b>：<code>const tvGroupBtnHtml = …</code> 不包在 <code>isAuto ? … : ''</code> 里 ⇒ 手动组同样可导出。</li>
+    </ul>
+
+    <h3>2.2 渲染产物实录</h3>
+    <pre>&lt;span class="trade-group-tag"&gt;⛁ 订单-9 (1组2手)&lt;/span&gt;
+&lt;button class="btn-tv-group" data-grpkey="1007918879655"
+        onclick="copyTradingViewPineScriptForGroup(this, this.dataset.grpkey)"
+        title="只把【订单-9】本组（1组2手 · 2 笔）生成 TradingView Pine Script 指标并复制到剪切板"&gt;
+  &lt;i class="fas fa-chart-line"&gt;&lt;/i&gt; &lt;span&gt;生成TradingView指标&lt;/span&gt;
+&lt;/button&gt;</pre>
+  </div>
+
+  <div class="card">
+    <h2>3. 验收证据</h2>
+    <table>
+      <tr><th style="width:30%;">项</th><th>结果</th></tr>
+      <tr><td>契约测试（新增）</td><td class="ok">8/8 通过（Ran 8 tests in 3.088s — OK）</td></tr>
+      <tr><td>唯一 API 调用点</td><td class="ok"><code>fetch('/api/option_seller/generate_tv_script'</code> = <b>1</b> 处</td></tr>
+      <tr><td>无回归</td><td class="ok"><code>test_journal_mode_filter.py</code> 9/9 · <code>test_journal_filter_catalog.py</code> 11/11</td></tr>
+      <tr><td>JS 语法</td><td class="ok">整段内联脚本（244,937 字符）<code>node --check</code> 通过</td></tr>
+      <tr><td>实渲染（当日）</td><td class="ok">订单组 <b>10</b> · 组头按钮 <b>10</b> · onclick <b>10</b> ⇒ 每组都有 ✓</td></tr>
+      <tr><td>无条件性佐证</td><td class="ok">对照「开仓条件」仅 <b>8</b> 个（2 个手动组）⇒ 组头按钮与「是否自动单」无关 ✓</td></tr>
+      <tr><td>宿主安全</td><td class="ok">独立 <code>--user-data-dir</code>，读到 <code>&lt;/html&gt;</code> 后按进程组 SIGKILL，profile 清理，无残留进程</td></tr>
+    </table>
+
+    <h3>3.1 toast 文案（作用域可辨）</h3>
+    <table>
+      <tr><th>入口</th><th>toast</th></tr>
+      <tr><td>顶部按钮</td><td>已成功打包<b>【全部类型 (All) · 全部模式 (All)】筛选后的</b> N 笔交易，请在 TV Pine Editor 粘贴保存</td></tr>
+      <tr><td>组头按钮</td><td>已成功打包<b>【订单-9】本组的</b> 2 笔交易，请在 TV Pine Editor 粘贴保存</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>4. 边界与回滚</h2>
+    <ul>
+      <li><b>后端未改</b>：无新增 API、无 DB 读写、无新查询；顶部按钮行为与改造前完全一致；</li>
+      <li>组内**批次粒度**未做（本次是「每组订单」= 整组全部腿）；</li>
+      <li>规则手册**无需更新**（属 UI 导出作用域，非决策规则）；生效需硬刷新（⌘⇧R）。</li>
+    </ul>
+    <pre>cd ~/Documents/Workplace/PycharmProjects/BBTrading
+# ⚠️ git checkout 不适用：本仓库不跟踪 bbt_data_web/（git ls-files 仅 2 个文件）
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/52_2026-09-14_Journal_Per_Group_TV_Export/revert_module_51_52.py --dry-run
+python3 ~/.gemini/cli-workspace/gemini-answers/system_modules/52_2026-09-14_Journal_Per_Group_TV_Export/revert_module_51_52.py
+rm PyTools/option_seller/test_journal_tv_export_scopes.py   # 可选
+# 想再改回来：cp bbt_data_web/templates/bbt_option_seller.html.bak-20260914_194023 …</pre>
+    <h3>后续可选（未做）</h3>
+    <ul>
+      <li>组内单批次导出（只导第 1 批 / 第 2 批）；</li>
+      <li>多组勾选后批量导出；</li>
+      <li>组头 tooltip 附带 Pine 用的入场价 / 止盈止损线。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
